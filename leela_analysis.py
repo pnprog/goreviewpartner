@@ -9,14 +9,12 @@ from sys import exit,argv
 
 from Tkinter import Tk
 import tkFileDialog
-
-
-
+import sys
 import os
 
-
-
-import sys
+import ConfigParser
+Config = ConfigParser.ConfigParser()
+Config.read("config.ini")
 
 if len(argv)==1:
 
@@ -37,21 +35,20 @@ print "filename:",filename
 txt = open(filename)
 g = sgf.Sgf_game.from_string(txt.read())
 
-
-
 size=g.get_size()
-#leela=gtp(("/home/pierre-nicolas/Bureau/leela/leela_062_linux_x64", "--gtp", "--noponder"))
 
-leela=gtp(("/home/pierre-nicolas/Bureau/Leela080GTP/leela_080_linux_x64", "--gtp", "--noponder"))
+leela_command_line=tuple(Config.get("Leela", "Command").split())
+leela=gtp(leela_command_line)
 
 leela.boardsize(size)
 leela.reset()
 
-gnugo=gtp(("gnugo", "--mode", "gtp"))
+gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
+gnugo=gtp(gnugo_command_line)
 gnugo.boardsize(size)
 gnugo.reset()
 
-time_per_move=60
+time_per_move=int(Config.get("Analysis", "TimePerMove"))
 print "time setting:",leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 move_zero=g.get_root()
 komi=g.get_komi()
@@ -194,13 +191,6 @@ def run_analisys(current_move):
 		else:
 			print answer.lower()
 			
-			
-			
-			
-		
-		
-
-
 		new_file=open(filename[:-4]+".r.sgf",'w')
 		new_file.write(g.serialise())
 		new_file.close()

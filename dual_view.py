@@ -9,9 +9,13 @@ import tkFileDialog
 import os
 
 from gtp import gtp
+import ConfigParser
+Config = ConfigParser.ConfigParser()
+Config.read("config.ini")
+
 
 temp_root = Tk()
-filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',initialdir='/home2/pierre/Bureau/pandanet_games',filetypes = [('sgf', '.r.sgf')])
+filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.r.sgf')])
 temp_root.destroy()
 print filename
 
@@ -29,9 +33,10 @@ komi=g.get_komi()
 print "boardsize:",size
 import goban
 goban.dim=size
+goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
+goban.prepare_mesh()
+
 from goban import *
-
-
 
 
 root=g.get_root()
@@ -287,12 +292,14 @@ def open_move():
 	print "========================"
 	print "opening move",move
 	
-	leela=gtp(("/home/pierre-nicolas/Bureau/leela/leela_062_linux_x64", "--gtp", "--noponder"))
+	leela_command_line=tuple(Config.get("Leela", "Command").split())
+	leela=gtp(leela_command_line)
 	leela.boardsize(dim)
 	leela.reset()
 	leela.komi(komi)
 	
-	gnugo=gtp(("gnugo", "--mode", "gtp"))
+	gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
+	gnugo=gtp(gnugo_command_line)
 	gnugo.boardsize(dim)
 	gnugo.reset()
 	gnugo.komi(komi)

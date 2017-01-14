@@ -3,19 +3,21 @@ from copy import deepcopy as copy
 
 space=30
 dim=13
-
-#mesh is prepared for 19 intersection, whatever will be the realsize of the goban
+fuzzy=0.2
 mesh=[[[0.0,0.0] for row in range(19)] for col in range(19)]
+
 from random import random
-
-for i in range(19):
-	f=0.2
-	f1=random()*f-f/2
-	f2=random()*f-f/2
-	for j in range(19):
-		mesh[i][j][1]=f1
-		mesh[j][i][0]=f2
-
+def prepare_mesh():
+	f=fuzzy
+	global mesh
+	#mesh is prepared for 19 intersection, whatever will be the real size of the goban
+	mesh=[[[0.0,0.0] for row in range(19)] for col in range(19)]
+	for i in range(19):
+		f1=random()*f-f/2
+		f2=random()*f-f/2
+		for j in range(19):
+			mesh[i][j][1]=f1
+			mesh[j][i][0]=f2
 
 def ij2xy(i,j):
 	global space
