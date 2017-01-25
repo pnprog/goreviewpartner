@@ -145,8 +145,10 @@ def run_analisys(current_move):
 		
 		try:
 			if player_color in ('w',"W"):
+				print "leela play white"
 				answer=leela.play_white()
 			else:
+				print "leela play black"
 				answer=leela.play_black()
 		except KeyboardInterrupt:
 			print "leaving..."
@@ -157,7 +159,53 @@ def run_analisys(current_move):
 		if (answer.lower() not in ["pass","resign"]):
 			
 			all_moves=leela.get_all_leela_moves()
-			leela.undo()
+			all_moves2=all_moves[:]
+			nb_undos=1
+			while len(all_moves2)==1 and len(all_moves2[0][1].split(' '))==1:
+				print "going deeper"
+				try:
+					if player_color in ('w',"W") and nb_undos%2==0:
+						print "\tleela play white"
+						answer=leela.play_white()
+					elif player_color in ('w',"W") and nb_undos%2==1:
+						print "\tleela play black"
+						answer=leela.play_black()
+					elif player_color not in ('w',"W") and nb_undos%2==0:
+						print "\tleela play black"
+						answer=leela.play_black()
+					else:
+						print "\tleela play white"
+						answer=leela.play_white()
+					
+					nb_undos+=1
+				except KeyboardInterrupt:
+					print "leaving..."
+					leela.kill()
+					gnugo.kill()
+					exit()
+				
+				if (answer.lower() in ["pass","resign"]):
+					break
+				
+				all_moves2=leela.get_all_leela_moves()
+				all_moves[0][1]+=" "+all_moves2[0][1]
+				
+				
+				#all_moves[0][2]=all_moves2[0][2]
+				
+				if player_color=='b' and nb_undos%2==1:
+					all_moves[0][2]=all_moves2[0][2]
+				elif player_color=='b' and nb_undos%2==0:
+					all_moves[0][2]=100-all_moves2[0][2]
+				elif player_color=='w' and nb_undos%2==1:
+					all_moves[0][2]=all_moves2[0][2]
+				else:
+					all_moves[0][2]=100-all_moves2[0][2]
+				
+				
+			for u in range(nb_undos):
+				leela.undo()
+			
 			#print "all moves from leela:",all_moves
 			best_move=True
 			for _,one_sequence,one_score in all_moves:

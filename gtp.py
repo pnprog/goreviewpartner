@@ -88,6 +88,11 @@ class gtp():
 					#	print "err line:",err_line
 					#	print
 					answers.append([one_answer,sequence,float(one_score[:-2])])
+		
+		if len(answers)==1:
+			if len(answers[0][1].split(' '))==1:
+				print "\t\tNeed one move deeper analysis!"
+		
 		return sorted(answers,lambda x,y: int(1000*(y[2]-x[2])))
 
 	def readline(self):
