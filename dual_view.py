@@ -10,36 +10,12 @@ import os
 
 from gtp import gtp
 import ConfigParser
+
 Config = ConfigParser.ConfigParser()
 Config.read("config.ini")
 
-
-temp_root = Tk()
-filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.r.sgf')])
-temp_root.destroy()
-print filename
-
-
-if not filename:
-	sys.exit()
-
-from gomill import sgf, sgf_moves
-txt = open(filename)
-g = sgf.Sgf_game.from_string(txt.read())
-txt.close()
-
-size=g.get_size()
-komi=g.get_komi()
-print "boardsize:",size
-import goban
-goban.dim=size
-goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
-goban.prepare_mesh()
-
 from goban import *
 
-
-root=g.get_root()
 def get_node_number(node):
 	k=0
 	while node:
@@ -72,13 +48,7 @@ def close_app():
 	app.destroy()
 
 
-app=Tk()
-app.protocol("WM_DELETE_WINDOW", close_app)
 
-bg='silver'
-app.configure(background=bg)
-
-Label(app,text='   ',background=bg).grid(column=0,row=0)
 
 def prev_move():
 	global current_move
@@ -371,41 +341,7 @@ def open_move():
 	popup.history=[]
 	
 	
-Button(app, text='prev',command=prev_move).grid(column=1,row=1)
 
-Button(app, text='open',command=open_move).grid(column=2,row=1)
-Button(app, text='next',command=next_move).grid(column=3,row=1)
-
-move_number=Label(app,text='   ',background=bg)
-move_number.grid(column=2,row=2)
-
-app.bind('<Left>', lambda e: prev_move())
-app.bind('<Right>', lambda e: next_move())
-
-#Label(app,background=bg).grid(column=1,row=2)
-
-row=10
-
-Label(app,background=bg).grid(column=1,row=row-1)
-
-goban1 = Canvas(app, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-goban1.grid(column=1,row=row)
-Label(app, text='            ',background=bg).grid(column=2,row=row)
-goban2 = Canvas(app, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-goban2.grid(column=3,row=row)
-
-Label(app,text='   ',background=bg).grid(column=4,row=row+1)
-
-
-
-comment1=Label(app,text='',background=bg)
-comment1.grid(column=1,row=row+2)
-comment2=Label(app,text='',background=bg)
-comment2.grid(column=3,row=row+2)
-
-Label(app,text='   ',background=bg).grid(column=4,row=row+3)
-
-dim=size
 
 
 
@@ -560,8 +496,79 @@ def show_variation(event,goban,grid,markup,i,j):
 	goban.tag_bind(local_area, "<Leave>", lambda e: leave_variation(goban,grid,markup))
 
 
-goban.show_variation=show_variation
+	
+if __name__ == "__main__":
 
-current_move=1
-display_move(current_move)
-app.mainloop()
+	if len(sys.argv)==1:
+		temp_root = Tk()
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.r.sgf')])
+		temp_root.destroy()
+		print filename
+
+		if not filename:
+			sys.exit()
+	else:
+		filename=sys.argv[1]
+
+	from gomill import sgf, sgf_moves
+	txt = open(filename)
+	g = sgf.Sgf_game.from_string(txt.read())
+	txt.close()
+	size=g.get_size()
+	komi=g.get_komi()
+	print "boardsize:",size
+	import goban
+	goban.dim=size
+	goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
+	goban.prepare_mesh()
+	root=g.get_root()
+
+	app=Tk()
+	app.protocol("WM_DELETE_WINDOW", close_app)
+
+	bg='silver'
+	app.configure(background=bg)
+
+	Label(app,text='   ',background=bg).grid(column=0,row=0)
+	Button(app, text='prev',command=prev_move).grid(column=1,row=1)
+	Button(app, text='open',command=open_move).grid(column=2,row=1)
+	Button(app, text='next',command=next_move).grid(column=3,row=1)
+
+	move_number=Label(app,text='   ',background=bg)
+	move_number.grid(column=2,row=2)
+
+	app.bind('<Left>', lambda e: prev_move())
+	app.bind('<Right>', lambda e: next_move())
+
+	#Label(app,background=bg).grid(column=1,row=2)
+
+	row=10
+
+	Label(app,background=bg).grid(column=1,row=row-1)
+
+	goban1 = Canvas(app, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+	goban1.grid(column=1,row=row)
+	Label(app, text='            ',background=bg).grid(column=2,row=row)
+	goban2 = Canvas(app, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+	goban2.grid(column=3,row=row)
+
+	Label(app,text='   ',background=bg).grid(column=4,row=row+1)
+
+
+
+	comment1=Label(app,text='',background=bg)
+	comment1.grid(column=1,row=row+2)
+	comment2=Label(app,text='',background=bg)
+	comment2.grid(column=3,row=row+2)
+
+	Label(app,text='   ',background=bg).grid(column=4,row=row+3)
+
+	dim=size
+
+
+
+	goban.show_variation=show_variation
+	current_move=1
+	display_move(current_move)
+	app.mainloop()
+
