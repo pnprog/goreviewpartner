@@ -71,10 +71,11 @@ def alert(text_to_display):
 
 
 class OpenMove():
-	def __init__(self,parent,move,dim):
+	def __init__(self,parent,move,dim,sgf):
 		self.parent=parent
 		self.move=move
 		self.dim=dim
+		self.sgf=sgf
 		self.initialize()
 	
 	def lock(self):
@@ -113,7 +114,7 @@ class OpenMove():
 		popup=self.popup
 		self.grid,self.markup=self.history.pop()
 		self.next_color=3-self.next_color
-		display(self.goban,self.grid,self.markup)
+		self.goban.display(self.grid,self.markup)
 		self.gnugo.undo()
 		self.leela.undo()
 
@@ -126,7 +127,7 @@ class OpenMove():
 		color=self.next_color
 		n0=time.time()
 		self.lock()
-		display(self.goban,self.grid,self.markup,True)
+		self.goban.display(self.grid,self.markup,True)
 		if color==1:
 			move=self.leela.play_black()
 		else:
@@ -154,7 +155,7 @@ class OpenMove():
 			else:
 				alert("Leela/white: "+move)
 		
-		display(self.goban,self.grid,self.markup)
+		self.goban.display(self.grid,self.markup)
 		self.unlock()
 
 	def click_gnugo(self):
@@ -166,7 +167,7 @@ class OpenMove():
 		color=self.next_color
 		n0=time.time()
 		self.lock()
-		display(self.goban,self.grid,self.markup,True)
+		self.goban.display(self.grid,self.markup,True)
 		if color==1:
 			move=self.gnugo.play_black()
 		else:
@@ -189,13 +190,13 @@ class OpenMove():
 			self.next_color=3-color
 		else:
 			self.gnugo.undo()
-			display(self.goban,self.grid,self.markup)
+			self.goban.display(self.grid,self.markup)
 			if color==1:
 				alert("GnuGo/black: "+move)
 			else:
 				alert("GnuGo/white: "+move)
 
-		display(self.goban,self.grid,self.markup)
+		self.goban.display(self.grid,self.markup)
 		self.unlock()
 	
 	
@@ -204,7 +205,7 @@ class OpenMove():
 		print "dim:::",dim
 		#add/remove black stone
 		#check pointer location
-		i,j=xy2ij(event.x,event.y)
+		i,j=self.goban.xy2ij(event.x,event.y)
 		color=self.next_color
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
 			#inside the grid
@@ -222,11 +223,15 @@ class OpenMove():
 					self.markup=[["" for row in range(dim)] for col in range(dim)]
 					self.markup[i][j]=0
 					
-					display(self.goban,self.grid,self.markup)
+					self.goban.display(self.grid,self.markup)
 					self.next_color=3-color
 	
 		
 	def initialize(self):
+		sgf=self.sgf
+		komi=self.sgf.get_komi()
+		gameroot=self.sgf.get_root()
+		
 		self.popup=Toplevel()
 		popup=self.popup
 		
@@ -246,7 +251,7 @@ class OpenMove():
 		
 		panel.grid(column=0,row=1,sticky=N)
 		
-		goban3 = Canvas(popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban3.grid(column=1,row=1)
 		
 		
@@ -269,7 +274,7 @@ class OpenMove():
 		gnugo.reset()
 		gnugo.komi(komi)
 		
-		board, _ = sgf_moves.get_setup_and_moves(g)
+		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
@@ -282,7 +287,7 @@ class OpenMove():
 				print "WTF? colour=",colour
 		m=0
 		for m in range(1,move):
-			one_move=get_node(root,m)
+			one_move=get_node(gameroot,m)
 			if one_move==False:
 				print "(0)leaving because one_move==False"
 				return
@@ -318,7 +323,9 @@ class OpenMove():
 		except:
 			self.next_color=1
 			
-		display(goban3,grid3,markup3)
+		#display(goban3,grid3,markup3)
+		goban3.display(grid3,markup3)
+		
 		self.goban=goban3
 		self.grid=grid3
 		self.markup=markup3
@@ -336,9 +343,10 @@ class OpenMove():
 		
 
 class DualView(Tk):
-	def __init__(self,parent):
+	def __init__(self,parent,filename):
 		Tk.__init__(self,parent)
 		self.parent=parent
+		self.filename=filename
 		self.initialize()
 		
 		self.current_move=1
@@ -360,21 +368,21 @@ class DualView(Tk):
 			self.current_move-=1
 			self.display_move(self.current_move)
 	def next_move(self):
-		if self.current_move<get_node_number(root):
+		if self.current_move<get_node_number(self.gameroot):
 			self.current_move+=1
 			self.display_move(self.current_move)
 
 	def leave_variation(self,goban,grid,markup):
 		self.comment2.config(text="")
-		display(goban,grid,markup)
+		goban.display(grid,markup)
 
 	def show_variation(self,event,goban,grid,markup,i,j):
 		sequence=markup[i][j]
 		temp_grid=copy(grid)
 		temp_markup=copy(markup)
 		
-		for u in range(dim):
-			for v in range(dim):
+		for u in range(self.dim):
+			for v in range(self.dim):
 				if temp_markup[u][v]!=0:
 					temp_markup[u][v]=''
 		
@@ -384,13 +392,13 @@ class DualView(Tk):
 			temp_markup[u][v]=k
 			k+=1
 		
-		display(goban,temp_grid,temp_markup)
+		goban.display(temp_grid,temp_markup)
 		
 		self.comment2.config(text=comment)
 
-		u=i+mesh[i][j][0]
-		v=j+mesh[i][j][1]
-		local_area=draw_point(goban,u,v,1,color="",outline="")
+		u=i+goban.mesh[i][j][0]
+		v=j+goban.mesh[i][j][1]
+		local_area=goban.draw_point(u,v,1,color="",outline="")
 		goban.tag_bind(local_area, "<Leave>", lambda e: self.leave_variation(goban,grid,markup))
 
 
@@ -401,14 +409,14 @@ class DualView(Tk):
 		goban1=self.goban1
 		goban2=self.goban2
 		
-		self.move_number.config(text=str(move)+'/'+str(get_node_number(root)))
+		self.move_number.config(text=str(move)+'/'+str(get_node_number(self.gameroot)))
 		print "========================"
 		print "displaying move",move
 		grid1=[[0 for row in range(dim)] for col in range(dim)]
 		markup1=[["" for row in range(dim)] for col in range(dim)]
 		grid2=[[0 for row in range(dim)] for col in range(dim)]
 		markup2=[["" for row in range(dim)] for col in range(dim)]
-		board, _ = sgf_moves.get_setup_and_moves(g)
+		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
 
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
@@ -420,7 +428,7 @@ class DualView(Tk):
 		
 		m=0
 		for m in range(1,move):
-			one_move=get_node(root,m)
+			one_move=get_node(self.gameroot,m)
 			if one_move==False:
 				print "(0)leaving because one_move==False"
 				return
@@ -442,8 +450,8 @@ class DualView(Tk):
 			
 			if len(one_move)==0:
 				print "(0)leaving because len(one_move)==0"
-				display(goban1,grid1,markup1)
-				display(goban2,grid2,markup2)
+				goban1.display(grid1,markup1)
+				goban2.display(grid2,markup2)
 				return
 		
 		
@@ -459,7 +467,7 @@ class DualView(Tk):
 		#next sequence in current game ############################################################################
 		main_sequence=[]
 		for m in range(5):
-			one_move=get_node(root,move+m)
+			one_move=get_node(self.gameroot,move+m)
 			if one_move==False:
 				print "(00)leaving because one_move==False"
 				break
@@ -473,21 +481,24 @@ class DualView(Tk):
 			if m==0:
 				real_game_ij=ij
 		try:
-			i,j=one_move=get_node(root,move).get_move()[1]
+			i,j=one_move=get_node(self.gameroot,move).get_move()[1]
 		except:
 			self.prev_move()
 			return
 		markup1[i][j]=main_sequence
 		
 		#alternative sequences ####################################################################################
-		parent=get_node(root,move-1)
+		parent=get_node(self.gameroot,move-1)
 		if one_move==False:
 			print "(1)leaving because one_move==False"
 			return
 		if len(parent)<=1:
 			print "no alternative move"
-			display(goban1,grid1,markup1)
-			display(goban2,grid2,markup2)
+			#display(goban1,grid1,markup1)
+			#display(goban2,grid2,markup2)
+			goban1.display(grid1,markup1)
+			goban2.display(grid2,markup2)
+			
 			return
 		
 		for a in range(1,len(parent)):
@@ -512,14 +523,32 @@ class DualView(Tk):
 			i,j=parent[a].get_move()[1]
 			markup2[i][j]=alternative_sequence
 			
-		display(goban1,grid1,markup1)
-		display(goban2,grid2,markup2)
+		goban1.display(grid1,markup1)
+		goban2.display(grid2,markup2)
 
 	def open_move(self):
-		new_popup=OpenMove(self,self.current_move,self.dim)
+		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf)
 		self.all_popups.append(new_popup)
 		
 	def initialize(self):
+		
+		txt = open(self.filename)
+		self.sgf = sgf.Sgf_game.from_string(txt.read())
+		txt.close()
+		
+		self.dim=self.sgf.get_size()
+		self.komi=self.sgf.get_komi()
+		
+		print "boardsize:",self.dim
+		#goban.dim=size
+		
+		#goban.prepare_mesh()
+		self.gameroot=self.sgf.get_root()
+		
+
+		self.title('GoReviewPartner')
+		
+		
 		self.all_popups=[]
 		
 		self.protocol("WM_DELETE_WINDOW", self.close_app)
@@ -544,10 +573,13 @@ class DualView(Tk):
 
 		Label(self,background=bg).grid(column=1,row=row-1)
 
-		self.goban1 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		#self.goban1 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		self.goban1 = Goban(self.dim,master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		
 		self.goban1.grid(column=1,row=row)
 		Label(self, text='            ',background=bg).grid(column=2,row=row)
-		self.goban2 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		#self.goban2 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.grid(column=3,row=row)
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
@@ -561,9 +593,15 @@ class DualView(Tk):
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+3)
 
-		self.dim=size
 		goban.show_variation=self.show_variation
 	
+
+
+
+from gomill import sgf, sgf_moves
+import goban
+goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
+
 if __name__ == "__main__":
 
 	if len(sys.argv)==1:
@@ -576,24 +614,10 @@ if __name__ == "__main__":
 			sys.exit()
 	else:
 		filename=sys.argv[1]
-
-	from gomill import sgf, sgf_moves
-	txt = open(filename)
-	g = sgf.Sgf_game.from_string(txt.read())
-	txt.close()
-	size=g.get_size()
-	komi=g.get_komi()
-	print "boardsize:",size
-	import goban
-	goban.dim=size
-	goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
-	goban.prepare_mesh()
-	root=g.get_root()
-	
-	app = DualView(None)
-	app.title('GoReviewPartner')
 	
 
+	app=DualView(None,filename)
 	app.mainloop()
+
 	
 	
