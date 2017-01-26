@@ -342,9 +342,11 @@ class OpenMove():
 		
 		
 
-class DualView(Tk):
+class DualView(Frame):
 	def __init__(self,parent,filename):
-		Tk.__init__(self,parent)
+		#Tk.__init__(self,parent)
+		Frame.__init__(self,parent)
+		
 		self.parent=parent
 		self.filename=filename
 		self.initialize()
@@ -360,6 +362,7 @@ class DualView(Tk):
 			print "killing leela"
 			popup.leela.kill()
 		self.destroy()
+		self.parent.destroy()
 
 
 
@@ -546,12 +549,13 @@ class DualView(Tk):
 		self.gameroot=self.sgf.get_root()
 		
 
-		self.title('GoReviewPartner')
+		self.parent.title('GoReviewPartner')
+		self.parent.protocol("WM_DELETE_WINDOW", self.close_app)
 		
 		
 		self.all_popups=[]
 		
-		self.protocol("WM_DELETE_WINDOW", self.close_app)
+		
 
 		
 		self.configure(background=bg)
@@ -615,9 +619,9 @@ if __name__ == "__main__":
 	else:
 		filename=sys.argv[1]
 	
-
-	app=DualView(None,filename)
-	app.mainloop()
+	top = Tk()
+	DualView(top,filename).pack()
+	top.mainloop()
 
 	
 	
