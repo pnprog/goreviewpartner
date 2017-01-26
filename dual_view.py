@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-  # Définition l'encodage des caractères
 
 from Tkinter import *
-from tkSimpleDialog import askstring
+
 
 import sys,time
 import tkFileDialog
