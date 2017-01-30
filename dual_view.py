@@ -5,6 +5,7 @@ from Tkinter import *
 
 import sys,time
 import tkFileDialog
+from functools import partial
 
 import os
 
@@ -353,6 +354,9 @@ class DualView(Frame):
 		
 		self.current_move=1
 		self.display_move(self.current_move)
+		
+		
+		self.pressed=0
 
 	def close_app(self):
 		for popup in self.all_popups:
@@ -366,15 +370,26 @@ class DualView(Frame):
 
 
 
-	def prev_move(self):
+	def prev_move(self,event=None):
 		if self.current_move>1:
+			self.pressed=time.time()
 			self.current_move-=1
-			self.display_move(self.current_move)
-	def next_move(self):
+			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
+			self.parent.after(0,lambda: pf())
+	
+	def next_move(self,event=None):
 		if self.current_move<get_node_number(self.gameroot):
+			self.pressed=time.time()
 			self.current_move+=1
-			self.display_move(self.current_move)
+			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
+			self.parent.after(0,lambda: pf())
 
+
+	def goto_move(self,move_number,pressed):
+		self.move_number.config(text=str(move_number)+'/'+str(get_node_number(self.gameroot)))
+		if self.pressed==pressed:
+			self.display_move(self.current_move)
+			
 	def leave_variation(self,goban,grid,markup):
 		self.comment2.config(text="")
 		goban.display(grid,markup)
@@ -568,8 +583,8 @@ class DualView(Frame):
 		self.move_number=Label(self,text='   ',background=bg)
 		self.move_number.grid(column=2,row=2)
 
-		self.bind('<Left>', lambda e: self.prev_move())
-		self.bind('<Right>', lambda e: self.next_move())
+		self.parent.bind('<Left>', self.prev_move)
+		self.parent.bind('<Right>', self.next_move)
 
 		#Label(app,background=bg).grid(column=1,row=2)
 
