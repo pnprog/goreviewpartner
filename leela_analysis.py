@@ -7,7 +7,7 @@ from gomill import sgf, sgf_moves
 
 from sys import exit,argv
 
-from Tkinter import Tk
+from Tkinter import Tk, Label
 import tkFileDialog
 import sys
 import os
@@ -124,7 +124,7 @@ max_move=get_moves_number(move_zero)
 
 def run_analisys(current_move):
 	
-	if current_move<=max_move:
+
 		one_move=go_to_move(move_zero,current_move)
 		player_color,player_move=one_move.get_move()
 		
@@ -133,12 +133,6 @@ def run_analisys(current_move):
 		#final_score=leela.get_leela_final_score()
 		final_score=gnugo.get_gnugo_estimate_score()
 		
-		"""
-		if player_color in ('w',"W"):
-			final_score+="\n"+gnugo.get_gnugo_experimental_score('black')
-		else:
-			final_score+="\n"+gnugo.get_gnugo_experimental_score('white')
-		"""
 		print final_score,
 		
 		one_move.add_comment_text("\nGnugo score estimation: "+final_score)
@@ -162,19 +156,19 @@ def run_analisys(current_move):
 			all_moves2=all_moves[:]
 			nb_undos=1
 			while len(all_moves2)==1 and len(all_moves2[0][1].split(' '))==1:
-				print "going deeper"
+				#print "going deeper"
 				try:
 					if player_color in ('w',"W") and nb_undos%2==0:
-						print "\tleela play white"
+						#print "\tleela play white"
 						answer=leela.play_white()
 					elif player_color in ('w',"W") and nb_undos%2==1:
-						print "\tleela play black"
+						#print "\tleela play black"
 						answer=leela.play_black()
 					elif player_color not in ('w',"W") and nb_undos%2==0:
-						print "\tleela play black"
+						#print "\tleela play black"
 						answer=leela.play_black()
 					else:
-						print "\tleela play white"
+						#print "\tleela play white"
 						answer=leela.play_white()
 					
 					nb_undos+=1
@@ -183,13 +177,14 @@ def run_analisys(current_move):
 					leela.kill()
 					gnugo.kill()
 					exit()
-				
+
+					
 				if (answer.lower() in ["pass","resign"]):
 					break
 				
 				all_moves2=leela.get_all_leela_moves()
 				all_moves[0][1]+=" "+all_moves2[0][1]
-				
+
 				
 				#all_moves[0][2]=all_moves2[0][2]
 				
@@ -242,7 +237,6 @@ def run_analisys(current_move):
 		new_file=open(filename[:-4]+".r.sgf",'w')
 		new_file.write(g.serialise())
 		new_file.close()
-		#print "variation",current_move,"saved"
 		
 		if player_color in ('w',"W"):
 			leela.place_white(ij2gtp(player_move))
@@ -250,42 +244,78 @@ def run_analisys(current_move):
 		else:
 			leela.place_black(ij2gtp(player_move))
 			gnugo.place_black(ij2gtp(player_move))
-			
+		
 
+
+
+
+def run_all_analisys():
+	global current_move
+	current_move=1
+	try:
+		while current_move<=max_move:
+			lock1.acquire()
+			run_analisys(current_move)
+			current_move+=1
+			lock1.release()
+			lock2.acquire()
+			lock2.release()
+	except:
+		return
 		
-		current_move+=1
-		print
-		
-		#run_analisys(current_move)
+
+def follow_analisys():
+	if lock1.acquire(False):
+		remaining_s=(max_move-current_move)*time_per_move
+		remaining_h=remaining_s/3600
+		remaining_s=remaining_s-3600*remaining_h
+		remaining_m=remaining_s/60
+		remaining_s=remaining_s-60*remaining_m
+		lab1.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+		lab2.config(text=str(current_move-1)+'/'+str(max_move))
 		pb.step()
-		root.after(10,lambda: run_analisys(current_move))
+		lock2.release()
+		time.sleep(.1)
+		lock1.release()
+		lock2.acquire()
+	if current_move<=max_move:
+		root.after(500,follow_analisys)
 	else:
-		root.destroy()
+		lab1.config(text="Completed")
 
+		
+
+import time, os
+import threading
 import ttk
 root = Tk()
-pb = ttk.Progressbar(root, orient="horizontal", length=max_move,maximum=max_move, mode="determinate")
+root.title('GoReviewPartner')
+Label(root,text="Analisys of: "+os.path.basename(filename)).pack()
+lab1=Label(root,text="Remaining time: ")
+lab1.pack()
+lab2=Label(root,text="hello")
+lab2.pack()
+pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=max_move, mode="determinate")
 pb.pack()
 
 current_move=1
 
-#run_analisys(current_move)
 
 new_file=open(filename[:-4]+".r.sgf",'w')
 new_file.write(g.serialise())
 new_file.close()
 
-root.after(500,lambda: run_analisys(current_move))
+lock1=threading.Lock()
+lock2=threading.Lock()
 
+
+lock2.acquire()
+threading.Thread(target=run_all_analisys).start()
+root.after(500,follow_analisys)
 root.mainloop()
-
-
-
-
-
 
 gnugo.kill()
 leela.kill()
 
-sys.exit()
+
 
