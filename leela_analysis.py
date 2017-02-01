@@ -151,12 +151,26 @@ def run_analisys(current_move):
 			exit()
 		
 		if (answer.lower() not in ["pass","resign"]):
-			
 			all_moves=leela.get_all_leela_moves()
+			if all_moves==[]:
+				all_moves=[[answer,answer,666]]
 			all_moves2=all_moves[:]
 			nb_undos=1
-			while len(all_moves2)==1 and len(all_moves2[0][1].split(' '))==1:
-				#print "going deeper"
+			print "====move",current_move,all_moves[0],'~',answer
+			if all_moves[0][0]!=answer:
+				print "Leela did not choose the strongest move!"
+				print all_moves
+				print "need to fix leela game tree: move at",answer,"is now at",all_moves[0][0]
+				answer=all_moves[0][0]
+				leela.undo()
+				if player_color in ('w',"W"):
+					leela.place_white(answer)
+				else:
+					leela.place_black(answer)
+				
+			#while ((len(all_moves2)==1) and (len(all_moves2[0][1].split(' '))==1)) and (answer.lower() not in ["pass","resign"]):
+			while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
+				print "going deeper",nb_undos
 				try:
 					if player_color in ('w',"W") and nb_undos%2==0:
 						#print "\tleela play white"
@@ -178,26 +192,40 @@ def run_analisys(current_move):
 					gnugo.kill()
 					exit()
 
+				print all_moves[0],'+',answer,
+				if (answer.lower() not in ["pass","resign"]):
+					all_moves2=leela.get_all_leela_moves()
 					
-				if (answer.lower() in ["pass","resign"]):
-					break
-				
-				all_moves2=leela.get_all_leela_moves()
-				all_moves[0][1]+=" "+all_moves2[0][1]
-
-				
-				#all_moves[0][2]=all_moves2[0][2]
-				
-				if player_color=='b' and nb_undos%2==1:
-					all_moves[0][2]=all_moves2[0][2]
-				elif player_color=='b' and nb_undos%2==0:
-					all_moves[0][2]=100-all_moves2[0][2]
-				elif player_color=='w' and nb_undos%2==1:
-					all_moves[0][2]=all_moves2[0][2]
+					if all_moves2[0][0]!=answer:
+						print "\tLeela did not choose the strongest move!"
+						answer=all_moves2[0][0]
+						leela.undo()
+						if (player_color.lower()=='b' and nb_undos%2==1) or (player_color.lower()=='w' and nb_undos%2==0):
+							leela.place_white(answer)
+						else:
+							leela.place_black(answer)
+					
+					print '+',all_moves2
+					all_moves[0][1]+=" "+all_moves2[0][1]
+					
+					
+					if (player_color.lower()=='b' and nb_undos%2==1) or (player_color.lower()=='w' and nb_undos%2==1):
+						all_moves[0][2]=all_moves2[0][2]
+					else:
+						all_moves[0][2]=100-all_moves2[0][2]
+					
+					"""
+					if player_color=='b' and nb_undos%2==1:
+						all_moves[0][2]=all_moves2[0][2]
+					elif player_color=='b' and nb_undos%2==0:
+						all_moves[0][2]=100-all_moves2[0][2]
+					elif player_color=='w' and nb_undos%2==1:
+						all_moves[0][2]=all_moves2[0][2]
+					else:
+						all_moves[0][2]=100-all_moves2[0][2]
+					"""
 				else:
-					all_moves[0][2]=100-all_moves2[0][2]
-				
-				
+					print
 			for u in range(nb_undos):
 				leela.undo()
 			
@@ -260,7 +288,8 @@ def run_all_analisys():
 			lock1.release()
 			lock2.acquire()
 			lock2.release()
-	except:
+	except Exception,e:
+		print e
 		return
 		
 
@@ -293,7 +322,7 @@ root.title('GoReviewPartner')
 Label(root,text="Analisys of: "+os.path.basename(filename)).pack()
 lab1=Label(root,text="Remaining time: ")
 lab1.pack()
-lab2=Label(root,text="hello")
+lab2=Label(root,text="0/"+str(max_move))
 lab2.pack()
 pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=max_move, mode="determinate")
 pb.pack()
