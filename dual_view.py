@@ -46,12 +46,14 @@ def get_node(root,number=0):
 
 
 def gtp2ij(move):
+	print "gtp2ij("+move+")"
 	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return int(move[1:])-1,letters.index(move[0].lower())
 
 
 def ij2gtp(m):
+	print "ij2gtp("+str(m)+")"
 	# (17,0) => a18
 	
 	if m==None:
@@ -268,6 +270,8 @@ class OpenMove():
 		leela.boardsize(dim)
 		leela.reset()
 		leela.komi(komi)
+		time_per_move=int(Config.get("Analysis", "TimePerMove"))
+		leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 		
 		gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
 		gnugo=gtp(gnugo_command_line)
