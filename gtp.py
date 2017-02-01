@@ -26,7 +26,10 @@
 # -*- coding:Utf-8 -*-
 
 import subprocess
-import select
+#import select
+
+import threading, Queue
+
 from time import sleep
 class gtp():
 	def __init__(self,command):
@@ -34,8 +37,26 @@ class gtp():
 		#self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
-	
+		
+		self.stderr_queue=Queue.Queue()
+		
+		threading.Thread(target=self.consume_stderr).start()
+		
 	####low level function####
+	
+	def consume_stderr(self):
+		while 1:
+			try:
+				err_line=self.process.stderr.readline()
+				if err_line:
+					self.stderr_queue.put(err_line)
+				else:
+					print "leaving consume_stderr thread"
+					return
+			except:
+				print "leaving consume_stderr thread due to exception"
+				return
+	
 	def write(self,txt):
 		self.process.stdin.write(txt+"\n")
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
@@ -67,6 +88,8 @@ class gtp():
 		buff_size=18
 		buff=[]
 		
+		
+		"""
 		ready,_,_=select.select([self.process.stderr.fileno()],[],[],0.1)
 		while len(ready)>0:
 			err_line=self.process.stderr.readline()
@@ -74,8 +97,16 @@ class gtp():
 			if len(buff)>buff_size:
 				buff.pop(0)
 			ready,_,_=select.select([self.process.stderr.fileno()],[],[],0.1)
-
+		"""
+		sleep(.1)
+		while not self.stderr_queue.empty():
+			while not self.stderr_queue.empty():
+				buff.append(self.stderr_queue.get())
+			sleep(.1)
+		
 		buff.reverse()
+		#print "buff:",buff
+		
 		answers=[]
 		for err_line in buff:
 			if " ->" in err_line:
@@ -89,15 +120,15 @@ class gtp():
 					#	print
 					answers.append([one_answer,sequence,float(one_score[:-2])])
 		
-		if len(answers)==1:
-			if len(answers[0][1].split(' '))==1:
-				print "\t\tNeed one move deeper analysis!"
+		#if len(answers)==1:
+		#	if len(answers[0][1].split(' '))==1:
+		#		print "\t\tNeed one move deeper analysis!"
 		
 		return sorted(answers,lambda x,y: int(1000*(y[2]-x[2])))
 
 	def readline(self):
 		answer=self.process.stdout.readline()
-		while answer=="\n":
+		while answer in ("\n","\r\n","\r"):
 			answer=self.process.stdout.readline()
 		return answer
 	
@@ -200,3 +231,26 @@ class gtp():
 		#sleep(1)
 		self.process.kill()
 
+
+
+"""
+leela_command_line=('E:\\goreviewpartner\\Leela080GTP\\Leela080.exe', '--gtp', '--noponder')
+
+leela=gtp(leela_command_line)
+leela.boardsize(19)
+leela.reset()
+leela.komi(6.5)
+
+leela.set_time(main_time=5,byo_yomi_time=5,byo_yomi_stones=1)
+
+print leela.play_black()
+print leela.play_white()
+print leela.play_black()
+print leela.play_white()
+print leela.play_black()
+print leela.play_white()
+print leela.play_black()
+print leela.play_white()
+print leela.get_all_leela_moves()
+
+"""
