@@ -320,7 +320,16 @@ import ttk
 root = Tk()
 root.title('GoReviewPartner')
 Label(root,text="Analisys of: "+os.path.basename(filename)).pack()
-lab1=Label(root,text="Remaining time: ")
+lab1=Label(root)
+
+remaining_s=max_move*time_per_move
+remaining_h=remaining_s/3600
+remaining_s=remaining_s-3600*remaining_h
+remaining_m=remaining_s/60
+remaining_s=remaining_s-60*remaining_m
+lab1.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+
+
 lab1.pack()
 lab2=Label(root,text="0/"+str(max_move))
 lab2.pack()
