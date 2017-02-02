@@ -403,7 +403,7 @@ class DualView(Frame):
 			self.display_move(self.current_move)
 			
 	def leave_variation(self,goban,grid,markup):
-		self.comment2.config(text="")
+		self.comment_box2.delete(1.0, END)
 		goban.display(grid,markup)
 
 	def show_variation(self,event,goban,grid,markup,i,j):
@@ -424,8 +424,9 @@ class DualView(Frame):
 		
 		goban.display(temp_grid,temp_markup)
 		
-		self.comment2.config(text=comment)
-
+		self.comment_box2.delete(1.0, END)
+		if comment:
+			self.comment_box2.insert(END,comment)
 		u=i+goban.mesh[i][j][0]
 		v=j+goban.mesh[i][j][1]
 		local_area=goban.draw_point(u,v,1,color="",outline="")
@@ -491,11 +492,12 @@ class DualView(Frame):
 		#indicating last play with delta
 		if m>0:
 			if one_move.has_property("C"):
-				self.comment1.config(text=one_move.get("C"))
+				self.comment_box1.delete(1.0, END)
+				self.comment_box1.insert(END,one_move.get("C"))
+				
 			markup1[i][j]=0
 			markup2[i][j]=0
-		self.comment2.config(text='')
-		
+		self.comment_box2.delete(1.0, END)
 		#next sequence in current game ############################################################################
 		main_sequence=[]
 		for m in range(5):
@@ -620,13 +622,22 @@ class DualView(Frame):
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 
-		self.comment1=Label(self,text='',background=bg)
-		self.comment1.grid(column=1,row=row+2)
-		self.comment2=Label(self,text='',background=bg)
-		self.comment2.grid(column=3,row=row+2)
 
-		Label(self,text='   ',background=bg).grid(column=4,row=row+3)
-
+		Label(self,text=' \n \n ',background=bg).grid(column=0,row=row+4)
+		
+		comment1_frame=Frame(self,width=self.goban_size)
+		comment1_frame.grid(column=1,row=row+4,sticky=N+S)
+		comment1_frame.grid_propagate(False)
+		self.comment_box1=Text(comment1_frame)
+		self.comment_box1.grid(column=0,row=0)
+		
+		comment2_frame=Frame(self,width=self.goban_size)
+		comment2_frame.grid(column=3,row=row+4,sticky=N+S)
+		comment2_frame.grid_propagate(False)
+		self.comment_box2=Text(comment2_frame)
+		self.comment_box2.grid(column=0,row=0)
+		
+		Label(self,text='   ',background=bg).grid(column=4,row=row+5)
 		
 		goban.show_variation=self.show_variation
 	
