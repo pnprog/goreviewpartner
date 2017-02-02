@@ -1,7 +1,7 @@
 from functools import partial
 from copy import deepcopy as copy
 
-space=20
+space=10
 
 fuzzy=0.2
 
@@ -14,6 +14,7 @@ from Tkinter import Canvas
 class Goban(Canvas):
 	def __init__(self,dim,**kwargs):
 		self.dim=dim
+		self.space=space
 		Canvas.__init__(self,**kwargs)
 		self.prepare_mesh()
 		
@@ -28,7 +29,7 @@ class Goban(Canvas):
 				self.mesh[j][i][0]=f2
 		
 	def ij2xy(self,i,j):
-		global space
+		space=self.space
 		dim=self.dim
 		y=(.5+dim-(0.5+i))*space
 		#y=((1.+i))*space
@@ -37,10 +38,11 @@ class Goban(Canvas):
 
 	def xy2ij(self,x,y):
 		dim=self.dim
+		space=self.space
 		return int(round(dim-1.*y/space)),int(round(1.*x/space)-1)
 
 	def draw_point(self,i,j,diameter,color="black",outline="black",width=1):
-		global space
+		space=self.space
 		x,y=self.ij2xy(i,j)
 		radius=diameter*space/2
 		oval=self.create_oval(x-radius,y-radius,x+radius,y+radius,fill=color,outline=outline,width=width)
@@ -58,7 +60,7 @@ class Goban(Canvas):
 
 
 	def display(self,grid,markup,freeze=False):
-		global space
+		space=self.space
 		dim=self.dim
 		bg="#dddddd"
 		bg="#ECCE7C"

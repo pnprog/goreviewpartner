@@ -74,13 +74,15 @@ def alert(text_to_display):
 
 
 class OpenMove():
-	def __init__(self,parent,move,dim,sgf):
+	def __init__(self,parent,move,dim,sgf,goban_size=200):
 		self.parent=parent
 		self.move=move
 		self.dim=dim
 		self.sgf=sgf
+		self.goban_size=goban_size
 		self.initialize()
-	
+		
+		
 	def lock(self):
 		self.locked=True
 
@@ -255,6 +257,7 @@ class OpenMove():
 		panel.grid(column=0,row=1,sticky=N)
 		
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		goban3.space=self.goban_size/(dim+1)
 		goban3.grid(column=1,row=1)
 		
 		
@@ -348,17 +351,22 @@ class OpenMove():
 		
 
 class DualView(Frame):
-	def __init__(self,parent,filename):
+	def __init__(self,parent,filename,goban_size=200):
 		#Tk.__init__(self,parent)
 		Frame.__init__(self,parent)
 		
 		self.parent=parent
 		self.filename=filename
+		self.goban_size=goban_size
+		
+
+		
 		self.initialize()
 		
 		self.current_move=1
 		self.display_move(self.current_move)
 		
+		#self.after(100,self.center)
 		
 		self.pressed=0
 
@@ -430,6 +438,8 @@ class DualView(Frame):
 		dim=self.dim
 		goban1=self.goban1
 		goban2=self.goban2
+		
+
 		
 		self.move_number.config(text=str(move)+'/'+str(get_node_number(self.gameroot)))
 		print "========================"
@@ -549,7 +559,7 @@ class DualView(Frame):
 		goban2.display(grid2,markup2)
 
 	def open_move(self):
-		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf)
+		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		self.all_popups.append(new_popup)
 		
 	def initialize(self):
@@ -605,9 +615,10 @@ class DualView(Frame):
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.grid(column=3,row=row)
 
+		self.goban1.space=self.goban_size/(self.dim+1)
+		self.goban2.space=self.goban_size/(self.dim+1)
+
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
-
-
 
 		self.comment1=Label(self,text='',background=bg)
 		self.comment1.grid(column=1,row=row+2)
@@ -616,6 +627,7 @@ class DualView(Frame):
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+3)
 
+		
 		goban.show_variation=self.show_variation
 	
 
@@ -639,7 +651,16 @@ if __name__ == "__main__":
 		filename=sys.argv[1]
 	
 	top = Tk()
-	DualView(top,filename).pack()
+	
+	display_factor=.5
+	
+	screen_width = top.winfo_screenwidth()
+	screen_height = top.winfo_screenheight()
+	
+	width=int(display_factor*screen_width)
+	height=int(display_factor*screen_height)
+
+	DualView(top,filename,min(width,height)).pack(fill=BOTH,expand=1)
 	top.mainloop()
 
 	
