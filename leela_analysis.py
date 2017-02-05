@@ -111,10 +111,12 @@ class RunAnalysis(Frame):
 				else:
 					print "leela play black"
 					answer=leela.play_black()
-			except KeyboardInterrupt:
-				print "leaving..."
-				leela.kill()
-				gnugo.kill()
+			except Exception, e:
+				exc_type, exc_obj, exc_tb = sys.exc_info()
+				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+				print exc_type, fname, exc_tb.tb_lineno
+				print e
+				print "leaving thread..."
 				exit()
 			
 			if (answer.lower() not in ["pass","resign"]):
@@ -153,11 +155,14 @@ class RunAnalysis(Frame):
 							answer=leela.play_white()
 						
 						nb_undos+=1
-					except KeyboardInterrupt:
-						print "leaving..."
-						leela.kill()
-						gnugo.kill()
+					except Exception, e:
+						exc_type, exc_obj, exc_tb = sys.exc_info()
+						fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+						print exc_type, fname, exc_tb.tb_lineno
+						print e
+						print "leaving thread..."
 						exit()
+
 
 					print all_moves[0],'+',answer,
 					if (answer.lower() not in ["pass","resign"]):
@@ -243,8 +248,22 @@ class RunAnalysis(Frame):
 				self.lock2.acquire()
 				self.lock2.release()
 		except Exception,e:
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			print exc_type, fname, exc_tb.tb_lineno
 			print e
-			return
+			print "releasing lock"
+			try:
+				self.lock1.release()
+			except:
+				pass
+			try:
+				self.lock2.release()
+			except:
+				pass
+			print "leaving thread"
+			exit()
+
 		
 
 	def follow_analysis(self):
@@ -267,10 +286,16 @@ class RunAnalysis(Frame):
 			self.lab1.config(text="Completed")
 	
 	def close_app(self):
+		print "RunAnalysis beeing closed"
+		print "killing gnugo"
 		self.gnugo.kill()
+		print "killing leela"
 		self.leela.kill()
+		print "destroying"
 		self.destroy()
 		self.parent.destroy()
+		print "RunAnalysis closed"
+
 		
 	def initialize(self):
 		

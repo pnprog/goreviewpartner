@@ -1,40 +1,10 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-##   Copyright 2010, 2011 Pierre-Nicolas <pnprog@tuxfamily.org>
-
-##   File: gtp.py
-##   This file is part of GoSP 0.01.06, a program for training
-##   at go with GNU Go.
-##   Author: Pierre-Nicolas <pnprog@tuxfamily.org>
-##   Date: Sat, 05 Mar 2011 22:18:46 +0800
-##   For more information, see http://gosp.tuxfamily.org/
-
-##   GoSP is free software: you can redistribute it and/or modify
-##   it under the terms of the GNU General Public License as published by
-##   the Free Software Foundation, either version 3 of the License, or
-##   (at your option) any later version.
-##
-##   GoSP is distributed in the hope that it will be useful,
-##   but WITHOUT ANY WARRANTY; without even the implied warranty of
-##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##   GNU General Public License for more details.
-##
-##   You should have received a copy of the GNU General Public License
-##   along with GoSP.  If not, see <http://www.gnu.org/licenses/>.
-
-# -*- coding:Utf-8 -*-
-
 import subprocess
-#import select
-
 import threading, Queue
 
 from time import sleep
 class gtp():
 	def __init__(self,command):
 		self.c=1
-		#self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		
@@ -53,7 +23,11 @@ class gtp():
 				else:
 					print "leaving consume_stderr thread"
 					return
-			except:
+			except Exception, e:
+				import sys, os
+				exc_type, exc_obj, exc_tb = sys.exc_info()
+				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+				print exc_type, fname, exc_tb.tb_lineno
 				print "leaving consume_stderr thread due to exception"
 				return
 	
@@ -71,18 +45,13 @@ class gtp():
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
 		answer=self.readline()[:-1]
-		try:
-			return answer.split(" ")[1]
-		except:
-			print "Error while parsing GNUGO white answer:", answer
+		return answer.split(" ")[1]
+
 	
 	def get_gnugo_experimental_score(self,color):
 		self.write("experimental_score "+color)
 		answer=self.readline()[:-1]
-		try:
-			return answer[2:]
-		except:
-			print "Error while parsing GNUGO white answer:", answer
+		return answer[2:]
 		
 	def get_all_leela_moves(self):
 		buff_size=18
@@ -178,18 +147,14 @@ class gtp():
 	def play_black(self):
 		self.write("genmove black")
 		answer=self.readline()[:-1]
-		try:
-			return answer.split(" ")[1]
-		except:
-			print "Error while parsing GNUGO black answer:", answer
+		return answer.split(" ")[1]
+
 		
 	def play_white(self):
 		self.write("genmove white")
 		answer=self.readline()[:-1]
-		try:
-			return answer.split(" ")[1]
-		except:
-			print "Error while parsing GNUGO white answer:", answer
+		return answer.split(" ")[1]
+
 	
 	def undo(self):
 		self.write("undo")
