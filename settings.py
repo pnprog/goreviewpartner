@@ -66,6 +66,10 @@ class OpenSettings(Toplevel):
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
 		Config.set("Analysis","TimePerMove",self.TimePerMove.get())
+		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
+		Config.set("Leela","Command",self.LeelaCommand.get())
+		Config.set("GnuGo","Command",self.GnugoCommand.get())
+		
 		Config.write(open("config.ini","w"))
 		
 		
