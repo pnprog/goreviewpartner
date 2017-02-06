@@ -3,9 +3,9 @@ from Tkinter import *
 import ConfigParser
 
 class OpenSettings(Toplevel):
-	def __init__(self):
+	def __init__(self,parent=None):
 		Toplevel.__init__(self)
-		
+		self.parent=parent
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
 
@@ -71,6 +71,9 @@ class OpenSettings(Toplevel):
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
 		
 		Config.write(open("config.ini","w"))
+		
+		if self.parent!=None:
+			self.parent.refresh()
 		
 		
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from Tkinter import *
 import leela_analysis
 import dual_view
 import settings
-
+import ConfigParser
 import tkFileDialog
 app = Tk()
 
@@ -44,8 +44,8 @@ def launch_analysis():
 	top.mainloop()
 	
 Label(app).pack()
-bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
-bouton.pack()
+analysis_bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
+analysis_bouton.pack()
 
 
 def launch_review():
@@ -70,13 +70,24 @@ def launch_review():
 	top.mainloop()
 	
 Label(app).pack()
-bouton=Button(app, text="Open *.r.sgf for review", command=launch_review)
-bouton.pack()
+review_bouton=Button(app, text="Open *.r.sgf for review", command=launch_review)
+review_bouton.pack()
 
 
 def launch_settings():
-	settings.OpenSettings()
+	settings.OpenSettings(app)
 
+def refresh():
+	print "refreshing"
+	global review_bouton, analysis_bouton
+	Config = ConfigParser.ConfigParser()
+	Config.read("config.ini")
+	if Config.get("Leela","Command")=="" or Config.get("GnuGo","Command")=="":
+		review_bouton.config(state='disabled')
+		analysis_bouton.config(state='disabled')
+	else:
+		review_bouton.config(state='normal')
+		analysis_bouton.config(state='normal')
 
 Label(app).pack()
 bouton=Button(app, text="Settings", command=launch_settings)
@@ -88,5 +99,8 @@ bouton.pack()
 
 Label(app).pack()
 app.protocol("WM_DELETE_WINDOW", close_app)
+
+refresh()
+app.refresh=refresh
 app.mainloop()
 print "terminated"
