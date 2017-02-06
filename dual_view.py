@@ -401,14 +401,16 @@ class DualView(Frame):
 		self.pressed=0
 
 	def close_app(self):
-		for popup in self.all_popups:
+		for popup in self.all_popups[:]:
 			popup.close()
+			"""
 			if popup.okgnugo:
 				print "killing gnugo"
 				popup.gnugo.kill()
 			if popup.okleela:
 				print "killing leela"
 				popup.leela.kill()
+			"""
 		self.destroy()
 		self.parent.destroy()
 
