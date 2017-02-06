@@ -25,8 +25,8 @@ class Goban(Canvas):
 			f1=random()*f-f/2
 			f2=random()*f-f/2
 			for j in range(self.dim):
-				self.mesh[i][j][1]=f1
-				self.mesh[j][i][0]=f2
+				self.mesh[i][j][1]=f1+random()*.1
+				self.mesh[j][i][0]=f2+random()*.1
 		
 	def ij2xy(self,i,j):
 		space=self.space
@@ -89,10 +89,10 @@ class Goban(Canvas):
 				v=j+self.mesh[i][j][1]
 				if grid[i][j]==1:
 					#black
-					self.draw_point(u,v,1.0,"black")
+					self.draw_point(u,v,.95,"black")
 					markup_color='white'
 				if grid[i][j]==2:
-					self.draw_point(u,v,1.0,"white")
+					self.draw_point(u,v,.95,"white")
 				
 				if type(markup[i][j]) is int:
 					if markup[i][j]==0:
