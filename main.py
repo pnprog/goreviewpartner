@@ -3,11 +3,13 @@ from Tkinter import *
 
 import leela_analysis
 import dual_view
+import settings
 
 import tkFileDialog
 app = Tk()
 
 app.title('GoReviewPartner')
+Label(app).pack()
 
 label = Label(app, text="This is GoReviewPartner")
 label.pack()
@@ -40,7 +42,8 @@ def launch_analysis():
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()
-
+	
+Label(app).pack()
 bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
 bouton.pack()
 
@@ -65,13 +68,25 @@ def launch_review():
 	new_popup.pack(fill=BOTH,expand=1)
 	popups.append(new_popup)
 	top.mainloop()
-
+	
+Label(app).pack()
 bouton=Button(app, text="Open *.r.sgf for review", command=launch_review)
 bouton.pack()
 
+
+def launch_settings():
+	settings.OpenSettings()
+
+
+Label(app).pack()
+bouton=Button(app, text="Settings", command=launch_settings)
+bouton.pack()
+
+Label(app).pack()
 bouton=Button(app, text="Quit", command=close_app)
 bouton.pack()
 
+Label(app).pack()
 app.protocol("WM_DELETE_WINDOW", close_app)
 app.mainloop()
 print "terminated"
