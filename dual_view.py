@@ -99,10 +99,12 @@ class OpenMove():
 			return
 		print "closing popup"
 		self.popup.destroy()
-		print "killing gnugo"
-		self.gnugo.kill()
-		print "killing leela"
-		self.leela.kill()
+		if self.okgnugo:
+			print "killing gnugo"
+			self.gnugo.kill()
+		if self.okleela:
+			print "killing leela"
+			self.leela.kill()
 		
 		self.parent.all_popups.remove(self)
 		
@@ -120,8 +122,10 @@ class OpenMove():
 		self.grid,self.markup=self.history.pop()
 		self.next_color=3-self.next_color
 		self.goban.display(self.grid,self.markup)
-		self.gnugo.undo()
-		self.leela.undo()
+		if self.okgnugo:
+			self.gnugo.undo()
+		if self.okleela:
+			self.leela.undo()
 
 
 	def click_leela(self):
@@ -143,8 +147,8 @@ class OpenMove():
 			i,j=gtp2ij(move)
 			print 'i,j=',i,j
 			
-			#self.gnugo.place_black(move)
-			self.gnugo.place(move,color)
+			if self.okgnugo:
+				self.gnugo.place(move,color)
 			
 			self.history.append([copy(self.grid),copy(self.markup)])
 			
@@ -183,8 +187,9 @@ class OpenMove():
 			i,j=gtp2ij(move)
 			print 'i,j=',i,j
 			
-			#self.leela.place_black(move)
-			self.leela.place(move,color)
+
+			if self.okleela:
+				self.leela.place(move,color)
 			
 			self.history.append([copy(self.grid),copy(self.markup)])
 			
@@ -218,21 +223,29 @@ class OpenMove():
 			
 			if self.grid[i][j] not in (1,2):
 				#nothing, so we add a black stone			
-				if self.gnugo.place(ij2gtp((i,j)),color):
+				
+				if self.okgnugo:
+					self.gnugo.place(ij2gtp((i,j)),color)
+				if self.okleela:
 					self.leela.place(ij2gtp((i,j)),color)
-					self.history.append([copy(self.grid),copy(self.markup)])
+				
+				self.history.append([copy(self.grid),copy(self.markup)])
 					
-					place(self.grid,i,j,color)
-					self.grid[i][j]=color
+				place(self.grid,i,j,color)
+				self.grid[i][j]=color
 					
-					self.markup=[["" for row in range(dim)] for col in range(dim)]
-					self.markup[i][j]=0
+				self.markup=[["" for row in range(dim)] for col in range(dim)]
+				self.markup[i][j]=0
 					
-					self.goban.display(self.grid,self.markup)
-					self.next_color=3-color
+				self.goban.display(self.grid,self.markup)
+				self.next_color=3-color
 	
 		
 	def initialize(self):
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
 		sgf=self.sgf
 		komi=self.sgf.get_komi()
 		gameroot=self.sgf.get_root()
@@ -250,8 +263,10 @@ class OpenMove():
 		
 		#Button(panel, text='undo',command=lambda :click_on_undo(self)).grid(column=0,row=1)
 		Button(panel, text='undo',command=self.undo).grid(column=0,row=1)
-		Button(panel, text='Gnugo',command=self.click_gnugo).grid(column=0,row=2)
-		Button(panel, text='Leela',command=self.click_leela).grid(column=0,row=3)
+		buttongnugo=Button(panel, text='Gnugo',command=self.click_gnugo)
+		buttongnugo.grid(column=0,row=2)
+		buttonleela=Button(panel, text='Leela',command=self.click_leela)
+		buttonleela.grid(column=0,row=3)
 		
 		
 		panel.grid(column=0,row=1,sticky=N)
@@ -268,19 +283,37 @@ class OpenMove():
 		print "========================"
 		print "opening move",move
 		
-		leela_command_line=tuple(Config.get("Leela", "Command").split())
-		leela=gtp(leela_command_line)
-		leela.boardsize(dim)
-		leela.reset()
-		leela.komi(komi)
-		time_per_move=int(Config.get("Analysis", "TimePerMove"))
-		leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-		
-		gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
-		gnugo=gtp(gnugo_command_line)
-		gnugo.boardsize(dim)
-		gnugo.reset()
-		gnugo.komi(komi)
+		okleela=True
+		try:
+			leela_command_line=tuple(Config.get("Leela", "Command").split())
+			leela=gtp(leela_command_line)
+			leela.boardsize(dim)
+			leela.reset()
+			leela.komi(komi)
+			time_per_move=int(Config.get("Analysis", "TimePerMove"))
+			leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+			self.leela=leela
+		except Exception, e:
+			okleela=False
+			print "Could not launch Leela"
+			print e
+			buttonleela.config(state="disabled")
+			
+			
+
+		okgnugo=True
+		try:
+			gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
+			gnugo=gtp(gnugo_command_line)
+			gnugo.boardsize(dim)
+			gnugo.reset()
+			gnugo.komi(komi)
+			self.gnugo=gnugo
+		except Exception, e:
+			okgnugo=False
+			print "Could not launch GnuGo"
+			print e
+			buttongnugo.config(state="disabled")
 		
 		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
 		for colour, move0 in board.list_occupied_points():
@@ -289,8 +322,10 @@ class OpenMove():
 			row, col = move0
 			if colour=='b':
 				place(grid3,row,col,1)
-				leela.place_black(ij2gtp((row,col)))
-				gnugo.place_black(ij2gtp((row,col)))
+				if okleela:
+					leela.place_black(ij2gtp((row,col)))
+				if okgnugo:
+					gnugo.place_black(ij2gtp((row,col)))
 			else:
 				print "WTF? colour=",colour
 		m=0
@@ -309,19 +344,17 @@ class OpenMove():
 			else:
 				color=2
 			
-			leela.place(ij2gtp(ij),color)
-			gnugo.place(ij2gtp(ij),color)
+			if okleela:
+				leela.place(ij2gtp(ij),color)
+			if okgnugo:
+				gnugo.place(ij2gtp(ij),color)
 			
 			if ij==None:
 				print "(0)skipping because ij==None",ij
 				continue
 
-			
-			
-			
 			i,j=ij
 			place(grid3,i,j,color)
-		
 		
 		if m>0:
 			markup3[i][j]=0
@@ -330,18 +363,15 @@ class OpenMove():
 			self.next_color=3-color
 		except:
 			self.next_color=1
-			
-		#display(goban3,grid3,markup3)
 		goban3.display(grid3,markup3)
 		
 		self.goban=goban3
 		self.grid=grid3
 		self.markup=markup3
-		self.gnugo=gnugo
-		self.leela=leela
+		self.okgnugo=okgnugo
+		self.okleela=okleela
 		
 		popup.protocol("WM_DELETE_WINDOW", self.close)
-		#goban3.bind("<Button-1>",lambda event: click_on_popup(event,popup))
 		goban3.bind("<Button-1>",self.click)
 		goban3.bind("<Button-2>",self.undo)
 		goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
@@ -373,10 +403,12 @@ class DualView(Frame):
 	def close_app(self):
 		for popup in self.all_popups:
 			popup.close()
-			print "killing gnugo"
-			popup.gnugo.kill()
-			print "killing leela"
-			popup.leela.kill()
+			if popup.okgnugo:
+				print "killing gnugo"
+				popup.gnugo.kill()
+			if popup.okleela:
+				print "killing leela"
+				popup.leela.kill()
 		self.destroy()
 		self.parent.destroy()
 
@@ -565,7 +597,7 @@ class DualView(Frame):
 		self.all_popups.append(new_popup)
 		
 	def initialize(self):
-		
+				
 		txt = open(self.filename)
 		self.sgf = sgf.Sgf_game.from_string(txt.read())
 		txt.close()
