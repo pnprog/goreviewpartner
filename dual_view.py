@@ -686,7 +686,7 @@ if __name__ == "__main__":
 
 	if len(sys.argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.r.sgf')])
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf for review', '.rsgf')])
 		temp_root.destroy()
 		print filename
 

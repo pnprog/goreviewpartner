@@ -224,7 +224,7 @@ class RunAnalysis(Frame):
 			else:
 				print answer.lower()
 				
-			new_file=open(self.filename[:-4]+".r.sgf",'w')
+			new_file=open(self.filename[:-4]+".rsgf",'w')
 			new_file.write(self.g.serialise())
 			new_file.close()
 			
@@ -366,7 +366,7 @@ class RunAnalysis(Frame):
 
 		current_move=1
 
-		new_file=open(self.filename[:-4]+".r.sgf",'w')
+		new_file=open(self.filename[:-4]+".rsgf",'w')
 		new_file.write(self.g.serialise())
 		new_file.close()
 
