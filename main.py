@@ -49,7 +49,7 @@ analysis_bouton.pack()
 
 
 def launch_review():
-	filename = tkFileDialog.askopenfilename(parent=app,title='Select a file',filetypes = [('sgf', '.r.sgf')])
+	filename = tkFileDialog.askopenfilename(parent=app,title='Select a file',filetypes = [('sgf reviewed', '.rsgf')])
 	print filename
 	if not filename:
 		return
@@ -70,7 +70,7 @@ def launch_review():
 	top.mainloop()
 	
 Label(app).pack()
-review_bouton=Button(app, text="Open *.r.sgf for review", command=launch_review)
+review_bouton=Button(app, text="Open *.rsgf for review", command=launch_review)
 review_bouton.pack()
 
 
