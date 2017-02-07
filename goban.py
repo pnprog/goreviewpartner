@@ -25,8 +25,8 @@ class Goban(Canvas):
 			f1=random()*f-f/2
 			f2=random()*f-f/2
 			for j in range(self.dim):
-				self.mesh[i][j][1]=f1+random()*.1
-				self.mesh[j][i][0]=f2+random()*.1
+				self.mesh[i][j][1]=f1+random()*.1-.05
+				self.mesh[j][i][0]=f2+random()*.1-.05
 		
 	def ij2xy(self,i,j):
 		space=self.space
