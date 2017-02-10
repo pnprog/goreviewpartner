@@ -20,11 +20,6 @@ import threading
 import ttk
 
 
-Config = ConfigParser.ConfigParser()
-Config.read("config.ini")
-
-
-
 def get_moves_number(move_zero):
 	k=0
 	move=move_zero
@@ -298,6 +293,10 @@ class RunAnalysis(Frame):
 
 		
 	def initialize(self):
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
 		
 		txt = open(self.filename)
 		self.g = sgf.Sgf_game.from_string(txt.read())
