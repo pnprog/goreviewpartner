@@ -225,7 +225,8 @@ class OpenMove():
 				#nothing, so we add a black stone			
 				
 				if self.okgnugo:
-					self.gnugo.place(ij2gtp((i,j)),color)
+					if not self.gnugo.place(ij2gtp((i,j)),color):
+						return
 				if self.okleela:
 					self.leela.place(ij2gtp((i,j)),color)
 				
