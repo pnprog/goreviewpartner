@@ -324,6 +324,7 @@ class RunAnalysis(Frame):
 		
 		
 		board, plays = sgf_moves.get_setup_and_moves(self.g)
+		handicap_stones=""
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
@@ -331,13 +332,22 @@ class RunAnalysis(Frame):
 			move=ij2gtp((row,col))
 			print colour,"handicap stone at",row, col, "=>",move
 			
+			handicap_stones+=" "+move
+			
+
+			
+			"""
 			if colour in ('w',"W"):
 				leela.place_white(move)
 				gnugo.place_white(move)
 			else:
 				leela.place_black(move)
 				gnugo.place_black(move)
-
+			"""
+		
+		leela.set_free_handicap(handicap_stones)
+		gnugo.set_free_handicap(handicap_stones)
+		
 		self.max_move=get_moves_number(self.move_zero)
 		
 		

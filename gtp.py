@@ -155,6 +155,10 @@ class gtp():
 		answer=self.readline()[:-1]
 		return answer.split(" ")[1]
 
+	def set_free_handicap(self,stones):
+		self.write("set_free_handicap "+stones)
+		answer=self.readline()[:-1]
+		return answer.split("= ")[1]
 	
 	def undo(self):
 		self.write("undo")
