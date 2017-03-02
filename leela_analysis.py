@@ -162,7 +162,9 @@ class RunAnalysis(Frame):
 					print all_moves[0],'+',answer,
 					if (answer.lower() not in ["pass","resign"]):
 						all_moves2=leela.get_all_leela_moves()
-						
+						print "all_moves2:",all_moves2
+						if all_moves2==[]:
+							all_moves2=[[answer,answer,666]]
 						if all_moves2[0][0]!=answer:
 							print "\tLeela did not choose the strongest move!"
 							answer=all_moves2[0][0]
@@ -344,9 +346,9 @@ class RunAnalysis(Frame):
 				leela.place_black(move)
 				gnugo.place_black(move)
 			"""
-		
-		leela.set_free_handicap(handicap_stones)
-		gnugo.set_free_handicap(handicap_stones)
+		if handicap_stones:
+			leela.set_free_handicap(handicap_stones)
+			gnugo.set_free_handicap(handicap_stones)
 		
 		self.max_move=get_moves_number(self.move_zero)
 		

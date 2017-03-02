@@ -44,13 +44,13 @@ class gtp():
 	
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
-		answer=self.readline()[:-1]
+		answer=self.readline().strip()
 		return answer.split(" ")[1]
 
 	
 	def get_gnugo_experimental_score(self,color):
 		self.write("experimental_score "+color)
-		answer=self.readline()[:-1]
+		answer=self.readline().strip()
 		return answer[2:]
 		
 	def get_all_leela_moves(self):
@@ -146,18 +146,18 @@ class gtp():
 	
 	def play_black(self):
 		self.write("genmove black")
-		answer=self.readline()[:-1]
+		answer=self.readline().strip()
 		return answer.split(" ")[1]
 
 		
 	def play_white(self):
 		self.write("genmove white")
-		answer=self.readline()[:-1]
+		answer=self.readline().strip()
 		return answer.split(" ")[1]
 
 	def set_free_handicap(self,stones):
 		self.write("set_free_handicap "+stones)
-		answer=self.readline()[:-1]
+		answer=self.readline().strip()
 		return answer.split("= ")[1]
 	
 	def undo(self):
@@ -170,7 +170,7 @@ class gtp():
 	
 	def show_board(self):
 		self.write("showboard")
-		answer=self.readline(3+self.size)[:-1]
+		answer=self.readline(3+self.size).strip()
 		return answer[4:]
 	
 	def countlib(self,move):
@@ -186,7 +186,7 @@ class gtp():
 	def final_status(self,move):
 		self.write("final_status "+move)
 		answer=self.readline()
-		answer=answer[:-1]
+		answer=answer.strip()
 		return " ".join(answer.split(" ")[1:])
 
 	def set_time(self,main_time=30,byo_yomi_time=30,byo_yomi_stones=1):
@@ -202,24 +202,4 @@ class gtp():
 
 
 
-"""
-leela_command_line=('E:\\goreviewpartner\\Leela080GTP\\Leela080.exe', '--gtp', '--noponder')
 
-leela=gtp(leela_command_line)
-leela.boardsize(19)
-leela.reset()
-leela.komi(6.5)
-
-leela.set_time(main_time=5,byo_yomi_time=5,byo_yomi_stones=1)
-
-print leela.play_black()
-print leela.play_white()
-print leela.play_black()
-print leela.play_white()
-print leela.play_black()
-print leela.play_white()
-print leela.play_black()
-print leela.play_white()
-print leela.get_all_leela_moves()
-
-"""
