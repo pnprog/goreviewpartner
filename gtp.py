@@ -110,8 +110,17 @@ class gtp():
 		else:return False
 		
 	def close(self):
-		self.process.kill()
-		self.process.stdin.close()
+		try:
+			self.gtp_exit()
+			sleep(0.5)
+		except: pass
+		
+		try: self.process.kill()
+		except: pass
+		
+		try: self.process.stdin.close()
+		except: pass
+		
 		
 	
 	def reset(self):
@@ -195,10 +204,21 @@ class gtp():
 		if answer[0]=="=":return True
 		else:return False
 
+	def gtp_exit(self):
+		self.write("exit")
+		answer=self.readline()
+		if answer[0]=="=":
+			return True
+		else:
+			return False
+	
 	def kill(self):
-		#self.process.terminate()
-		#sleep(1)
+		print "process.terminate()"
+		self.process.terminate()
+		sleep(0.5)
+		print "process.kill()"
 		self.process.kill()
+		sleep(0.5)
 
 
 

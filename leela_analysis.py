@@ -285,9 +285,9 @@ class RunAnalysis(Frame):
 	def close_app(self):
 		print "RunAnalysis beeing closed"
 		print "killing gnugo"
-		self.gnugo.kill()
+		self.gnugo.close()
 		print "killing leela"
-		self.leela.kill()
+		self.leela.close()
 		print "destroying"
 		self.destroy()
 		self.parent.destroy()

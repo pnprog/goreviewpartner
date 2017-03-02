@@ -101,10 +101,10 @@ class OpenMove():
 		self.popup.destroy()
 		if self.okgnugo:
 			print "killing gnugo"
-			self.gnugo.kill()
+			self.gnugo.close()
 		if self.okleela:
 			print "killing leela"
-			self.leela.kill()
+			self.leela.close()
 		
 		self.parent.all_popups.remove(self)
 		
