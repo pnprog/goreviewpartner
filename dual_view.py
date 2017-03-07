@@ -321,14 +321,20 @@ class OpenMove():
 			if move0 is None:
 				continue
 			row, col = move0
+			move=ij2gtp((row,col))
 			if colour=='b':
 				place(grid3,row,col,1)
 				if okleela:
-					leela.place_black(ij2gtp((row,col)))
+					leela.place_black(move)
 				if okgnugo:
-					gnugo.place_black(ij2gtp((row,col)))
+					gnugo.place_black(move)
 			else:
-				print "WTF? colour=",colour
+				place(grid3,row,col,2)
+				if okleela:
+					leela.place_white(move)
+				if okgnugo:
+					gnugo.place_white(move)
+				
 		m=0
 		for m in range(1,move):
 			one_move=get_node(gameroot,m)

@@ -44,9 +44,13 @@ def go_to_move(move_zero,move_number=0):
 
 
 def gtp2ij(move):
+	print "gtp2ij(",move,")"
+	
 	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return int(move[1:])-1,letters.index(move[0])
+
+		
 
 
 def ij2gtp(m):
@@ -327,29 +331,21 @@ class RunAnalysis(Frame):
 		
 		board, plays = sgf_moves.get_setup_and_moves(self.g)
 		handicap_stones=""
-		for colour, move0 in board.list_occupied_points():
-			if move0 is None:
-				continue
-			row, col = move0
-			move=ij2gtp((row,col))
-			print colour,"handicap stone at",row, col, "=>",move
-			
-			handicap_stones+=" "+move
-			
-
-			
-			"""
-			if colour in ('w',"W"):
-				leela.place_white(move)
-				gnugo.place_white(move)
-			else:
-				leela.place_black(move)
-				gnugo.place_black(move)
-			"""
-		if handicap_stones:
-			leela.set_free_handicap(handicap_stones)
-			gnugo.set_free_handicap(handicap_stones)
 		
+		for colour, move0 in board.list_occupied_points():
+			if move0 != None:
+				row, col = move0
+				move=ij2gtp((row,col))
+				if colour in ('w',"W"):
+					print "Adding initial white stone at",move
+					leela.place_white(move)
+					gnugo.place_white(move)
+				else:
+					print "Adding initial black stone at",move
+					leela.place_black(move)
+					gnugo.place_black(move)
+						
+			
 		self.max_move=get_moves_number(self.move_zero)
 		
 		
