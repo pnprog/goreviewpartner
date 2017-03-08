@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-  # Définition l'encodage des caractères
 
 from Tkinter import *
-
+from ScrolledText import *
 
 import sys,time
 import tkFileDialog
@@ -663,20 +663,12 @@ class DualView(Frame):
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 
+		self.comment_box1=ScrolledText(self,height=5)
+		self.comment_box1.grid(column=1,row=row+4)
+		
+		self.comment_box2=ScrolledText(self,height=5)
+		self.comment_box2.grid(column=3,row=row+4)
 
-		Label(self,text=' \n \n ',background=bg).grid(column=0,row=row+4)
-		
-		comment1_frame=Frame(self,width=self.goban_size)
-		comment1_frame.grid(column=1,row=row+4,sticky=N+S)
-		comment1_frame.grid_propagate(False)
-		self.comment_box1=Text(comment1_frame)
-		self.comment_box1.grid(column=0,row=0)
-		
-		comment2_frame=Frame(self,width=self.goban_size)
-		comment2_frame.grid(column=3,row=row+4,sticky=N+S)
-		comment2_frame.grid_propagate(False)
-		self.comment_box2=Text(comment2_frame)
-		self.comment_box2.grid(column=0,row=0)
 		
 		Label(self,text='   ',background=bg).grid(column=4,row=row+5)
 		
