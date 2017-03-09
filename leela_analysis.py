@@ -44,7 +44,7 @@ def go_to_move(move_zero,move_number=0):
 
 
 def gtp2ij(move):
-	print "gtp2ij(",move,")"
+	#print "gtp2ij(",move,")"
 	
 	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
@@ -101,7 +101,14 @@ class RunAnalysis(Frame):
 			
 			print final_score,
 			
-			one_move.add_comment_text("\nGnugo score estimation: "+final_score)
+			#one_move.add_comment_text("\nGnugo score estimation: "+final_score)
+			
+			additional_comments="Move "+str(current_move)
+			if player_color in ('w',"W"):
+				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
+			else:
+				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
+			additional_comments+="\nGnugo score estimation before the move was played: "+final_score
 			
 			try:
 				if player_color in ('w',"W"):
@@ -118,8 +125,9 @@ class RunAnalysis(Frame):
 				print "leaving thread..."
 				exit()
 			
+			all_moves=leela.get_all_leela_moves()
 			if (answer.lower() not in ["pass","resign"]):
-				all_moves=leela.get_all_leela_moves()
+				
 				if all_moves==[]:
 					all_moves=[[answer,answer,666]]
 				all_moves2=all_moves[:]
@@ -136,9 +144,9 @@ class RunAnalysis(Frame):
 					else:
 						leela.place_black(answer)
 					
-				#while ((len(all_moves2)==1) and (len(all_moves2[0][1].split(' '))==1)) and (answer.lower() not in ["pass","resign"]):
+				#making sure the first line of play is more than one move deep
 				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
-					print "going deeper",nb_undos
+					print "going deeper for first line of play (",nb_undos,")"
 					try:
 						if player_color in ('w',"W") and nb_undos%2==0:
 							#print "\tleela play white"
@@ -153,7 +161,8 @@ class RunAnalysis(Frame):
 							#print "\tleela play white"
 							answer=leela.play_white()
 						
-						nb_undos+=1
+						if answer.lower()!="resign":
+							nb_undos+=1
 					except Exception, e:
 						exc_type, exc_obj, exc_tb = sys.exc_info()
 						fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -164,8 +173,9 @@ class RunAnalysis(Frame):
 
 
 					print all_moves[0],'+',answer,
+					all_moves2=leela.get_all_leela_moves()
 					if (answer.lower() not in ["pass","resign"]):
-						all_moves2=leela.get_all_leela_moves()
+						
 						print "all_moves2:",all_moves2
 						if all_moves2==[]:
 							all_moves2=[[answer,answer,666]]
@@ -194,6 +204,7 @@ class RunAnalysis(Frame):
 				
 				#print "all moves from leela:",all_moves
 				best_move=True
+				#variation=-1
 				for _,one_sequence,one_score in all_moves:
 					previous_move=one_move.parent
 					current_color=player_color
@@ -205,7 +216,14 @@ class RunAnalysis(Frame):
 						else:
 							print str(100-one_score)+'%/'+str(one_score)+'%',
 					
+					#variation+=1
+					#deepness=-1
 					for one_deep_move in one_sequence.split(' '):
+						#deepness+=1
+						#print "variation:",variation,"deepness:",deepness,"gtp2ij(",one_deep_move,")"
+						if one_deep_move.lower() in ["pass","resign"]:
+							print "Leaving the variation when encountering",one_deep_move.lower()
+							break
 						i,j=gtp2ij(one_deep_move)
 						new_child=previous_move.new_child()
 						new_child.set_move(current_color,(i,j))
@@ -223,8 +241,13 @@ class RunAnalysis(Frame):
 						else:
 							current_color='w'
 			else:
-				print answer.lower()
-				
+				print 'adding "'+answer.lower()+'" to the sgf file'
+				additional_comments+="\nFor this position, Leela would "+answer.lower()
+				if answer.lower()=="pass":
+					leela.undo()
+			
+			one_move.add_comment_text(additional_comments)
+
 			new_file=open(self.filename[:-4]+".rsgf",'w')
 			new_file.write(self.g.serialise())
 			new_file.close()
@@ -240,15 +263,15 @@ class RunAnalysis(Frame):
 	
 	def run_all_analysis(self):
 		self.current_move=1
-		try:
-			while self.current_move<=self.max_move:
-				self.lock1.acquire()
-				self.run_analysis(self.current_move)
-				self.current_move+=1
-				self.lock1.release()
-				self.lock2.acquire()
-				self.lock2.release()
-		except Exception,e:
+		#try:
+		while self.current_move<=self.max_move:
+			self.lock1.acquire()
+			self.run_analysis(self.current_move)
+			self.current_move+=1
+			self.lock1.release()
+			self.lock2.acquire()
+			self.lock2.release()
+		"""except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 			print exc_type, fname, exc_tb.tb_lineno
@@ -263,7 +286,7 @@ class RunAnalysis(Frame):
 			except:
 				pass
 			print "leaving thread"
-			exit()
+			exit()"""
 
 		
 
