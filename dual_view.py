@@ -321,19 +321,18 @@ class OpenMove():
 			if move0 is None:
 				continue
 			row, col = move0
-			move=ij2gtp((row,col))
 			if colour=='b':
 				place(grid3,row,col,1)
 				if okleela:
-					leela.place_black(move)
+					leela.place_black(ij2gtp((row,col)))
 				if okgnugo:
-					gnugo.place_black(move)
+					gnugo.place_black(ij2gtp((row,col)))
 			else:
 				place(grid3,row,col,2)
 				if okleela:
-					leela.place_white(move)
+					leela.place_white(ij2gtp((row,col)))
 				if okgnugo:
-					gnugo.place_white(move)
+					gnugo.place_white(ij2gtp((row,col)))
 				
 		m=0
 		for m in range(1,move):
@@ -555,7 +554,8 @@ class DualView(Frame):
 			if m==0:
 				real_game_ij=ij
 		try:
-			i,j=one_move=get_node(self.gameroot,move).get_move()[1]
+			#i,j=one_move=get_node(self.gameroot,move).get_move()[1]
+			i,j=get_node(self.gameroot,move).get_move()[1]
 		except:
 			self.prev_move()
 			return
@@ -601,6 +601,7 @@ class DualView(Frame):
 		goban2.display(grid2,markup2)
 
 	def open_move(self):
+		print "Opening move",self.current_move
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		self.all_popups.append(new_popup)
 		
