@@ -457,7 +457,7 @@ class DualView(Frame):
 					temp_markup[u][v]=''
 		
 		k=1
-		for color,(u,v),s,comment,displaycolor in sequence:
+		for color,(u,v),s,comment,displaycolor,letter_color in sequence:
 			temp_grid[u][v]=color
 			temp_markup[u][v]=k
 			k+=1
@@ -550,7 +550,7 @@ class DualView(Frame):
 				break
 			if one_move.get_move()[0]=='b':	c=1
 			else: c=2
-			main_sequence.append([c,ij,"A",None,"blue"])
+			main_sequence.append([c,ij,"A",None,"black","black"])
 			if m==0:
 				real_game_ij=ij
 		try:
@@ -579,21 +579,41 @@ class DualView(Frame):
 			one_alternative=parent[a]
 			ij=one_alternative.get_move()[1]
 			
-			if ij==real_game_ij: displaycolor="blue"
-			else: displaycolor="red"
+			
+			
+			displaycolor='black'
+			
 			
 			if one_alternative.get_move()[0]=='b': c=1
 			else: c=2
 
-			if one_alternative.has_property("C"): comment=one_alternative.get("C")
+			if one_alternative.has_property("C"):
+				comment=one_alternative.get("C")
+				black_prob=float(one_alternative.get("C").split(": ")[1].replace("%","").split('/')[0])
+				white_prob=100-black_prob
+				#print "black_prob:",black_prob,'c=',c
+				if c==1:
+					if black_prob>=50:
+						displaycolor="blue"
+					else:
+						displaycolor="red"
+				else:
+					if black_prob>50:
+						displaycolor="red"
+					else:
+						displaycolor="blue"
 			else: comment=''
-			alternative_sequence=[[c,ij,chr(64+a),comment,displaycolor]]
+			
+			if ij==real_game_ij: letter_color="black"
+			else: letter_color=displaycolor
+			
+			alternative_sequence=[[c,ij,chr(64+a),comment,displaycolor,letter_color]]
 			while len(one_alternative)>0:
 				one_alternative=one_alternative[0]
 				ij=one_alternative.get_move()[1]
 				if one_alternative.get_move()[0]=='b':c=1
 				else:c=2
-				alternative_sequence.append([c,ij,chr(64+a),comment,"whocare?"])
+				alternative_sequence.append([c,ij,chr(64+a),comment,"whocare?","whocare"])
 			i,j=parent[a].get_move()[1]
 			markup2[i][j]=alternative_sequence
 			

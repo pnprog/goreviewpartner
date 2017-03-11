@@ -114,9 +114,10 @@ class Goban(Canvas):
 				else:
 					sequence=markup[i][j]
 					markup_color=sequence[0][4]
+					letter_color=sequence[0][5]
 					x,y=self.ij2xy(u,v)
 					self.draw_point(u,v,0.8,color=bg,outline=markup_color)
-					self.create_text(x,y, text=sequence[0][2],font=("Arial", str(int(space/2))),fill=markup_color)
+					self.create_text(x,y, text=sequence[0][2],font=("Arial", str(int(space/2))),fill=letter_color)
 					local_area=self.draw_point(u,v,1,color="",outline="")
 					self.tag_bind(local_area, "<Enter>", partial(show_variation,goban=self,grid=grid,markup=markup,i=i,j=j))
 		self.update_idletasks()
