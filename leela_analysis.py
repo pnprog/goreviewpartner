@@ -222,7 +222,6 @@ class RunAnalysis(Frame):
 					current_color=player_color
 					
 					if best_move:
-						best_move=False
 						if player_color=='b':
 							print str(one_score)+'%/'+str(100-one_score)+'%',
 						else:
@@ -244,8 +243,14 @@ class RunAnalysis(Frame):
 						
 						if player_color=='b':
 							new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%')
+							if best_move:
+								best_move=False
+								additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
 						else:
 							new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%')
+							if best_move:
+								best_move=False
+								additional_comments+="\nLeela black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
 						
 						previous_move=new_child
 						if current_color in ('w','W'):
