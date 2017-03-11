@@ -541,19 +541,15 @@ if __name__ == "__main__":
 		print "gamename:",filename[:-4]
 		if not filename:
 			sys.exit()
+		print "filename:",filename
+		top = Tk()
+		RangeSelector(top,filename).pack()
+		top.mainloop()
 	else:
 		filename=argv[1]
-	print "filename:",filename
-	
-	"""
-	top = Tk()
-	RangeSelector(top,filename).pack()
-	top.mainloop()
-	"""
-	
-	top = Tk()
-	RunAnalysis(top,filename).pack()
-	top.mainloop()
+		top = Tk()
+		RunAnalysis(top,filename).pack()
+		top.mainloop()
 	
 
 
