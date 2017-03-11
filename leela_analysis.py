@@ -7,7 +7,7 @@ from gomill import sgf, sgf_moves
 
 from sys import exit,argv
 
-from Tkinter import Tk, Label, Frame
+from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, W,E, Entry, END,Button,Toplevel
 import tkFileDialog
 import sys
 import os
@@ -19,6 +19,12 @@ import time, os
 import threading
 import ttk
 
+def alert(text_to_display):
+	popup=Toplevel()
+	label= Label(popup,text=text_to_display)
+	label.pack()
+	ok_button = Button(popup, text="OK", command=popup.destroy)
+	ok_button.pack()
 
 def get_moves_number(move_zero):
 	k=0
@@ -78,21 +84,27 @@ def ij2gtp(m):
 
 
 class RunAnalysis(Frame):
-	def __init__(self,parent,filename):
+	def __init__(self,parent,filename,move_range=None):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
+		self.move_range=move_range
 		self.lock1=threading.Lock()
 		self.lock2=threading.Lock()
 		self.initialize()
 	
 	def run_analysis(self,current_move):
-			gnugo=self.gnugo
-			leela=self.leela
+		
+		
+		one_move=go_to_move(self.move_zero,current_move)
+		player_color,player_move=one_move.get_move()
+		gnugo=self.gnugo
+		leela=self.leela
+		
+		if current_move+1 in self.move_range:
+			
 			max_move=self.max_move
 			
-			one_move=go_to_move(self.move_zero,current_move)
-			player_color,player_move=one_move.get_move()
 			
 			print "move",str(current_move)+'/'+str(max_move),
 			
@@ -132,7 +144,7 @@ class RunAnalysis(Frame):
 					all_moves=[[answer,answer,666]]
 				all_moves2=all_moves[:]
 				nb_undos=1
-				print "====move",current_move,all_moves[0],'~',answer
+				print "====move",current_move+1,all_moves[0],'~',answer
 				if all_moves[0][0]!=answer:
 					print "Leela did not choose the strongest move!"
 					print all_moves
@@ -252,26 +264,30 @@ class RunAnalysis(Frame):
 			new_file.write(self.g.serialise())
 			new_file.close()
 			
-			if player_color in ('w',"W"):
-				leela.place_white(ij2gtp(player_move))
-				gnugo.place_white(ij2gtp(player_move))
-			else:
-				leela.place_black(ij2gtp(player_move))
-				gnugo.place_black(ij2gtp(player_move))
+			self.total_done+=1
+		
+
+		
+		if player_color in ('w',"W"):
+			leela.place_white(ij2gtp(player_move))
+			gnugo.place_white(ij2gtp(player_move))
+		else:
+			leela.place_black(ij2gtp(player_move))
+			gnugo.place_black(ij2gtp(player_move))
 		
 	
 	
 	def run_all_analysis(self):
 		self.current_move=1
-		#try:
-		while self.current_move<=self.max_move:
-			self.lock1.acquire()
-			self.run_analysis(self.current_move)
-			self.current_move+=1
-			self.lock1.release()
-			self.lock2.acquire()
-			self.lock2.release()
-		"""except Exception,e:
+		try:
+			while self.current_move<=self.max_move:
+				self.lock1.acquire()
+				self.run_analysis(self.current_move)
+				self.current_move+=1
+				self.lock1.release()
+				self.lock2.acquire()
+				self.lock2.release()
+		except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 			print exc_type, fname, exc_tb.tb_lineno
@@ -286,31 +302,33 @@ class RunAnalysis(Frame):
 			except:
 				pass
 			print "leaving thread"
-			exit()"""
+			exit()
 
 		
 
 	def follow_analysis(self):
 		if self.lock1.acquire(False):
-			remaining_s=(self.max_move-self.current_move)*self.time_per_move
+			remaining_s=(len(self.move_range)-self.total_done)*self.time_per_move
 			remaining_h=remaining_s/3600
 			remaining_s=remaining_s-3600*remaining_h
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
-			self.lab1.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
-			self.lab2.config(text=str(self.current_move-1)+'/'+str(self.max_move))
+			self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+			self.lab1.config(text="Currently at move "+str(self.current_move+1)+'/'+str(self.max_move))
 			self.pb.step()
 			self.lock2.release()
-			time.sleep(.1)
+			time.sleep(.025)
 			self.lock1.release()
 			self.lock2.acquire()
 		if self.current_move<=self.max_move:
-			self.root.after(500,self.follow_analysis)
+			self.root.after(25,self.follow_analysis)
 		else:
 			self.lab1.config(text="Completed")
 	
 	def close_app(self):
 		print "RunAnalysis beeing closed"
+		self.lab2.config(text="Now closing, please wait...")
+		self.update_idletasks()
 		print "killing gnugo"
 		self.gnugo.close()
 		print "killing leela"
@@ -329,6 +347,7 @@ class RunAnalysis(Frame):
 		
 		txt = open(self.filename)
 		self.g = sgf.Sgf_game.from_string(txt.read())
+		txt.close()
 		size=self.g.get_size()
 		
 		leela_command_line=tuple(Config.get("Leela", "Command").split())
@@ -370,7 +389,12 @@ class RunAnalysis(Frame):
 						
 			
 		self.max_move=get_moves_number(self.move_zero)
-		
+		if not self.move_range:
+			self.move_range=range(1,self.max_move+1)
+		if 1 in self.move_range:
+			self.move_range.remove(1)
+			
+		self.total_done=0
 		
 		root = self
 		root.parent.title('GoReviewPartner')
@@ -378,19 +402,23 @@ class RunAnalysis(Frame):
 		
 		
 		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
-		self.lab1=Label(root)
+		
 
-		remaining_s=self.max_move*self.time_per_move
+		remaining_s=len(self.move_range)*self.time_per_move
 		remaining_h=remaining_s/3600
 		remaining_s=remaining_s-3600*remaining_h
 		remaining_m=remaining_s/60
 		remaining_s=remaining_s-60*remaining_m
-		self.lab1.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
-
-
+		
+		self.lab1=Label(root)
 		self.lab1.pack()
-		self.lab2=Label(root,text="0/"+str(self.max_move))
+		
+		self.lab2=Label(root)
 		self.lab2.pack()
+		
+		self.lab1.config(text="Currently at move 2/"+str(self.max_move))
+		self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+		
 		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move, mode="determinate")
 		self.pb.pack()
 
@@ -407,8 +435,96 @@ class RunAnalysis(Frame):
 		root.after(500,self.follow_analysis)
 		
 
+class RangeSelector(Frame):
+	def __init__(self,parent,filename):
+		Frame.__init__(self,parent)
+		self.parent=parent
+		self.filename=filename
+		root = self
+		root.parent.title('GoReviewPartner')
+
+		txt = open(filename)
+		self.g = sgf.Sgf_game.from_string(txt.read())
+		txt.close()
+		move_zero=self.g.get_root()
+		nb_moves=get_moves_number(move_zero)
+
+		s = StringVar()
+		s.set("all")
+
+		Label(self,text="Select moves to be analysed").grid(row=0,column=1,sticky=W)
 		
+		r1=Radiobutton(self,text="Analyse all "+str(nb_moves)+" moves",variable=s, value="all")
+		r1.grid(row=1,column=1,sticky=W)
+		self.after(0,r1.select)
 		
+		r2=Radiobutton(self,text="Analyse only those moves: ",variable=s, value="only")
+		r2.grid(row=2,column=1,sticky=W)
+		
+		only_entry=Entry(self)
+		only_entry.bind("<Button-1>", lambda e: r2.select())
+		only_entry.grid(row=2,column=2,sticky=W)
+		only_entry.delete(0, END)
+		only_entry.insert(0, "1-"+str(nb_moves))
+		
+		Button(self,text="Start",command=self.start).grid(row=3,column=2,sticky=E)
+		self.mode=s
+		self.nb_moves=nb_moves
+		self.only_entry=only_entry
+		self.popup=None
+	
+	def close_app(self):
+		if self.popup:
+			try:
+				print "closing RunAlanlysis popup from RangeSelector"
+				self.popup.close_app()
+			except:
+				print "RangeSelector could not close its RunAlanlysis popup"
+				pass
+	
+	def start(self):
+		if self.mode.get()=="all":
+			self.parent.destroy()
+			newtop=Tk()
+			self.popup=RunAnalysis(newtop,self.filename)
+			self.popup.pack()
+			newtop.mainloop()
+			
+		else:
+			move_selection=[]
+			selection = self.only_entry.get()
+			selection=selection.replace(" ","")
+			for sub_selection in selection.split(","):
+				if sub_selection:
+					try:
+						if "-" in sub_selection:
+							a,b=sub_selection.split('-')
+							a=int(a)
+							b=int(b)
+						else:
+							a=int(sub_selection)
+							b=a
+						if a<=b and a>0 and b<=self.nb_moves:
+							move_selection.extend(range(a,b+1))
+					except:
+						alert("Could not make sens of the move range.\nPlease indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")")
+						return
+			move_selection=list(set(move_selection))
+			move_selection=sorted(move_selection)
+			print "========="
+			print move_selection
+			self.parent.destroy()
+			newtop=Tk()
+			self.popup=RunAnalysis(newtop,self.filename,move_selection)
+			self.popup.pack()
+			newtop.mainloop()
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
 
@@ -423,11 +539,17 @@ if __name__ == "__main__":
 	else:
 		filename=argv[1]
 	print "filename:",filename
-
+	
+	"""
+	top = Tk()
+	RangeSelector(top,filename).pack()
+	top.mainloop()
+	"""
+	
 	top = Tk()
 	RunAnalysis(top,filename).pack()
 	top.mainloop()
-
+	
 
 
 

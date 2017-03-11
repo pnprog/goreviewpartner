@@ -38,7 +38,8 @@ def launch_analysis():
 	print "filename:",filename
 	
 	top = Toplevel()
-	new_popup=leela_analysis.RunAnalysis(top,filename)
+	#new_popup=leela_analysis.RunAnalysis(top,filename)
+	new_popup=leela_analysis.RangeSelector(top,filename)
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()

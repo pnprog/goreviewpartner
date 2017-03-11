@@ -32,7 +32,11 @@ class gtp():
 				return
 	
 	def write(self,txt):
-		self.process.stdin.write(txt+"\n")
+		try:
+			self.process.stdin.write(txt+"\n")
+		except:
+			print "Error while writting to stdin"
+			self.kill()
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
 		self.c+=1
 	
