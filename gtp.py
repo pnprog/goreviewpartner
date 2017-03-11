@@ -85,13 +85,14 @@ class gtp():
 			if " ->" in err_line:
 				one_answer=err_line.strip().split(" ")[0]
 				one_score= ' '.join(err_line.split()).split(' ')[4]
+				nodes=int(err_line.strip().split("(U:")[0].split("->")[1].replace(" ",""))
 				if one_score!="0.00%)":
 					sequence=err_line.split("PV: ")[1].strip()
 					#if float(one_score[:-2])>=100 or float(one_score[:-2])<0:
 					#	print "one score:",one_score,one_score[:-2],float(one_score[:-2])
 					#	print "err line:",err_line
 					#	print
-					answers.append([one_answer,sequence,float(one_score[:-2])])
+					answers.append([one_answer,sequence,float(one_score[:-2]),nodes])
 		
 		#if len(answers)==1:
 		#	if len(answers[0][1].split(' '))==1:

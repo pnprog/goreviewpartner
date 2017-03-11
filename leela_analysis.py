@@ -141,7 +141,7 @@ class RunAnalysis(Frame):
 			if (answer.lower() not in ["pass","resign"]):
 				
 				if all_moves==[]:
-					all_moves=[[answer,answer,666]]
+					all_moves=[[answer,answer,666,666]]
 				all_moves2=all_moves[:]
 				nb_undos=1
 				print "====move",current_move+1,all_moves[0],'~',answer
@@ -217,7 +217,7 @@ class RunAnalysis(Frame):
 				#print "all moves from leela:",all_moves
 				best_move=True
 				#variation=-1
-				for _,one_sequence,one_score in all_moves:
+				for _,one_sequence,one_score,one_nodes in all_moves:
 					previous_move=one_move.parent
 					current_color=player_color
 					
@@ -242,7 +242,7 @@ class RunAnalysis(Frame):
 						
 						
 						if player_color=='b':
-							new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%')
+							new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes))
 							if best_move:
 								best_move=False
 								additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
