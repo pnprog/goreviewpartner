@@ -2,7 +2,7 @@
 
 from Tkinter import *
 from ScrolledText import *
-
+import tkFont
 import sys,time
 import tkFileDialog
 from functools import partial
@@ -647,9 +647,6 @@ class DualView(Frame):
 		
 		self.all_popups=[]
 		
-		
-
-		
 		self.configure(background=bg)
 
 		Label(self,text='   ',background=bg).grid(column=0,row=0)
@@ -682,11 +679,15 @@ class DualView(Frame):
 		self.goban2.space=self.goban_size/(self.dim+1)
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
+		
+		police=tkFont.Font(size=10, family='DejaVu Sans Mono')
+		lpix = police.measure(" ")
 
-		self.comment_box1=ScrolledText(self,height=5)
+		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-1),height=5,foreground='black')
 		self.comment_box1.grid(column=1,row=row+4)
 		
-		self.comment_box2=ScrolledText(self,height=5)
+		
+		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-1),height=5,foreground='black')
 		self.comment_box2.grid(column=3,row=row+4)
 
 		
