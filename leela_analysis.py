@@ -148,6 +148,8 @@ class RunAnalysis(Frame):
 				all_moves2=all_moves[:]
 				nb_undos=1
 				print "====move",current_move+1,all_moves[0],'~',answer
+				
+				"""
 				if all_moves[0][0]!=answer:
 					print "Leela did not choose the strongest move!"
 					print all_moves
@@ -158,7 +160,8 @@ class RunAnalysis(Frame):
 						leela.place_white(answer)
 					else:
 						leela.place_black(answer)
-					
+				"""
+				
 				#making sure the first line of play is more than one move deep
 				best_winrate=all_moves[0][2]
 				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
@@ -195,6 +198,7 @@ class RunAnalysis(Frame):
 						print "all_moves2:",all_moves2
 						if all_moves2==[]:
 							all_moves2=[[answer,answer,666]]
+						"""
 						if all_moves2[0][0]!=answer:
 							print "\tLeela did not choose the strongest move!"
 							answer=all_moves2[0][0]
@@ -203,6 +207,7 @@ class RunAnalysis(Frame):
 								leela.place_white(answer)
 							else:
 								leela.place_black(answer)
+						"""
 						
 						print '+',all_moves2
 						all_moves[0][1]+=" "+all_moves2[0][1]
@@ -219,7 +224,7 @@ class RunAnalysis(Frame):
 					leela.undo()
 				
 				
-				all_moves[0][2]=best_winrate #it would be best to sort again all variation based on new winrate...
+				#all_moves[0][2]=best_winrate #it would be best to sort again all variation based on new winrate...
 				
 				#print "all moves from leela:",all_moves
 				best_move=True
