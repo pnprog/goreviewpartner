@@ -366,8 +366,12 @@ class OpenMove():
 			markup3[i][j]=0
 		
 		try:
-			self.next_color=3-color
+			if get_node(gameroot,move).get_move()[0].lower()=="w":
+				self.next_color=2
+			else:
+				self.next_color=1
 		except:
+			print "error when trying to figure out next color to play, so black is selected"
 			self.next_color=1
 		goban3.display(grid3,markup3)
 		
