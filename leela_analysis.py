@@ -54,7 +54,7 @@ def gtp2ij(move):
 	
 	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-	return int(move[1:])-1,letters.index(move[0])
+	return int(move[1:])-1,letters.index(move[0].lower())
 
 		
 
@@ -141,7 +141,10 @@ class RunAnalysis(Frame):
 			if (answer.lower() not in ["pass","resign"]):
 				
 				if all_moves==[]:
+					bookmove=True
 					all_moves=[[answer,answer,666,666]]
+				else:
+					bookmove=False
 				all_moves2=all_moves[:]
 				nb_undos=1
 				print "====move",current_move+1,all_moves[0],'~',answer
@@ -157,6 +160,7 @@ class RunAnalysis(Frame):
 						leela.place_black(answer)
 					
 				#making sure the first line of play is more than one move deep
+				best_winrate=all_moves[0][2]
 				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
 					print "going deeper for first line of play (",nb_undos,")"
 					try:
@@ -214,6 +218,9 @@ class RunAnalysis(Frame):
 				for u in range(nb_undos):
 					leela.undo()
 				
+				
+				all_moves[0][2]=best_winrate #it would be best to sort again all variation based on new winrate...
+				
 				#print "all moves from leela:",all_moves
 				best_move=True
 				#variation=-1
@@ -242,15 +249,19 @@ class RunAnalysis(Frame):
 						
 						
 						if player_color=='b':
-							new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes))
+							if not bookmove:
+								new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes))
 							if best_move:
 								best_move=False
-								additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
+								if not bookmove:
+									additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
 						else:
-							new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%')
+							if not bookmove:
+								new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes))
 							if best_move:
 								best_move=False
-								additional_comments+="\nLeela black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
+								if not bookmove:
+									additional_comments+="\nLeela black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
 						
 						previous_move=new_child
 						if current_color in ('w','W'):
@@ -262,6 +273,7 @@ class RunAnalysis(Frame):
 				additional_comments+="\nFor this position, Leela would "+answer.lower()
 				if answer.lower()=="pass":
 					leela.undo()
+			
 			
 			one_move.add_comment_text(additional_comments)
 
