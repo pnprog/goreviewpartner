@@ -266,7 +266,7 @@ class RunAnalysis(Frame):
 							if best_move:
 								best_move=False
 								if not bookmove:
-									additional_comments+="\nLeela black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
+									additional_comments+="\nLeela black/white win probability for this position: "+str(100-one_score)+'%/'+str(one_score)+'%'
 						
 						previous_move=new_child
 						if current_color in ('w','W'):
