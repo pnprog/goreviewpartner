@@ -122,6 +122,14 @@ class RunAnalysis(Frame):
 				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
 			additional_comments+="\nGnugo score estimation before the move was played: "+final_score
 			
+			"""
+			if player_color in ('w',"W"):
+				print "leela play white"
+				answer=leela.play_white()
+			else:
+				print "leela play black"
+				answer=leela.play_black()
+			"""
 			try:
 				if player_color in ('w',"W"):
 					print "leela play white"
@@ -149,18 +157,6 @@ class RunAnalysis(Frame):
 				nb_undos=1
 				print "====move",current_move+1,all_moves[0],'~',answer
 				
-				"""
-				if all_moves[0][0]!=answer:
-					print "Leela did not choose the strongest move!"
-					print all_moves
-					print "need to fix leela game tree: move at",answer,"is now at",all_moves[0][0]
-					answer=all_moves[0][0]
-					leela.undo()
-					if player_color in ('w',"W"):
-						leela.place_white(answer)
-					else:
-						leela.place_black(answer)
-				"""
 				
 				#making sure the first line of play is more than one move deep
 				best_winrate=all_moves[0][2]
@@ -179,9 +175,9 @@ class RunAnalysis(Frame):
 						else:
 							#print "\tleela play white"
 							answer=leela.play_white()
-						
-						if answer.lower()!="resign":
-							nb_undos+=1
+						nb_undos+=1
+						#if answer.lower()!="resign":
+						#	nb_undos+=1
 					except Exception, e:
 						exc_type, exc_obj, exc_tb = sys.exc_info()
 						fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -198,17 +194,7 @@ class RunAnalysis(Frame):
 						print "all_moves2:",all_moves2
 						if all_moves2==[]:
 							all_moves2=[[answer,answer,666]]
-						"""
-						if all_moves2[0][0]!=answer:
-							print "\tLeela did not choose the strongest move!"
-							answer=all_moves2[0][0]
-							leela.undo()
-							if (player_color.lower()=='b' and nb_undos%2==1) or (player_color.lower()=='w' and nb_undos%2==0):
-								leela.place_white(answer)
-							else:
-								leela.place_black(answer)
-						"""
-						
+
 						print '+',all_moves2
 						all_moves[0][1]+=" "+all_moves2[0][1]
 						
@@ -220,7 +206,10 @@ class RunAnalysis(Frame):
 
 					else:
 						print
+						print "last play on the fist of play was",answer,"so leaving"
+				
 				for u in range(nb_undos):
+					print "undo..."
 					leela.undo()
 				
 				
@@ -229,7 +218,9 @@ class RunAnalysis(Frame):
 				#print "all moves from leela:",all_moves
 				best_move=True
 				#variation=-1
-				for _,one_sequence,one_score,one_nodes in all_moves:
+				print "Number of alternative sequences:",len(all_moves)
+				for sequence_first_move,one_sequence,one_score,one_nodes in all_moves:
+					print "Adding sequence starting from",sequence_first_move
 					previous_move=one_move.parent
 					current_color=player_color
 					
@@ -273,6 +264,7 @@ class RunAnalysis(Frame):
 							current_color='b'
 						else:
 							current_color='w'
+				print "==== no more sequences ====="
 			else:
 				print 'adding "'+answer.lower()+'" to the sgf file'
 				additional_comments+="\nFor this position, Leela would "+answer.lower()
@@ -289,14 +281,17 @@ class RunAnalysis(Frame):
 			self.total_done+=1
 		
 
-		
+		print "now asking Leela to play the game move:",
 		if player_color in ('w',"W"):
+			print "white at",ij2gtp(player_move)
 			leela.place_white(ij2gtp(player_move))
 			gnugo.place_white(ij2gtp(player_move))
 		else:
+			print "black at",ij2gtp(player_move)
 			leela.place_black(ij2gtp(player_move))
 			gnugo.place_black(ij2gtp(player_move))
 		
+		print "Analysis for this move is completed"
 	
 	
 	def run_all_analysis(self):
