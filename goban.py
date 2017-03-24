@@ -31,15 +31,14 @@ class Goban(Canvas):
 	def ij2xy(self,i,j):
 		space=self.space
 		dim=self.dim
-		y=(.5+dim-(0.5+i))*space
-		#y=((1.+i))*space
-		x=(1.+j)*space
+		y=(0.5+dim-i)*space
+		x=(0.5+1.+j)*space
 		return x,y
 
 	def xy2ij(self,x,y):
 		dim=self.dim
 		space=self.space
-		return int(round(dim-1.*y/space)),int(round(1.*x/space)-1)
+		return int(round(0.5+dim-1.*y/space)),int(round(1.*x/space-0.5)-1)
 
 	def draw_point(self,i,j,diameter,color="black",outline="black",width=1):
 		space=self.space
@@ -65,18 +64,27 @@ class Goban(Canvas):
 		bg="#dddddd"
 		bg="#ECCE7C"
 		for item in self.find_all():self.delete(item)
-		self.config(width=space*(1+dim), height=space*(1+dim))
+		self.config(width=space*(1+dim+1), height=space*(1+dim+1))
 		
 		if freeze:
 			black="red"
 		else:
 			black="black"
 		
-		self.draw_rectangle(-0.1,-0.1,dim-1+0.1,dim-1+0.1,black)
-		self.draw_rectangle(0,0,dim-1,dim-1,bg)
+		self.draw_rectangle(-0.1-.5,-0.1-.5,dim-1+.5+0.1,dim-1+.5+0.1,black)
+		self.draw_rectangle(0-.5,0-.5,dim-1+.5,dim-1+.5,bg)
 		for i in range(dim):
 			self.draw_line(i,0,i,dim-1,color=black)
 			self.draw_line(0,i,dim-1,i,color=black)
+			
+			x,y=self.ij2xy(-1-0.1,i)
+			self.create_text(x,y, text="ABCDEFGHJKLMNOPQRST"[i],font=("Arial", str(int(space/2.5))))
+			x,y=self.ij2xy(dim,i)
+			self.create_text(x,y, text="ABCDEFGHJKLMNOPQRST"[i],font=("Arial", str(int(space/2.5))))
+			x,y=self.ij2xy(i,-1-0.1)
+			self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5))))
+			x,y=self.ij2xy(i,dim+0.1)
+			self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5))))
 
 		if dim==19:
 			for i,j in [[3,3],[3,9],[9,9],[3,15],[15,15],[15,9],[9,15],[15,3],[9,3]]:

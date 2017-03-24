@@ -273,7 +273,7 @@ class OpenMove():
 		panel.grid(column=0,row=1,sticky=N)
 		
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-		goban3.space=self.goban_size/(dim+1)
+		goban3.space=self.goban_size/(dim+1+1)
 		goban3.grid(column=1,row=1)
 		
 		
@@ -679,8 +679,8 @@ class DualView(Frame):
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.grid(column=3,row=row)
 
-		self.goban1.space=self.goban_size/(self.dim+1)
-		self.goban2.space=self.goban_size/(self.dim+1)
+		self.goban1.space=self.goban_size/(self.dim+1+1)
+		self.goban2.space=self.goban_size/(self.dim+1+1)
 
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 		
