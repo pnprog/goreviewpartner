@@ -452,6 +452,101 @@ class RunAnalysis(Frame):
 		root.after(500,self.follow_analysis)
 		
 
+import urllib2
+class DownloadFromURL(Frame):
+	def __init__(self,parent):
+		Frame.__init__(self,parent)
+		self.parent=parent
+		self.parent.title('GoReviewPartner')
+		
+		Label(self,text='   ').grid(column=0,row=0)
+		Label(self,text='   ').grid(column=2,row=4)
+		
+		Label(self,text="Paste the URL to the sgf file (http or https):").grid(row=1,column=1,sticky=W)
+		self.url_entry=Entry(self)
+		self.url_entry.grid(row=2,column=1,sticky=W)
+		
+		Button(self,text="Get",command=self.get).grid(row=3,column=1,sticky=E)
+		self.popup=None
+		
+	def get(self):
+		user_agent = 'GoReviewPartner (https://github.com/pnprog/goreviewpartner/)'
+		headers = { 'User-Agent' : user_agent }
+		
+		
+		url=self.url_entry.get()
+		if not url:
+			return
+		
+		if url[:4]!="http":
+			url="http://"+url
+		
+		print "Downloading",url
+		
+		r=urllib2.Request(url,headers=headers)
+		try:
+			h=urllib2.urlopen(r)
+		except:
+			alert("Could not download the URL")
+			return
+		filename=""
+		
+		sgf=h.read()
+		
+		if sgf[:7]!="(;FF[4]":
+			print "not a sgf file"
+			alert("Not a sgf file!")
+			print sgf[:7]
+			return
+		
+		try:
+			filename=h.info()['Content-Disposition']
+			if 'filename="' in filename:
+				filename=filename.split('filename="')[0][:-1]
+			if "''" in filename:
+				filename=filename.split("''")[1]
+		except:
+			print "no Content-Disposition in header"
+			black='black'
+			white='white'
+			date=""
+			if 'PB[' in sgf:
+				black=sgf.split('PB[')[1].split(']')[0]
+			if 'PW[' in sgf:
+				white=sgf.split('PW[')[1].split(']')[0]
+			if 'DT[' in sgf:
+				date=sgf.split('DT[')[1].split(']')[0]
+
+			filename=""
+			if date:
+				filename=date+'_'
+			filename+=black+'_VS_'+white+'.sgf'
+		
+		print filename
+		text_file = open(filename, "w")
+		text_file.write(sgf)
+		text_file.close()
+			
+		self.parent.destroy()
+		newtop=Tk()
+		self.popup=RangeSelector(newtop,filename)
+		self.popup.pack()
+		newtop.mainloop()
+
+	def close_app(self):
+		if self.popup:
+			try:
+				print "closing RunAlanlysis popup from RangeSelector"
+				self.popup.close_app()
+			except:
+				print "RangeSelector could not close its RunAlanlysis popup"
+				pass
+		
+		try:
+			self.parent.destroy()
+		except:
+			pass
+
 class RangeSelector(Frame):
 	def __init__(self,parent,filename):
 		Frame.__init__(self,parent)
@@ -544,7 +639,6 @@ class RangeSelector(Frame):
 
 
 if __name__ == "__main__":
-
 	if len(argv)==1:
 		temp_root = Tk()
 		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])

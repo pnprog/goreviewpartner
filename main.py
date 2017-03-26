@@ -48,6 +48,16 @@ Label(app).pack()
 analysis_bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
 analysis_bouton.pack()
 
+def download_sgf_for_review():
+	top = Toplevel()
+	new_popup=leela_analysis.DownloadFromURL(top)
+	new_popup.pack()
+	popups.append(new_popup)
+	top.mainloop()
+
+Label(app).pack()
+download_bouton=Button(app, text="Download *.sgf for analysis", command=download_sgf_for_review)
+download_bouton.pack()
 
 def launch_review():
 	filename = tkFileDialog.askopenfilename(parent=app,title='Select a file',filetypes = [('sgf reviewed', '.rsgf')])
@@ -86,9 +96,11 @@ def refresh():
 	if Config.get("Leela","Command")=="" or Config.get("GnuGo","Command")=="":
 		review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
+		download_bouton.config(state='disabled')
 	else:
 		review_bouton.config(state='normal')
 		analysis_bouton.config(state='normal')
+		download_bouton.config(state='normal')
 
 Label(app).pack()
 bouton=Button(app, text="Settings", command=launch_settings)
