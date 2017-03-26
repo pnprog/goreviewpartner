@@ -527,11 +527,12 @@ class DownloadFromURL(Frame):
 		text_file.write(sgf)
 		text_file.close()
 			
-		self.parent.destroy()
-		newtop=Tk()
-		self.popup=RangeSelector(newtop,filename)
+		#self.parent.destroy()
+		self.destroy()
+		#newtop=Tk()
+		self.popup=RangeSelector(self.parent,filename)
 		self.popup.pack()
-		newtop.mainloop()
+		#newtop.mainloop()
 
 	def close_app(self):
 		if self.popup:
