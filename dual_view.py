@@ -546,7 +546,7 @@ class DualView(Frame):
 		self.comment_box1.delete(1.0, END)
 		if m>0:
 			if get_node(self.gameroot,m+1).has_property("C"):
-				self.comment_box1.insert(END,get_node(self.gameroot,m+2).parent.get("C"))
+				self.comment_box1.insert(END,get_node(self.gameroot,m+1).get("C"))
 			markup1[i][j]=0
 			markup2[i][j]=0
 		
