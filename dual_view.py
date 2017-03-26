@@ -424,7 +424,12 @@ class DualView(Frame):
 		self.destroy()
 		self.parent.destroy()
 
-
+	
+	def prev_10_move(self,event=None):
+		self.current_move=max(1,self.current_move-10)
+		self.pressed=time.time()
+		pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
+		self.parent.after(0,lambda: pf())
 
 	def prev_move(self,event=None):
 		if self.current_move>1:
@@ -432,6 +437,12 @@ class DualView(Frame):
 			self.current_move-=1
 			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
 			self.parent.after(0,lambda: pf())
+	
+	def next_10_move(self,event=None):
+		self.current_move=min(get_node_number(self.gameroot),self.current_move+10)
+		self.pressed=time.time()
+		pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
+		self.parent.after(0,lambda: pf())
 	
 	def next_move(self,event=None):
 		if self.current_move<get_node_number(self.gameroot):
@@ -651,12 +662,27 @@ class DualView(Frame):
 		self.all_popups=[]
 		
 		self.configure(background=bg)
-
+		
 		Label(self,text='   ',background=bg).grid(column=0,row=0)
+		
+		buttons_bar=Frame(self,background=bg)
+		buttons_bar.grid(column=1,row=1,columnspan=3)
+		
+		Button(buttons_bar, text=' << ',command=self.prev_10_move).grid(column=9,row=1)
+		Button(buttons_bar, text='prev',command=self.prev_move).grid(column=10,row=1)
+		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
+		
+		Button(buttons_bar, text='open',command=self.open_move).grid(column=20,row=1)
+		
+		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
+		Button(buttons_bar, text='next',command=self.next_move).grid(column=30,row=1)
+		Button(buttons_bar, text=' >> ',command=self.next_10_move).grid(column=31,row=1)
+		
+		"""
 		Button(self, text='prev',command=self.prev_move).grid(column=1,row=1)
 		Button(self, text='open',command=self.open_move).grid(column=2,row=1)
 		Button(self, text='next',command=self.next_move).grid(column=3,row=1)
-
+		"""
 		self.move_number=Label(self,text='   ',background=bg)
 		self.move_number.grid(column=2,row=2)
 
