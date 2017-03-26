@@ -21,12 +21,14 @@ class Goban(Canvas):
 	def prepare_mesh(self):
 		f=fuzzy
 		self.mesh=[[[0.0,0.0] for row in range(self.dim)] for col in range(self.dim)]
-		for i in range(self.dim):
-			f1=random()*f-f/2
-			f2=random()*f-f/2
-			for j in range(self.dim):
-				self.mesh[i][j][1]=f1+random()*.1-.05
-				self.mesh[j][i][0]=f2+random()*.1-.05
+		if f>0:
+			for i in range(self.dim):
+				f1=random()*f-f/2
+				f2=random()*f-f/2
+				for j in range(self.dim):
+					self.mesh[i][j][1]=f1+random()*.08-.04
+					self.mesh[j][i][0]=f2+random()*.08-.04
+
 		
 	def ij2xy(self,i,j):
 		space=self.space
