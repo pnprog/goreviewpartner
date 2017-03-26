@@ -46,14 +46,14 @@ def get_node(root,number=0):
 
 
 def gtp2ij(move):
-	print "gtp2ij("+move+")"
+	#print "gtp2ij("+move+")"
 	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return int(move[1:])-1,letters.index(move[0].lower())
 
 
 def ij2gtp(m):
-	print "ij2gtp("+str(m)+")"
+	#print "ij2gtp("+str(m)+")"
 	# (17,0) => a18
 	
 	if m==None:
@@ -523,8 +523,6 @@ class DualView(Frame):
 			place(grid1,i,j,color)
 			place(grid2,i,j,color)
 			
-
-			
 			if len(one_move)==0:
 				print "(0)leaving because len(one_move)==0"
 				goban1.display(grid1,markup1)
@@ -536,10 +534,11 @@ class DualView(Frame):
 		#indicating last play with delta
 		self.comment_box1.delete(1.0, END)
 		if m>0:
-			if get_node(self.gameroot,m+2).parent.has_property("C"):
+			if get_node(self.gameroot,m+1).has_property("C"):
 				self.comment_box1.insert(END,get_node(self.gameroot,m+2).parent.get("C"))
 			markup1[i][j]=0
 			markup2[i][j]=0
+		
 		self.comment_box2.delete(1.0, END)
 		#next sequence in current game ############################################################################
 		main_sequence=[]
@@ -567,7 +566,7 @@ class DualView(Frame):
 		
 		#alternative sequences ####################################################################################
 		parent=get_node(self.gameroot,move-1)
-		if one_move==False:
+		if parent==False:
 			print "(1)leaving because one_move==False"
 			return
 		if len(parent)<=1:
