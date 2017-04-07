@@ -363,7 +363,7 @@ class RunAnalysis(Frame):
 		
 		
 		txt = open(self.filename)
-		self.g = sgf.Sgf_game.from_string(txt.read())
+		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		size=self.g.get_size()
 		
@@ -547,6 +547,13 @@ class DownloadFromURL(Frame):
 			self.parent.destroy()
 		except:
 			pass
+def clean_sgf(txt):
+	for private_property in ["MULTIGOGM","MULTIGOBM"]:
+		if private_property in txt:
+			print "removing private property",private_property,"from sgf content"
+			txt1,txt2=txt.split(private_property+'[')				
+			txt=txt1+"]".join(txt2.split(']')[1:])
+	return txt
 
 class RangeSelector(Frame):
 	def __init__(self,parent,filename):
@@ -556,8 +563,8 @@ class RangeSelector(Frame):
 		root = self
 		root.parent.title('GoReviewPartner')
 
-		txt = open(filename)
-		self.g = sgf.Sgf_game.from_string(txt.read())
+		txt = open(self.filename)
+		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		move_zero=self.g.get_root()
 		nb_moves=get_moves_number(move_zero)
