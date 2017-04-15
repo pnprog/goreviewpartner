@@ -105,9 +105,10 @@ class Goban(Canvas):
 					self.draw_point(u,v,.95,"white")
 				
 				if type(markup[i][j]) is int:
+					if grid[i][j]==0:
+						self.draw_point(u,v,0.6,color=bg,outline=bg)
 					if markup[i][j]==0:
-						if grid[i][j]==0:
-							self.draw_point(u,v,0.6,color=bg,outline=bg)
+						
 						k=0.6
 						
 						self.draw_line(u+0.5*k,v-0*k,u-0.255*k,v+0.435*k,markup_color,width=2)
