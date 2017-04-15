@@ -548,6 +548,7 @@ class DownloadFromURL(Frame):
 		except:
 			pass
 def clean_sgf(txt):
+	return txt
 	for private_property in ["MULTIGOGM","MULTIGOBM"]:
 		if private_property in txt:
 			print "removing private property",private_property,"from sgf content"
