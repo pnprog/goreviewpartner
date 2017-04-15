@@ -241,7 +241,12 @@ class OpenMove():
 				self.goban.display(self.grid,self.markup)
 				self.next_color=3-color
 	
+	def set_status(self,msg):
+		self.status_bar.config(text=msg)
 		
+	def clear_status(self):
+		self.status_bar.config(text="")
+	
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
@@ -262,21 +267,33 @@ class OpenMove():
 		panel=Frame(popup)
 		panel.configure(background=bg)
 		
-		#Button(panel, text='undo',command=lambda :click_on_undo(self)).grid(column=0,row=1)
-		Button(panel, text='undo',command=self.undo).grid(column=0,row=1)
+		
+		undo_button=Button(panel, text=' undo  ',command=self.undo)
+		undo_button.grid(column=0,row=1)
 		buttongnugo=Button(panel, text='Gnugo',command=self.click_gnugo)
 		buttongnugo.grid(column=0,row=2)
-		buttonleela=Button(panel, text='Leela',command=self.click_leela)
+		buttonleela=Button(panel, text=' Leela ',command=self.click_leela)
 		buttonleela.grid(column=0,row=3)
 		
+
+		undo_button.bind("<Enter>",lambda e: self.set_status("Undo last move. Shortcut: mouse middle button."))
+		buttongnugo.bind("<Enter>",lambda e: self.set_status("Ask GnuGo to play the next move."))
+		buttonleela.bind("<Enter>",lambda e: self.set_status("Ask Leela to play the next move."))
+		for button in [undo_button,buttongnugo,buttonleela]:
+			button.bind("<Leave>",lambda e: self.clear_status())
 		
-		panel.grid(column=0,row=1,sticky=N)
+		
+		panel.grid(column=1,row=1,sticky=N)
 		
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban3.space=self.goban_size/(dim+1+1)
-		goban3.grid(column=1,row=1)
+		goban3.grid(column=2,row=1)
 		
+		Label(popup,text='   ',background=bg).grid(row=0,column=3)
+		Label(popup,text='   ',background=bg).grid(row=2,column=0)
 		
+		self.status_bar=Label(popup,text='',background=bg)
+		self.status_bar.grid(row=2,column=1,columnspan=2,sticky=W)
 		
 		grid3=[[0 for row in range(dim)] for col in range(dim)]
 		markup3=[["" for row in range(dim)] for col in range(dim)]
@@ -525,7 +542,7 @@ class DualView(Frame):
 			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
 			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
 		
-		self.set_status("Use mouse wheel of keybord up/down to display the sequence move by move.")
+		self.set_status("Use mouse wheel or keyboard up/down keys to display the sequence move by move.")
 	
 	def mouse_wheel(self,event):
 		d = event.delta
@@ -770,7 +787,7 @@ class DualView(Frame):
 
 		row=10
 
-		Label(self,background=bg).grid(column=1,row=row-1)
+		#Label(self,background=bg).grid(column=1,row=row-1)
 
 		#self.goban1 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban1 = Goban(self.dim,master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
@@ -789,14 +806,14 @@ class DualView(Frame):
 		police = tkFont.nametofont("TkFixedFont")
 		lpix = police.measure("a")
 
-		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-1),height=5,foreground='black')
+		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 		self.comment_box1.grid(column=1,row=row+4)
 		
-		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-1),height=5,foreground='black')
+		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 		self.comment_box2.grid(column=3,row=row+4)
 		
 		self.status_bar=Label(self,text='',background=bg)
-		self.status_bar.grid(column=1,row=row+5,sticky=W)
+		self.status_bar.grid(column=1,row=row+5,sticky=W,columnspan=3)
 		
 		#Label(self,text='   ',background=bg).grid(column=4,row=row+6)
 		
