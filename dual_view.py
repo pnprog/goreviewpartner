@@ -473,6 +473,7 @@ class DualView(Frame):
 		self.comment_box2.delete(1.0, END)
 		self.parent.bind("<Up>", lambda e: None)
 		self.parent.bind("<Down>", lambda e: None)
+		self.clear_status()
 		goban.display(grid,markup)
 
 	def show_variation(self,event,goban,grid,markup,i,j):
@@ -523,6 +524,8 @@ class DualView(Frame):
 		except:
 			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
 			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
+		
+		self.set_status("Use mouse wheel of keybord up/down to display the sequence move by move.")
 	
 	def mouse_wheel(self,event):
 		d = event.delta
@@ -721,23 +724,42 @@ class DualView(Frame):
 		buttons_bar=Frame(self,background=bg)
 		buttons_bar.grid(column=1,row=1,columnspan=3)
 		
-		Button(buttons_bar, text='|<< ',command=self.first_move).grid(column=8,row=1)
-		Button(buttons_bar, text=' << ',command=self.prev_10_move).grid(column=9,row=1)
-		Button(buttons_bar, text='prev',command=self.prev_move).grid(column=10,row=1)
+		first_move_button=Button(buttons_bar, text='|<< ',command=self.first_move)
+		first_move_button.grid(column=8,row=1)
+		
+		prev_10_moves_button=Button(buttons_bar, text=' << ',command=self.prev_10_move)
+		prev_10_moves_button.grid(column=9,row=1)
+		
+		prev_button=Button(buttons_bar, text='prev',command=self.prev_move)
+		prev_button.grid(column=10,row=1)
+		
 		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
 		
-		Button(buttons_bar, text='open',command=self.open_move).grid(column=20,row=1)
-		
+		open_button=Button(buttons_bar, text='open',command=self.open_move)
+		open_button.grid(column=20,row=1)
+
 		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
-		Button(buttons_bar, text='next',command=self.next_move).grid(column=30,row=1)
-		Button(buttons_bar, text=' >> ',command=self.next_10_move).grid(column=31,row=1)
-		Button(buttons_bar, text=' >>|',command=self.final_move).grid(column=32,row=1)
 		
-		"""
-		Button(self, text='prev',command=self.prev_move).grid(column=1,row=1)
-		Button(self, text='open',command=self.open_move).grid(column=2,row=1)
-		Button(self, text='next',command=self.next_move).grid(column=3,row=1)
-		"""
+		next_button=Button(buttons_bar, text='next',command=self.next_move)
+		next_button.grid(column=30,row=1)
+		
+		next_10_moves_button=Button(buttons_bar, text=' >> ',command=self.next_10_move)
+		next_10_moves_button.grid(column=31,row=1)
+		
+		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
+		final_move_button.grid(column=32,row=1)
+		
+		first_move_button.bind("<Enter>",lambda e: self.set_status("Go to first move."))
+		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go back 10 moves."))
+		prev_button.bind("<Enter>",lambda e: self.set_status("Go back one move. Shortcut: keyboard left key."))
+		open_button.bind("<Enter>",lambda e: self.set_status("Open this position onto a third goban to play out variations."))
+		next_button.bind("<Enter>",lambda e: self.set_status("Go forward one move. Shortcut: keyboard right key."))
+		next_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go forward 10 moves."))
+		final_move_button.bind("<Enter>",lambda e: self.set_status("Go to final move."))
+		
+		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button]:
+			button.bind("<Leave>",lambda e: self.clear_status())
+		
 		self.move_number=Label(self,text='   ',background=bg)
 		self.move_number.grid(column=2,row=2)
 
@@ -772,13 +794,19 @@ class DualView(Frame):
 		
 		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-1),height=5,foreground='black')
 		self.comment_box2.grid(column=3,row=row+4)
-
 		
-		Label(self,text='   ',background=bg).grid(column=4,row=row+5)
+		self.status_bar=Label(self,text='',background=bg)
+		self.status_bar.grid(column=1,row=row+5,sticky=W)
+		
+		#Label(self,text='   ',background=bg).grid(column=4,row=row+6)
 		
 		goban.show_variation=self.show_variation
-	
-
+		
+	def set_status(self,msg):
+		self.status_bar.config(text=msg)
+		
+	def clear_status(self):
+		self.status_bar.config(text="")
 
 
 from gomill import sgf, sgf_moves
