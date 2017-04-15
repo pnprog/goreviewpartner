@@ -150,7 +150,7 @@ class RunAnalysis(Frame):
 				
 				if all_moves==[]:
 					bookmove=True
-					all_moves=[[answer,answer,666,666]]
+					all_moves=[[answer,answer,666,666,666]]
 				else:
 					bookmove=False
 				all_moves2=all_moves[:]
@@ -193,7 +193,7 @@ class RunAnalysis(Frame):
 						
 						print "all_moves2:",all_moves2
 						if all_moves2==[]:
-							all_moves2=[[answer,answer,666]]
+							all_moves2=[[answer,answer,666,666,666]]
 
 						print '+',all_moves2
 						all_moves[0][1]+=" "+all_moves2[0][1]
@@ -219,7 +219,8 @@ class RunAnalysis(Frame):
 				best_move=True
 				#variation=-1
 				print "Number of alternative sequences:",len(all_moves)
-				for sequence_first_move,one_sequence,one_score,one_nodes in all_moves:
+				print all_moves
+				for sequence_first_move,one_sequence,one_score,one_nodes,one_nn in all_moves:
 					print "Adding sequence starting from",sequence_first_move
 					previous_move=one_move.parent
 					current_color=player_color
@@ -246,14 +247,14 @@ class RunAnalysis(Frame):
 						
 						if player_color=='b':
 							if not bookmove:
-								new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes))
+								new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
 							if best_move:
 								best_move=False
 								if not bookmove:
 									additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
 						else:
 							if not bookmove:
-								new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes))
+								new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
 							if best_move:
 								best_move=False
 								if not bookmove:

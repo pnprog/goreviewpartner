@@ -86,6 +86,7 @@ class gtp():
 				one_answer=err_line.strip().split(" ")[0]
 				one_score= ' '.join(err_line.split()).split(' ')[4]
 				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
+				neural_net=float(err_line.split("(N:")[1].split('%)')[0].strip())
 				if one_score!="0.00%)":
 					sequence=err_line.split("PV: ")[1].strip()
 					#if float(one_score[:-2])>=100 or float(one_score[:-2])<0:
@@ -93,7 +94,7 @@ class gtp():
 					#	print "err line:",err_line
 					#	print
 					#answers.append([one_answer,sequence,float(one_score[:-2]),nodes])
-					answers=[[one_answer,sequence,float(one_score[:-2]),nodes]]+answers
+					answers=[[one_answer,sequence,float(one_score[:-2]),nodes,neural_net]]+answers
 					
 		#if len(answers)==1:
 		#	if len(answers[0][1].split(' '))==1:
