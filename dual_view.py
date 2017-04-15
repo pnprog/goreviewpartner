@@ -471,9 +471,16 @@ class DualView(Frame):
 			
 	def leave_variation(self,goban,grid,markup):
 		self.comment_box2.delete(1.0, END)
+		self.parent.bind("<Up>", lambda e: None)
+		self.parent.bind("<Down>", lambda e: None)
 		goban.display(grid,markup)
 
 	def show_variation(self,event,goban,grid,markup,i,j):
+		sequence=markup[i][j]
+		self.show_variation_move(goban,grid,markup,i,j,len(sequence))
+	
+	
+	def show_variation_move(self,goban,grid,markup,i,j,move):
 		sequence=markup[i][j]
 		temp_grid=copy(grid)
 		temp_markup=copy(markup)
@@ -484,8 +491,9 @@ class DualView(Frame):
 					temp_markup[u][v]=''
 		
 		k=1
-		for color,(u,v),s,comment,displaycolor,letter_color in sequence:
-			temp_grid[u][v]=color
+		for color,(u,v),s,comment,displaycolor,letter_color in sequence[:move]:
+			#temp_grid[u][v]=color
+			place(temp_grid,u,v,color)
 			temp_markup[u][v]=k
 			k+=1
 		
@@ -498,9 +506,42 @@ class DualView(Frame):
 		v=j+goban.mesh[i][j][1]
 		local_area=goban.draw_point(u,v,1,color="",outline="")
 		goban.tag_bind(local_area, "<Leave>", lambda e: self.leave_variation(goban,grid,markup))
-
-
-
+		
+		self.current_variation_goban=goban
+		self.current_variation_grid=grid
+		self.current_variation_markup=markup
+		self.current_variation_i=i
+		self.current_variation_j=j
+		self.current_variation_move=move
+		self.current_variation_sequence=sequence
+		
+		self.parent.bind("<Up>", self.show_variation_next)
+		self.parent.bind("<Down>", self.show_variation_prev)
+		
+		try:
+			goban.tag_bind(local_area,"<MouseWheel>", self.mouse_wheel)
+		except:
+			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
+			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
+	
+	def mouse_wheel(self,event):
+		d = event.delta
+		if d > 0:
+			self.show_variation_next()
+		else:
+			self.show_variation_prev()
+	
+	def show_variation_next(self,event=None):
+		move=(self.current_variation_move+1)%len(self.current_variation_sequence)
+		move=max(1,move)
+		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
+	
+	def show_variation_prev(self,event=None):
+		move=(self.current_variation_move-1)%len(self.current_variation_sequence)
+		if move<1:
+			move=len(self.current_variation_sequence)
+		
+		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 
 	def display_move(self,move=1):
 		dim=self.dim
