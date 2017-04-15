@@ -101,7 +101,7 @@ class RunAnalysis(Frame):
 		gnugo=self.gnugo
 		leela=self.leela
 		
-		if current_move+1 in self.move_range:
+		if current_move in self.move_range:
 			
 			max_move=self.max_move
 			
@@ -280,7 +280,8 @@ class RunAnalysis(Frame):
 			new_file.close()
 			
 			self.total_done+=1
-		
+		else:
+			print "Move",current_move,"not in the list of moves to be analysed, skipping"
 
 		print "now asking Leela to play the game move:",
 		if player_color in ('w',"W"):
@@ -409,8 +410,8 @@ class RunAnalysis(Frame):
 		self.max_move=get_moves_number(self.move_zero)
 		if not self.move_range:
 			self.move_range=range(1,self.max_move+1)
-		if 1 in self.move_range:
-			self.move_range.remove(1)
+		#if 1 in self.move_range:
+		#	self.move_range.remove(1)
 			
 		self.total_done=0
 		
@@ -566,11 +567,12 @@ class RangeSelector(Frame):
 		root.parent.title('GoReviewPartner')
 
 		txt = open(self.filename)
-		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
+		content=txt.read()
 		txt.close()
-		move_zero=self.g.get_root()
-		nb_moves=get_moves_number(move_zero)
-
+		self.g = sgf.Sgf_game.from_string(clean_sgf(content))
+		self.move_zero=self.g.get_root()
+		nb_moves=get_moves_number(self.move_zero)
+		self.nb_moves=nb_moves
 		s = StringVar()
 		s.set("all")
 
@@ -589,8 +591,44 @@ class RangeSelector(Frame):
 		only_entry.delete(0, END)
 		only_entry.insert(0, "1-"+str(nb_moves))
 		
-		Button(self,text="Start",command=self.start).grid(row=3,column=2,sticky=E)
+		Label(self,text="").grid(row=8,column=1)
+		Label(self,text="Select colors to be analysed").grid(row=9,column=1,sticky=W)
+		
+		c = StringVar()
+		c.set("both")
+		
+		c0=Radiobutton(self,text="Black & white",variable=c, value="both")
+		c0.grid(row=10,column=1,sticky=W)
+		self.after(0,c0.select)
+		
+		if 'PB[' in content:
+			black_player=content.split('PB[')[1].split(']')[0]
+			if black_player.lower().strip() in ['black','']:
+				black_player=''
+			else:
+				black_player=' ('+black_player+')'
+		else:
+			black_player=''
+		
+		if 'PW[' in content:
+			white_player=content.split('PW[')[1].split(']')[0]
+			if white_player.lower().strip() in ['white','']:
+				white_player=''
+			else:
+				white_player=' ('+white_player+')'
+		else:
+			white_player=''
+			
+		c1=Radiobutton(self,text="Black only"+black_player,variable=c, value="black")
+		c1.grid(row=11,column=1,sticky=W)
+		
+		c2=Radiobutton(self,text="White only"+white_player,variable=c, value="white")
+		c2.grid(row=12,column=1,sticky=W)
+		
+		Label(self,text="").grid(row=99,column=1)
+		Button(self,text="Start",command=self.start).grid(row=100,column=2,sticky=E)
 		self.mode=s
+		self.color=c
 		self.nb_moves=nb_moves
 		self.only_entry=only_entry
 		self.popup=None
@@ -606,12 +644,7 @@ class RangeSelector(Frame):
 	
 	def start(self):
 		if self.mode.get()=="all":
-			self.parent.destroy()
-			newtop=Tk()
-			self.popup=RunAnalysis(newtop,self.filename)
-			self.popup.pack()
-			newtop.mainloop()
-			
+			move_selection=range(1,self.nb_moves+1)
 		else:
 			move_selection=[]
 			selection = self.only_entry.get()
@@ -633,13 +666,34 @@ class RangeSelector(Frame):
 						return
 			move_selection=list(set(move_selection))
 			move_selection=sorted(move_selection)
-			print "========="
-			print move_selection
-			self.parent.destroy()
-			newtop=Tk()
-			self.popup=RunAnalysis(newtop,self.filename,move_selection)
-			self.popup.pack()
-			newtop.mainloop()
+			
+		if self.color.get()=="black":
+			print "black only"
+			new_move_selection=[]
+			for m in move_selection:
+				one_move=go_to_move(self.move_zero,m)
+				player_color,player_move=one_move.get_move()
+				if player_color.lower()=='b':
+					new_move_selection.append(m)
+			move_selection=new_move_selection
+		elif self.color.get()=="white":
+			print "white only"
+			new_move_selection=[]
+			for m in move_selection:
+				one_move=go_to_move(self.move_zero,m)
+				player_color,player_move=one_move.get_move()
+				if player_color.lower()=='w':
+					new_move_selection.append(m)
+			move_selection=new_move_selection
+		
+		print "========= move selection"
+		print move_selection
+		
+		self.parent.destroy()
+		newtop=Tk()
+		self.popup=RunAnalysis(newtop,self.filename,move_selection)
+		self.popup.pack()
+		newtop.mainloop()
 
 
 
