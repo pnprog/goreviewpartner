@@ -490,6 +490,7 @@ class DualView(Frame):
 		self.comment_box2.delete(1.0, END)
 		self.parent.bind("<Up>", lambda e: None)
 		self.parent.bind("<Down>", lambda e: None)
+		self.current_variation_sequence=None
 		self.clear_status()
 		goban.display(grid,markup)
 
@@ -535,9 +536,8 @@ class DualView(Frame):
 		
 		self.parent.bind("<Up>", self.show_variation_next)
 		self.parent.bind("<Down>", self.show_variation_prev)
-		
 		try:
-			goban.tag_bind(local_area,"<MouseWheel>", self.mouse_wheel)
+			self.parent.bind("<MouseWheel>", self.mouse_wheel)
 		except:
 			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
 			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
@@ -545,10 +545,12 @@ class DualView(Frame):
 		self.set_status("Use mouse wheel or keyboard up/down keys to display the sequence move by move.")
 	
 	def mouse_wheel(self,event):
+		if self.current_variation_sequence==None:
+			return
 		d = event.delta
-		if d > 0:
+		if d>0:
 			self.show_variation_next()
-		else:
+		elif d<0:
 			self.show_variation_prev()
 	
 	def show_variation_next(self,event=None):
