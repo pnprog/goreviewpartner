@@ -587,6 +587,9 @@ class DualView(Frame):
 			if colour=='b':
 				place(grid1,row,col,1)
 				place(grid2,row,col,1)
+			else:
+				place(grid1,row,col,2)
+				place(grid2,row,col,2)
 		
 		m=0
 		for m in range(1,move):
