@@ -551,8 +551,10 @@ class DualView(Frame):
 			self.show_variation_prev()
 	
 	def show_variation_next(self,event=None):
-		move=(self.current_variation_move+1)%len(self.current_variation_sequence)
+		
+		move=(self.current_variation_move+1)%(len(self.current_variation_sequence)+1)
 		move=max(1,move)
+		print move,'/',len(self.current_variation_sequence)
 		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 	
 	def show_variation_prev(self,event=None):
