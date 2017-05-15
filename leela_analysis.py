@@ -336,11 +336,11 @@ class RunAnalysis(Frame):
 			self.lab1.config(text="Currently at move "+str(self.current_move+1)+'/'+str(self.max_move))
 			self.pb.step()
 			self.lock2.release()
-			time.sleep(.025)
+			time.sleep(.001)
 			self.lock1.release()
 			self.lock2.acquire()
 		if self.current_move<=self.max_move:
-			self.root.after(25,self.follow_analysis)
+			self.root.after(4,self.follow_analysis)
 		else:
 			self.lab1.config(text="Completed")
 	
