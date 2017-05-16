@@ -333,16 +333,19 @@ class RunAnalysis(Frame):
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
 			self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
-			self.lab1.config(text="Currently at move "+str(self.current_move+1)+'/'+str(self.max_move))
+			self.lab1.config(text="Currently at move "+str(self.current_move)+'/'+str(self.max_move))
 			self.pb.step()
+			self.update_idletasks()
 			self.lock2.release()
 			time.sleep(.001)
 			self.lock1.release()
 			self.lock2.acquire()
 		if self.current_move<=self.max_move:
-			self.root.after(4,self.follow_analysis)
+			self.root.after(1,self.follow_analysis)
 		else:
 			self.lab1.config(text="Completed")
+			self.pb["maximum"] = 100
+			self.pb["value"] = 100
 	
 	def close_app(self):
 		print "RunAnalysis beeing closed"
@@ -438,7 +441,7 @@ class RunAnalysis(Frame):
 		self.lab1.config(text="Currently at move 2/"+str(self.max_move))
 		self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
 		
-		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move, mode="determinate")
+		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
 
 		current_move=1
