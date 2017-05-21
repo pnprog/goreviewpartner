@@ -1,7 +1,7 @@
 import subprocess
 import threading, Queue
 
-from time import sleep
+from time import sleep,time
 class gtp():
 	def __init__(self,command):
 		self.c=1
@@ -45,11 +45,65 @@ class gtp():
 		answer=self.readline()
 		return " ".join(answer.split(" ")[1:])
 	
+	def get_gnugo_initial_influence_black(self):
+		self.write("initial_influence black influence_regions")
+		one_line=self.readline()
+		#print "->",one_line
+		one_line=one_line.split("= ")[1].strip().replace("  "," ")
+		lines=[one_line]
+		for i in range(self.size-1):
+			one_line=self.readline().strip().replace("  "," ")
+			lines.append(one_line)
+		
+		influence=[]
+		for i in range(self.size):
+			influence=[[int(s) for s in lines[i].split(" ")]]+influence
+		return influence
+
+	
+	def get_gnugo_initial_influence_white(self):
+		self.write("initial_influence white influence_regions")
+		one_line=self.readline()
+		#print "->",one_line
+		one_line=one_line.split("= ")[1].strip().replace("  "," ")
+		lines=[one_line]
+		for i in range(self.size-1):
+			one_line=self.readline().strip().replace("  "," ")
+			lines.append(one_line)
+		
+		influence=[]
+		for i in range(self.size):
+			influence=[[int(s) for s in lines[i].split(" ")]]+influence
+		return influence
 	
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
 		answer=self.readline().strip()
 		return answer.split(" ")[1]
+
+	def gnugo_top_moves_black(self):
+		self.write("top_moves_black")
+		answer=self.readline()[:-1]
+		answer=answer.split(" ")[1:-1]
+		answers_list=[]
+		for value in answer:
+			try:
+				score=float(value)
+			except:
+				answers_list.append(value)
+		return answers_list
+
+	def gnugo_top_moves_white(self):
+		self.write("top_moves_white")
+		answer=self.readline()[:-1]
+		answer=answer.split(" ")[1:-1]
+		answers_list=[]
+		for value in answer:
+			try:
+				score=float(value)
+			except:
+				answers_list.append(value)
+		return answers_list
 
 	
 	def get_gnugo_experimental_score(self,color):

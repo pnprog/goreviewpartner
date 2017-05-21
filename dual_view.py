@@ -564,6 +564,24 @@ class DualView(Frame):
 		
 		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 
+	def show_territories(self,event=None):
+		black_t=self.territories[0]
+		white_t=self.territories[1]
+		
+		dim=self.dim
+		markup=[["" for row in range(dim)] for col in range(dim)]
+		
+		for i,j in black_t:
+			markup[i][j]=-1
+		
+		for i,j in white_t:
+			markup[i][j]=-2
+		
+		self.goban1.display(self.current_grid,markup)
+	
+	def hide_territories(self,event=None):
+		self.goban1.display(self.current_grid,self.current_markup)
+	
 	def display_move(self,move=1):
 		dim=self.dim
 		goban1=self.goban1
@@ -580,6 +598,9 @@ class DualView(Frame):
 		markup2=[["" for row in range(dim)] for col in range(dim)]
 		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
 
+		self.current_grid=grid1
+		self.current_markup=markup1
+
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
@@ -590,6 +611,7 @@ class DualView(Frame):
 			else:
 				place(grid1,row,col,2)
 				place(grid2,row,col,2)
+		
 		
 		m=0
 		for m in range(1,move):
@@ -617,7 +639,18 @@ class DualView(Frame):
 				goban2.display(grid2,markup2)
 				return
 		
+
 		
+		self.territories=[[],[]]
+		if m>0:
+			if one_move.has_property("TB"):
+				self.territories[0]=one_move.get("TB")
+			if one_move.has_property("TW"):
+				self.territories[1]=one_move.get("TW")
+		if self.territories!=[[],[]]:
+			self.territory_button.grid()
+		else:
+			self.territory_button.grid_remove()
 		
 		#indicating last play with delta
 		self.comment_box1.delete(1.0, END)
@@ -626,7 +659,9 @@ class DualView(Frame):
 				self.comment_box1.insert(END,get_node(self.gameroot,m+1).get("C"))
 			markup1[i][j]=0
 			markup2[i][j]=0
-		
+
+
+
 		self.comment_box2.delete(1.0, END)
 		#next sequence in current game ############################################################################
 		main_sequence=[]
@@ -710,14 +745,16 @@ class DualView(Frame):
 			
 		goban1.display(grid1,markup1)
 		goban2.display(grid2,markup2)
+		
 
+		
 	def open_move(self):
 		print "Opening move",self.current_move
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		self.all_popups.append(new_popup)
 		
 	def initialize(self):
-				
+		
 		txt = open(self.filename)
 		self.sgf = sgf.Sgf_game.from_string(txt.read())
 		txt.close()
@@ -756,9 +793,11 @@ class DualView(Frame):
 		
 		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
 		
-		open_button=Button(buttons_bar, text='open',command=self.open_move)
-		open_button.grid(column=20,row=1)
+		self.move_number=Label(buttons_bar,text='   ',background=bg)
+		self.move_number.grid(column=20,row=1)
+		
 
+		
 		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
 		
 		next_button=Button(buttons_bar, text='next',command=self.next_move)
@@ -770,20 +809,17 @@ class DualView(Frame):
 		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
 		final_move_button.grid(column=32,row=1)
 		
-		first_move_button.bind("<Enter>",lambda e: self.set_status("Go to first move."))
-		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go back 10 moves."))
-		prev_button.bind("<Enter>",lambda e: self.set_status("Go back one move. Shortcut: keyboard left key."))
-		open_button.bind("<Enter>",lambda e: self.set_status("Open this position onto a third goban to play out variations."))
-		next_button.bind("<Enter>",lambda e: self.set_status("Go forward one move. Shortcut: keyboard right key."))
-		next_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go forward 10 moves."))
-		final_move_button.bind("<Enter>",lambda e: self.set_status("Go to final move."))
+		buttons_bar2=Frame(self,background=bg)
+		buttons_bar2.grid(column=1,row=2,sticky=W)
 		
-		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button]:
-			button.bind("<Leave>",lambda e: self.clear_status())
+		open_button=Button(buttons_bar2, text='open',command=self.open_move)
+		open_button.grid(column=1,row=1)
 		
-		self.move_number=Label(self,text='   ',background=bg)
-		self.move_number.grid(column=2,row=2)
-
+		self.territory_button=Button(buttons_bar2, text='territories')
+		self.territory_button.grid(column=2,row=1)
+		self.territory_button.bind('<Button-1>', self.show_territories)
+		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
+		
 		self.parent.bind('<Left>', self.prev_move)
 		self.parent.bind('<Right>', self.next_move)
 
@@ -822,6 +858,18 @@ class DualView(Frame):
 		#Label(self,text='   ',background=bg).grid(column=4,row=row+6)
 		
 		goban.show_variation=self.show_variation
+		
+		first_move_button.bind("<Enter>",lambda e: self.set_status("Go to first move."))
+		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go back 10 moves."))
+		prev_button.bind("<Enter>",lambda e: self.set_status("Go back one move. Shortcut: keyboard left key."))
+		open_button.bind("<Enter>",lambda e: self.set_status("Open this position onto a third goban to play out variations."))
+		next_button.bind("<Enter>",lambda e: self.set_status("Go forward one move. Shortcut: keyboard right key."))
+		next_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go forward 10 moves."))
+		final_move_button.bind("<Enter>",lambda e: self.set_status("Go to final move."))
+		self.territory_button.bind("<Enter>",lambda e: self.set_status("Keep pressed to show territories."))
+		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button]:
+			button.bind("<Leave>",lambda e: self.clear_status())
+		
 		
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)

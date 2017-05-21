@@ -114,6 +114,10 @@ class Goban(Canvas):
 						self.draw_line(u+0.5*k,v-0*k,u-0.255*k,v+0.435*k,markup_color,width=2)
 						self.draw_line(u-0.255*k,v+0.435*k,u-0.255*k,v-0.435*k,markup_color,width=2)
 						self.draw_line(u-0.255*k,v-0.435*k,u+0.5*k,v-0*k,markup_color,width=2)
+					elif markup[i][j]==-1:
+						self.draw_point(i,j,.4,"black")
+					elif markup[i][j]==-2:
+						self.draw_point(i,j,.4,"white")
 					else:
 						x,y=self.ij2xy(u,v)
 						self.create_text(x,y, text=str(markup[i][j]),font=("Arial", str(int(space/2))),fill=markup_color)

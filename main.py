@@ -1,7 +1,8 @@
 
 from Tkinter import * 
 
-import leela_analysis
+import leela_analysis,gnugo_analysis
+from toolbox import *
 import dual_view
 import settings
 import ConfigParser
@@ -38,8 +39,8 @@ def launch_analysis():
 	print "filename:",filename
 	
 	top = Toplevel()
-	#new_popup=leela_analysis.RunAnalysis(top,filename)
-	new_popup=leela_analysis.RangeSelector(top,filename)
+
+	new_popup=RangeSelector(top,filename,bots=[("Leela",leela_analysis.RunAnalysis),("GnuGo",gnugo_analysis.RunAnalysis)])
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()
@@ -50,7 +51,7 @@ analysis_bouton.pack()
 
 def download_sgf_for_review():
 	top = Toplevel()
-	new_popup=leela_analysis.DownloadFromURL(top)
+	new_popup=DownloadFromURL(top,bots=[("Leela",leela_analysis.RunAnalysis),("GnuGo",gnugo_analysis.RunAnalysis)])
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()

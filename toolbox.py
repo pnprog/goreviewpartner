@@ -58,7 +58,7 @@ def ij2sgf(m):
 	return letters[j]+letters[i]
 
 from gomill import sgf, sgf_moves
-from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, W,E, Entry, END,Button,Toplevel
+from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox
 import tkFileDialog
 import sys
 import os
@@ -66,8 +66,9 @@ import urllib2
 
 
 class DownloadFromURL(Frame):
-	def __init__(self,parent):
+	def __init__(self,parent,bots=None):
 		Frame.__init__(self,parent)
+		self.bots=bots
 		self.parent=parent
 		self.parent.title('GoReviewPartner')
 		
@@ -142,7 +143,7 @@ class DownloadFromURL(Frame):
 		#self.parent.destroy()
 		self.destroy()
 		#newtop=Tk()
-		self.popup=RangeSelector(self.parent,filename)
+		self.popup=RangeSelector(self.parent,filename,self.bots)
 		self.popup.pack()
 		#newtop.mainloop()
 
@@ -173,17 +174,18 @@ def clean_sgf(txt):
 	return txt
 
 
-
+RunAnalysis=None
 
 
 class RangeSelector(Frame):
-	def __init__(self,parent,filename):
+	def __init__(self,parent,filename,bots=None):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
 		root = self
 		root.parent.title('GoReviewPartner')
-
+		self.bots=bots
+		
 		txt = open(self.filename)
 		content=txt.read()
 		txt.close()
@@ -194,18 +196,30 @@ class RangeSelector(Frame):
 		s = StringVar()
 		s.set("all")
 
-		Label(self,text="Select moves to be analysed").grid(row=0,column=1,sticky=W)
+		Label(self,text="").grid(row=0,column=1)
+		
+		if bots!=None:
+			Label(self,text="Bot to use for analysis:").grid(row=1,column=1,sticky=N+W)
+			self.bot_selection = Listbox(self,height=len(bots))
+			self.bot_selection.grid(row=1,column=2,sticky=W)
+			for bot,f in bots:
+				self.bot_selection.insert(END, bot)
+			self.bot_selection.selection_set(0)
+			self.bot_selection.configure(exportselection=False)
+			Label(self,text="").grid(row=2,column=1)
+
+		Label(self,text="Select moves to be analysed").grid(row=3,column=1,sticky=W)
 		
 		r1=Radiobutton(self,text="Analyse all "+str(nb_moves)+" moves",variable=s, value="all")
-		r1.grid(row=1,column=1,sticky=W)
+		r1.grid(row=4,column=1,sticky=W)
 		self.after(0,r1.select)
 		
 		r2=Radiobutton(self,text="Analyse only those moves: ",variable=s, value="only")
-		r2.grid(row=2,column=1,sticky=W)
+		r2.grid(row=5,column=1,sticky=W)
 		
 		only_entry=Entry(self)
 		only_entry.bind("<Button-1>", lambda e: r2.select())
-		only_entry.grid(row=2,column=2,sticky=W)
+		only_entry.grid(row=5,column=2,sticky=W)
 		only_entry.delete(0, END)
 		only_entry.insert(0, "1-"+str(nb_moves))
 		
@@ -261,6 +275,11 @@ class RangeSelector(Frame):
 				pass
 	
 	def start(self):
+		if self.bots!=None:
+			bot_selection=self.bot_selection.curselection()[0]
+			print "bot selection:",self.bots[bot_selection][0]
+			RunAnalysis=self.bots[bot_selection][1]
+		
 		if self.mode.get()=="all":
 			move_selection=range(1,self.nb_moves+1)
 		else:
