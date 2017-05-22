@@ -190,6 +190,25 @@ class RunAnalysis(Frame):
 						else:
 							current_color='w'
 				print "==== no more sequences ====="
+				
+				print "Creating the influence map"
+				influence=leela.get_leela_influence()
+				black_influence_points=[]
+				white_influence_points=[]
+				for i in range(self.size):
+					for j in range(self.size):
+						if influence[i][j]==1:
+							black_influence_points.append([i,j])
+						elif influence[i][j]==2:
+							white_influence_points.append([i,j])
+
+				if black_influence_points!=[]:
+					one_move.parent.set("TB",black_influence_points)
+				
+				if white_influence_points!=[]:
+					one_move.parent.set("TW",white_influence_points)	
+				
+				
 			else:
 				print 'adding "'+answer.lower()+'" to the sgf file'
 				additional_comments+="\nFor this position, Leela would "+answer.lower()
@@ -219,15 +238,15 @@ class RunAnalysis(Frame):
 
 	def run_all_analysis(self):
 		self.current_move=1
-		try:
-			while self.current_move<=self.max_move:
-				self.lock1.acquire()
-				self.run_analysis(self.current_move)
-				self.current_move+=1
-				self.lock1.release()
-				self.lock2.acquire()
-				self.lock2.release()
-		except Exception,e:
+		#try:
+		while self.current_move<=self.max_move:
+			self.lock1.acquire()
+			self.run_analysis(self.current_move)
+			self.current_move+=1
+			self.lock1.release()
+			self.lock2.acquire()
+			self.lock2.release()
+		"""except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 			print exc_type, fname, exc_tb.tb_lineno
@@ -242,7 +261,7 @@ class RunAnalysis(Frame):
 			except:
 				pass
 			print "leaving thread"
-			exit()
+			exit()"""
 
 		
 
@@ -291,7 +310,7 @@ class RunAnalysis(Frame):
 		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		size=self.g.get_size()
-		
+		self.size=size
 		leela_command_line=tuple(Config.get("Leela", "Command").split())
 		leela=gtp(leela_command_line)
 		leela.boardsize(size)

@@ -76,6 +76,27 @@ class gtp():
 			influence=[[int(s) for s in lines[i].split(" ")]]+influence
 		return influence
 	
+	def get_leela_influence(self):
+		self.write("influence")
+		one_line=self.readline() #empty line
+		buff=[]
+		while self.stderr_queue.empty():
+			sleep(.1)
+		while not self.stderr_queue.empty():
+			while not self.stderr_queue.empty():
+				buff.append(self.stderr_queue.get())
+			sleep(.1)
+		buff.reverse()
+		print buff
+		influence=[]
+		for i in range(self.size):
+			one_line=buff[i].strip()
+			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0")
+			one_line=[int(s) for s in one_line.split(" ")]
+			influence.append(one_line)
+		
+		return influence
+		
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
 		answer=self.readline().strip()
@@ -282,5 +303,7 @@ class gtp():
 		print "process.kill()"
 		self.process.kill()
 		sleep(0.5)
+
+
 
 
