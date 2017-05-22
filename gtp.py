@@ -267,8 +267,9 @@ class gtp():
 		else:return False
 
 	def gtp_exit(self):
-		self.write("exit")
+		self.write("quit")
 		answer=self.readline()
+		answer
 		if answer[0]=="=":
 			return True
 		else:
@@ -281,7 +282,5 @@ class gtp():
 		print "process.kill()"
 		self.process.kill()
 		sleep(0.5)
-
-
 
 
