@@ -187,10 +187,10 @@ class RunAnalysis(Frame):
 					if white_influence[i][j]==3:
 						white_influence_points.append([i,j])
 
-			if black_influence_points!="":
+			if black_influence_points!=[]:
 				one_move.parent.set("TB",black_influence_points)
 			
-			if white_influence_points!="":
+			if white_influence_points!=[]:
 				one_move.parent.set("TW",white_influence_points)			
 			
 			
