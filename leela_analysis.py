@@ -25,18 +25,6 @@ from toolbox import *
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 class RunAnalysis(Frame):
 	def __init__(self,parent,filename,move_range=None):
 		Frame.__init__(self,parent)
@@ -52,38 +40,20 @@ class RunAnalysis(Frame):
 		
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color,player_move=one_move.get_move()
-		gnugo=self.gnugo
 		leela=self.leela
 		
 		if current_move in self.move_range:
 			
 			max_move=self.max_move
 			
-			
 			print "move",str(current_move)+'/'+str(max_move),
-			
-			#final_score=leela.get_leela_final_score()
-			final_score=gnugo.get_gnugo_estimate_score()
-			
-			print final_score,
-			
-			#one_move.add_comment_text("\nGnugo score estimation: "+final_score)
 			
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
 				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
 			else:
 				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
-			additional_comments+="\nGnugo score estimation before the move was played: "+final_score
-			
-			"""
-			if player_color in ('w',"W"):
-				print "leela play white"
-				answer=leela.play_white()
-			else:
-				print "leela play black"
-				answer=leela.play_black()
-			"""
+
 			try:
 				if player_color in ('w',"W"):
 					print "leela play white"
@@ -241,15 +211,12 @@ class RunAnalysis(Frame):
 		if player_color in ('w',"W"):
 			print "white at",ij2gtp(player_move)
 			leela.place_white(ij2gtp(player_move))
-			gnugo.place_white(ij2gtp(player_move))
 		else:
 			print "black at",ij2gtp(player_move)
 			leela.place_black(ij2gtp(player_move))
-			gnugo.place_black(ij2gtp(player_move))
-		
 		print "Analysis for this move is completed"
 	
-	
+
 	def run_all_analysis(self):
 		self.current_move=1
 		try:
@@ -305,8 +272,7 @@ class RunAnalysis(Frame):
 		print "RunAnalysis beeing closed"
 		self.lab2.config(text="Now closing, please wait...")
 		self.update_idletasks()
-		print "killing gnugo"
-		self.gnugo.close()
+
 		print "killing leela"
 		self.leela.close()
 		print "destroying"
@@ -332,18 +298,14 @@ class RunAnalysis(Frame):
 		leela.reset()
 		self.leela=leela
 		
-		gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
-		gnugo=gtp(gnugo_command_line)
-		gnugo.boardsize(size)
-		gnugo.reset()
-		self.gnugo=gnugo
+
 		
 		self.time_per_move=int(Config.get("Analysis", "TimePerMove"))
 		leela.set_time(main_time=self.time_per_move,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
 		self.move_zero=self.g.get_root()
 		komi=self.g.get_komi()
 		leela.komi(komi)
-		gnugo.komi(komi)
+
 		
 		
 		
@@ -357,11 +319,9 @@ class RunAnalysis(Frame):
 				if colour in ('w',"W"):
 					print "Adding initial white stone at",move
 					leela.place_white(move)
-					gnugo.place_white(move)
 				else:
 					print "Adding initial black stone at",move
 					leela.place_black(move)
-					gnugo.place_black(move)
 						
 			
 		self.max_move=get_moves_number(self.move_zero)
