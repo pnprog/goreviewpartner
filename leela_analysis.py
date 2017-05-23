@@ -335,7 +335,7 @@ class RunAnalysis(Frame):
 		leela.reset()
 		self.leela=leela
 		
-		self.time_per_move=int(Config.get("Analysis", "TimePerMove"))
+		self.time_per_move=int(Config.get("Leela", "TimePerMove"))
 		leela.set_time(main_time=self.time_per_move,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
 		self.move_zero=self.g.get_root()
 		komi=self.g.get_komi()

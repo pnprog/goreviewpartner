@@ -11,13 +11,6 @@ class OpenSettings(Toplevel):
 
 		row=0
 		
-		Label(self).grid(row=row,column=0)
-		Label(self,text="Analysis").grid(row=row+1,column=1)
-		Label(self,text="Time per move").grid(row=row+2,column=1)
-		TimePerMove = StringVar() 
-		TimePerMove.set(Config.get("Analysis","TimePerMove"))
-		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
-		
 		row+=3
 
 		Label(self).grid(row=row,column=0)
@@ -35,6 +28,11 @@ class OpenSettings(Toplevel):
 		LeelaCommand = StringVar() 
 		LeelaCommand.set(Config.get("Leela","Command"))
 		Entry(self, textvariable=LeelaCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Time per move").grid(row=row+2,column=1)
+		TimePerMove = StringVar() 
+		TimePerMove.set(Config.get("Leela","TimePerMove"))
+		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
 		
 		row+=3
 		
@@ -78,7 +76,7 @@ class OpenSettings(Toplevel):
 	def save(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
-		Config.set("Analysis","TimePerMove",self.TimePerMove.get())
+		Config.set("Leela","TimePerMove",self.TimePerMove.get())
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Leela","Command",self.LeelaCommand.get())
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
