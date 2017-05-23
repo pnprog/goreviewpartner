@@ -311,13 +311,29 @@ class RunAnalysis(Frame):
 		txt.close()
 		size=self.g.get_size()
 		self.size=size
-		leela_command_line=tuple(Config.get("Leela", "Command").split())
-		leela=gtp(leela_command_line)
-		leela.boardsize(size)
+
+		try:
+			leela_command_line=Config.get("Leela", "Command")
+		except:
+			alert("The config.ini file does not contain entry for Leela command line!")
+			return
+		
+		if not leela_command_line:
+			alert("The config.ini file does not contain command line for Leela!")
+			return
+		try:
+			leela=gtp(tuple(leela_command_line.split()))
+		except:
+			alert("Could not run Leela using the command from config.ini file (\""+leela_command_line+"\")")
+			return
+		try:
+			leela.boardsize(size)
+		except:
+			alert("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			return
+
 		leela.reset()
 		self.leela=leela
-		
-
 		
 		self.time_per_move=int(Config.get("Analysis", "TimePerMove"))
 		leela.set_time(main_time=self.time_per_move,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
