@@ -409,22 +409,17 @@ class OpenMove():
 
 class DualView(Frame):
 	def __init__(self,parent,filename,goban_size=200):
-		#Tk.__init__(self,parent)
 		Frame.__init__(self,parent)
 		
 		self.parent=parent
 		self.filename=filename
 		self.goban_size=goban_size
 		
-
-		
 		self.initialize()
 		
 		self.current_move=1
 		self.display_move(self.current_move)
-		
-		#self.after(100,self.center)
-		
+
 		self.pressed=0
 
 	def close_app(self):
@@ -665,7 +660,7 @@ class DualView(Frame):
 		self.comment_box2.delete(1.0, END)
 		#next sequence in current game ############################################################################
 		main_sequence=[]
-		for m in range(5):
+		for m in range(self.realgamedeepness):
 			one_move=get_node(self.gameroot,move+m)
 			if one_move==False:
 				print "(00)leaving because one_move==False"
@@ -755,6 +750,14 @@ class DualView(Frame):
 		
 	def initialize(self):
 		
+		
+		self.realgamedeepness=5
+		try:
+			self.realgamedeepness=int(Config.get("Review", "RealGameSequenceDeepness"))
+		except:
+			Config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
+			Config.write(open("config.ini","w"))
+			
 		txt = open(self.filename)
 		self.sgf = sgf.Sgf_game.from_string(txt.read())
 		txt.close()

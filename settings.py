@@ -19,6 +19,11 @@ class OpenSettings(Toplevel):
 		FuzzyStonePlacement = StringVar() 
 		FuzzyStonePlacement.set(Config.get("Review","FuzzyStonePlacement"))
 		Entry(self, textvariable=FuzzyStonePlacement, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Real game sequence deepness").grid(row=row+2,column=1)
+		RealGameSequenceDeepness = StringVar() 
+		RealGameSequenceDeepness.set(Config.get("Review","RealGameSequenceDeepness"))
+		Entry(self, textvariable=RealGameSequenceDeepness, width=30).grid(row=row+2,column=2)
 		
 		row+=3
 		
@@ -72,12 +77,14 @@ class OpenSettings(Toplevel):
 		self.GnugoCommand=GnugoCommand
 		self.GnugoVariations=GnugoVariations
 		self.GnugoDeepness=GnugoDeepness
+		self.RealGameSequenceDeepness=RealGameSequenceDeepness
 		
 	def save(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
 		Config.set("Leela","TimePerMove",self.TimePerMove.get())
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
+		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Leela","Command",self.LeelaCommand.get())
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
 		Config.set("GnuGo","Variations",self.GnugoVariations.get())
