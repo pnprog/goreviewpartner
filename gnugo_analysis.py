@@ -57,10 +57,8 @@ class RunAnalysis(Frame):
 		self.move_range=move_range
 		self.lock1=threading.Lock()
 		self.lock2=threading.Lock()
-		self.nb_variations=2
-		self.deepness=4
+
 		
-		self.nb_workers=self.nb_variations
 		self.initialize()
 		
 	
@@ -285,6 +283,21 @@ class RunAnalysis(Frame):
 	def initialize(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
+		self.nb_variations=4
+		try:
+			self.nb_variations=int(Config.get("GnuGo", "variations"))
+		except:
+			Config.set("GnuGo", "variations",self.nb_variations)
+			Config.write(open("config.ini","w"))
+		
+		self.deepness=4
+		try:
+			self.deepness=int(Config.get("GnuGo", "deepness"))
+		except:
+			Config.set("GnuGo", "deepness",self.deepness)
+			Config.write(open("config.ini","w"))
+		
+		self.nb_workers=self.nb_variations
 		
 		txt = open(self.filename)
 		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))

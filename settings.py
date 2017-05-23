@@ -44,6 +44,17 @@ class OpenSettings(Toplevel):
 		GnugoCommand = StringVar() 
 		GnugoCommand.set(Config.get("GnuGo","Command"))
 		Entry(self, textvariable=GnugoCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Variations").grid(row=row+2,column=1)
+		GnugoVariations = StringVar() 
+		GnugoVariations.set(Config.get("GnuGo","Variations"))
+		Entry(self, textvariable=GnugoVariations, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Deepness").grid(row=row+2,column=1)
+		GnugoDeepness = StringVar() 
+		GnugoDeepness.set(Config.get("GnuGo","Deepness"))
+		Entry(self, textvariable=GnugoDeepness, width=30).grid(row=row+2,column=2)
+		
 		
 		row+=3
 		Label(self).grid(row=row,column=3)
@@ -61,7 +72,9 @@ class OpenSettings(Toplevel):
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.LeelaCommand=LeelaCommand
 		self.GnugoCommand=GnugoCommand
-
+		self.GnugoVariations=GnugoVariations
+		self.GnugoDeepness=GnugoDeepness
+		
 	def save(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
@@ -69,6 +82,8 @@ class OpenSettings(Toplevel):
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Leela","Command",self.LeelaCommand.get())
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
+		Config.set("GnuGo","Variations",self.GnugoVariations.get())
+		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
 		
 		Config.write(open("config.ini","w"))
 		
