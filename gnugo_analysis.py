@@ -304,9 +304,25 @@ class RunAnalysis(Frame):
 		txt.close()
 		size=self.g.get_size()
 		self.size=size
-		gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
-		gnugo=gtp(gnugo_command_line)
-		gnugo.boardsize(size)
+		try:
+			gnugo_command_line=Config.get("GnuGo", "Command")
+		except:
+			alert("The config.ini file does not contain entry for GnuGo command line!")
+			return
+		
+		if not gnugo_command_line:
+			alert("The config.ini file does not contain command line for GnuGo!")
+			return
+		try:
+			gnugo=gtp(tuple(gnugo_command_line.split()))
+		except:
+			alert("Could not run GnuGo using the command from config.ini file (\""+gnugo_command_line+"\")")
+			return
+		try:
+			gnugo.boardsize(size)
+		except:
+			alert("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			return
 		gnugo.reset()
 		self.gnugo=gnugo
 		
