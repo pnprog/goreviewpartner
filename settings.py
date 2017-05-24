@@ -24,6 +24,11 @@ class OpenSettings(Toplevel):
 		RealGameSequenceDeepness = StringVar() 
 		RealGameSequenceDeepness.set(Config.get("Review","RealGameSequenceDeepness"))
 		Entry(self, textvariable=RealGameSequenceDeepness, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Goban/screen ratio").grid(row=row+2,column=1)
+		GobanScreenRatio = StringVar() 
+		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
+		Entry(self, textvariable=GobanScreenRatio, width=30).grid(row=row+2,column=2)
 		
 		row+=3
 		
@@ -78,6 +83,7 @@ class OpenSettings(Toplevel):
 		self.GnugoVariations=GnugoVariations
 		self.GnugoDeepness=GnugoDeepness
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
+		self.GobanScreenRatio=GobanScreenRatio
 		
 	def save(self):
 		Config = ConfigParser.ConfigParser()
@@ -85,10 +91,13 @@ class OpenSettings(Toplevel):
 		Config.set("Leela","TimePerMove",self.TimePerMove.get())
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
+		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
 		Config.set("Leela","Command",self.LeelaCommand.get())
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
 		Config.set("GnuGo","Variations",self.GnugoVariations.get())
 		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
+		
+		
 		
 		Config.write(open("config.ini","w"))
 		

@@ -901,6 +901,11 @@ if __name__ == "__main__":
 	top = Tk()
 	
 	display_factor=.5
+	try:
+		display_factor=float(Config.get("Review", "GobanScreenRatio"))
+	except:
+		Config.set("Review", "GobanScreenRatio",display_factor)
+		Config.write(open("config.ini","w"))
 	
 	screen_width = top.winfo_screenwidth()
 	screen_height = top.winfo_screenheight()
