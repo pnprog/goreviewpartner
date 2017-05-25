@@ -91,7 +91,7 @@ class gtp():
 		influence=[]
 		for i in range(self.size):
 			one_line=buff[i].strip()
-			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0")
+			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0").replace("w","1").replace("b","2")
 			one_line=[int(s) for s in one_line.split(" ")]
 			influence.append(one_line)
 		
