@@ -118,6 +118,8 @@ class OpenMove():
 
 		if len(self.history)<1:
 			return
+		elif len(self.history)==1:
+			self.undo_button.config(state='disabled')
 		popup=self.popup
 		self.grid,self.markup=self.history.pop()
 		self.next_color=3-self.next_color
@@ -165,6 +167,7 @@ class OpenMove():
 				alert("Leela/white: "+move)
 		
 		self.goban.display(self.grid,self.markup)
+		self.undo_button.config(state='normal')
 		self.unlock()
 
 	def click_gnugo(self):
@@ -207,6 +210,7 @@ class OpenMove():
 				alert("GnuGo/white: "+move)
 
 		self.goban.display(self.grid,self.markup)
+		self.undo_button.config(state='normal')
 		self.unlock()
 	
 	
@@ -240,6 +244,7 @@ class OpenMove():
 					
 				self.goban.display(self.grid,self.markup)
 				self.next_color=3-color
+				self.undo_button.config(state='normal')
 	
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
@@ -270,6 +275,7 @@ class OpenMove():
 		
 		undo_button=Button(panel, text=' undo  ',command=self.undo)
 		undo_button.grid(column=0,row=1)
+		undo_button.config(state='disabled')
 		buttongnugo=Button(panel, text='Gnugo',command=self.click_gnugo)
 		buttongnugo.grid(column=0,row=2)
 		buttonleela=Button(panel, text=' Leela ',command=self.click_leela)
@@ -396,14 +402,14 @@ class OpenMove():
 		self.markup=markup3
 		self.okgnugo=okgnugo
 		self.okleela=okleela
-		
+		self.undo_button=undo_button
 		popup.protocol("WM_DELETE_WINDOW", self.close)
 		goban3.bind("<Button-1>",self.click)
 		goban3.bind("<Button-2>",self.undo)
 		goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
 		
 		self.history=[]
-		
+
 		
 
 class DualView(Frame):
