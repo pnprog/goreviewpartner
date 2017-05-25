@@ -329,7 +329,7 @@ class RunAnalysis(Frame):
 		self.workers=[]
 		
 		for w in range(self.nb_workers):
-			gnugo_worker=gtp(gnugo_command_line)
+			gnugo_worker=gtp(tuple(gnugo_command_line.split()))
 			gnugo_worker.boardsize(size)
 			gnugo_worker.reset()
 			self.workers.append(gnugo_worker)
