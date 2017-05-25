@@ -315,8 +315,7 @@ class OpenMove():
 			okleela=False
 			print "Could not launch Leela"
 			print e
-			buttonleela.config(state="disabled")
-			
+			buttonleela.destroy()
 			
 
 		okgnugo=True
@@ -331,7 +330,7 @@ class OpenMove():
 			okgnugo=False
 			print "Could not launch GnuGo"
 			print e
-			buttongnugo.config(state="disabled")
+			buttongnugo.destroy()
 		
 		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
 		for colour, move0 in board.list_occupied_points():
