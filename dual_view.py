@@ -314,7 +314,7 @@ class OpenMove():
 			leela.boardsize(dim)
 			leela.reset()
 			leela.komi(komi)
-			time_per_move=int(Config.get("Analysis", "TimePerMove"))
+			time_per_move=int(Config.get("Leela", "TimePerMove"))
 			leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 			self.leela=leela
 		except Exception, e:
