@@ -7,4 +7,6 @@ More informations on L19 forum in this thread: [Announcing GoReviewPartner](http
 Windows ready download available there: [http://ns1297.imingo.net/](http://ns1297.imingo.net/)
 
 
-Feel free to open issues or as questions on Github or L19.
+Feel free to open issues or ask questions on Github or L19.
+
+![Screen-shot of GoReviewPartner](https://lifein19x19.com/download/file.php?id=8501 "Screen-shot of GoReviewPartner")
