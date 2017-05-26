@@ -123,7 +123,7 @@ class Goban(Canvas):
 						if grid[i][j]==0:
 							self.draw_point(i,j,.4,"white")
 						else:
-							self.draw_point(u,v,.4,"black")
+							self.draw_point(u,v,.4,"white")
 					else:
 						x,y=self.ij2xy(u,v)
 						self.create_text(x,y, text=str(markup[i][j]),font=("Arial", str(int(space/2))),fill=markup_color)
