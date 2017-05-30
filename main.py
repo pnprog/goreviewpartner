@@ -39,8 +39,16 @@ def launch_analysis():
 	print "filename:",filename
 	
 	top = Toplevel()
-
-	new_popup=RangeSelector(top,filename,bots=[("Leela",leela_analysis.RunAnalysis),("GnuGo",gnugo_analysis.RunAnalysis)])
+	
+	bots=[]
+	Config = ConfigParser.ConfigParser()
+	Config.read("config.ini")
+	if Config.get("Leela","Command")!="":
+		bots.append(("Leela",leela_analysis.RunAnalysis))
+	if Config.get("GnuGo","Command")!="":
+			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
+	
+	new_popup=RangeSelector(top,filename,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()
@@ -94,12 +102,12 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read("config.ini")
-	if Config.get("Leela","Command")=="" or Config.get("GnuGo","Command")=="":
-		review_bouton.config(state='disabled')
+	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="":
+		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')
 	else:
-		review_bouton.config(state='normal')
+		#review_bouton.config(state='normal')
 		analysis_bouton.config(state='normal')
 		download_bouton.config(state='normal')
 
