@@ -285,6 +285,7 @@ class OpenMove():
 		undo_button.bind("<Enter>",lambda e: self.set_status("Undo last move. Shortcut: mouse middle button."))
 		buttongnugo.bind("<Enter>",lambda e: self.set_status("Ask GnuGo to play the next move."))
 		buttonleela.bind("<Enter>",lambda e: self.set_status("Ask Leela to play the next move."))
+		
 		for button in [undo_button,buttongnugo,buttonleela]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
@@ -294,6 +295,10 @@ class OpenMove():
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban3.space=self.goban_size/(dim+1+1)
 		goban3.grid(column=2,row=1)
+		
+		self.popup.bind('<Control-q>', self.save_as_ps)
+		goban3.bind("<Enter>",lambda e: self.set_status("<Ctrl+Q> to export goban as postscript image."))
+		goban3.bind("<Leave>",lambda e: self.clear_status())
 		
 		Label(popup,text='   ',background=bg).grid(row=0,column=3)
 		Label(popup,text='   ',background=bg).grid(row=2,column=0)
@@ -410,7 +415,9 @@ class OpenMove():
 		
 		self.history=[]
 
-		
+	def save_as_ps(self,e=None):
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
+		self.goban.postscript(file=filename, colormode='color')
 
 class DualView(Frame):
 	def __init__(self,parent,filename,goban_size=200):
@@ -848,7 +855,10 @@ class DualView(Frame):
 
 		self.goban1.space=self.goban_size/(self.dim+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1)
-
+		
+		self.parent.bind('<Control-q>', self.save_left_as_ps)
+		self.parent.bind('<Control-w>', self.save_right_as_ps)
+		
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 		
 		police = tkFont.nametofont("TkFixedFont")
@@ -867,6 +877,9 @@ class DualView(Frame):
 		
 		goban.show_variation=self.show_variation
 		
+		self.goban1.bind("<Enter>",lambda e: self.set_status("<Ctrl+Q> to export goban as postscript image."))
+		self.goban2.bind("<Enter>",lambda e: self.set_status("<Ctrl+W> to export goban as postscript image."))
+		
 		first_move_button.bind("<Enter>",lambda e: self.set_status("Go to first move."))
 		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go back 10 moves."))
 		prev_button.bind("<Enter>",lambda e: self.set_status("Go back one move. Shortcut: keyboard left key."))
@@ -875,7 +888,7 @@ class DualView(Frame):
 		next_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go forward 10 moves."))
 		final_move_button.bind("<Enter>",lambda e: self.set_status("Go to final move."))
 		self.territory_button.bind("<Enter>",lambda e: self.set_status("Keep pressed to show territories."))
-		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button]:
+		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
 		
@@ -885,6 +898,13 @@ class DualView(Frame):
 	def clear_status(self):
 		self.status_bar.config(text="")
 
+	def save_left_as_ps(self,e=None):
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
+		self.goban1.postscript(file=filename, colormode='color')
+	
+	def save_right_as_ps(self,e=None):
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
+		self.goban2.postscript(file=filename, colormode='color')
 
 from gomill import sgf, sgf_moves
 import goban
