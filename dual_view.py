@@ -314,7 +314,7 @@ class OpenMove():
 		
 		okleela=True
 		try:
-			leela_command_line=tuple(Config.get("Leela", "Command").split())
+			leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
 			leela=gtp(leela_command_line)
 			leela.boardsize(dim)
 			leela.reset()
@@ -327,11 +327,11 @@ class OpenMove():
 			print "Could not launch Leela"
 			print e
 			buttonleela.destroy()
-			
+		
 
 		okgnugo=True
 		try:
-			gnugo_command_line=tuple(Config.get("GnuGo", "Command").split())
+			gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
 			gnugo=gtp(gnugo_command_line)
 			gnugo.boardsize(dim)
 			gnugo.reset()

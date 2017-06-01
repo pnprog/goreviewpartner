@@ -322,9 +322,10 @@ class RunAnalysis(Frame):
 			alert("The config.ini file does not contain command line for Leela!")
 			return
 		try:
-			leela=gtp(tuple(leela_command_line.split()))
+			leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
+			leela=gtp(leela_command_line)
 		except:
-			alert("Could not run Leela using the command from config.ini file (\""+leela_command_line+"\")")
+			alert("Could not run Leela using the command from config.ini file: \n"+" ".join(leela_command_line))
 			return
 		try:
 			leela.boardsize(size)

@@ -314,9 +314,10 @@ class RunAnalysis(Frame):
 			alert("The config.ini file does not contain command line for GnuGo!")
 			return
 		try:
-			gnugo=gtp(tuple(gnugo_command_line.split()))
+			gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
+			gnugo=gtp(gnugo_command_line)
 		except:
-			alert("Could not run GnuGo using the command from config.ini file (\""+gnugo_command_line+"\")")
+			alert("Could not run GnuGo using the command from config.ini file: \n"+" ".join(gnugo_command_line))
 			return
 		try:
 			gnugo.boardsize(size)
@@ -329,7 +330,7 @@ class RunAnalysis(Frame):
 		self.workers=[]
 		
 		for w in range(self.nb_workers):
-			gnugo_worker=gtp(tuple(gnugo_command_line.split()))
+			gnugo_worker=gtp(gnugo_command_line)
 			gnugo_worker.boardsize(size)
 			gnugo_worker.reset()
 			self.workers.append(gnugo_worker)

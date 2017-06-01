@@ -39,6 +39,11 @@ class OpenSettings(Toplevel):
 		LeelaCommand.set(Config.get("Leela","Command"))
 		Entry(self, textvariable=LeelaCommand, width=30).grid(row=row+2,column=2)
 		row+=1
+		Label(self,text="Parameters").grid(row=row+2,column=1)
+		LeelaParameters = StringVar() 
+		LeelaParameters.set(Config.get("Leela","Parameters"))
+		Entry(self, textvariable=LeelaParameters, width=30).grid(row=row+2,column=2)
+		row+=1
 		Label(self,text="Time per move").grid(row=row+2,column=1)
 		TimePerMove = StringVar() 
 		TimePerMove.set(Config.get("Leela","TimePerMove"))
@@ -52,6 +57,11 @@ class OpenSettings(Toplevel):
 		GnugoCommand = StringVar() 
 		GnugoCommand.set(Config.get("GnuGo","Command"))
 		Entry(self, textvariable=GnugoCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Parameters").grid(row=row+2,column=1)
+		GnugoParameters = StringVar() 
+		GnugoParameters.set(Config.get("GnuGo","Parameters"))
+		Entry(self, textvariable=GnugoParameters, width=30).grid(row=row+2,column=2)
 		row+=1
 		Label(self,text="Variations").grid(row=row+2,column=1)
 		GnugoVariations = StringVar() 
@@ -79,7 +89,9 @@ class OpenSettings(Toplevel):
 		self.TimePerMove=TimePerMove
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.LeelaCommand=LeelaCommand
+		self.LeelaParameters=LeelaParameters
 		self.GnugoCommand=GnugoCommand
+		self.GnugoParameters=GnugoParameters
 		self.GnugoVariations=GnugoVariations
 		self.GnugoDeepness=GnugoDeepness
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
@@ -93,7 +105,9 @@ class OpenSettings(Toplevel):
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
 		Config.set("Leela","Command",self.LeelaCommand.get())
+		Config.set("Leela","Parameters",self.LeelaParameters.get())
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
+		Config.set("GnuGo","Parameters",self.GnugoParameters.get())
 		Config.set("GnuGo","Variations",self.GnugoVariations.get())
 		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
 		
