@@ -158,10 +158,24 @@ class gtp():
 		answers=[]
 		for err_line in buff:
 			if " ->" in err_line:
+				print err_line
 				one_answer=err_line.strip().split(" ")[0]
 				one_score= ' '.join(err_line.split()).split(' ')[4]
 				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
-				neural_net=float(err_line.split("(N:")[1].split('%)')[0].strip())
+				monte_carlo=float(err_line.split("(U:")[1].split('%)')[0].strip())
+				
+				if self.size==19:
+					value_network=float(err_line.split("(V:")[1].split('%')[0].strip())
+					policy_network=float(err_line.split("(N:")[1].split('%)')[0].strip())
+					evaluation=None
+					R=None
+				else:
+					value_network=None
+					policy_network=None
+					evaluation=float(err_line.split("(N:")[1].split('%)')[0].strip())
+					R=float(err_line.split("(R:")[1].split('%')[0].strip())
+				
+				
 				if one_score!="0.00%)":
 					sequence=err_line.split("PV: ")[1].strip()
 					#if float(one_score[:-2])>=100 or float(one_score[:-2])<0:
@@ -169,7 +183,7 @@ class gtp():
 					#	print "err line:",err_line
 					#	print
 					#answers.append([one_answer,sequence,float(one_score[:-2]),nodes])
-					answers=[[one_answer,sequence,float(one_score[:-2]),nodes,neural_net]]+answers
+					answers=[[one_answer,sequence,float(one_score[:-2]),monte_carlo,value_network,policy_network,evaluation,R,nodes]]+answers
 					
 		#if len(answers)==1:
 		#	if len(answers[0][1].split(' '))==1:

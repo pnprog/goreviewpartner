@@ -722,19 +722,22 @@ class DualView(Frame):
 
 			if one_alternative.has_property("C"):
 				comment=one_alternative.get("C")
-				black_prob=float(one_alternative.get("C").split(": ")[1].replace("%","").split('/')[0])
-				white_prob=100-black_prob
-				#print "black_prob:",black_prob,'c=',c
-				if c==1:
-					if black_prob>=50:
-						displaycolor="blue"
+				try:
+					black_prob=float(one_alternative.get("C").split(": ")[1].replace("%","").split('/')[0])
+					white_prob=100-black_prob
+					#print "black_prob:",black_prob,'c=',c
+					if c==1:
+						if black_prob>=50:
+							displaycolor="blue"
+						else:
+							displaycolor="red"
 					else:
-						displaycolor="red"
-				else:
-					if black_prob>50:
-						displaycolor="red"
-					else:
-						displaycolor="blue"
+						if black_prob>50:
+							displaycolor="red"
+						else:
+							displaycolor="blue"
+				except:
+					pass
 			else: comment=''
 			
 			if ij==real_game_ij: letter_color="black"
