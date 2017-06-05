@@ -1,5 +1,5 @@
 # goreviewpartner
-A tool to help analyse and review your game of go (weiqi, baduk) using bots. Currently support [GnuGo](www.gnu.org/software/gnugo) and [Leela](https://www.sjeng.org/leela.html).
+A tool to help analyse and review your game of go (weiqi, baduk) using bots. Currently support [GnuGo](https://www.gnu.org/software/gnugo/), [Leela](https://www.sjeng.org/leela.html) and [Ray](https://github.com/zakki/Ray).
 
 More informations on L19 forum in this thread: [Announcing GoReviewPartner](https://lifein19x19.com/forum/viewtopic.php?f=9&t=14050)
 
