@@ -265,6 +265,16 @@ class gtp():
 		if answer[0]=="=":return True
 		else:return False
 	
+	def name(self):
+		self.write("name")
+		answer=self.readline().strip()
+		return answer.split(" ")[1]
+	
+	def version(self):
+		self.write("version")
+		answer=self.readline().strip()
+		return answer.split(" ")[1]
+
 	def play_black(self):
 		self.write("genmove black")
 		answer=self.readline().strip()

@@ -753,9 +753,10 @@ class DualView(Frame):
 		
 		#indicating last play with delta
 		self.comment_box1.delete(1.0, END)
-		if m>0:
+		if m>=0:
 			if get_node(self.gameroot,m+1).has_property("C"):
 				self.comment_box1.insert(END,get_node(self.gameroot,m+1).get("C"))
+		if m>0:
 			markup1[i][j]=0
 			markup2[i][j]=0
 

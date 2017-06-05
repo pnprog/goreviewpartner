@@ -26,13 +26,15 @@ from toolbox import *
 
 
 class RunAnalysis(Frame):
-	def __init__(self,parent,filename,move_range=None):
+	def __init__(self,parent,filename,move_range,intervals):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
 		self.lock1=threading.Lock()
 		self.lock2=threading.Lock()
+		self.intervals=intervals
+		
 		self.initialize()
 	
 	def run_analysis(self,current_move):
@@ -148,15 +150,21 @@ class RunAnalysis(Frame):
 
 	def run_all_analysis(self):
 		self.current_move=1
-		#try:
-		while self.current_move<=self.max_move:
-			self.lock1.acquire()
-			self.run_analysis(self.current_move)
-			self.current_move+=1
-			self.lock1.release()
-			self.lock2.acquire()
-			self.lock2.release()
-		"""except Exception,e:
+		try:
+			first_move=go_to_move(self.move_zero,1)
+			first_comment="Analysis by GoReviewPartner"
+			first_comment+="\nBot: "+self.ray.name()+'/'+self.ray.version()
+			first_comment+="\nIntervals: "+self.intervals
+			first_move.add_comment_text(first_comment)
+			
+			while self.current_move<=self.max_move:
+				self.lock1.acquire()
+				self.run_analysis(self.current_move)
+				self.current_move+=1
+				self.lock1.release()
+				self.lock2.acquire()
+				self.lock2.release()
+		except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 			print exc_type, fname, exc_tb.tb_lineno
@@ -171,7 +179,7 @@ class RunAnalysis(Frame):
 			except:
 				pass
 			print "leaving thread"
-			exit()"""
+			exit()
 
 		
 

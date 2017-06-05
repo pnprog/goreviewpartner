@@ -50,14 +50,14 @@ def get_full_sequence(worker,current_color,deepness):
 
 
 class RunAnalysis(Frame):
-	def __init__(self,parent,filename,move_range=None):
+	def __init__(self,parent,filename,move_range,intervals):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
 		self.lock1=threading.Lock()
 		self.lock2=threading.Lock()
-
+		self.intervals=intervals
 		
 		self.initialize()
 		
@@ -194,8 +194,6 @@ class RunAnalysis(Frame):
 			
 		else:
 			print "Move",current_move,"not in the list of moves to be analysed, skipping"
-		
-
 			
 		print "now asking Gnugo to play the game move:",
 		if player_color in ('w',"W"):
@@ -215,6 +213,12 @@ class RunAnalysis(Frame):
 	def run_all_analysis(self):
 		self.current_move=1
 		try:
+			first_move=go_to_move(self.move_zero,1)
+			first_comment="Analysis by GoReviewPartner"
+			first_comment+="\nBot: "+self.gnugo.name()+'/'+self.gnugo.version()
+			first_comment+="\nIntervals: "+self.intervals
+			first_move.add_comment_text(first_comment)
+			
 			while self.current_move<=self.max_move:
 				self.lock1.acquire()
 				self.run_analysis(self.current_move)

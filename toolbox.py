@@ -281,11 +281,13 @@ class RangeSelector(Frame):
 			RunAnalysis=self.bots[bot_selection][1]
 		
 		if self.mode.get()=="all":
+			intervals="all moves"
 			move_selection=range(1,self.nb_moves+1)
 		else:
 			move_selection=[]
 			selection = self.only_entry.get()
 			selection=selection.replace(" ","")
+			intervals="moves "+selection
 			for sub_selection in selection.split(","):
 				if sub_selection:
 					try:
@@ -305,6 +307,7 @@ class RangeSelector(Frame):
 			move_selection=sorted(move_selection)
 			
 		if self.color.get()=="black":
+			intervals+=" (black only)"
 			print "black only"
 			new_move_selection=[]
 			for m in move_selection:
@@ -314,6 +317,7 @@ class RangeSelector(Frame):
 					new_move_selection.append(m)
 			move_selection=new_move_selection
 		elif self.color.get()=="white":
+			intervals+=" (white only)"
 			print "white only"
 			new_move_selection=[]
 			for m in move_selection:
@@ -322,13 +326,15 @@ class RangeSelector(Frame):
 				if player_color.lower()=='w':
 					new_move_selection.append(m)
 			move_selection=new_move_selection
-		
+		else:
+			intervals+=" (both colors)"
+			
 		print "========= move selection"
 		print move_selection
 		
 		self.parent.destroy()
 		newtop=Tk()
-		self.popup=RunAnalysis(newtop,self.filename,move_selection)
+		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals)
 		self.popup.pack()
 		newtop.mainloop()
 
