@@ -144,7 +144,7 @@ class RunAnalysis(Frame):
 				#variation=-1
 				print "Number of alternative sequences:",len(all_moves)
 				print all_moves
-				for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_R,one_nodes in all_moves:
+				for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
 					print "Adding sequence starting from",sequence_first_move
 					previous_move=one_move.parent
 					current_color=player_color
@@ -179,8 +179,8 @@ class RunAnalysis(Frame):
 									variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
 								if one_evaluation!=None:
 									variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
-								if one_R!=None:
-									variation_comment+="\nR% for this move: "+str(one_R)+'%'
+								if one_rave!=None:
+									variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
 								variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
 								new_child.add_comment_text(variation_comment)
 								#new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
@@ -200,8 +200,8 @@ class RunAnalysis(Frame):
 									variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
 								if one_evaluation!=None:
 									variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
-								if one_R!=None:
-									variation_comment+="\nR% for this move: "+str(one_R)+'%'
+								if one_rave!=None:
+									variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
 								variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
 								new_child.add_comment_text(variation_comment)
 								#new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')

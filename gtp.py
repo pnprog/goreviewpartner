@@ -183,12 +183,12 @@ class gtp():
 					value_network=float(err_line.split("(V:")[1].split('%')[0].strip())
 					policy_network=float(err_line.split("(N:")[1].split('%)')[0].strip())
 					evaluation=None
-					R=None
+					rave=None
 				else:
 					value_network=None
 					policy_network=None
 					evaluation=float(err_line.split("(N:")[1].split('%)')[0].strip())
-					R=float(err_line.split("(R:")[1].split('%')[0].strip())
+					rave=err_line.split("(R:")[1].split(')')[0].strip()
 				
 				
 				if one_score!="0.00%)":
@@ -198,7 +198,7 @@ class gtp():
 					#	print "err line:",err_line
 					#	print
 					#answers.append([one_answer,sequence,float(one_score[:-2]),nodes])
-					answers=[[one_answer,sequence,float(one_score[:-2]),monte_carlo,value_network,policy_network,evaluation,R,nodes]]+answers
+					answers=[[one_answer,sequence,float(one_score[:-2]),monte_carlo,value_network,policy_network,evaluation,rave,nodes]]+answers
 					
 		#if len(answers)==1:
 		#	if len(answers[0][1].split(' '))==1:
