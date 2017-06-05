@@ -178,9 +178,9 @@ class RunAnalysis(Frame):
 	def follow_analysis(self):
 		if self.lock1.acquire(False):
 			if self.total_done>0:
-				self.time_per_move=int(1.0*(time.time()-self.t0)/self.total_done)+1
+				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
 				print "self.time_per_move=",(time.time()-self.t0),"/",self.total_done,"=",self.time_per_move
-			remaining_s=(len(self.move_range)-self.total_done)*self.time_per_move
+			remaining_s=int((len(self.move_range)-self.total_done)*self.time_per_move)
 			remaining_h=remaining_s/3600
 			remaining_s=remaining_s-3600*remaining_h
 			remaining_m=remaining_s/60

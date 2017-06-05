@@ -243,12 +243,16 @@ class RunAnalysis(Frame):
 
 	def follow_analysis(self):
 		if self.lock1.acquire(False):
-			remaining_s=(len(self.move_range)-self.total_done)*(2*self.deepness+1)
+			if self.total_done>0:
+				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
+				print "self.time_per_move=",(time.time()-self.t0),"/",self.total_done,"=",self.time_per_move
+			remaining_s=int((len(self.move_range)-self.total_done)*self.time_per_move)
 			remaining_h=remaining_s/3600
 			remaining_s=remaining_s-3600*remaining_h
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
-			self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+			if self.time_per_move<>0:
+				self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
 			self.lab1.config(text="Currently at move "+str(self.current_move)+'/'+str(self.max_move))
 			self.pb.step()
 			self.update_idletasks()
@@ -376,13 +380,14 @@ class RunAnalysis(Frame):
 		
 		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
 		
-
+		self.time_per_move=0
+		"""
 		remaining_s=len(self.move_range)*(2*self.deepness+1)
 		remaining_h=remaining_s/3600
 		remaining_s=remaining_s-3600*remaining_h
 		remaining_m=remaining_s/60
 		remaining_s=remaining_s-60*remaining_m
-		
+		"""
 		self.lab1=Label(root)
 		self.lab1.pack()
 		
@@ -390,7 +395,7 @@ class RunAnalysis(Frame):
 		self.lab2.pack()
 		
 		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
-		self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+		#self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
 		
 		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move, mode="determinate")
 		self.pb.pack()
@@ -402,6 +407,7 @@ class RunAnalysis(Frame):
 		new_file.close()
 
 		self.lock2.acquire()
+		self.t0=time.time()
 		threading.Thread(target=self.run_all_analysis).start()
 		
 		self.root=root
