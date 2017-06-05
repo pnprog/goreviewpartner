@@ -33,6 +33,25 @@ class OpenSettings(Toplevel):
 		row+=3
 		
 		Label(self).grid(row=row,column=0)
+		Label(self,text="Ray").grid(row=row+1,column=1)
+		Label(self,text="Command").grid(row=row+2,column=1)
+		RayCommand = StringVar() 
+		RayCommand.set(Config.get("Ray","Command"))
+		Entry(self, textvariable=RayCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Parameters").grid(row=row+2,column=1)
+		RayParameters = StringVar() 
+		RayParameters.set(Config.get("Ray","Parameters"))
+		Entry(self, textvariable=RayParameters, width=30).grid(row=row+2,column=2)
+		row+=1
+		RayNeededForReview = BooleanVar(value=Config.getboolean('Ray', 'NeededForReview'))
+		RayCheckbutton=Checkbutton(self, text="Needed for review", variable=RayNeededForReview,onvalue=True,offvalue=False)
+		RayCheckbutton.grid(row=row+2,column=1)
+		RayCheckbutton.var=RayNeededForReview
+		
+		row+=3
+		
+		Label(self).grid(row=row,column=0)
 		Label(self,text="Leela").grid(row=row+1,column=1)
 		Label(self,text="Command").grid(row=row+2,column=1)
 		LeelaCommand = StringVar() 
@@ -48,6 +67,11 @@ class OpenSettings(Toplevel):
 		TimePerMove = StringVar() 
 		TimePerMove.set(Config.get("Leela","TimePerMove"))
 		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
+		row+=1
+		LeelaNeededForReview = BooleanVar(value=Config.getboolean('Leela', 'NeededForReview'))
+		LeelaCheckbutton=Checkbutton(self, text="Needed for review", variable=LeelaNeededForReview,onvalue=True,offvalue=False)
+		LeelaCheckbutton.grid(row=row+2,column=1)
+		LeelaCheckbutton.var=LeelaNeededForReview
 		
 		row+=3
 		
@@ -72,7 +96,11 @@ class OpenSettings(Toplevel):
 		GnugoDeepness = StringVar() 
 		GnugoDeepness.set(Config.get("GnuGo","Deepness"))
 		Entry(self, textvariable=GnugoDeepness, width=30).grid(row=row+2,column=2)
-		
+		row+=1
+		GnugoNeededForReview = BooleanVar(value=Config.getboolean('GnuGo', 'NeededForReview'))
+		GnugoCheckbutton=Checkbutton(self, text="Needed for review", variable=GnugoNeededForReview,onvalue=True,offvalue=False)
+		GnugoCheckbutton.grid(row=row+2,column=1)
+		GnugoCheckbutton.var=GnugoNeededForReview
 		
 		row+=3
 		Label(self).grid(row=row,column=3)
@@ -86,31 +114,48 @@ class OpenSettings(Toplevel):
 		
 		self.title('GoReviewPartner')
 		
-		self.TimePerMove=TimePerMove
 		self.FuzzyStonePlacement=FuzzyStonePlacement
+		self.RealGameSequenceDeepness=RealGameSequenceDeepness
+		self.GobanScreenRatio=GobanScreenRatio
+		
+		self.RayCommand=RayCommand
+		self.RayParameters=RayParameters
+		self.RayNeededForReview=RayNeededForReview
+		
 		self.LeelaCommand=LeelaCommand
 		self.LeelaParameters=LeelaParameters
+		self.TimePerMove=TimePerMove
+		self.LeelaNeededForReview=LeelaNeededForReview
+		
 		self.GnugoCommand=GnugoCommand
 		self.GnugoParameters=GnugoParameters
 		self.GnugoVariations=GnugoVariations
 		self.GnugoDeepness=GnugoDeepness
-		self.RealGameSequenceDeepness=RealGameSequenceDeepness
-		self.GobanScreenRatio=GobanScreenRatio
+		self.GnugoNeededForReview=GnugoNeededForReview
+
 		
 	def save(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
-		Config.set("Leela","TimePerMove",self.TimePerMove.get())
+		
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
+		
+		Config.set("Ray","Command",self.RayCommand.get())
+		Config.set("Ray","Parameters",self.RayParameters.get())
+		Config.set("Ray","NeededForReview",self.RayNeededForReview.get())
+		
 		Config.set("Leela","Command",self.LeelaCommand.get())
 		Config.set("Leela","Parameters",self.LeelaParameters.get())
+		Config.set("Leela","TimePerMove",self.TimePerMove.get())
+		Config.set("Leela","NeededForReview",self.LeelaNeededForReview.get())
+		
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
 		Config.set("GnuGo","Parameters",self.GnugoParameters.get())
 		Config.set("GnuGo","Variations",self.GnugoVariations.get())
 		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
-		
+		Config.set("GnuGo","NeededForReview",self.GnugoNeededForReview.get())
 		
 		
 		Config.write(open("config.ini","w"))

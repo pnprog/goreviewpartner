@@ -1,7 +1,7 @@
 
 from Tkinter import * 
 
-import leela_analysis,gnugo_analysis
+import leela_analysis,gnugo_analysis,ray_analysis
 from toolbox import *
 import dual_view
 import settings
@@ -43,6 +43,8 @@ def launch_analysis():
 	bots=[]
 	Config = ConfigParser.ConfigParser()
 	Config.read("config.ini")
+	if Config.get("Ray","Command")!="":
+		bots.append(("Ray",ray_analysis.RunAnalysis))
 	if Config.get("Leela","Command")!="":
 		bots.append(("Leela",leela_analysis.RunAnalysis))
 	if Config.get("GnuGo","Command")!="":
@@ -52,14 +54,25 @@ def launch_analysis():
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()
-	
+
 Label(app).pack()
 analysis_bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
 analysis_bouton.pack()
 
 def download_sgf_for_review():
 	top = Toplevel()
-	new_popup=DownloadFromURL(top,bots=[("Leela",leela_analysis.RunAnalysis),("GnuGo",gnugo_analysis.RunAnalysis)])
+	
+	bots=[]
+	Config = ConfigParser.ConfigParser()
+	Config.read("config.ini")
+	if Config.get("Ray","Command")!="":
+		bots.append(("Ray",ray_analysis.RunAnalysis))
+	if Config.get("Leela","Command")!="":
+		bots.append(("Leela",leela_analysis.RunAnalysis))
+	if Config.get("GnuGo","Command")!="":
+			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
+	
+	new_popup=DownloadFromURL(top,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
 	top.mainloop()
@@ -102,7 +115,7 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read("config.ini")
-	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="":
+	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="":
 		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')

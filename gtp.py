@@ -96,7 +96,22 @@ class gtp():
 			influence.append(one_line)
 		
 		return influence
-		
+	
+	def get_ray_stat(self,color):
+		t0=time()
+		self.write("ray-stat "+color)
+		header_line=self.readline()
+		print ">>>>>>>>>>>>",time()-t0
+		print "HEADER:",header_line
+		sequences=[]
+		for i in range(10):
+			one_line=answer=self.process.stdout.readline().strip()
+			if one_line.strip()=="":
+				break
+			print "\t",[s.strip() for s in one_line.split("|")[1:]]
+			sequences.append([s.strip() for s in one_line.split("|")[1:]])
+		return sequences
+	
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
 		answer=self.readline().strip()
