@@ -7,7 +7,8 @@ from gomill import sgf, sgf_moves
 
 from sys import exit,argv
 
-from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, W,E, Entry, END,Button,Toplevel
+from Tkinter import *
+
 import tkFileDialog
 import sys
 import os
@@ -208,20 +209,52 @@ class RunAnalysis(Frame):
 			self.lab1.config(text="Completed")
 			self.pb["maximum"] = 100
 			self.pb["value"] = 100
+			try:
+				import dual_view
+				Button(self,text="Start review",command=self.start_review).pack()
+			except:
+				pass
+
+	def start_review(self):
+		import dual_view
+		app=self.parent
+		screen_width = app.winfo_screenwidth()
+		screen_height = app.winfo_screenheight()
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		display_factor=.5
+		try:
+			display_factor=float(Config.get("Review", "GobanScreenRatio"))
+		except:
+			Config.set("Review", "GobanScreenRatio",display_factor)
+			Config.write(open("config.ini","w"))
+		
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		#Toplevel()
+		
+		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
+		new_popup.pack(fill=BOTH,expand=1)
+		self.remove_app()
+		
 	
-	def close_app(self):
+	def remove_app(self):
 		print "RunAnalysis beeing closed"
 		self.lab2.config(text="Now closing, please wait...")
 		self.update_idletasks()
-
 		print "killing ray"
 		self.ray.close()
 		print "destroying"
 		self.destroy()
+	
+	def close_app(self):
+		self.remove_app()
 		self.parent.destroy()
 		print "RunAnalysis closed"
 
-		
+
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
