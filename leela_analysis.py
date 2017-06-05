@@ -417,7 +417,7 @@ class RunAnalysis(Frame):
 		self.lab2=Label(root)
 		self.lab2.pack()
 		
-		self.lab1.config(text="Currently at move 2/"+str(self.max_move))
+		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
 		self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
 		
 		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
