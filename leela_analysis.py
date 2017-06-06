@@ -159,6 +159,7 @@ class RunAnalysis(Frame):
 					
 					#variation+=1
 					#deepness=-1
+					first_variation_move=True
 					for one_deep_move in one_sequence.split(' '):
 						#deepness+=1
 						#print "variation:",variation,"deepness:",deepness,"gtp2ij(",one_deep_move,")"
@@ -172,43 +173,47 @@ class RunAnalysis(Frame):
 						
 						
 						if player_color=='b':
-							if not bookmove:
-								variation_comment="black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%'
-								variation_comment+="\nMonte Carlo win probalbility for this move: "+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
-								if one_value_network!=None:
-									variation_comment+="\nValue network win probalbility for this move: "+str(one_value_network)+'%/'+str(100-one_value_network)
-								if one_policy_network!=None:
-									variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
-								if one_evaluation!=None:
-									variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
-								if one_rave!=None:
-									variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
-								variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
-								new_child.add_comment_text(variation_comment)
-								#new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
-							else:
-								new_child.add_comment_text("Book move")
+							if first_variation_move:
+								first_variation_move=False
+								if not bookmove:
+									variation_comment="black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%'
+									variation_comment+="\nMonte Carlo win probalbility for this move: "+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
+									if one_value_network!=None:
+										variation_comment+="\nValue network win probalbility for this move: "+str(one_value_network)+'%/'+str(100-one_value_network)
+									if one_policy_network!=None:
+										variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
+									if one_evaluation!=None:
+										variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
+									if one_rave!=None:
+										variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
+									variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
+									new_child.add_comment_text(variation_comment)
+									#new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
+								else:
+									new_child.add_comment_text("Book move")
 							if best_move:
 								best_move=False
 								if not bookmove:
 									additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
 						else:
-							if not bookmove:
-								variation_comment="black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
-								variation_comment+="\nMonte Carlo win probalbility for this move: "+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
-								if one_value_network!=None:
-									variation_comment+="\nValue network win probalbility for this move: "+str(100-one_value_network)+'%/'+str(one_value_network)
-								if one_policy_network!=None:
-									variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
-								if one_evaluation!=None:
-									variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
-								if one_rave!=None:
-									variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
-								variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
-								new_child.add_comment_text(variation_comment)
-								#new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
-							else:
-								new_child.add_comment_text("Book move")
+							if first_variation_move:
+								first_variation_move=False
+								if not bookmove:
+									variation_comment="black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
+									variation_comment+="\nMonte Carlo win probalbility for this move: "+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
+									if one_value_network!=None:
+										variation_comment+="\nValue network win probalbility for this move: "+str(100-one_value_network)+'%/'+str(one_value_network)
+									if one_policy_network!=None:
+										variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
+									if one_evaluation!=None:
+										variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
+									if one_rave!=None:
+										variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
+									variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
+									new_child.add_comment_text(variation_comment)
+									#new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
+								else:
+									new_child.add_comment_text("Book move")
 							if best_move:
 								best_move=False
 								if not bookmove:

@@ -93,6 +93,7 @@ class RunAnalysis(Frame):
 					one_sequence=one_sequence.replace("w ",',w')
 					one_sequence=one_sequence.replace(" ",'')
 					print "one_sequence=",one_sequence[1:]
+					first_variation_move=True
 					for one_deep_move in one_sequence.split(',')[1:]:
 						if one_deep_move.lower() in ["pass","resign"]:
 							print "Leaving the variation when encountering",one_deep_move.lower()
@@ -103,17 +104,17 @@ class RunAnalysis(Frame):
 							i,j=gtp2ij(one_deep_move)
 							new_child=previous_move.new_child()
 							new_child.set_move(current_color,(i,j))
-							#variation_comment="\nWin: "+win
-							if current_color=='b':
-								variation_comment="black/white win probability for this variation: "+str(win)+'%/'+str(100-float(win))+'%'
-							else:
-								variation_comment="black/white win probability for this variation: "+str(100-float(win))+'%/'+str(win)+'%'
-							variation_comment+="\nCount: "+count
-							variation_comment+="\nSimulation: "+simulation
-							variation_comment+="\nPolicy: "+policy
-							variation_comment+="\nValue: "+value
-							
-							new_child.add_comment_text(variation_comment)
+							if first_variation_move:
+								if current_color=='b':
+									variation_comment="black/white win probability for this variation: "+str(win)+'%/'+str(100-float(win))+'%'
+								else:
+									variation_comment="black/white win probability for this variation: "+str(100-float(win))+'%/'+str(win)+'%'
+								variation_comment+="\nCount: "+count
+								variation_comment+="\nSimulation: "+simulation
+								variation_comment+="\nPolicy: "+policy
+								variation_comment+="\nValue: "+value
+								
+								new_child.add_comment_text(variation_comment)
 							previous_move=new_child
 						else:
 							break
