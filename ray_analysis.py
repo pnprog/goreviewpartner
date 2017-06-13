@@ -105,16 +105,22 @@ class RunAnalysis(Frame):
 							new_child=previous_move.new_child()
 							new_child.set_move(current_color,(i,j))
 							if first_variation_move:
-								if current_color=='b':
-									variation_comment="black/white win probability for this variation: "+str(win)+'%/'+str(100-float(win))+'%'
-								else:
-									variation_comment="black/white win probability for this variation: "+str(100-float(win))+'%/'+str(win)+'%'
-								variation_comment+="\nCount: "+count
-								variation_comment+="\nSimulation: "+simulation
-								variation_comment+="\nPolicy: "+policy
-								variation_comment+="\nValue: "+value
+								variation_comment=''
+								if win:
+									if current_color=='b':
+										variation_comment+="black/white win probability for this variation: "+str(win)+'%/'+str(100-float(win))+'%'
+									else:
+										variation_comment+="black/white win probability for this variation: "+str(100-float(win))+'%/'+str(win)+'%'
+								if count:
+									variation_comment+="\nCount: "+count
+								if simulation:
+									variation_comment+="\nSimulation: "+simulation
+								if policy:
+									variation_comment+="\nPolicy: "+policy
+								if value:
+									variation_comment+="\nValue: "+value
 								
-								new_child.add_comment_text(variation_comment)
+								new_child.add_comment_text(variation_comment.strip())
 							previous_move=new_child
 						else:
 							break
