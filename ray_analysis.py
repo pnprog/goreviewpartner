@@ -288,7 +288,7 @@ class RunAnalysis(Frame):
 			ray=gtp(ray_command_line)
 			#ray=gtp(tuple(ray_command_line.split()))
 		except:
-			alert("Could not run Ray using the command from config.ini file (\""+Ray_command_line+"\")")
+			alert("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
 			return
 		try:
 			ray.boardsize(size)
