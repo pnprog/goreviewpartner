@@ -58,7 +58,7 @@ def ij2sgf(m):
 	return letters[j]+letters[i]
 
 from gomill import sgf, sgf_moves
-from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox
+from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu
 import tkFileDialog
 import sys
 import os
@@ -176,6 +176,32 @@ def clean_sgf(txt):
 
 RunAnalysis=None
 
+def get_all_sgf_leaves(root,deep=0):
+	
+	if len(root)==0:
+		#this is a leave
+		return [(root,deep)]
+	
+	leaves=[]
+	deep+=1
+	for leaf in root:
+		leaves.extend(get_all_sgf_leaves(leaf,deep))
+	
+	return leaves
+
+def keep_only_one_leaf(leaf):
+	
+	while 1:
+		try:
+			parent=leaf.parent
+			for other_leaf in parent:
+				if other_leaf!=leaf:
+					print "deleting..."
+					other_leaf.delete()
+			leaf=parent
+		except:
+			#reached root
+			return
 
 class RangeSelector(Frame):
 	def __init__(self,parent,filename,bots=None):
@@ -195,42 +221,68 @@ class RangeSelector(Frame):
 		self.nb_moves=nb_moves
 		s = StringVar()
 		s.set("all")
-
-		Label(self,text="").grid(row=0,column=1)
+		row=0
+		Label(self,text="").grid(row=row,column=1)
 		
+		row+=1
 		if bots!=None:
-			Label(self,text="Bot to use for analysis:").grid(row=1,column=1,sticky=N+W)
+			Label(self,text="Bot to use for analysis:").grid(row=row,column=1,sticky=N+W)
 			self.bot_selection = Listbox(self,height=len(bots))
-			self.bot_selection.grid(row=1,column=2,sticky=W)
+			self.bot_selection.grid(row=row,column=2,sticky=W)
 			for bot,f in bots:
 				self.bot_selection.insert(END, bot)
 			self.bot_selection.selection_set(0)
 			self.bot_selection.configure(exportselection=False)
-			Label(self,text="").grid(row=2,column=1)
+			row+=1
+			Label(self,text="").grid(row=row,column=1)
+		
+		row+=1
+		Label(self,text="Select variation to be analysed").grid(row=3,column=1,sticky=W)
+		self.leaves=get_all_sgf_leaves(self.move_zero)
+		self.variation_selection=StringVar()
+		self.variation_selection.trace("w", self.variation_changed)
+		
+		options=[]
+		v=1
+		for leaf,deep in self.leaves:
+			options.append("Variation "+str(v)+" ("+str(deep)+" moves)")
+			v+=1
+		self.variation_selection.set(options[0])
+		
+		apply(OptionMenu,(self,self.variation_selection)+tuple(options)).grid(row=row,column=2,sticky=W)
 
-		Label(self,text="Select moves to be analysed").grid(row=3,column=1,sticky=W)
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
 		
-		r1=Radiobutton(self,text="Analyse all "+str(nb_moves)+" moves",variable=s, value="all")
-		r1.grid(row=4,column=1,sticky=W)
-		self.after(0,r1.select)
+		row+=1
+		Label(self,text="Select moves to be analysed").grid(row=row,column=1,sticky=W)
 		
+		row+=1
+		self.r1=Radiobutton(self,text="Analyse all "+str(nb_moves)+" moves",variable=s, value="all")
+		self.r1.grid(row=row,column=1,sticky=W)
+		self.after(0,self.r1.select)
+		
+		row+=1
 		r2=Radiobutton(self,text="Analyse only those moves: ",variable=s, value="only")
-		r2.grid(row=5,column=1,sticky=W)
+		r2.grid(row=row,column=1,sticky=W)
 		
 		only_entry=Entry(self)
 		only_entry.bind("<Button-1>", lambda e: r2.select())
-		only_entry.grid(row=5,column=2,sticky=W)
+		only_entry.grid(row=row,column=2,sticky=W)
 		only_entry.delete(0, END)
 		only_entry.insert(0, "1-"+str(nb_moves))
 		
-		Label(self,text="").grid(row=8,column=1)
-		Label(self,text="Select colors to be analysed").grid(row=9,column=1,sticky=W)
+		row+=3
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text="Select colors to be analysed").grid(row=row,column=1,sticky=W)
 		
 		c = StringVar()
 		c.set("both")
 		
+		row+=1
 		c0=Radiobutton(self,text="Black & white",variable=c, value="both")
-		c0.grid(row=10,column=1,sticky=W)
+		c0.grid(row=row,column=1,sticky=W)
 		self.after(0,c0.select)
 		
 		if 'PB[' in content:
@@ -250,20 +302,43 @@ class RangeSelector(Frame):
 				white_player=' ('+white_player+')'
 		else:
 			white_player=''
-			
+		
+		row+=1
 		c1=Radiobutton(self,text="Black only"+black_player,variable=c, value="black")
-		c1.grid(row=11,column=1,sticky=W)
+		c1.grid(row=row,column=1,sticky=W)
 		
+		row+=1
 		c2=Radiobutton(self,text="White only"+white_player,variable=c, value="white")
-		c2.grid(row=12,column=1,sticky=W)
+		c2.grid(row=row,column=1,sticky=W)
 		
-		Label(self,text="").grid(row=99,column=1)
-		Button(self,text="Start",command=self.start).grid(row=100,column=2,sticky=E)
+		row+=10
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Button(self,text="Start",command=self.start).grid(row=row,column=2,sticky=E)
 		self.mode=s
 		self.color=c
 		self.nb_moves=nb_moves
 		self.only_entry=only_entry
 		self.popup=None
+	
+	def variation_changed(self,*args):
+		print "variation changed!",self.variation_selection.get()
+		try:
+			self.after(0,self.r1.select)
+			variation=int(self.variation_selection.get().split(" ")[1])-1
+			deep=self.leaves[variation][1]
+			self.only_entry.delete(0, END)
+			self.only_entry.insert(0, "1-"+str(deep))
+			
+			self.r1.config(text="Analyse all "+str(deep)+" moves")
+			
+			self.nb_moves=deep
+			
+		except:
+			pass
+		
+		
+	
 	
 	def close_app(self):
 		if self.popup:
@@ -332,9 +407,13 @@ class RangeSelector(Frame):
 		print "========= move selection"
 		print move_selection
 		
+		print "========= variation"
+		variation=int(self.variation_selection.get().split(" ")[1])-1
+		print variation
+		
 		self.parent.destroy()
 		newtop=Tk()
-		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals)
+		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation)
 		self.popup.pack()
 		newtop.mainloop()
 

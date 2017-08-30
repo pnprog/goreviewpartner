@@ -27,7 +27,7 @@ from toolbox import *
 
 
 class RunAnalysis(Frame):
-	def __init__(self,parent,filename,move_range,intervals):
+	def __init__(self,parent,filename,move_range,intervals,variation):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
@@ -35,11 +35,11 @@ class RunAnalysis(Frame):
 		self.lock1=threading.Lock()
 		self.lock2=threading.Lock()
 		self.intervals=intervals
+		self.variation=variation
 		
 		self.initialize()
 	
 	def run_analysis(self,current_move):
-		
 		
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color,player_move=one_move.get_move()
@@ -271,7 +271,13 @@ class RunAnalysis(Frame):
 		txt = open(self.filename)
 		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
+		
+		leaves=get_all_sgf_leaves(self.g.get_root())
+		print "keeping only variation",self.variation
+		keep_only_one_leaf(leaves[self.variation][0])
+		
 		size=self.g.get_size()
+		print "size of the tree:", size
 		self.size=size
 
 		try:
