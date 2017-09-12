@@ -75,6 +75,8 @@ class RunAnalysis(Frame):
 			all_moves=leela.get_all_leela_moves()
 			if (answer.lower() not in ["pass","resign"]):
 				
+				one_move.set("CBM",answer.lower()) #Computer Best Move
+				
 				if all_moves==[]:
 					bookmove=True
 					all_moves=[[answer,answer,666,666,666,666,666,666,666]]
@@ -196,6 +198,8 @@ class RunAnalysis(Frame):
 								best_move=False
 								if not bookmove:
 									additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
+									one_move.set("BWR",str(one_score)+'%') #Black Win Rate
+									one_move.set("WWR",str(100-one_score)+'%') #White Win Rate
 						else:
 							if first_variation_move:
 								first_variation_move=False
@@ -219,6 +223,8 @@ class RunAnalysis(Frame):
 								best_move=False
 								if not bookmove:
 									additional_comments+="\nLeela black/white win probability for this position: "+str(100-one_score)+'%/'+str(one_score)+'%'
+									one_move.set("WWR",str(one_score)+'%') #White Win Rate
+									one_move.set("BWR",str(100-one_score)+'%') #Black Win Rate
 									
 						
 						previous_move=new_child
@@ -254,7 +260,6 @@ class RunAnalysis(Frame):
 			
 			
 			one_move.add_comment_text(additional_comments)
-
 			new_file=open(self.filename[:-4]+".rsgf",'w')
 			new_file.write(self.g.serialise())
 			new_file.close()

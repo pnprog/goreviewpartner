@@ -7,6 +7,8 @@ import sys,time
 import tkFileDialog
 from functools import partial
 
+
+
 import os
 
 from gtp import gtp
@@ -66,6 +68,286 @@ def alert(text_to_display):
 	ok_button = Button(popup, text="OK", command=popup.destroy)
 	ok_button.pack()
 	#popup.mainloop()
+
+
+class OpenChart():
+	def __init__(self,parent,data):
+		self.parent=parent
+		
+		self.data=data
+		
+
+		self.initialize()
+	def close(self):
+		print "closing popup"
+		self.popup.destroy()			
+		self.parent.all_popups.remove(self)
+		print "done"
+	
+	def click(self,event):
+		dim=self.dim
+		print "dim:::",dim
+		#add/remove black stone
+		#check pointer location
+		i,j=self.goban.xy2ij(event.x,event.y)
+		color=self.next_color
+		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
+			#inside the grid
+			#what is under the pointer ?
+			
+			if self.grid[i][j] not in (1,2):
+				#nothing, so we add a black stone			
+				
+				if self.okgnugo:
+					if not self.gnugo.place(ij2gtp((i,j)),color):
+						return
+				if self.okleela:
+					self.leela.place(ij2gtp((i,j)),color)
+				
+				if self.okray:
+					self.ray.place(ij2gtp((i,j)),color)
+				
+				self.history.append([copy(self.grid),copy(self.markup)])
+					
+				place(self.grid,i,j,color)
+				self.grid[i][j]=color
+					
+				self.markup=[["" for row in range(dim)] for col in range(dim)]
+				self.markup[i][j]=0
+					
+				self.goban.display(self.grid,self.markup)
+				self.next_color=3-color
+				self.undo_button.config(state='normal')
+	
+	def set_status(self,msg):
+		self.status_bar.config(text=msg)
+		
+	def clear_status(self):
+		self.status_bar.config(text="")
+	
+	def initialize(self):
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		popup_width=self.parent.winfo_width()
+		popup_height=self.parent.winfo_height()/2
+		
+		
+
+		
+		self.popup=Toplevel()
+		popup=self.popup
+		popup.geometry(str(popup_width)+'x'+str(popup_height))
+		popup.configure(background=bg)
+		
+		top_frame=Frame(popup)
+		top_frame.pack()
+		top_frame.pack()
+		
+		self.graph_mode=StringVar()
+		self.graph_mode.set("Win rate") # initialize		
+		Radiobutton(top_frame, text="Win rate",command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT)
+		Radiobutton(top_frame, text="Black comparison",command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT)
+		Radiobutton(top_frame, text="White comparison",command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT)
+		
+		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
+		#self.chart.grid(sticky=N+S+W+E)
+		
+		self.chart.pack(fill=BOTH,expand=1)
+		self.chart.bind("<Configure>",self.display)
+		
+		bottom_frame=Frame(popup)
+		bottom_frame.pack(anchor=W)
+		
+		self.status_bar=Label(bottom_frame,text='',background=bg)
+		self.status_bar.pack(anchor=W)
+		bottom_frame.pack()
+	
+	def set_status(self,event=None,msg=''):
+		self.status_bar.config(text=msg)
+	
+	def clear_status(self):
+		self.status_bar.config(text="")
+	
+	def goto_move(self,event=None,move=None):
+		if move:
+			print "goto move",move
+			#self.parent.parent.lift()
+			#self.popup.after(500,self.parent.parent.deiconify)
+			#self.parent.parent.lift(self.popup)
+			
+			"""
+			self.parent.parent.grab_set()
+			self.parent.parent.focus()
+			self.parent.parent.focus_set()
+			self.parent.parent.focus_force()
+			"""
+			
+			"""
+			self.parent.parent.call('wm', 'attributes', '.', '-topmost', True)
+			self.parent.parent.after_idle(self.parent.parent.call, 'wm', 'attributes', '.', '-topmost', False)
+			self.parent.parent.focus_force()
+			"""
+			
+			"""
+			self.parent.parent.lift()
+			self.parent.parent.focus_force()
+			self.parent.parent.grab_set()
+			self.parent.parent.grab_release()
+        	"""
+        	
+        	#none of the above solutions (or mix of them) does work on my Ubuntu :(
+        	# :(
+        	
+			self.parent.goto_move(move_number=move)
+		
+	
+	def display(self,event=None):
+		if event:
+			width=event.width
+			height=event.height
+			self.width=width
+			self.height=height
+		else:
+			width=self.width
+			height=self.height
+		
+		border=min(max(20,width/25),200)
+		space=1.0*(width-2*border)/len(self.data)
+		lpix=int(border/4)
+		for item in self.chart.find_all():
+			self.chart.delete(item)
+		
+		moves=[]
+		if self.graph_mode.get()!="Win rate":
+			if self.graph_mode.get()=="Black comparison":
+				player_color='b'
+			else:
+				player_color='w'
+				
+			x00=border
+			y00=height-border-(height-2*border)/2.
+			for one_data in self.data:
+				if one_data:
+					if one_data["player_color"]==player_color:
+						player_win_rate=one_data["player_win_rate"]
+						move=one_data["move"]
+						moves.append(move)
+						x0=border+(move-1)*space
+						x1=x0+space*2
+						
+						y0=height-border
+						y1=height-border-player_win_rate*(height-2*border)/100.
+						
+						grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+						msg="Move "+str(move)+", win rate: "+str(player_win_rate)+"%"
+						self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+						self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status())
+						self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+						
+						delta=one_data["delta"]
+						if delta<>0:
+							y2=y1+delta*(height-2*border)/100.
+							if delta<0:
+								red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
+								msg2="The computer believes it's own move win rate would be "+str(-delta)+"pp higher."
+								self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
+								self.chart.tag_bind(red_bar, "<Leave>", self.clear_status())
+								self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
+							else:
+								green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
+								msg2="The computer believes your move is "+str(delta)+"pp better than it's best move."
+								self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
+								self.chart.tag_bind(green_bar, "<Leave>", self.clear_status())
+								self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
+								
+						self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+						self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+						x00=x1
+						y00=y1
+		else:
+			
+			self.chart.create_text(border,border/2, text="Black win",fill='black',font=("Arial", str(lpix)))
+			x00=border
+			y00=height-border-(height-2*border)/2.
+			for one_data in self.data:
+				if one_data:
+					move=one_data["move"]
+					moves.append(move)
+					x0=border+(move-1)*space
+					x1=x0+space
+					
+					player_win_rate=one_data["player_win_rate"]
+					if one_data["player_color"]=="w":
+						player_win_rate=100.-player_win_rate
+						color="White"
+					else:
+						color="Black"
+					player_win_rate=float(int(player_win_rate*100)/100.)
+					y0=height-border
+					y1=height-border-player_win_rate*(height-2*border)/100.
+					
+					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+					
+					msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status())
+					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+					
+					self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+					self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+					x00=x1
+					y00=y1
+		
+		#drawing axis
+		x0=border
+		y0=height-border
+		y1=border
+		self.chart.create_line(x0, y0, x0, y1, fill='black')
+		x1=width-border
+		self.chart.create_line(x1, y0, x1, y1, fill='black')
+		self.chart.create_line(x0, y0, x1, y0, fill='black')
+		self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
+		
+		#drawing vertical graduation
+		
+		graduations=[x*10 for x in range(10+1)]
+		y0=height+1000
+		x0=border/2
+		x1=width-border/2
+		for g in graduations:
+			y1=height-border-g*(height-2*border)/100.
+			
+			if y0-y1>=border:
+				self.chart.create_text(x0,y1, text=str(g)+"%",fill='black',font=("Arial", str(lpix)))
+				self.chart.create_text(x1,y1, text=str(g)+"%",fill='black',font=("Arial", str(lpix)))
+				#self.chart.create_line(x0, y1, x1, y1, fill='black')
+				y0=y1
+		
+		#drawing horizontal graduation
+		graduations=[x for x in moves]
+		x0=-1000
+		y0=height-border/2
+		y1=height-border
+		for g in graduations:
+			x1=border+(g)*(width-2*border)/len(self.data)*1.0
+			
+			if x1-x0>=border:
+				self.chart.create_text(x1,y0, text=str(g),fill='black',font=("Arial", str(lpix)))
+				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
+				x0=x1
+				
+		
+		self.popup.update_idletasks()
+		self.chart.update_idletasks()
+		self.chart.postscript(file='chart', colormode='color')
+		
+
+
+	def save_as_ps(self,e=None):
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
+		self.goban.postscript(file=filename, colormode='color')
 
 
 class OpenMove():
@@ -580,9 +862,12 @@ class DualView(Frame):
 		self.parent.after(0,lambda: pf())
 	
 
-	def goto_move(self,move_number,pressed):
+	def goto_move(self,move_number,pressed=None):
 		self.move_number.config(text=str(move_number)+'/'+str(get_node_number(self.gameroot)))
-		if self.pressed==pressed:
+		if not pressed:
+			self.current_move=move_number
+			self.display_move(self.current_move)
+		elif self.pressed==pressed:
 			self.display_move(self.current_move)
 			
 	def leave_variation(self,goban,grid,markup):
@@ -677,6 +962,62 @@ class DualView(Frame):
 			markup[i][j]=-2
 		
 		self.goban1.display(self.current_grid,markup)
+	
+	def prepare_data_for_chart(self):
+		data=[]
+		for m in range(1,get_node_number(self.gameroot)+1):
+			
+			try:
+				one_data={}
+				txt=""
+				txt+="move "+str(m)
+				
+				one_move=get_node(self.gameroot,m)
+				
+				computer_move=one_move.get('CBM')
+				
+				player_color,player_move=one_move.get_move()
+				player_move=ij2gtp(player_move)
+				
+				one_data['move']=m
+				one_data['player_color']=player_color.lower()
+				
+				if player_color in ('w',"W"):
+					computer_win_rate=one_move.get('WWR').replace("%","")
+					player_win_rate=get_node(self.gameroot,m+1).get('WWR').replace("%","")
+				else:
+					print "#"+str(m)+"#BWR#",one_move.get('BWR')
+					print one_move.get('BWR').replace("%","")
+					computer_win_rate=one_move.get('BWR').replace("%","")
+					player_win_rate=get_node(self.gameroot,m+1).get('BWR').replace("%","")
+				one_data['computer_win_rate']=float(computer_win_rate)
+				one_data['player_win_rate']=float(player_win_rate)
+				
+				if player_move==computer_move:
+					player_win_rate=computer_win_rate
+
+				delta=float(player_win_rate.replace("%",""))-float(computer_win_rate.replace("%",""))
+				one_data['delta']=delta
+
+				data.append(one_data)
+			except Exception, e:
+				if str(e) in ("'BWR'","'WWR'"):
+					print "No win rate information for move",m
+					print e
+				elif str(e) in ("'CBM'"):
+					print "No computer best move information for move",m
+					print e
+				else:
+					print e
+				data.append(None)
+		return data
+	
+	def show_graphs(self,event=None):
+
+		
+		new_popup=OpenChart(self,self.data_for_chart)
+		self.all_popups.append(new_popup)
+		
 	
 	def hide_territories(self,event=None):
 		self.goban1.display(self.current_grid,self.current_markup)
@@ -930,6 +1271,16 @@ class DualView(Frame):
 		self.territory_button.grid(column=2,row=1)
 		self.territory_button.bind('<Button-1>', self.show_territories)
 		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
+		
+		self.data_for_chart=self.prepare_data_for_chart()
+		for data in self.data_for_chart:
+			if data<>None:
+				
+				
+				self.charts_button=Button(self, text='graphs')
+				self.charts_button.bind('<Button-1>', self.show_graphs)
+				self.charts_button.grid(column=3,row=2,sticky=E)
+				break
 		
 		self.parent.bind('<Left>', self.prev_move)
 		self.parent.bind('<Right>', self.next_move)

@@ -83,7 +83,7 @@ class RunAnalysis(Frame):
 			
 			#if (answer.lower() not in ["pass","resign"]):
 			if len(answer)>0:
-				
+				best_move=True
 				for sequence_first_move,count,simulation,policy,value,win,one_sequence in answer:
 					print "Adding sequence starting from",sequence_first_move
 					previous_move=one_move.parent
@@ -119,7 +119,17 @@ class RunAnalysis(Frame):
 									variation_comment+="\nPolicy: "+policy
 								if value:
 									variation_comment+="\nValue: "+value
-								
+								if best_move and win:
+									print "===BWR/WWR",win
+									best_move=False
+									one_move.set("CBM",one_deep_move.lower())
+									if current_color=='b':
+										one_move.set("BWR",str(win)+'%') #Black Win Rate
+										one_move.set("WWR",str(100-float(win))+'%') #White Win Rate
+									else:
+										one_move.set("WWR",str(win)+'%') #White Win Rate
+										one_move.set("BWR",str(100-float(win))+'%') #Black Win Rate
+									print "===BWR/WWR"
 								new_child.add_comment_text(variation_comment.strip())
 							previous_move=new_child
 						else:
