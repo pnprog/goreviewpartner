@@ -338,11 +338,11 @@ class OpenChart():
 				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
 				x0=x1
 				
-		
+		"""
 		self.popup.update_idletasks()
 		self.chart.update_idletasks()
 		self.chart.postscript(file='chart', colormode='color')
-		
+		"""
 
 
 	def save_as_ps(self,e=None):
