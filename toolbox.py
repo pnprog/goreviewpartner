@@ -351,7 +351,7 @@ class RangeSelector(Frame):
 	
 	def start(self):
 		if self.bots!=None:
-			bot_selection=self.bot_selection.curselection()[0]
+			bot_selection=int(self.bot_selection.curselection()[0])
 			print "bot selection:",self.bots[bot_selection][0]
 			RunAnalysis=self.bots[bot_selection][1]
 		

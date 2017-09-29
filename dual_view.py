@@ -17,7 +17,7 @@ import ConfigParser
 Config = ConfigParser.ConfigParser()
 Config.read("config.ini")
 
-bg='silver'
+bg='#C0C0C0'
 
 from goban import *
 
