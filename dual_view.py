@@ -119,12 +119,6 @@ class OpenChart():
 				self.next_color=3-color
 				self.undo_button.config(state='normal')
 	
-	def set_status(self,msg):
-		self.status_bar.config(text=msg)
-		
-	def clear_status(self):
-		self.status_bar.config(text="")
-	
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
@@ -164,11 +158,14 @@ class OpenChart():
 		self.status_bar.pack(anchor=W)
 		bottom_frame.pack()
 	
+		self.clear_status()
+		self.popup.bind('<Control-q>', self.save_as_ps)
+	
 	def set_status(self,event=None,msg=''):
 		self.status_bar.config(text=msg)
 	
-	def clear_status(self):
-		self.status_bar.config(text="")
+	def clear_status(self,event=None):
+		self.status_bar.config(text="<Ctrl+Q> to export goban as postscript image.")
 	
 	def goto_move(self,event=None,move=None):
 		if move:
@@ -243,7 +240,7 @@ class OpenChart():
 						grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
 						msg="Move "+str(move)+", win rate: "+str(player_win_rate)+"%"
 						self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-						self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status())
+						self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 						self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 						
 						delta=one_data["delta"]
@@ -253,13 +250,13 @@ class OpenChart():
 								red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
 								msg2="The computer believes it's own move win rate would be "+str(-delta)+"pp higher."
 								self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
-								self.chart.tag_bind(red_bar, "<Leave>", self.clear_status())
+								self.chart.tag_bind(red_bar, "<Leave>", self.clear_status)
 								self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
 							else:
 								green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
 								msg2="The computer believes your move is "+str(delta)+"pp better than it's best move."
 								self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
-								self.chart.tag_bind(green_bar, "<Leave>", self.clear_status())
+								self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
 								self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
 								
 						self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
@@ -292,7 +289,7 @@ class OpenChart():
 					
 					msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
 					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status())
+					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 					
 					self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
@@ -338,16 +335,12 @@ class OpenChart():
 				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
 				x0=x1
 				
-		"""
-		self.popup.update_idletasks()
-		self.chart.update_idletasks()
-		self.chart.postscript(file='chart', colormode='color')
-		"""
+
 
 
 	def save_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
-		self.goban.postscript(file=filename, colormode='color')
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile=self.graph_mode.get()+' graph.ps')
+		self.chart.postscript(file=filename, colormode='color')
 
 
 class OpenMove():
