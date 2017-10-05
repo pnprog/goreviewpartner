@@ -1,6 +1,10 @@
 # goreviewpartner
 A tool to help analyse and review your game of go (weiqi, baduk) using bots. Currently support [GnuGo](https://www.gnu.org/software/gnugo/), [Leela](https://www.sjeng.org/leela.html) and [Ray](https://github.com/zakki/Ray).
 
+Project home page: [http://ns1297.imingo.net/](http://ns1297.imingo.net/)
+
+Online Documentation: [http://ns1297.imingo.net/doc.htm](http://ns1297.imingo.net/doc.htm)
+
 More informations on L19 forum in this thread: [Announcing GoReviewPartner](https://lifein19x19.com/forum/viewtopic.php?f=9&t=14050)
 
 Windows ready download available there: [http://ns1297.imingo.net/](http://ns1297.imingo.net/)
