@@ -2,6 +2,9 @@ import subprocess
 import threading, Queue
 
 from time import sleep,time
+
+from toolbox import log
+
 class gtp():
 	def __init__(self,command):
 		self.c=1
@@ -21,21 +24,21 @@ class gtp():
 				if err_line:
 					self.stderr_queue.put(err_line)
 				else:
-					print "leaving consume_stderr thread"
+					log("leaving consume_stderr thread")
 					return
 			except Exception, e:
 				import sys, os
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print exc_type, fname, exc_tb.tb_lineno
-				print "leaving consume_stderr thread due to exception"
+				log(exc_type, fname, exc_tb.tb_lineno)
+				log("leaving consume_stderr thread due to exception")
 				return
 	
 	def write(self,txt):
 		try:
 			self.process.stdin.write(txt+"\n")
 		except:
-			print "Error while writting to stdin"
+			log("Error while writting to stdin")
 			self.kill()
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
 		self.c+=1
@@ -48,7 +51,6 @@ class gtp():
 	def get_gnugo_initial_influence_black(self):
 		self.write("initial_influence black influence_regions")
 		one_line=self.readline()
-		#print "->",one_line
 		one_line=one_line.split("= ")[1].strip().replace("  "," ")
 		lines=[one_line]
 		for i in range(self.size-1):
@@ -64,7 +66,6 @@ class gtp():
 	def get_gnugo_initial_influence_white(self):
 		self.write("initial_influence white influence_regions")
 		one_line=self.readline()
-		#print "->",one_line
 		one_line=one_line.split("= ")[1].strip().replace("  "," ")
 		lines=[one_line]
 		for i in range(self.size-1):
@@ -87,7 +88,7 @@ class gtp():
 				buff.append(self.stderr_queue.get())
 			sleep(.1)
 		buff.reverse()
-		print buff
+		log(buff)
 		influence=[]
 		for i in range(self.size):
 			one_line=buff[i].strip()
@@ -101,14 +102,14 @@ class gtp():
 		t0=time()
 		self.write("ray-stat "+color)
 		header_line=self.readline()
-		print ">>>>>>>>>>>>",time()-t0
-		print "HEADER:",header_line
+		log(">>>>>>>>>>>>",time()-t0)
+		log("HEADER:",header_line)
 		sequences=[]
 		for i in range(10):
 			one_line=answer=self.process.stdout.readline().strip()
 			if one_line.strip()=="":
 				break
-			print "\t",[s.strip() for s in one_line.split("|")[1:]]
+			log("\t",[s.strip() for s in one_line.split("|")[1:]])
 			sequences.append([s.strip() for s in one_line.split("|")[1:]])
 		return sequences
 	
@@ -168,12 +169,11 @@ class gtp():
 			sleep(.1)
 		
 		buff.reverse()
-		#print "buff:",buff
 		
 		answers=[]
 		for err_line in buff:
 			if " ->" in err_line:
-				print err_line
+				log(err_line)
 				one_answer=err_line.strip().split(" ")[0]
 				one_score= ' '.join(err_line.split()).split(' ')[4]
 				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
@@ -193,19 +193,10 @@ class gtp():
 				
 				if one_score!="0.00%)":
 					sequence=err_line.split("PV: ")[1].strip()
-					#if float(one_score[:-2])>=100 or float(one_score[:-2])<0:
-					#	print "one score:",one_score,one_score[:-2],float(one_score[:-2])
-					#	print "err line:",err_line
-					#	print
-					#answers.append([one_answer,sequence,float(one_score[:-2]),nodes])
 					answers=[[one_answer,sequence,float(one_score[:-2]),monte_carlo,value_network,policy_network,evaluation,rave,nodes]]+answers
-					
-		#if len(answers)==1:
-		#	if len(answers[0][1].split(' '))==1:
-		#		print "\t\tNeed one move deeper analysis!"
-		
+
 		return answers
-		#return sorted(answers,lambda x,y: int(1000*(y[2]-x[2])))
+
 
 	def readline(self):
 		answer=self.process.stdout.readline()
@@ -336,10 +327,10 @@ class gtp():
 			return False
 	
 	def kill(self):
-		print "process.terminate()"
+		log("process.terminate()")
 		self.process.terminate()
 		sleep(0.5)
-		print "process.kill()"
+		log("process.kill()")
 		self.process.kill()
 		sleep(0.5)
 

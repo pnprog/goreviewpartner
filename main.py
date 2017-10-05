@@ -21,10 +21,10 @@ from time import sleep
 def close_app():
 	global popups, app
 	for popup in popups:
-		print "================closing popup"
+		log("================closing popup")
 		popup.close_app()
-		print "================popup closed"
-	print "closing"
+		log("================popup closed")
+	log("closing")
 	app.destroy()
 	app.quit()
 	exit()
@@ -32,11 +32,11 @@ def close_app():
 def launch_analysis():
 	global popups
 	filename = tkFileDialog.askopenfilename(parent=app,title='Choose a file',filetypes = [('sgf', '.sgf')])
-	print filename
-	print "gamename:",filename[:-4]
+	log(filename)
+	log("gamename:",filename[:-4])
 	if not filename:
 		return
-	print "filename:",filename
+	log("filename:",filename)
 	
 	top = Toplevel()
 	
@@ -83,7 +83,7 @@ download_bouton.pack()
 
 def launch_review():
 	filename = tkFileDialog.askopenfilename(parent=app,title='Select a file',filetypes = [('sgf reviewed', '.rsgf')])
-	print filename
+	log(filename)
 	if not filename:
 		return
 
@@ -111,7 +111,7 @@ def launch_settings():
 	settings.OpenSettings(app)
 
 def refresh():
-	print "refreshing"
+	log("refreshing")
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read("config.ini")
@@ -138,4 +138,4 @@ app.protocol("WM_DELETE_WINDOW", close_app)
 refresh()
 app.refresh=refresh
 app.mainloop()
-print "terminated"
+log("terminated")

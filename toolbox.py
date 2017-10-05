@@ -1,3 +1,42 @@
+
+def log(*args):
+	for arg in args:
+		try:
+			try:
+				arg=unicode(arg,errors='replace')
+			except:
+				pass
+			try:
+				arg=arg.encode(sys.stdout.encoding, 'replace')
+			except:
+				pass
+			try:
+				print arg,
+			except:
+				print "?"*len(arg),
+		except:
+			print "["+type()+"]",
+	print
+
+def linelog(*args):
+	for arg in args:
+		try:
+			try:
+				arg=unicode(arg,errors='replace')
+			except:
+				pass
+			try:
+				arg=arg.encode(sys.stdout.encoding, 'replace')
+			except:
+				pass
+			try:
+				print arg,
+			except:
+				print "?"*len(arg),
+		except:
+			print "["+type()+"]",
+
+
 def alert(text_to_display):
 	popup=Toplevel()
 	label= Label(popup,text=text_to_display)
@@ -21,7 +60,7 @@ def go_to_move(move_zero,move_number=0):
 	k=0
 	while k!=move_number:
 		if not move:
-			print "return False"
+			log("return False")
 			return False
 		move=move[0]
 		k+=1
@@ -29,9 +68,6 @@ def go_to_move(move_zero,move_number=0):
 
 
 def gtp2ij(move):
-	#print "gtp2ij(",move,")"
-	
-	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return int(move[1:])-1,letters.index(move[0].lower())
 
@@ -94,7 +130,7 @@ class DownloadFromURL(Frame):
 		if url[:4]!="http":
 			url="http://"+url
 		
-		print "Downloading",url
+		log("Downloading",url)
 		
 		r=urllib2.Request(url,headers=headers)
 		try:
@@ -107,9 +143,9 @@ class DownloadFromURL(Frame):
 		sgf=h.read()
 		
 		if sgf[:7]!="(;FF[4]":
-			print "not a sgf file"
+			log("not a sgf file")
 			alert("Not a sgf file!")
-			print sgf[:7]
+			log(sgf[:7])
 			return
 		
 		try:
@@ -119,7 +155,7 @@ class DownloadFromURL(Frame):
 			if "''" in filename:
 				filename=filename.split("''")[1]
 		except:
-			print "no Content-Disposition in header"
+			log("no Content-Disposition in header")
 			black='black'
 			white='white'
 			date=""
@@ -135,7 +171,7 @@ class DownloadFromURL(Frame):
 				filename=date+'_'
 			filename+=black+'_VS_'+white+'.sgf'
 		
-		print filename
+		log(filename)
 		text_file = open(filename, "w")
 		text_file.write(sgf)
 		text_file.close()
@@ -150,10 +186,10 @@ class DownloadFromURL(Frame):
 	def close_app(self):
 		if self.popup:
 			try:
-				print "closing RunAlanlysis popup from RangeSelector"
+				log("closing RunAlanlysis popup from RangeSelector")
 				self.popup.close_app()
 			except:
-				print "RangeSelector could not close its RunAlanlysis popup"
+				log("RangeSelector could not close its RunAlanlysis popup")
 				pass
 		
 		try:
@@ -168,7 +204,7 @@ def clean_sgf(txt):
 	return txt
 	for private_property in ["MULTIGOGM","MULTIGOBM"]:
 		if private_property in txt:
-			print "removing private property",private_property,"from sgf content"
+			log("removing private property",private_property,"from sgf content")
 			txt1,txt2=txt.split(private_property+'[')				
 			txt=txt1+"]".join(txt2.split(']')[1:])
 	return txt
@@ -196,7 +232,7 @@ def keep_only_one_leaf(leaf):
 			parent=leaf.parent
 			for other_leaf in parent:
 				if other_leaf!=leaf:
-					print "deleting..."
+					log("deleting...")
 					other_leaf.delete()
 			leaf=parent
 		except:
@@ -322,7 +358,7 @@ class RangeSelector(Frame):
 		self.popup=None
 	
 	def variation_changed(self,*args):
-		print "variation changed!",self.variation_selection.get()
+		log("variation changed!",self.variation_selection.get())
 		try:
 			self.after(0,self.r1.select)
 			variation=int(self.variation_selection.get().split(" ")[1])-1
@@ -343,16 +379,16 @@ class RangeSelector(Frame):
 	def close_app(self):
 		if self.popup:
 			try:
-				print "closing RunAlanlysis popup from RangeSelector"
+				log("closing RunAlanlysis popup from RangeSelector")
 				self.popup.close_app()
 			except:
-				print "RangeSelector could not close its RunAlanlysis popup"
+				log("RangeSelector could not close its RunAlanlysis popup")
 				pass
 	
 	def start(self):
 		if self.bots!=None:
 			bot_selection=int(self.bot_selection.curselection()[0])
-			print "bot selection:",self.bots[bot_selection][0]
+			log("bot selection:",self.bots[bot_selection][0])
 			RunAnalysis=self.bots[bot_selection][1]
 		
 		if self.mode.get()=="all":
@@ -383,7 +419,7 @@ class RangeSelector(Frame):
 			
 		if self.color.get()=="black":
 			intervals+=" (black only)"
-			print "black only"
+			log("black only")
 			new_move_selection=[]
 			for m in move_selection:
 				one_move=go_to_move(self.move_zero,m)
@@ -393,7 +429,7 @@ class RangeSelector(Frame):
 			move_selection=new_move_selection
 		elif self.color.get()=="white":
 			intervals+=" (white only)"
-			print "white only"
+			log("white only")
 			new_move_selection=[]
 			for m in move_selection:
 				one_move=go_to_move(self.move_zero,m)
@@ -404,12 +440,12 @@ class RangeSelector(Frame):
 		else:
 			intervals+=" (both colors)"
 			
-		print "========= move selection"
-		print move_selection
+		log("========= move selection")
+		log(move_selection)
 		
-		print "========= variation"
+		log("========= variation")
 		variation=int(self.variation_selection.get().split(" ")[1])-1
-		print variation
+		log(variation)
 		
 		self.parent.destroy()
 		newtop=Tk()

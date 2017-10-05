@@ -7,7 +7,7 @@ import sys,time
 import tkFileDialog
 from functools import partial
 
-
+from toolbox import log
 
 import os
 
@@ -33,26 +33,18 @@ def get_node(root,number=0):
 	node=root
 	k=0
 	while k!=number:
-		#print node.get_move()
 		if not node:
 			return False
 		node=node[0]
 		k+=1
 	return node
 
-
-
 def gtp2ij(move):
-	#print "gtp2ij("+move+")"
-	# a18 => (17,0)
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return int(move[1:])-1,letters.index(move[0].lower())
 
 
 def ij2gtp(m):
-	#print "ij2gtp("+str(m)+")"
-	# (17,0) => a18
-	
 	if m==None:
 		return "pass"
 	i,j=m
@@ -79,14 +71,13 @@ class OpenChart():
 
 		self.initialize()
 	def close(self):
-		print "closing popup"
+		log("closing popup")
 		self.popup.destroy()			
 		self.parent.all_popups.remove(self)
-		print "done"
+		log("done")
 	
 	def click(self,event):
 		dim=self.dim
-		print "dim:::",dim
 		#add/remove black stone
 		#check pointer location
 		i,j=self.goban.xy2ij(event.x,event.y)
@@ -169,7 +160,7 @@ class OpenChart():
 	
 	def goto_move(self,event=None,move=None):
 		if move:
-			print "goto move",move
+			log("goto move",move)
 			#self.parent.parent.lift()
 			#self.popup.after(500,self.parent.parent.deiconify)
 			#self.parent.parent.lift(self.popup)
@@ -358,35 +349,35 @@ class OpenMove():
 
 	def unlock(self,after=False):
 		if after:
-			print "unlocking 2/2"
+			log("unlocking 2/2")
 			self.locked=False
 		else:
-			print "unlocking 1/2"
+			log("unlocking 1/2")
 			self.popup.after(100,lambda: self.unlock(True))
 	
 	def close(self):
 		if self.locked:
 			return
-		print "closing popup"
+		log("closing popup")
 		self.popup.destroy()
 		if self.okgnugo:
-			print "killing gnugo"
+			log("killing gnugo")
 			self.gnugo.close()
 		if self.okleela:
-			print "killing leela"
+			log("killing leela")
 			self.leela.close()
 		if self.okray:
-			print "killing ray"
+			log("killing ray")
 			self.ray.close()
 			
 		self.parent.all_popups.remove(self)
 		
-		print "done"
+		log("done")
 	
 	def undo(self,event=None):
-		print "UNDO"
+		log("UNDO")
 		if self.locked:
-			print "failed!"
+			log("failed!")
 			return
 
 		if len(self.history)<1:
@@ -410,7 +401,7 @@ class OpenMove():
 	def click_leela(self):
 		if self.locked:
 			return
-		print "leela play"
+		log("leela play")
 		dim=self.dim
 		color=self.next_color
 		n0=time.time()
@@ -420,11 +411,11 @@ class OpenMove():
 			move=self.leela.play_black()
 		else:
 			move=self.leela.play_white()
-		print "move=",move,"in",time.time()-n0,"s"
+		log("move=",move,"in",time.time()-n0,"s")
 		
 		if move.lower() not in ["pass","resign"]:
 			i,j=gtp2ij(move)
-			print 'i,j=',i,j
+			log('i,j=',i,j)
 			
 			if self.okgnugo:
 				self.gnugo.place(move,color)
@@ -454,7 +445,7 @@ class OpenMove():
 		if self.locked:
 			return
 		
-		print "ray play"
+		log("ray play")
 		color=self.next_color
 		n0=time.time()
 		self.lock()
@@ -463,11 +454,11 @@ class OpenMove():
 			move=self.ray.play_black()
 		else:
 			move=self.ray.play_white()
-		print "move=",move,"in",time.time()-n0,"s"
+		log("move=",move,"in",time.time()-n0,"s")
 		
 		if move.lower() not in ["pass","resign"]:
 			i,j=gtp2ij(move)
-			print 'i,j=',i,j
+			log('i,j=',i,j)
 			
 
 			if self.okleela:
@@ -502,7 +493,7 @@ class OpenMove():
 		if self.locked:
 			return
 		
-		print "gnugo play"
+		log("gnugo play")
 		color=self.next_color
 		n0=time.time()
 		self.lock()
@@ -511,11 +502,11 @@ class OpenMove():
 			move=self.gnugo.play_black()
 		else:
 			move=self.gnugo.play_white()
-		print "move=",move,"in",time.time()-n0,"s"
+		log("move=",move,"in",time.time()-n0,"s")
 		
 		if move.lower() not in ["pass","resign"]:
 			i,j=gtp2ij(move)
-			print 'i,j=',i,j
+			log('i,j=',i,j)
 			
 
 			if self.okleela:
@@ -545,7 +536,7 @@ class OpenMove():
 	
 	def click(self,event):
 		dim=self.dim
-		print "dim:::",dim
+		log("dim:::",dim)
 		#add/remove black stone
 		#check pointer location
 		i,j=self.goban.xy2ij(event.x,event.y)
@@ -643,8 +634,8 @@ class OpenMove():
 		grid3=[[0 for row in range(dim)] for col in range(dim)]
 		markup3=[["" for row in range(dim)] for col in range(dim)]
 		
-		print "========================"
-		print "opening move",move
+		log("========================")
+		log("opening move",move)
 		
 		if Config.getboolean('Ray', 'NeededForReview'):
 			okray=True
@@ -658,8 +649,8 @@ class OpenMove():
 				self.buttonray=buttonray
 			except Exception, e:
 				okray=False
-				print "Could not launch Ray"
-				print e
+				log("Could not launch Ray")
+				log(e)
 				buttonray.destroy()
 		else:
 			okray=False
@@ -678,8 +669,8 @@ class OpenMove():
 				self.leela=leela
 			except Exception, e:
 				okleela=False
-				print "Could not launch Leela"
-				print e
+				log("Could not launch Leela")
+				log(e)
 				buttonleela.destroy()
 		else:
 			okleela=False
@@ -696,8 +687,8 @@ class OpenMove():
 				self.gnugo=gnugo
 			except Exception, e:
 				okgnugo=False
-				print "Could not launch GnuGo"
-				print e
+				log("Could not launch GnuGo")
+				log(e)
 				buttongnugo.destroy()
 		else:
 			okgnugo=False
@@ -729,12 +720,12 @@ class OpenMove():
 		for m in range(1,move):
 			one_move=get_node(gameroot,m)
 			if one_move==False:
-				print "(0)leaving because one_move==False"
+				log("(0)leaving because one_move==False")
 				return
 			
 			ij=one_move.get_move()[1]
 			
-			print ij
+			log(ij)
 			
 			if one_move.get_move()[0]=='b':
 				color=1
@@ -749,7 +740,7 @@ class OpenMove():
 				ray.place(ij2gtp(ij),color)
 				
 			if ij==None:
-				print "(0)skipping because ij==None",ij
+				log("(0)skipping because ij==None",ij)
 				continue
 
 			i,j=ij
@@ -764,7 +755,7 @@ class OpenMove():
 			else:
 				self.next_color=1
 		except:
-			print "error when trying to figure out next color to play, so black is selected"
+			log("error when trying to figure out next color to play, so black is selected")
 			self.next_color=1
 		goban3.display(grid3,markup3)
 		
@@ -804,14 +795,7 @@ class DualView(Frame):
 	def close_app(self):
 		for popup in self.all_popups[:]:
 			popup.close()
-			"""
-			if popup.okgnugo:
-				print "killing gnugo"
-				popup.gnugo.kill()
-			if popup.okleela:
-				print "killing leela"
-				popup.leela.kill()
-			"""
+
 		self.destroy()
 		self.parent.destroy()
 
@@ -931,7 +915,7 @@ class DualView(Frame):
 		
 		move=(self.current_variation_move+1)%(len(self.current_variation_sequence)+1)
 		move=max(1,move)
-		print move,'/',len(self.current_variation_sequence)
+		log(move,'/',len(self.current_variation_sequence))
 		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 	
 	def show_variation_prev(self,event=None):
@@ -979,8 +963,8 @@ class DualView(Frame):
 					computer_win_rate=one_move.get('WWR').replace("%","")
 					player_win_rate=get_node(self.gameroot,m+1).get('WWR').replace("%","")
 				else:
-					print "#"+str(m)+"#BWR#",one_move.get('BWR')
-					print one_move.get('BWR').replace("%","")
+					log("#"+str(m)+"#BWR#",one_move.get('BWR'))
+					log(one_move.get('BWR').replace("%",""))
 					computer_win_rate=one_move.get('BWR').replace("%","")
 					player_win_rate=get_node(self.gameroot,m+1).get('BWR').replace("%","")
 				one_data['computer_win_rate']=float(computer_win_rate)
@@ -995,13 +979,13 @@ class DualView(Frame):
 				data.append(one_data)
 			except Exception, e:
 				if str(e) in ("'BWR'","'WWR'"):
-					print "No win rate information for move",m
-					print e
+					log("No win rate information for move",m)
+					log(e)
 				elif str(e) in ("'CBM'"):
-					print "No computer best move information for move",m
-					print e
+					log("No computer best move information for move",m)
+					log(e)
 				else:
-					print e
+					log(e)
 				data.append(None)
 		return data
 	
@@ -1023,8 +1007,8 @@ class DualView(Frame):
 
 		
 		self.move_number.config(text=str(move)+'/'+str(get_node_number(self.gameroot)))
-		print "========================"
-		print "displaying move",move
+		log("========================")
+		log("displaying move",move)
 		grid1=[[0 for row in range(dim)] for col in range(dim)]
 		markup1=[["" for row in range(dim)] for col in range(dim)]
 		grid2=[[0 for row in range(dim)] for col in range(dim)]
@@ -1050,13 +1034,13 @@ class DualView(Frame):
 		for m in range(1,move):
 			one_move=get_node(self.gameroot,m)
 			if one_move==False:
-				print "(0)leaving because one_move==False"
+				log("(0)leaving because one_move==False")
 				return
 			
 			ij=one_move.get_move()[1]
 			
 			if ij==None:
-				print "(0)skipping because ij==None",ij
+				log("(0)skipping because ij==None",ij)
 				continue
 
 			
@@ -1067,7 +1051,7 @@ class DualView(Frame):
 			place(grid2,i,j,color)
 			
 			if len(one_move)==0:
-				print "(0)leaving because len(one_move)==0"
+				log("(0)leaving because len(one_move)==0")
 				goban1.display(grid1,markup1)
 				goban2.display(grid2,markup2)
 				return
@@ -1102,11 +1086,11 @@ class DualView(Frame):
 		for m in range(self.realgamedeepness):
 			one_move=get_node(self.gameroot,move+m)
 			if one_move==False:
-				print "(00)leaving because one_move==False"
+				log("(00)leaving because one_move==False")
 				break
 			ij=one_move.get_move()[1]
 			if ij==None:
-				print "(0)skipping because ij==None",ij
+				log("(0)skipping because ij==None",ij)
 				break
 			if one_move.get_move()[0]=='b':	c=1
 			else: c=2
@@ -1124,10 +1108,10 @@ class DualView(Frame):
 		#alternative sequences ####################################################################################
 		parent=get_node(self.gameroot,move-1)
 		if parent==False:
-			print "(1)leaving because one_move==False"
+			log("(1)leaving because one_move==False")
 			return
 		if len(parent)<=1:
-			print "no alternative move"
+			log("no alternative move")
 			#display(goban1,grid1,markup1)
 			#display(goban2,grid2,markup2)
 			goban1.display(grid1,markup1)
@@ -1152,7 +1136,6 @@ class DualView(Frame):
 				try:
 					black_prob=float(one_alternative.get("C").split(": ")[1].replace("%","").split('/')[0])
 					white_prob=100-black_prob
-					#print "black_prob:",black_prob,'c=',c
 					if c==1:
 						if black_prob>=50:
 							displaycolor="blue"
@@ -1186,7 +1169,7 @@ class DualView(Frame):
 
 		
 	def open_move(self):
-		print "Opening move",self.current_move
+		log("Opening move",self.current_move)
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		self.all_popups.append(new_popup)
 		
@@ -1207,7 +1190,7 @@ class DualView(Frame):
 		self.dim=self.sgf.get_size()
 		self.komi=self.sgf.get_komi()
 		
-		print "boardsize:",self.dim
+		log("boardsize:",self.dim)
 		#goban.dim=size
 		
 		#goban.prepare_mesh()
@@ -1356,7 +1339,7 @@ if __name__ == "__main__":
 		temp_root = Tk()
 		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf for review', '.rsgf')])
 		temp_root.destroy()
-		print filename
+		plog(filename)
 
 		if not filename:
 			sys.exit()

@@ -49,7 +49,7 @@ class RunAnalysis(Frame):
 			
 			max_move=self.max_move
 			
-			print "move",str(current_move)+'/'+str(max_move),
+			linelog("move",str(current_move)+'/'+str(max_move))
 			
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
@@ -59,17 +59,17 @@ class RunAnalysis(Frame):
 
 			try:
 				if player_color in ('w',"W"):
-					print "leela play white"
+					log("leela play white")
 					answer=leela.play_white()
 				else:
-					print "leela play black"
+					log("leela play black")
 					answer=leela.play_black()
 			except Exception, e:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print exc_type, fname, exc_tb.tb_lineno
-				print e
-				print "leaving thread..."
+				log(exc_type, fname, exc_tb.tb_lineno)
+				log(e)
+				log("leaving thread...")
 				exit()
 			
 			all_moves=leela.get_all_leela_moves()
@@ -84,47 +84,42 @@ class RunAnalysis(Frame):
 					bookmove=False
 				all_moves2=all_moves[:]
 				nb_undos=1
-				print "====move",current_move+1,all_moves[0],'~',answer
+				log("====move",current_move+1,all_moves[0],'~',answer)
 				
 				
 				#making sure the first line of play is more than one move deep
 				best_winrate=all_moves[0][2]
 				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
-					print "going deeper for first line of play (",nb_undos,")"
+					log("going deeper for first line of play (",nb_undos,")")
 					try:
 						if player_color in ('w',"W") and nb_undos%2==0:
-							#print "\tleela play white"
 							answer=leela.play_white()
 						elif player_color in ('w',"W") and nb_undos%2==1:
-							#print "\tleela play black"
 							answer=leela.play_black()
 						elif player_color not in ('w',"W") and nb_undos%2==0:
-							#print "\tleela play black"
 							answer=leela.play_black()
 						else:
-							#print "\tleela play white"
 							answer=leela.play_white()
 						nb_undos+=1
-						#if answer.lower()!="resign":
-						#	nb_undos+=1
+
 					except Exception, e:
 						exc_type, exc_obj, exc_tb = sys.exc_info()
 						fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-						print exc_type, fname, exc_tb.tb_lineno
-						print e
-						print "leaving thread..."
+						log(exc_type, fname, exc_tb.tb_lineno)
+						log(e)
+						log("leaving thread...")
 						exit()
 
 
-					print all_moves[0],'+',answer,
+					linelog(all_moves[0],'+',answer)
 					all_moves2=leela.get_all_leela_moves()
 					if (answer.lower() not in ["pass","resign"]):
 						
-						print "all_moves2:",all_moves2
+						log("all_moves2:",all_moves2)
 						if all_moves2==[]:
 							all_moves2=[[answer,answer,666,666,666,666,666,666,666]]
 
-						print '+',all_moves2
+						log('+',all_moves2)
 						all_moves[0][1]+=" "+all_moves2[0][1]
 						
 						
@@ -134,40 +129,36 @@ class RunAnalysis(Frame):
 							all_moves[0][2]=100-all_moves2[0][2]
 
 					else:
-						print
-						print "last play on the fist of play was",answer,"so leaving"
+						log()
+						log("last play on the fist of play was",answer,"so leaving")
 				
 				for u in range(nb_undos):
-					print "undo..."
+					log("undo...")
 					leela.undo()
 				
 				
 				#all_moves[0][2]=best_winrate #it would be best to sort again all variation based on new winrate...
 				
-				#print "all moves from leela:",all_moves
+
 				best_move=True
 				#variation=-1
-				print "Number of alternative sequences:",len(all_moves)
-				print all_moves
+				log("Number of alternative sequences:",len(all_moves))
+				log(all_moves)
 				for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
-					print "Adding sequence starting from",sequence_first_move
+					log("Adding sequence starting from",sequence_first_move)
 					previous_move=one_move.parent
 					current_color=player_color
 					
 					if best_move:
 						if player_color=='b':
-							print str(one_score)+'%/'+str(100-one_score)+'%',
+							linelog(str(one_score)+'%/'+str(100-one_score)+'%')
 						else:
-							print str(100-one_score)+'%/'+str(one_score)+'%',
+							linelog(str(100-one_score)+'%/'+str(one_score)+'%')
 					
-					#variation+=1
-					#deepness=-1
 					first_variation_move=True
 					for one_deep_move in one_sequence.split(' '):
-						#deepness+=1
-						#print "variation:",variation,"deepness:",deepness,"gtp2ij(",one_deep_move,")"
 						if one_deep_move.lower() in ["pass","resign"]:
-							print "Leaving the variation when encountering",one_deep_move.lower()
+							log("Leaving the variation when encountering",one_deep_move.lower())
 							break
 						i,j=gtp2ij(one_deep_move)
 						new_child=previous_move.new_child()
@@ -232,9 +223,9 @@ class RunAnalysis(Frame):
 							current_color='b'
 						else:
 							current_color='w'
-				print "==== no more sequences ====="
+				log("==== no more sequences =====")
 				
-				print "Creating the influence map"
+				log("Creating the influence map")
 				influence=leela.get_leela_influence()
 				black_influence_points=[]
 				white_influence_points=[]
@@ -253,7 +244,7 @@ class RunAnalysis(Frame):
 				
 				
 			else:
-				print 'adding "'+answer.lower()+'" to the sgf file'
+				log('adding "'+answer.lower()+'" to the sgf file')
 				additional_comments+="\nFor this position, Leela would "+answer.lower()
 				if answer.lower()=="pass":
 					leela.undo()
@@ -266,16 +257,16 @@ class RunAnalysis(Frame):
 			
 			self.total_done+=1
 		else:
-			print "Move",current_move,"not in the list of moves to be analysed, skipping"
+			log("Move",current_move,"not in the list of moves to be analysed, skipping")
 
-		print "now asking Leela to play the game move:",
+		linelog("now asking Leela to play the game move:")
 		if player_color in ('w',"W"):
-			print "white at",ij2gtp(player_move)
+			log("white at",ij2gtp(player_move))
 			leela.place_white(ij2gtp(player_move))
 		else:
-			print "black at",ij2gtp(player_move)
+			log("black at",ij2gtp(player_move))
 			leela.place_black(ij2gtp(player_move))
-		print "Analysis for this move is completed"
+		log("Analysis for this move is completed")
 	
 
 	def run_all_analysis(self):
@@ -297,9 +288,9 @@ class RunAnalysis(Frame):
 		except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print exc_type, fname, exc_tb.tb_lineno
-			print e
-			print "releasing lock"
+			log(exc_type, fname, exc_tb.tb_lineno)
+			log(e)
+			log("releasing lock")
 			try:
 				self.lock1.release()
 			except:
@@ -308,7 +299,7 @@ class RunAnalysis(Frame):
 				self.lock2.release()
 			except:
 				pass
-			print "leaving thread"
+			log("leaving thread")
 			exit()
 
 		
@@ -367,18 +358,18 @@ class RunAnalysis(Frame):
 		
 	
 	def remove_app(self):
-		print "RunAnalysis beeing closed"
+		log("RunAnalysis beeing closed")
 		self.lab2.config(text="Now closing, please wait...")
 		self.update_idletasks()
-		print "killing leela"
+		log("killing leela")
 		self.leela.close()
-		print "destroying"
+		log("destroying")
 		self.destroy()
 	
 	def close_app(self):
 		self.remove_app()
 		self.parent.destroy()
-		print "RunAnalysis closed"
+		log("RunAnalysis closed")
 
 
 		
@@ -393,11 +384,11 @@ class RunAnalysis(Frame):
 		txt.close()
 		
 		leaves=get_all_sgf_leaves(self.g.get_root())
-		print "keeping only variation",self.variation
+		log("keeping only variation",self.variation)
 		keep_only_one_leaf(leaves[self.variation][0])
 		
 		size=self.g.get_size()
-		print "size of the tree:", size
+		log("size of the tree:", size)
 		self.size=size
 
 		try:
@@ -441,10 +432,10 @@ class RunAnalysis(Frame):
 				row, col = move0
 				move=ij2gtp((row,col))
 				if colour in ('w',"W"):
-					print "Adding initial white stone at",move
+					log("Adding initial white stone at",move)
 					leela.place_white(move)
 				else:
-					print "Adding initial black stone at",move
+					log("Adding initial black stone at",move)
 					leela.place_black(move)
 						
 			
@@ -507,11 +498,11 @@ if __name__ == "__main__":
 		temp_root = Tk()
 		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])
 		temp_root.destroy()
-		print filename
-		print "gamename:",filename[:-4]
+		log(filename)
+		log("gamename:",filename[:-4])
 		if not filename:
 			sys.exit()
-		print "filename:",filename
+		log("filename:",filename)
 		top = Tk()
 		toolbox.RunAnalysis=RunAnalysis
 		RangeSelector(top,filename,bots=[("Leela",RunAnalysis)]).pack()

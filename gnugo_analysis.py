@@ -70,9 +70,9 @@ class RunAnalysis(Frame):
 		gnugo=self.gnugo
 		if current_move in self.move_range:
 			max_move=self.max_move
-			print "move",str(current_move)+'/'+str(max_move),
+			linelog("move",str(current_move)+'/'+str(max_move))
 			final_score=gnugo.get_gnugo_estimate_score()
-			print final_score,
+			linelog(final_score)
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
 				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
@@ -81,26 +81,26 @@ class RunAnalysis(Frame):
 			additional_comments+="\nGnugo score estimation before the move was played: "+final_score
 			try:
 				if player_color in ('w',"W"):
-					print "gnugo plays white"
+					log("gnugo plays white")
 					top_moves=gnugo.gnugo_top_moves_white()
 					answer=gnugo.play_white()
 				else:
-					print "gnugo plays black"
+					log("gnugo plays black")
 					top_moves=gnugo.gnugo_top_moves_black()
 					answer=gnugo.play_black()
 			except Exception, e:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print exc_type, fname, exc_tb.tb_lineno
-				print e
-				print "leaving thread..."
+				log(exc_type, fname, exc_tb.tb_lineno)
+				log(e)
+				log("leaving thread...")
 				exit()
 			
-			print "====","Gnugo answer:",answer
+			log("====","Gnugo answer:",answer)
 			
-			print "==== Gnugo top moves"
+			log("==== Gnugo top moves")
 			for one_top_move in top_moves:
-				print "\t",one_top_move
+				log("\t",one_top_move)
 			print
 			top_moves=top_moves[:self.nb_variations]
 			if (answer.lower() not in ["pass","resign"]):
@@ -135,7 +135,7 @@ class RunAnalysis(Frame):
 					for one_thread in all_threads:
 						one_sequence=one_thread.one_top_move+" "+one_thread.sequence
 						one_sequence=one_sequence.strip()
-						print ">>>>>>",one_sequence
+						log(">>>>>>",one_sequence)
 						previous_move=one_move.parent
 						current_color=player_color
 						for one_deep_move in one_sequence.split(' '):
@@ -157,7 +157,7 @@ class RunAnalysis(Frame):
 					
 	
 			else:
-				print 'adding "'+answer.lower()+'" to the sgf file'
+				log('adding "'+answer.lower()+'" to the sgf file')
 				additional_comments+="\nFor this position, Gnugo would "+answer.lower()
 				if answer.lower()=="pass":
 					gnugo.undo()
@@ -175,7 +175,7 @@ class RunAnalysis(Frame):
 			
 			
 			
-			print "Creating the influence map"
+			log("Creating the influence map")
 			black_influence=gnugo.get_gnugo_initial_influence_black()
 			black_influence_points=[]
 			white_influence=gnugo.get_gnugo_initial_influence_white()
@@ -195,21 +195,21 @@ class RunAnalysis(Frame):
 			
 			
 		else:
-			print "Move",current_move,"not in the list of moves to be analysed, skipping"
+			log("Move",current_move,"not in the list of moves to be analysed, skipping")
 			
-		print "now asking Gnugo to play the game move:",
+		linelog("now asking Gnugo to play the game move:")
 		if player_color in ('w',"W"):
-			print "white at",ij2gtp(player_move)
+			log("white at",ij2gtp(player_move))
 			gnugo.place_white(ij2gtp(player_move))
 			for worker in self.workers:
 				worker.place_white(ij2gtp(player_move))
 		else:
-			print "black at",ij2gtp(player_move)
+			log("black at",ij2gtp(player_move))
 			gnugo.place_black(ij2gtp(player_move))
 			for worker in self.workers:
 				worker.place_black(ij2gtp(player_move))
 		
-		print "Analysis for this move is completed"
+		log("Analysis for this move is completed")
 	
 	
 	def run_all_analysis(self):
@@ -231,9 +231,9 @@ class RunAnalysis(Frame):
 		except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print exc_type, fname, exc_tb.tb_lineno
-			print e
-			print "releasing lock"
+			log(exc_type, fname, exc_tb.tb_lineno)
+			log(e)
+			log("releasing lock")
 			try:
 				self.lock1.release()
 			except:
@@ -242,7 +242,7 @@ class RunAnalysis(Frame):
 				self.lock2.release()
 			except:
 				pass
-			print "leaving thread"
+			log("leaving thread")
 			exit()
 		
 		
@@ -251,7 +251,7 @@ class RunAnalysis(Frame):
 		if self.lock1.acquire(False):
 			if self.total_done>0:
 				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
-				print "self.time_per_move=",(time.time()-self.t0),"/",self.total_done,"=",self.time_per_move
+				log("self.time_per_move=",(time.time()-self.t0),"/",self.total_done,"=",self.time_per_move)
 			remaining_s=int((len(self.move_range)-self.total_done)*self.time_per_move)
 			remaining_h=remaining_s/3600
 			remaining_s=remaining_s-3600*remaining_h
@@ -305,22 +305,22 @@ class RunAnalysis(Frame):
 		
 	
 	def remove_app(self):
-		print "RunAnalysis beeing closed"
+		log("RunAnalysis beeing closed")
 		self.lab2.config(text="Now closing, please wait...")
 		self.update_idletasks()
-		print "killing gnugo"
+		log("killing gnugo")
 		self.gnugo.close()
-		print "killing gnugo workers"
+		log("killing gnugo workers")
 		for w in self.workers:
 			w.close()
 		
-		print "destroying"
+		log("destroying")
 		self.destroy()
 	
 	def close_app(self):
 		self.remove_app()
 		self.parent.destroy()
-		print "RunAnalysis closed"
+		log("RunAnalysis closed")
 
 		
 	def initialize(self):
@@ -347,11 +347,11 @@ class RunAnalysis(Frame):
 		txt.close()
 		
 		leaves=get_all_sgf_leaves(self.g.get_root())
-		print "keeping only variation",self.variation
+		log("keeping only variation",self.variation)
 		keep_only_one_leaf(leaves[self.variation][0])
 		
 		size=self.g.get_size()
-		print "size of the tree:", size
+		log("size of the tree:", size)
 		self.size=size
 		try:
 			gnugo_command_line=Config.get("GnuGo", "Command")
@@ -397,13 +397,13 @@ class RunAnalysis(Frame):
 				row, col = move0
 				move=ij2gtp((row,col))
 				if colour in ('w',"W"):
-					print "Adding initial white stone at",move
+					log("Adding initial white stone at",move)
 					gnugo.place_white(move)
 					for worker in self.workers:
 						worker.place_white(move)
 					
 				else:
-					print "Adding initial black stone at",move
+					log("Adding initial black stone at",move)
 					gnugo.place_black(move)
 					for worker in self.workers:
 						worker.place_black(move)
@@ -470,11 +470,11 @@ if __name__ == "__main__":
 		temp_root = Tk()
 		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])
 		temp_root.destroy()
-		print filename
-		print "gamename:",filename[:-4]
+		log(filename)
+		log("gamename:",filename[:-4])
 		if not filename:
 			sys.exit()
-		print "filename:",filename
+		log("filename:",filename)
 		top = Tk()
 
 		RangeSelector(top,filename,bots=[("GnuGo",RunAnalysis)]).pack()
