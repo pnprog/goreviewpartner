@@ -306,7 +306,8 @@ class RangeSelector(Frame):
 		only_entry.bind("<Button-1>", lambda e: r2.select())
 		only_entry.grid(row=row,column=2,sticky=W)
 		only_entry.delete(0, END)
-		only_entry.insert(0, "1-"+str(nb_moves))
+		if nb_moves>0:
+			only_entry.insert(0, "1-"+str(nb_moves))
 		
 		row+=3
 		Label(self,text="").grid(row=row,column=1)
@@ -364,7 +365,8 @@ class RangeSelector(Frame):
 			variation=int(self.variation_selection.get().split(" ")[1])-1
 			deep=self.leaves[variation][1]
 			self.only_entry.delete(0, END)
-			self.only_entry.insert(0, "1-"+str(deep))
+			if deep>0:
+				self.only_entry.insert(0, "1-"+str(deep))
 			
 			self.r1.config(text="Analyse all "+str(deep)+" moves")
 			
@@ -386,6 +388,11 @@ class RangeSelector(Frame):
 				pass
 	
 	def start(self):
+		
+		if self.nb_moves==0:
+			alert("This variation is empty (0 move), the analysis cannot be performed!")
+			return
+		
 		if self.bots!=None:
 			bot_selection=int(self.bot_selection.curselection()[0])
 			log("bot selection:",self.bots[bot_selection][0])
