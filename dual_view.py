@@ -1339,7 +1339,7 @@ if __name__ == "__main__":
 		temp_root = Tk()
 		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf for review', '.rsgf')])
 		temp_root.destroy()
-		plog(filename)
+		log(filename)
 
 		if not filename:
 			sys.exit()
