@@ -7,7 +7,7 @@ import sys,time
 import tkFileDialog
 from functools import partial
 
-from toolbox import log
+from toolbox import *
 
 import os
 
@@ -52,14 +52,6 @@ def ij2gtp(m):
 	return letters[j]+str(i+1)
 
 
-
-def alert(text_to_display):
-	popup=Toplevel()
-	label= Label(popup,text=text_to_display)
-	label.pack()
-	ok_button = Button(popup, text="OK", command=popup.destroy)
-	ok_button.pack()
-	#popup.mainloop()
 
 
 class OpenChart():
@@ -432,9 +424,9 @@ class OpenMove():
 		else:
 			self.leela.undo()
 			if color==1:
-				alert("Leela/black: "+move)
+				show_info("Leela/black: "+move)
 			else:
-				alert("Leela/white: "+move)
+				show_info("Leela/white: "+move)
 		
 		self.goban.display(self.grid,self.markup)
 		self.undo_button.config(state='normal')
@@ -480,9 +472,9 @@ class OpenMove():
 			
 			self.goban.display(self.grid,self.markup)
 			if color==1:
-				alert("Ray/black: "+move)
+				show_info("Ray/black: "+move)
 			else:
-				alert("Ray/white: "+move)
+				show_info("Ray/white: "+move)
 
 		self.goban.display(self.grid,self.markup)
 		self.undo_button.config(state='normal')
@@ -525,9 +517,9 @@ class OpenMove():
 			self.gnugo.undo()
 			self.goban.display(self.grid,self.markup)
 			if color==1:
-				alert("GnuGo/black: "+move)
+				show_info("GnuGo/black: "+move)
 			else:
-				alert("GnuGo/white: "+move)
+				show_info("GnuGo/white: "+move)
 
 		self.goban.display(self.grid,self.markup)
 		self.undo_button.config(state='normal')

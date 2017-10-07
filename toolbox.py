@@ -1,4 +1,8 @@
 
+class AbortedException(Exception):
+    pass
+
+
 def log(*args):
 	for arg in args:
 		try:
@@ -36,13 +40,19 @@ def linelog(*args):
 		except:
 			print "["+type()+"]",
 
+import tkMessageBox
 
-def alert(text_to_display):
-	popup=Toplevel()
-	label= Label(popup,text=text_to_display)
-	label.pack()
-	ok_button = Button(popup, text="OK", command=popup.destroy)
-	ok_button.pack()
+def show_error(txt):
+	try:
+		tkMessageBox.showerror("Error",txt)
+	except:
+		log("ERROR: "+txt)
+
+def show_info(txt):
+	try:
+		tkMessageBox.showinfo("Info",txt)
+	except:
+		log("INFO: "+txt)
 
 def get_moves_number(move_zero):
 	k=0
@@ -136,7 +146,7 @@ class DownloadFromURL(Frame):
 		try:
 			h=urllib2.urlopen(r)
 		except:
-			alert("Could not download the URL")
+			show_error("Could not download the URL")
 			return
 		filename=""
 		
@@ -144,7 +154,7 @@ class DownloadFromURL(Frame):
 		
 		if sgf[:7]!="(;FF[4]":
 			log("not a sgf file")
-			alert("Not a sgf file!")
+			show_error("Not a sgf file!")
 			log(sgf[:7])
 			return
 		
@@ -198,7 +208,18 @@ class DownloadFromURL(Frame):
 			pass
 
 
+class WriteException(Exception):
+    pass
 
+def write_rsgf(filename,sgf_content):
+	try:
+		new_file=open(filename,'w')
+		new_file.write(sgf_content)
+		new_file.close()
+	except Exception,e:
+		log("Could not save the RSGF file",filename)
+		log(e)
+		raise WriteException("Could not save the RSGF file: "+filename+"\n"+str(e))
 
 def clean_sgf(txt):
 	return txt
@@ -390,7 +411,7 @@ class RangeSelector(Frame):
 	def start(self):
 		
 		if self.nb_moves==0:
-			alert("This variation is empty (0 move), the analysis cannot be performed!")
+			show_error("This variation is empty (0 move), the analysis cannot be performed!")
 			return
 		
 		if self.bots!=None:
@@ -419,7 +440,7 @@ class RangeSelector(Frame):
 						if a<=b and a>0 and b<=self.nb_moves:
 							move_selection.extend(range(a,b+1))
 					except:
-						alert("Could not make sens of the move range.\nPlease indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")")
+						show_error("Could not make sense of the move range.\nPlease indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")")
 						return
 			move_selection=list(set(move_selection))
 			move_selection=sorted(move_selection)

@@ -36,6 +36,8 @@ class RunAnalysis(Frame):
 		self.lock2=threading.Lock()
 		self.intervals=intervals
 		self.variation=variation
+		self.aborted=False
+		self.error=None
 		
 		self.initialize()
 	
@@ -148,10 +150,15 @@ class RunAnalysis(Frame):
 			
 			one_move.add_comment_text(additional_comments)
 
-			new_file=open(self.filename[:-4]+".rsgf",'w')
-			new_file.write(self.g.serialise())
-			new_file.close()
-			
+			try:
+				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+			except Exception,e:
+				self.aborted=True
+				self.lab1.config(text="Aborted")
+				self.lab2.config(text="")
+				raise AbortedException(str(e))
+
+
 			self.total_done+=1
 		else:
 			log("Move",current_move,"not in the list of moves to be analysed, skipping")
@@ -182,26 +189,38 @@ class RunAnalysis(Frame):
 				self.lock1.release()
 				self.lock2.acquire()
 				self.lock2.release()
+			return
+		except AbortedException,e:
+			self.error=str(e)
 		except Exception,e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 			log(exc_type, fname, exc_tb.tb_lineno)
 			log(e)
-			log("releasing lock")
-			try:
-				self.lock1.release()
-			except:
-				pass
-			try:
-				self.lock2.release()
-			except:
-				pass
-			log("leaving thread")
-			exit()
+			self.error=str(e)
+			
+		log("releasing lock")
+		try:
+			self.lock1.release()
+		except:
+			pass
+		try:
+			self.lock2.release()
+		except:
+			pass
+		
+		log("leaving thread")
+		exit()
 
 		
 
 	def follow_analysis(self):
+		if self.aborted:
+			log("Leaving follow_anlysis()")
+			if self.error:
+				show_error(self.error)
+			return
+		
 		if self.lock1.acquire(False):
 			if self.total_done>0:
 				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
@@ -293,23 +312,23 @@ class RunAnalysis(Frame):
 		try:
 			ray_command_line=Config.get("Ray", "Command")
 		except:
-			alert("The config.ini file does not contain entry for Ray command line!")
+			show_error("The config.ini file does not contain entry for Ray command line!")
 			return
 		
 		if not ray_command_line:
-			alert("The config.ini file does not contain command line for Ray!")
+			show_error("The config.ini file does not contain command line for Ray!")
 			return
 		try:
 			ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
 			ray=gtp(ray_command_line)
 			#ray=gtp(tuple(ray_command_line.split()))
 		except:
-			alert("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
+			show_error("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
 			return
 		try:
 			ray.boardsize(size)
 		except:
-			alert("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
 			return
 
 		ray.reset()
@@ -376,10 +395,14 @@ class RunAnalysis(Frame):
 		self.pb.pack()
 
 		current_move=1
-
-		new_file=open(self.filename[:-4]+".rsgf",'w')
-		new_file.write(self.g.serialise())
-		new_file.close()
+		
+		try:
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+		except Exception,e:
+			show_error(str(e))
+			self.lab1.config(text="Aborted")
+			self.lab2.config(text="")
+			return
 
 		self.lock2.acquire()
 		self.t0=time.time()
