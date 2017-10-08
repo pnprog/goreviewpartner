@@ -5,6 +5,9 @@ from time import sleep,time
 
 from toolbox import log
 
+class GtpException(Exception):
+    pass
+
 class gtp():
 	def __init__(self,command):
 		self.c=1
@@ -46,7 +49,10 @@ class gtp():
 	def get_leela_final_score(self):
 		self.write("final_score")
 		answer=self.readline()
-		return " ".join(answer.split(" ")[1:])
+		try:
+			return " ".join(answer.split(" ")[1:])
+		except:
+			raise GtpException("GtpException in Get_leela_final_score()")
 	
 	def get_gnugo_initial_influence_black(self):
 		self.write("initial_influence black influence_regions")
@@ -116,12 +122,18 @@ class gtp():
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
 		answer=self.readline().strip()
-		return answer.split(" ")[1]
-
+		try:
+			return answer.split(" ")[1]
+		except:
+			raise GtpException("GtpException in get_gnugo_estimate_score()")
+	
 	def gnugo_top_moves_black(self):
 		self.write("top_moves_black")
 		answer=self.readline()[:-1]
-		answer=answer.split(" ")[1:-1]
+		try:
+			answer=answer.split(" ")[1:-1]
+		except:
+			raise GtpException("GtpException in get_gnugo_top_moves_black()")
 		answers_list=[]
 		for value in answer:
 			try:
@@ -133,7 +145,10 @@ class gtp():
 	def gnugo_top_moves_white(self):
 		self.write("top_moves_white")
 		answer=self.readline()[:-1]
-		answer=answer.split(" ")[1:-1]
+		try:
+			answer=answer.split(" ")[1:-1]
+		except:
+			raise GtpException("GtpException in get_gnugo_top_moves_white()")
 		answers_list=[]
 		for value in answer:
 			try:
@@ -259,37 +274,55 @@ class gtp():
 	def name(self):
 		self.write("name")
 		answer=self.readline().strip()
-		return answer.split(" ")[1]
+		try:
+			return answer.split(" ")[1]
+		except:
+			raise GtpException("GtpException in name()")
 	
 	def version(self):
 		self.write("version")
 		answer=self.readline().strip()
-		return answer.split(" ")[1]
+		try:
+			return answer.split(" ")[1]
+		except:
+			raise GtpException("GtpException in version()")
 
 	def play_black(self):
 		self.write("genmove black")
 		answer=self.readline().strip()
-		return answer.split(" ")[1]
+		try:
+			return answer.split(" ")[1]
+		except:
+			raise GtpException("GtpException in genmove_black()")
 
 		
 	def play_white(self):
 		self.write("genmove white")
 		answer=self.readline().strip()
-		return answer.split(" ")[1]
+		try:
+			return answer.split(" ")[1]
+		except:
+			raise GtpException("GtpException in genmove_white()")
 
 	def set_free_handicap(self,stones):
 		self.write("set_free_handicap "+stones)
 		answer=self.readline().strip()
-		return answer.split("= ")[1]
-	
+		try:
+			return answer.split("= ")[1]
+		except:
+			raise GtpException("GtpException in set_free_handicap()")
+		
 	def undo(self):
 		self.write("undo")
 		answer=self.readline()
-		if answer[0]=="=":
-			return True
-		else:
-			return False
-	
+		try:
+			if answer[0]=="=":
+				return True
+			else:
+				return False			
+		except:
+			raise GtpException("GtpException in undo()")
+
 	def show_board(self):
 		self.write("showboard")
 		answer=self.readline(3+self.size).strip()
@@ -300,11 +333,13 @@ class gtp():
 		answer=self.readline()
 		return " ".join(answer.split(" ")[1:])
 	
+	#is that needed?
 	def final_score(self):
 		self.write("final_score")
 		answer=self.readline()
 		return " ".join(answer.split(" ")[1:])
 	
+	#is that needed?
 	def final_status(self,move):
 		self.write("final_status "+move)
 		answer=self.readline()
@@ -314,8 +349,11 @@ class gtp():
 	def set_time(self,main_time=30,byo_yomi_time=30,byo_yomi_stones=1):
 		self.write("time_settings "+str(main_time)+" "+str(byo_yomi_time)+" "+str(byo_yomi_stones))
 		answer=self.readline()
-		if answer[0]=="=":return True
-		else:return False
+		try:
+			if answer[0]=="=":return True
+			else:return False
+		except:
+			raise GtpException("GtpException in set_time()")
 
 	def gtp_exit(self):
 		self.write("quit")
