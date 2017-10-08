@@ -28,26 +28,29 @@ def get_full_sequence_threaded(worker,current_color,deepness):
 	threading.current_thread().sequence=sequence
 
 def get_full_sequence(worker,current_color,deepness):
-	sequence=""
-	undos=0
-	for d in range(deepness):
-		if current_color.lower()=="b":
-			answer=worker.play_black()
-			current_color="w"
-		else:
-			answer=worker.play_white()
-			current_color="b"
-		sequence+=answer+" "
-		if answer.lower()=='resign':
-			break
-		if answer.lower()=='pass':
+	try:
+		sequence=""
+		undos=0
+		for d in range(deepness):
+			if current_color.lower()=="b":
+				answer=worker.play_black()
+				current_color="w"
+			else:
+				answer=worker.play_white()
+				current_color="b"
+			sequence+=answer+" "
+			if answer.lower()=='resign':
+				break
+			if answer.lower()=='pass':
+				undos+=1
+				break
 			undos+=1
-			break
-		undos+=1
-	
-	for u in range(undos):
-		worker.undo()
-	return sequence.strip()
+		
+		for u in range(undos):
+			worker.undo()
+		return sequence.strip()
+	except Exception, e:
+		return e
 
 
 class RunAnalysis(Frame):
@@ -60,7 +63,7 @@ class RunAnalysis(Frame):
 		self.lock2=threading.Lock()
 		self.intervals=intervals
 		self.variation=variation
-		self.aborted=False
+		
 		self.error=None
 		
 		self.initialize()
@@ -81,23 +84,16 @@ class RunAnalysis(Frame):
 			else:
 				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
 			additional_comments+="\nGnugo score estimation before the move was played: "+final_score
-			try:
-				if player_color in ('w',"W"):
-					log("gnugo plays white")
-					top_moves=gnugo.gnugo_top_moves_white()
-					answer=gnugo.play_white()
-				else:
-					log("gnugo plays black")
-					top_moves=gnugo.gnugo_top_moves_black()
-					answer=gnugo.play_black()
-			except Exception, e:
-				exc_type, exc_obj, exc_tb = sys.exc_info()
-				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				log(exc_type, fname, exc_tb.tb_lineno)
-				log(e)
-				log("leaving thread...")
-				exit()
-			
+
+			if player_color in ('w',"W"):
+				log("gnugo plays white")
+				top_moves=gnugo.gnugo_top_moves_white()
+				answer=gnugo.play_white()
+			else:
+				log("gnugo plays black")
+				top_moves=gnugo.gnugo_top_moves_black()
+				answer=gnugo.play_black()
+
 			log("====","Gnugo answer:",answer)
 			
 			log("==== Gnugo top moves")
@@ -135,6 +131,9 @@ class RunAnalysis(Frame):
 							worker.undo()
 						
 					for one_thread in all_threads:
+						if type(one_thread.sequence)!=type("abc"):
+							raise AbortedException("GnuGo thread failed:\n"+str(one_thread.sequence))
+						
 						one_sequence=one_thread.one_top_move+" "+one_thread.sequence
 						one_sequence=one_sequence.strip()
 						log(">>>>>>",one_sequence)
@@ -154,10 +153,6 @@ class RunAnalysis(Frame):
 								else:
 									current_color='w'
 
-						
-				
-					
-	
 			else:
 				log('adding "'+answer.lower()+'" to the sgf file')
 				additional_comments+="\nFor this position, Gnugo would "+answer.lower()
@@ -168,18 +163,9 @@ class RunAnalysis(Frame):
 			
 			one_move.add_comment_text(additional_comments)
 
-			try:
-				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			except Exception,e:
-				self.aborted=True
-				self.lab1.config(text="Aborted")
-				self.lab2.config(text="")
-				raise AbortedException(str(e))
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 			
 			self.total_done+=1
-			
-			
-			
 			
 			log("Creating the influence map")
 			black_influence=gnugo.get_gnugo_initial_influence_black()
@@ -235,35 +221,30 @@ class RunAnalysis(Frame):
 				self.lock2.acquire()
 				self.lock2.release()
 			return
-		except AbortedException,e:
-			self.error=str(e)
 		except Exception,e:
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			log(exc_type, fname, exc_tb.tb_lineno)
-			log(e)
 			self.error=str(e)
+			log("releasing lock")
+			try:
+				self.lock1.release()
+			except:
+				pass
+			try:
+				self.lock2.release()
+			except:
+				pass
+			log("leaving thread")
+			exit()
 			
-		log("releasing lock")
-		try:
-			self.lock1.release()
-		except:
-			pass
-		try:
-			self.lock2.release()
-		except:
-			pass
-		
-		log("leaving thread")
-		exit()
-		
-		
+
+	def abort(self):
+		self.lab1.config(text="Aborted")
+		self.lab2.config(text="")
+		log("Leaving follow_anlysis()")
+		show_error("Analysis aborted:\n\n"+self.error)
 
 	def follow_analysis(self):
-		if self.aborted:
-			log("Leaving follow_anlysis()")
-			if self.error:
-				show_error(self.error)
+		if self.error:
+			self.abort()
 			return
 		
 		if self.lock1.acquire(False):
@@ -468,6 +449,7 @@ class RunAnalysis(Frame):
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		except Exception,e:
+			
 			show_error(str(e))
 			self.lab1.config(text="Aborted")
 			self.lab2.config(text="")

@@ -36,7 +36,7 @@ class RunAnalysis(Frame):
 		self.lock2=threading.Lock()
 		self.intervals=intervals
 		self.variation=variation
-		self.aborted=False
+		
 		self.error=None
 		
 		self.initialize()
@@ -59,25 +59,15 @@ class RunAnalysis(Frame):
 			else:
 				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
 
-			try:
+			if player_color in ('w',"W"):
+				log("ray play white")
+				#answer=leela.play_white()
+				answer=ray.get_ray_stat("white")
+			else:
+				log("ray play black")
+				answer=ray.get_ray_stat("black")
+				#answer=leela.play_black()
 				
-				if player_color in ('w',"W"):
-					log("ray play white")
-					#answer=leela.play_white()
-					answer=ray.get_ray_stat("white")
-				else:
-					log("ray play black")
-					answer=ray.get_ray_stat("black")
-					#answer=leela.play_black()
-				
-			except Exception, e:
-				exc_type, exc_obj, exc_tb = sys.exc_info()
-				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				log(exc_type, fname, exc_tb.tb_lineno)
-				log(e)
-				log("leaving thread...")
-				exit()
-			
 			log("*****************")
 			log(len(answer),"sequences")
 			
@@ -150,14 +140,7 @@ class RunAnalysis(Frame):
 			
 			one_move.add_comment_text(additional_comments)
 
-			try:
-				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			except Exception,e:
-				self.aborted=True
-				self.lab1.config(text="Aborted")
-				self.lab2.config(text="")
-				raise AbortedException(str(e))
-
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 
 			self.total_done+=1
 		else:
@@ -190,35 +173,31 @@ class RunAnalysis(Frame):
 				self.lock2.acquire()
 				self.lock2.release()
 			return
-		except AbortedException,e:
-			self.error=str(e)
 		except Exception,e:
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			log(exc_type, fname, exc_tb.tb_lineno)
-			log(e)
 			self.error=str(e)
+			log("releasing lock")
+			try:
+				self.lock1.release()
+			except:
+				pass
+			try:
+				self.lock2.release()
+			except:
+				pass
+			log("leaving thread")
+			exit()
 			
-		log("releasing lock")
-		try:
-			self.lock1.release()
-		except:
-			pass
-		try:
-			self.lock2.release()
-		except:
-			pass
-		
-		log("leaving thread")
-		exit()
 
-		
+
+	def abort(self):
+		self.lab1.config(text="Aborted")
+		self.lab2.config(text="")
+		log("Leaving follow_anlysis()")
+		show_error("Analysis aborted:\n\n"+self.error)
 
 	def follow_analysis(self):
-		if self.aborted:
-			log("Leaving follow_anlysis()")
-			if self.error:
-				show_error(self.error)
+		if self.error:
+			self.abort()
 			return
 		
 		if self.lock1.acquire(False):

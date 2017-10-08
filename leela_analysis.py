@@ -35,7 +35,7 @@ class RunAnalysis(Frame):
 		self.lock2=threading.Lock()
 		self.intervals=intervals
 		self.variation=variation
-		self.aborted=False
+
 		self.error=None
 		
 		self.initialize()
@@ -60,20 +60,13 @@ class RunAnalysis(Frame):
 			else:
 				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
 
-			try:
-				if player_color in ('w',"W"):
-					log("leela play white")
-					answer=leela.play_white()
-				else:
-					log("leela play black")
-					answer=leela.play_black()
-			except Exception, e:
-				exc_type, exc_obj, exc_tb = sys.exc_info()
-				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				log(exc_type, fname, exc_tb.tb_lineno)
-				log(e)
-				log("leaving thread...")
-				exit()
+			if player_color in ('w',"W"):
+				log("leela play white")
+				answer=leela.play_white()
+			else:
+				log("leela play black")
+				answer=leela.play_black()
+
 			
 			all_moves=leela.get_all_leela_moves()
 			if (answer.lower() not in ["pass","resign"]):
@@ -94,25 +87,19 @@ class RunAnalysis(Frame):
 				best_winrate=all_moves[0][2]
 				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
 					log("going deeper for first line of play (",nb_undos,")")
-					try:
-						if player_color in ('w',"W") and nb_undos%2==0:
-							answer=leela.play_white()
-						elif player_color in ('w',"W") and nb_undos%2==1:
-							answer=leela.play_black()
-						elif player_color not in ('w',"W") and nb_undos%2==0:
-							answer=leela.play_black()
-						else:
-							answer=leela.play_white()
-						nb_undos+=1
 
-					except Exception, e:
-						exc_type, exc_obj, exc_tb = sys.exc_info()
-						fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-						log(exc_type, fname, exc_tb.tb_lineno)
-						log(e)
-						log("leaving thread...")
-						exit()
+					if player_color in ('w',"W") and nb_undos%2==0:
+						answer=leela.play_white()
+					elif player_color in ('w',"W") and nb_undos%2==1:
+						answer=leela.play_black()
+					elif player_color not in ('w',"W") and nb_undos%2==0:
+						answer=leela.play_black()
+					else:
+						answer=leela.play_white()
+					nb_undos+=1
+					
 
+					
 
 					linelog(all_moves[0],'+',answer)
 					all_moves2=leela.get_all_leela_moves()
@@ -255,15 +242,8 @@ class RunAnalysis(Frame):
 			
 			one_move.add_comment_text(additional_comments)
 			
-			try:
-				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			except Exception,e:
-				self.aborted=True
-				self.lab1.config(text="Aborted")
-				self.lab2.config(text="")
-				raise AbortedException(str(e))
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 
-			
 			self.total_done+=1
 		else:
 			log("Move",current_move,"not in the list of moves to be analysed, skipping")
@@ -295,35 +275,29 @@ class RunAnalysis(Frame):
 				self.lock2.acquire()
 				self.lock2.release()
 			return
-		except AbortedException,e:
-			self.error=str(e)
 		except Exception,e:
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			log(exc_type, fname, exc_tb.tb_lineno)
-			log(e)
 			self.error=str(e)
-			
-		log("releasing lock")
-		try:
-			self.lock1.release()
-		except:
-			pass
-		try:
-			self.lock2.release()
-		except:
-			pass
-		
-		log("leaving thread")
-		exit()
+			log("releasing lock")
+			try:
+				self.lock1.release()
+			except:
+				pass
+			try:
+				self.lock2.release()
+			except:
+				pass
+			log("leaving thread")
+			exit()
 
-		
+	def abort(self):
+		self.lab1.config(text="Aborted")
+		self.lab2.config(text="")
+		log("Leaving follow_anlysis()")
+		show_error("Analysis aborted:\n\n"+self.error)
 
 	def follow_analysis(self):
-		if self.aborted:
-			log("Leaving follow_anlysis()")
-			if self.error:
-				show_error(self.error)
+		if self.error:
+			self.abort()
 			return
 		
 		if self.lock1.acquire(False):
@@ -392,8 +366,6 @@ class RunAnalysis(Frame):
 		self.parent.destroy()
 		log("RunAnalysis closed")
 
-
-		
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
@@ -499,9 +471,8 @@ class RunAnalysis(Frame):
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		except Exception,e:
-			show_error(str(e))
-			self.lab1.config(text="Aborted")
-			self.lab2.config(text="")
+			self.error=str(e)
+			self.abort()
 			return
 		
 
