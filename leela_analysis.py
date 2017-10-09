@@ -25,21 +25,7 @@ from toolbox import *
 import tkMessageBox
 
 
-class RunAnalysis(Frame):
-	def __init__(self,parent,filename,move_range,intervals,variation):
-		Frame.__init__(self,parent)
-		self.parent=parent
-		self.filename=filename
-		self.move_range=move_range
-		self.lock1=threading.Lock()
-		self.lock2=threading.Lock()
-		self.intervals=intervals
-		self.variation=variation
-
-		self.error=None
-		
-		self.initialize()
-	
+class RunAnalysis(RunAnalysisBase):
 
 	def run_analysis(self,current_move):
 		
@@ -257,100 +243,6 @@ class RunAnalysis(Frame):
 			leela.place_black(ij2gtp(player_move))
 		log("Analysis for this move is completed")
 	
-
-	def run_all_analysis(self):
-		self.current_move=1
-		try:
-			first_move=go_to_move(self.move_zero,1)
-			first_comment="Analysis by GoReviewPartner"
-			first_comment+="\nBot: "+self.leela.name()+'/'+self.leela.version()
-			first_comment+="\nIntervals: "+self.intervals
-			first_move.add_comment_text(first_comment)
-			
-			while self.current_move<=self.max_move:
-				self.lock1.acquire()
-				self.run_analysis(self.current_move)
-				self.current_move+=1
-				self.lock1.release()
-				self.lock2.acquire()
-				self.lock2.release()
-			return
-		except Exception,e:
-			self.error=str(e)
-			log("releasing lock")
-			try:
-				self.lock1.release()
-			except:
-				pass
-			try:
-				self.lock2.release()
-			except:
-				pass
-			log("leaving thread")
-			exit()
-
-	def abort(self):
-		self.lab1.config(text="Aborted")
-		self.lab2.config(text="")
-		log("Leaving follow_anlysis()")
-		show_error("Analysis aborted:\n\n"+self.error)
-
-	def follow_analysis(self):
-		if self.error:
-			self.abort()
-			return
-		
-		if self.lock1.acquire(False):
-			remaining_s=(len(self.move_range)-self.total_done)*self.time_per_move
-			remaining_h=remaining_s/3600
-			remaining_s=remaining_s-3600*remaining_h
-			remaining_m=remaining_s/60
-			remaining_s=remaining_s-60*remaining_m
-			self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
-			self.lab1.config(text="Currently at move "+str(self.current_move)+'/'+str(self.max_move))
-			self.pb.step()
-			self.update_idletasks()
-			self.lock2.release()
-			time.sleep(.001)
-			self.lock1.release()
-			self.lock2.acquire()
-		if self.current_move<=self.max_move:
-			self.root.after(1,self.follow_analysis)
-		else:
-			self.lab1.config(text="Completed")
-			self.pb["maximum"] = 100
-			self.pb["value"] = 100
-			
-			try:
-				import dual_view
-				Button(self,text="Start review",command=self.start_review).pack()
-			except:
-				pass
-
-	def start_review(self):
-		import dual_view
-		app=self.parent
-		screen_width = app.winfo_screenwidth()
-		screen_height = app.winfo_screenheight()
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
-		
-		display_factor=.5
-		try:
-			display_factor=float(Config.get("Review", "GobanScreenRatio"))
-		except:
-			Config.set("Review", "GobanScreenRatio",display_factor)
-			Config.write(open("config.ini","w"))
-		
-		width=int(display_factor*screen_width)
-		height=int(display_factor*screen_height)
-		#Toplevel()
-		
-		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
-		new_popup.pack(fill=BOTH,expand=1)
-		self.remove_app()
-		
 	
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
@@ -361,10 +253,6 @@ class RunAnalysis(Frame):
 		log("destroying")
 		self.destroy()
 	
-	def close_app(self):
-		self.remove_app()
-		self.parent.destroy()
-		log("RunAnalysis closed")
 
 	def initialize(self):
 		
@@ -461,7 +349,7 @@ class RunAnalysis(Frame):
 		self.lab2.pack()
 		
 		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
-		self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+		#self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
 		
 		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
@@ -474,10 +362,16 @@ class RunAnalysis(Frame):
 			self.error=str(e)
 			self.abort()
 			return
-		
-
-
+			
 		self.lock2.acquire()
+		self.t0=time.time()
+		
+		first_move=go_to_move(self.move_zero,1)
+		first_comment="Analysis by GoReviewPartner"
+		first_comment+="\nBot: "+self.leela.name()+'/'+self.leela.version()
+		first_comment+="\nIntervals: "+self.intervals
+		first_move.add_comment_text(first_comment)
+		
 		threading.Thread(target=self.run_all_analysis).start()
 		
 		self.root=root

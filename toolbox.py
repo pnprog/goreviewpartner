@@ -481,6 +481,209 @@ class RangeSelector(Frame):
 		self.popup.pack()
 		newtop.mainloop()
 
+import threading
+import time
+import ConfigParser
+from Tkinter import *
+import ttk
+
+class RunAnalysisBase(Frame):
+	def __init__(self,parent,filename,move_range,intervals,variation):
+		Frame.__init__(self,parent)
+		self.parent=parent
+		self.filename=filename
+		self.move_range=move_range
+		self.lock1=threading.Lock()
+		self.lock2=threading.Lock()
+		self.intervals=intervals
+		self.variation=variation
+		
+		self.error=None
+		
+		self.initialize()
+		
+	
+	def run_analysis(self,current_move):
+		
+		#################################################
+		##### here is the place to perform analysis #####
+		#################################################
+		
+		log("Analysis for this move is completed")
+	
+	
+	def run_all_analysis(self):
+		self.current_move=1
+		try:
+
+			
+			while self.current_move<=self.max_move:
+				self.lock1.acquire()
+				self.run_analysis(self.current_move)
+				self.current_move+=1
+				self.lock1.release()
+				self.lock2.acquire()
+				self.lock2.release()
+			return
+		except Exception,e:
+			self.error=str(e)
+			log("releasing lock")
+			try:
+				self.lock1.release()
+			except:
+				pass
+			try:
+				self.lock2.release()
+			except:
+				pass
+			log("leaving thread")
+			exit()
+			
+
+	def abort(self):
+		self.lab1.config(text="Aborted")
+		self.lab2.config(text="")
+		log("Leaving follow_anlysis()")
+		show_error("Analysis aborted:\n\n"+self.error)
+
+	def follow_analysis(self):
+		if self.error:
+			self.abort()
+			return
+		
+		if self.lock1.acquire(False):
+			if self.total_done>0:
+				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
+				log("self.time_per_move=",(time.time()-self.t0),"/",self.total_done,"=",self.time_per_move)
+			remaining_s=int((len(self.move_range)-self.total_done)*self.time_per_move)
+			remaining_h=remaining_s/3600
+			remaining_s=remaining_s-3600*remaining_h
+			remaining_m=remaining_s/60
+			remaining_s=remaining_s-60*remaining_m
+			if self.time_per_move<>0:
+				self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
+			self.lab1.config(text="Currently at move "+str(self.current_move)+'/'+str(self.max_move))
+			self.pb.step()
+			self.update_idletasks()
+			self.lock2.release()
+			time.sleep(.001)
+			self.lock1.release()
+			self.lock2.acquire()
+		if self.current_move<=self.max_move:
+			self.root.after(1,self.follow_analysis)
+		else:
+			self.lab1.config(text="Completed")
+			self.pb["maximum"] = 100
+			self.pb["value"] = 100
+			
+			try:
+				import dual_view
+				Button(self,text="Start review",command=self.start_review).pack()
+			except:
+				pass
+
+	def start_review(self):
+		import dual_view
+		app=self.parent
+		screen_width = app.winfo_screenwidth()
+		screen_height = app.winfo_screenheight()
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		display_factor=.5
+		try:
+			display_factor=float(Config.get("Review", "GobanScreenRatio"))
+		except:
+			Config.set("Review", "GobanScreenRatio",display_factor)
+			Config.write(open("config.ini","w"))
+		
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		#Toplevel()
+		
+		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
+		new_popup.pack(fill=BOTH,expand=1)
+		self.remove_app()
+		
+	
+	def remove_app(self):
+		################################################
+		##### here is the place to kill the bot(s) #####
+		################################################
+		log("destroying")
+		self.destroy()
+	
+	def close_app(self):
+		self.remove_app()
+		self.parent.destroy()
+		log("RunAnalysis closed")
+
+		
+	def initialize(self):
+		################################################
+		##### here is the place bot initialization #####
+		################################################
+		
+		txt = open(self.filename)
+		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
+		txt.close()
+		
+		leaves=get_all_sgf_leaves(self.g.get_root())
+		log("keeping only variation",self.variation)
+		keep_only_one_leaf(leaves[self.variation][0])
+		
+		size=self.g.get_size()
+		log("size of the tree:", size)
+		self.size=size
+		
+		self.move_zero=self.g.get_root()
+		komi=self.g.get_komi()
+		
+		self.max_move=get_moves_number(self.move_zero)
+		if not self.move_range:
+			self.move_range=range(1,self.max_move+1)
+			
+		self.total_done=0
+		
+		root = self
+		root.parent.title('GoReviewPartner')
+		root.parent.protocol("WM_DELETE_WINDOW", self.close_app)
+		
+		
+		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
+		
+		self.time_per_move=0
+
+		self.lab1=Label(root)
+		self.lab1.pack()
+		
+		self.lab2=Label(root)
+		self.lab2.pack()
+		
+		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
+		
+		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move, mode="determinate")
+		self.pb.pack()
+
+		current_move=1
+		
+		try:
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+		except Exception,e:
+			
+			show_error(str(e))
+			self.lab1.config(text="Aborted")
+			self.lab2.config(text="")
+			return
+
+		self.lock2.acquire()
+		self.t0=time.time()
+		threading.Thread(target=self.run_all_analysis).start()
+		
+		self.root=root
+		root.after(500,self.follow_analysis)
+		
 
 
 
