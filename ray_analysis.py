@@ -151,7 +151,7 @@ class RunAnalysis(RunAnalysisBase):
 		log("destroying")
 		self.destroy()
 	
-	def initialize(self):
+	def initialize_bot(self):
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
@@ -235,71 +235,6 @@ class RunAnalysis(RunAnalysisBase):
 					log("Adding initial black stone at",move)
 					ray.place_black(move)
 						
-			
-		self.max_move=get_moves_number(self.move_zero)
-		if not self.move_range:
-			self.move_range=range(1,self.max_move+1)
-		#if 1 in self.move_range:
-		#	self.move_range.remove(1)
-			
-		self.total_done=0
-		
-		root = self
-		root.parent.title('GoReviewPartner')
-		root.parent.protocol("WM_DELETE_WINDOW", self.close_app)
-		
-		
-		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
-		
-
-		remaining_s=len(self.move_range)*self.time_per_move
-		remaining_h=remaining_s/3600
-		remaining_s=remaining_s-3600*remaining_h
-		remaining_m=remaining_s/60
-		remaining_s=remaining_s-60*remaining_m
-		
-		self.lab1=Label(root)
-		self.lab1.pack()
-		
-		self.lab2=Label(root)
-		self.lab2.pack()
-		
-		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
-		if self.time_per_move<>0:
-			self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
-		
-		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
-		self.pb.pack()
-
-		current_move=1
-		
-		try:
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-		except Exception,e:
-			show_error(str(e))
-			self.lab1.config(text="Aborted")
-			self.lab2.config(text="")
-			return
-
-		self.lock2.acquire()
-		self.t0=time.time()
-		first_move=go_to_move(self.move_zero,1)
-		first_comment="Analysis by GoReviewPartner"
-		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
-		first_comment+="\nIntervals: "+self.intervals
-		first_move.add_comment_text(first_comment)
-		threading.Thread(target=self.run_all_analysis).start()
-		
-		self.root=root
-		root.after(500,self.follow_analysis)
-		
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
 	if len(argv)==1:

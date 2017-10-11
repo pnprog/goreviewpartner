@@ -500,8 +500,10 @@ class RunAnalysisBase(Frame):
 		
 		self.error=None
 		
-		self.initialize()
+		self.initialize_bot()
+		self.initialize_UI()
 		
+		self.root.after(500,self.follow_analysis)
 	
 	def run_analysis(self,current_move):
 		
@@ -573,6 +575,7 @@ class RunAnalysisBase(Frame):
 			self.root.after(1,self.follow_analysis)
 		else:
 			self.lab1.config(text="Completed")
+			self.lab2.config(text="")
 			self.pb["maximum"] = 100
 			self.pb["value"] = 100
 			
@@ -620,30 +623,12 @@ class RunAnalysisBase(Frame):
 		log("RunAnalysis closed")
 
 		
-	def initialize(self):
-		################################################
-		##### here is the place bot initialization #####
-		################################################
-		
-		txt = open(self.filename)
-		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
-		txt.close()
-		
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-		
-		self.move_zero=self.g.get_root()
-		komi=self.g.get_komi()
-		
+	def initialize_UI(self):
+
 		self.max_move=get_moves_number(self.move_zero)
 		if not self.move_range:
 			self.move_range=range(1,self.max_move+1)
-			
+
 		self.total_done=0
 		
 		root = self
@@ -652,9 +637,7 @@ class RunAnalysisBase(Frame):
 		
 		
 		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
-		
-		self.time_per_move=0
-
+				
 		self.lab1=Label(root)
 		self.lab1.pack()
 		
@@ -663,7 +646,7 @@ class RunAnalysisBase(Frame):
 		
 		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
 		
-		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move, mode="determinate")
+		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
 
 		current_move=1
@@ -671,7 +654,6 @@ class RunAnalysisBase(Frame):
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		except Exception,e:
-			
 			show_error(str(e))
 			self.lab1.config(text="Aborted")
 			self.lab2.config(text="")
@@ -679,10 +661,16 @@ class RunAnalysisBase(Frame):
 
 		self.lock2.acquire()
 		self.t0=time.time()
+		first_move=go_to_move(self.move_zero,1)
+		first_comment="Analysis by GoReviewPartner"
+		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
+		first_comment+="\nIntervals: "+self.intervals
+		first_move.add_comment_text(first_comment)
 		threading.Thread(target=self.run_all_analysis).start()
 		
 		self.root=root
-		root.after(500,self.follow_analysis)
+
+
 		
 
 
