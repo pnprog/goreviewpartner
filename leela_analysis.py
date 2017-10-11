@@ -287,6 +287,24 @@ class RunAnalysis(RunAnalysisBase):
 		except:
 			show_error("Could not run Leela using the command from config.ini file: \n"+" ".join(leela_command_line))
 			return
+		
+		try:
+			self.bot_name=leela.name()
+		except Exception, e:
+			show_error("Leela did not replied as expected to the GTP name command:\n"+str(e))
+			return
+		
+		if self.bot_name!="Leela":
+			show_error("Leela did not identified itself as expected:\n'Leela' != '"+self.bot_name+"'")
+			return
+		
+		try:
+			self.bot_version=leela.version()
+		except Exception, e:
+			show_error("Leela did not replied as expected to the GTP version command:\n"+str(e))
+			return
+		
+		
 		try:
 			leela.boardsize(size)
 		except:
@@ -368,7 +386,7 @@ class RunAnalysis(RunAnalysisBase):
 		
 		first_move=go_to_move(self.move_zero,1)
 		first_comment="Analysis by GoReviewPartner"
-		first_comment+="\nBot: "+self.leela.name()+'/'+self.leela.version()
+		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
 		first_comment+="\nIntervals: "+self.intervals
 		first_move.add_comment_text(first_comment)
 		

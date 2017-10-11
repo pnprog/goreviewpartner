@@ -185,6 +185,23 @@ class RunAnalysis(RunAnalysisBase):
 		except:
 			show_error("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
 			return
+		
+		try:
+			self.bot_name=ray.name()
+		except Exception, e:
+			show_error("Ray did not replied as expected to the GTP name command:\n"+str(e))
+			return
+		
+		if self.bot_name!="Ray":
+			show_error("Ray did not identified itself as expected:\n'Ray' != '"+self.bot_name+"'")
+			return
+		
+		try:
+			self.bot_version=ray.version()
+		except Exception, e:
+			show_error("Ray did not replied as expected to the GTP version command:\n"+str(e))
+			return
+		
 		try:
 			ray.boardsize(size)
 		except:
@@ -268,7 +285,7 @@ class RunAnalysis(RunAnalysisBase):
 		self.t0=time.time()
 		first_move=go_to_move(self.move_zero,1)
 		first_comment="Analysis by GoReviewPartner"
-		first_comment+="\nBot: "+self.ray.name()+'/'+self.ray.version()
+		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
 		first_comment+="\nIntervals: "+self.intervals
 		first_move.add_comment_text(first_comment)
 		threading.Thread(target=self.run_all_analysis).start()

@@ -249,6 +249,23 @@ class RunAnalysis(RunAnalysisBase):
 		except:
 			show_error("Could not run GnuGo using the command from config.ini file: \n"+" ".join(gnugo_command_line))
 			return
+		
+		try:
+			self.bot_name=gnugo.name()
+		except Exception, e:
+			show_error("GnuGo did not replied as expected to the GTP name command:\n"+str(e))
+			return
+		
+		if self.bot_name!="GNU Go":
+			show_error("GnuGo did not identified itself as expected:\n'GNU Go' != '"+self.bot_name+"'")
+			return
+		
+		try:
+			self.bot_version=gnugo.version()
+		except Exception, e:
+			show_error("GnuGo did not replied as expected to the GTP version command:\n"+str(e))
+			return
+		
 		try:
 			gnugo.boardsize(size)
 		except:
@@ -288,13 +305,15 @@ class RunAnalysis(RunAnalysisBase):
 					gnugo.place_black(move)
 					for worker in self.workers:
 						worker.place_black(move)
-					
+		
 						
-			
+		
+		
+		
 		self.max_move=get_moves_number(self.move_zero)
 		if not self.move_range:
 			self.move_range=range(1,self.max_move+1)
-			
+		
 		self.total_done=0
 		
 		root = self
@@ -305,13 +324,7 @@ class RunAnalysis(RunAnalysisBase):
 		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
 		
 		self.time_per_move=0
-		"""
-		remaining_s=len(self.move_range)*(2*self.deepness+1)
-		remaining_h=remaining_s/3600
-		remaining_s=remaining_s-3600*remaining_h
-		remaining_m=remaining_s/60
-		remaining_s=remaining_s-60*remaining_m
-		"""
+
 		self.lab1=Label(root)
 		self.lab1.pack()
 		
@@ -319,7 +332,6 @@ class RunAnalysis(RunAnalysisBase):
 		self.lab2.pack()
 		
 		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
-		#self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
 		
 		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move, mode="determinate")
 		self.pb.pack()
@@ -340,7 +352,7 @@ class RunAnalysis(RunAnalysisBase):
 		
 		first_move=go_to_move(self.move_zero,1)
 		first_comment="Analysis by GoReviewPartner"
-		first_comment+="\nBot: "+self.gnugo.name()+'/'+self.gnugo.version()
+		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
 		first_comment+="\nIntervals: "+self.intervals
 		first_move.add_comment_text(first_comment)
 		
