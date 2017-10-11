@@ -275,7 +275,7 @@ class gtp():
 		self.write("name")
 		answer=self.readline().strip()
 		try:
-			return answer.split(" ")[1]
+			return " ".join(answer.split(" ")[1:])
 		except:
 			raise GtpException("GtpException in name()")
 	
