@@ -499,10 +499,19 @@ class RunAnalysisBase(Frame):
 		self.variation=variation
 		
 		self.error=None
+		try:
+			self.initialize_bot()
+		except Exception,e:
+			self.error="Error while initializing the GTP bot:\n"+str(e)
+			self.abort()
+			return
 		
-		self.initialize_bot()
-		self.initialize_UI()
-		
+		try:
+			self.initialize_UI()
+		except Exception,e:
+			self.error="Error while initializing the graphical interface:\n"+str(e)
+			self.abort()
+			return
 		self.root.after(500,self.follow_analysis)
 	
 	def run_analysis(self,current_move):
@@ -543,8 +552,11 @@ class RunAnalysisBase(Frame):
 			
 
 	def abort(self):
-		self.lab1.config(text="Aborted")
-		self.lab2.config(text="")
+		try:
+			self.lab1.config(text="Aborted")
+			self.lab2.config(text="")
+		except:
+			pass
 		log("Leaving follow_anlysis()")
 		show_error("Analysis aborted:\n\n"+self.error)
 
