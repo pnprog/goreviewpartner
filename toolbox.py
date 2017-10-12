@@ -702,6 +702,7 @@ class RunAnalysisBase(Frame):
 		first_move=go_to_move(self.move_zero,1)
 		first_comment="Analysis by GoReviewPartner"
 		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
+		first_comment+="\nKomi: "+str(self.komi)
 		first_comment+="\nIntervals: "+self.intervals
 		first_move.add_comment_text(first_comment)
 		threading.Thread(target=self.run_all_analysis).start()
