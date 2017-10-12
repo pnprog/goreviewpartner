@@ -372,13 +372,32 @@ class RangeSelector(Frame):
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
+		Label(self,text="Confirm the value of komi").grid(row=row,column=1,sticky=W)
+		
+		komi_entry=Entry(self)
+		komi_entry.grid(row=row,column=2,sticky=W)
+		komi_entry.delete(0, END)
+		
+		try:
+			komi=self.g.get_komi()
+			komi_entry.insert(0, str(komi))
+		except Exception, e:
+			log("Error while reading komi value, please check:\n"+str(e))
+			show_error("Error while reading komi value, please check:\n"+str(e))
+			komi_entry.insert(0, "0")
+		
+		
+		row+=10
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
 		Button(self,text="Start",command=self.start).grid(row=row,column=2,sticky=E)
 		self.mode=s
 		self.color=c
 		self.nb_moves=nb_moves
 		self.only_entry=only_entry
 		self.popup=None
-	
+		self.komi_entry=komi_entry
+		
 	def variation_changed(self,*args):
 		log("variation changed!",self.variation_selection.get())
 		try:
@@ -412,6 +431,12 @@ class RangeSelector(Frame):
 		
 		if self.nb_moves==0:
 			show_error("This variation is empty (0 move), the analysis cannot be performed!")
+			return
+		
+		try:
+			komi=float(self.komi_entry.get())
+		except:
+			show_error("Incorrect value for komi ("+str(self.komi_entry.get())+"), please double check.")
 			return
 		
 		if self.bots!=None:
@@ -477,7 +502,7 @@ class RangeSelector(Frame):
 		
 		self.parent.destroy()
 		newtop=Tk()
-		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation)
+		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
 		self.popup.pack()
 		newtop.mainloop()
 
@@ -488,7 +513,7 @@ from Tkinter import *
 import ttk
 
 class RunAnalysisBase(Frame):
-	def __init__(self,parent,filename,move_range,intervals,variation):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
@@ -497,6 +522,7 @@ class RunAnalysisBase(Frame):
 		self.lock2=threading.Lock()
 		self.intervals=intervals
 		self.variation=variation
+		self.komi=komi
 		
 		self.error=None
 		try:

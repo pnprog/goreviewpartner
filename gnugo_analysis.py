@@ -283,9 +283,8 @@ class RunAnalysis(RunAnalysisBase):
 			self.workers.append(gnugo_worker)
 		
 		self.move_zero=self.g.get_root()
-		komi=self.g.get_komi()
-
-		gnugo.komi(komi)
+		self.g.get_root().set("KM", self.komi)
+		gnugo.komi(self.komi)
 		
 		board, plays = sgf_moves.get_setup_and_moves(self.g)
 		handicap_stones=""

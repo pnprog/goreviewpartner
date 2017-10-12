@@ -317,8 +317,8 @@ class RunAnalysis(RunAnalysisBase):
 		self.time_per_move=int(Config.get("Leela", "TimePerMove"))
 		leela.set_time(main_time=self.time_per_move,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
 		self.move_zero=self.g.get_root()
-		komi=self.g.get_komi()
-		leela.komi(komi)
+		self.g.get_root().set("KM", self.komi)
+		leela.komi(self.komi)
 
 		
 		
