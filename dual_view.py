@@ -116,7 +116,8 @@ class OpenChart():
 		self.popup=Toplevel()
 		popup=self.popup
 		popup.geometry(str(popup_width)+'x'+str(popup_height))
-		popup.configure(background=bg)
+		bg=popup.cget("background")
+		#popup.configure(background=bg)
 		
 		top_frame=Frame(popup)
 		top_frame.pack()
@@ -582,7 +583,8 @@ class OpenMove():
 		dim=self.dim
 		move=self.move
 		
-		popup.configure(background=bg)
+		#popup.configure(background=bg)
+		bg=popup.cget("background")
 		self.locked=False
 		panel=Frame(popup)
 		panel.configure(background=bg)
@@ -1194,8 +1196,8 @@ class DualView(Frame):
 		
 		
 		self.all_popups=[]
-		
-		self.configure(background=bg)
+		bg=self.cget("background")
+		#self.configure(background=bg)
 		
 		Label(self,text='   ',background=bg).grid(column=0,row=0)
 		
