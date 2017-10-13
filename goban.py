@@ -17,6 +17,7 @@ class Goban(Canvas):
 		self.space=space
 		Canvas.__init__(self,**kwargs)
 		self.prepare_mesh()
+		self.no_redraw=[]
 		
 	def prepare_mesh(self):
 		f=fuzzy
@@ -52,46 +53,54 @@ class Goban(Canvas):
 	def draw_line(self,i1,j1,i2,j2,color="black",width=1):
 		x1,y1=self.ij2xy(i1,j1)
 		x2,y2=self.ij2xy(i2,j2)
-		self.create_line(x1,y1,x2,y2,fill=color,width=width)
+		return self.create_line(x1,y1,x2,y2,fill=color,width=width)
 
 	def draw_rectangle(self,i1,j1,i2,j2,color="black"):
 		x1,y1=self.ij2xy(i1,j1)
 		x2,y2=self.ij2xy(i2,j2)
-		self.create_rectangle(x1,y1,x2,y2,fill=color)
+		return self.create_rectangle(x1,y1,x2,y2,fill=color)
 
 
 	def display(self,grid,markup,freeze=False):
+		if freeze:
+			black="red"
+			self.no_redraw=[]
+		else:
+			black="black"
+		
 		space=self.space
 		dim=self.dim
 		bg="#dddddd"
 		bg="#ECCE7C"
-		for item in self.find_all():self.delete(item)
+		for item in self.find_all():
+			if item not in self.no_redraw:
+				self.delete(item)
+		
 		self.config(width=space*(1+dim+1), height=space*(1+dim+1))
 		
-		if freeze:
-			black="red"
-		else:
-			black="black"
 		
-		self.draw_rectangle(-0.1-.5,-0.1-.5,dim-1+.5+0.1,dim-1+.5+0.1,black)
-		self.draw_rectangle(0-.5,0-.5,dim-1+.5,dim-1+.5,bg)
-		for i in range(dim):
-			self.draw_line(i,0,i,dim-1,color=black)
-			self.draw_line(0,i,dim-1,i,color=black)
-			
-			x,y=self.ij2xy(-1-0.1,i)
-			self.create_text(x,y, text="ABCDEFGHJKLMNOPQRST"[i],font=("Arial", str(int(space/2.5))))
-			x,y=self.ij2xy(dim,i)
-			self.create_text(x,y, text="ABCDEFGHJKLMNOPQRST"[i],font=("Arial", str(int(space/2.5))))
-			x,y=self.ij2xy(i,-1-0.1)
-			self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5))))
-			x,y=self.ij2xy(i,dim+0.1)
-			self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5))))
+		if len(self.no_redraw)==0:
+			self.no_redraw.append(self.draw_rectangle(-0.1-.5,-0.1-.5,dim-1+.5+0.1,dim-1+.5+0.1,black))
+			self.no_redraw.append(self.draw_rectangle(0-.5,0-.5,dim-1+.5,dim-1+.5,bg))
+			for i in range(dim):
+				self.no_redraw.append(self.draw_line(i,0,i,dim-1,color=black))
+				self.no_redraw.append(self.draw_line(0,i,dim-1,i,color=black))
+				
+				x,y=self.ij2xy(-1-0.1,i)
+				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRST"[i],font=("Arial", str(int(space/2.5)))))
+				x,y=self.ij2xy(dim,i)
+				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRST"[i],font=("Arial", str(int(space/2.5)))))
+				x,y=self.ij2xy(i,-1-0.1)
+				self.no_redraw.append(self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5)))))
+				x,y=self.ij2xy(i,dim+0.1)
+				self.no_redraw.append(self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5)))))
 
-		if dim==19:
-			for i,j in [[3,3],[3,9],[9,9],[3,15],[15,15],[15,9],[9,15],[15,3],[9,3]]:
-				self.draw_point(i,j,0.3,black)
-
+			if dim==19:
+				for i,j in [[3,3],[3,9],[9,9],[3,15],[15,15],[15,9],[9,15],[15,3],[9,3]]:
+					self.no_redraw.append(self.draw_point(i,j,0.3,black))
+		
+		
+		
 		for i in range(dim):
 			for j in range(dim):
 				markup_color='black'
@@ -141,8 +150,10 @@ class Goban(Canvas):
 					self.create_text(x,y, text=sequence[0][2],font=("Arial", str(int(space/2))),fill=letter_color)
 					local_area=self.draw_point(u,v,1,color="",outline="")
 					self.tag_bind(local_area, "<Enter>", partial(show_variation,goban=self,grid=grid,markup=markup,i=i,j=j))
-		self.update_idletasks()
 
+		if freeze:
+			self.no_redraw=[]
+			self.update_idletasks()
 
 
 def show_variation():

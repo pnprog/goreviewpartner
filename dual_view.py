@@ -835,9 +835,10 @@ class DualView(Frame):
 
 	def goto_move(self,move_number,pressed=None):
 		self.move_number.config(text=str(move_number)+'/'+str(get_node_number(self.gameroot)))
+		self.update_idletasks()
 		if not pressed:
 			self.current_move=move_number
-			self.display_move(self.current_move)
+			#self.display_move(self.current_move)
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
 			
