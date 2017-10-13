@@ -6,7 +6,7 @@ space=10
 fuzzy=0.2
 
 
-from random import random
+from random import random,seed
 
 from Tkinter import Canvas
 
@@ -15,9 +15,11 @@ class Goban(Canvas):
 	def __init__(self,dim,**kwargs):
 		self.dim=dim
 		self.space=space
+		self.wood_color=(236,206,124)
 		Canvas.__init__(self,**kwargs)
 		self.prepare_mesh()
 		self.no_redraw=[]
+		
 		
 	def prepare_mesh(self):
 		f=fuzzy
@@ -29,7 +31,29 @@ class Goban(Canvas):
 				for j in range(self.dim):
 					self.mesh[i][j][1]=f1+random()*.08-.04
 					self.mesh[j][i][0]=f2+random()*.08-.04
+		self.wood=[]
+		dim=self.dim
+		r,g,b=self.wood_color
+		k0=0
+		k1=random()*0.05
+		t=10
+		while k0<1:
+			#tt=choice(range(-t,t+1))
+			tt=2*random()*t-t
+			r0=r+tt
+			g0=g+tt
+			b0=b+tt
 
+			x1=0-.5+k0*dim
+			y1=0-.5
+			x2=0-.5+k1*dim
+			y2=dim-1+.5
+			
+			self.wood.append([(x1+x2)/2,y1,(x1+x2)/2+0.3,y2,'#%02x%02x%02x' % (r0, g0, b0),(k1-k0)*dim])
+			
+			k0=k1
+			k1+=0.005+random()*0.01
+			k1=min(1,k1)
 		
 	def ij2xy(self,i,j):
 		space=self.space
@@ -55,10 +79,10 @@ class Goban(Canvas):
 		x2,y2=self.ij2xy(i2,j2)
 		return self.create_line(x1,y1,x2,y2,fill=color,width=width)
 
-	def draw_rectangle(self,i1,j1,i2,j2,color="black"):
+	def draw_rectangle(self,i1,j1,i2,j2,color="black",outline=""):
 		x1,y1=self.ij2xy(i1,j1)
 		x2,y2=self.ij2xy(i2,j2)
-		return self.create_rectangle(x1,y1,x2,y2,fill=color)
+		return self.create_rectangle(x1,y1,x2,y2,fill=color,outline=outline)
 
 
 	def display(self,grid,markup,freeze=False):
@@ -70,8 +94,8 @@ class Goban(Canvas):
 		
 		space=self.space
 		dim=self.dim
-		bg="#dddddd"
-		bg="#ECCE7C"
+		r,g,b=self.wood_color
+		bg='#%02x%02x%02x' % (r, g, b)
 		for item in self.find_all():
 			if item not in self.no_redraw:
 				self.delete(item)
@@ -80,8 +104,29 @@ class Goban(Canvas):
 		
 		
 		if len(self.no_redraw)==0:
-			self.no_redraw.append(self.draw_rectangle(-0.1-.5,-0.1-.5,dim-1+.5+0.1,dim-1+.5+0.1,black))
-			self.no_redraw.append(self.draw_rectangle(0-.5,0-.5,dim-1+.5,dim-1+.5,bg))
+			#self.no_redraw.append(self.draw_rectangle(-0.1-.5,-0.1-.5,dim-1+.5+0.1,dim-1+.5+0.1,black))
+			#self.no_redraw.append(self.draw_rectangle(0-.5,0-.5,dim-1+.5,dim-1+.5,bg))
+			self.no_redraw.append(self.draw_rectangle(0-1.5,0-1.5,dim-1+1.5,dim-1+1.5,bg))
+			
+			for x1,y1,x2,y2,c,w in self.wood:
+				self.no_redraw.append(self.draw_line(x1,y1,x2,y2,c,width=w*space))
+				
+				#self.no_redraw.append(self.draw_line((x1+x2)/2,y1,(x1+x2)/2+0.3,y2,'#%02x%02x%02x' % (r0, g0, b0),width=(k1-k0)*dim*space+1))
+
+			
+			bg0=self.cget("background")
+			
+			self.no_redraw.append(self.draw_rectangle(-1.5  ,  -1.5  ,   -.5,    dim-1+1.5,bg0))
+			self.no_redraw.append(self.draw_rectangle(dim-1+1.5  ,  -1.5  ,   dim-1+.5,    dim-1+1.5,bg0))
+			self.no_redraw.append(self.draw_rectangle(-1.5  ,  -1.5  ,   dim-1+1.5 ,  -.5,bg0))
+			self.no_redraw.append(self.draw_rectangle(-1.5,    dim-1+1.5 ,   dim-1+1.5,    dim-1+.5,bg0))
+			
+			self.no_redraw.append(self.draw_rectangle(-0.1-.5  ,  -0.1-.5  ,   -.5,    dim-1+.5+0.1,"black"))
+			self.no_redraw.append(self.draw_rectangle(dim-1+.5+0.1  ,  -0.1-.5  ,   dim-1+.5,    dim-1+.5+0.1,"black"))
+			self.no_redraw.append(self.draw_rectangle(-0.1-.5  ,  -0.1-.5  ,   dim-1+.5 ,  -.5,"black"))
+			self.no_redraw.append(self.draw_rectangle(-.5,    dim-1+.5 ,   dim-1+.5+.1,    dim-1+.5+.1,"black"))
+			
+			
 			for i in range(dim):
 				self.no_redraw.append(self.draw_line(i,0,i,dim-1,color=black))
 				self.no_redraw.append(self.draw_line(0,i,dim-1,i,color=black))
