@@ -6,7 +6,7 @@ space=10
 fuzzy=0.2
 
 
-from random import random,seed
+from random import random,seed,choice
 
 from Tkinter import Canvas
 
@@ -15,7 +15,7 @@ class Goban(Canvas):
 	def __init__(self,dim,**kwargs):
 		self.dim=dim
 		self.space=space
-		self.wood_color=(236,206,124)
+		self.wood_color=(.9*236,.9*206,.9*124)
 		Canvas.__init__(self,**kwargs)
 		self.prepare_mesh()
 		self.no_redraw=[]
@@ -55,6 +55,15 @@ class Goban(Canvas):
 			k1+=0.005+random()*0.01
 			k1=min(1,k1)
 		
+		self.black_stones=[[(25+choice(range(0,t)),8+choice(range(0,t/2)),8+choice(range(0,t/2))) for d in range(dim)] for dd in range(dim)]
+		self.white_stones=[[(25+choice(range(0,t)),8+choice(range(0,t/2)),8+choice(range(0,t/2))) for d in range(dim)] for dd in range(dim)]
+		for i in range(dim):
+			for j in range(dim):
+				a,b,c=self.black_stones[i][j]
+				self.black_stones[i][j]=['#%02x%02x%02x' % (a,a,a),'#%02x%02x%02x' % (a+b,a+b,a+b),'#%02x%02x%02x' % (a+b+c,a+b+c,a+b+c)]
+				a,b,c=self.white_stones[i][j]
+				self.white_stones[i][j]=['#%02x%02x%02x' % (255-a,255-a,255-a),'#%02x%02x%02x' % (255-a+b,255-a+b,255-a+b),'#%02x%02x%02x' % (255-a+b+c,255-a+b+c,255-a+b+c)]
+				
 	def ij2xy(self,i,j):
 		space=self.space
 		dim=self.dim
@@ -83,6 +92,29 @@ class Goban(Canvas):
 		x1,y1=self.ij2xy(i1,j1)
 		x2,y2=self.ij2xy(i2,j2)
 		return self.create_rectangle(x1,y1,x2,y2,fill=color,outline=outline)
+
+	def draw_black_stone(self,i,j):
+		u=i+self.mesh[i][j][0]
+		v=j+self.mesh[i][j][1]
+		c1,c2,c3=self.black_stones[i][j]
+		self.draw_point(u,v,.9,color=c1,outline="#808080",width=1)
+		self.draw_point(u-0.1,v+0.1,.5,color=c2,outline="")
+		self.draw_point(u-0.1,v+0.1,.2,color=c3,outline="")
+		
+		#self.draw_point(u,v,.95,"black")
+	
+	def draw_white_stone(self,i,j):
+		u=i+self.mesh[i][j][0]
+		v=j+self.mesh[i][j][1]
+		c1,c2,c3=self.white_stones[i][j]
+		self.draw_point(u,v,.9,color=c1,outline="#808080",width=1)
+		self.draw_point(u-0.1,v+0.1,.5,color=c2,outline="")
+		self.draw_point(u-0.1,v+0.1,.2,color=c3,outline="")
+		
+		
+		
+		#self.draw_point(u,v,.95,"white")
+
 
 
 	def display(self,grid,markup,freeze=False):
@@ -153,10 +185,12 @@ class Goban(Canvas):
 				v=j+self.mesh[i][j][1]
 				if grid[i][j]==1:
 					#black
-					self.draw_point(u,v,.95,"black")
+					#self.draw_point(u,v,.95,"black")
+					self.draw_black_stone(i,j)
 					markup_color='white'
 				if grid[i][j]==2:
-					self.draw_point(u,v,.95,"white")
+					#self.draw_point(u,v,.95,"white")
+					self.draw_white_stone(i,j)
 				
 				if type(markup[i][j]) is int:
 					if grid[i][j]==0:

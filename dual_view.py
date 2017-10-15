@@ -1168,6 +1168,8 @@ class DualView(Frame):
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		new_popup.goban.mesh=self.goban1.mesh
 		new_popup.goban.wood=self.goban1.wood
+		new_popup.goban.black_stones=self.goban1.black_stones
+		new_popup.goban.white_stones=self.goban1.white_stones
 		new_popup.goban.no_redraw=[]
 		
 		new_popup.goban.display(new_popup.grid,new_popup.markup)
@@ -1277,6 +1279,8 @@ class DualView(Frame):
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
+		self.goban2.black_stones=self.goban1.black_stones
+		self.goban2.white_stones=self.goban1.white_stones
 		self.goban2.grid(column=3,row=row)
 
 		self.goban1.space=self.goban_size/(self.dim+1+1)
