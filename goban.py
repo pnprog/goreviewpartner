@@ -36,7 +36,7 @@ class Goban(Canvas):
 		r,g,b=self.wood_color
 		k0=0
 		k1=random()*0.05
-		t=10
+		t=20
 		while k0<1:
 			#tt=choice(range(-t,t+1))
 			tt=2*random()*t-t
