@@ -54,7 +54,7 @@ class Goban(Canvas):
 			k0=k1
 			k1+=0.005+random()*0.01
 			k1=min(1,k1)
-		
+		t=10
 		self.black_stones=[[(25+choice(range(0,t)),8+choice(range(0,t/2)),8+choice(range(0,t/2))) for d in range(dim)] for dd in range(dim)]
 		self.white_stones=[[(25+choice(range(0,t)),8+choice(range(0,t/2)),8+choice(range(0,t/2))) for d in range(dim)] for dd in range(dim)]
 		for i in range(dim):
