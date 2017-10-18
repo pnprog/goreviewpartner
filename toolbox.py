@@ -78,30 +78,39 @@ def go_to_move(move_zero,move_number=0):
 
 
 def gtp2ij(move):
-	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-	return int(move[1:])-1,letters.index(move[0].lower())
+	try:
+		#letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
+		letters="abcdefghjklmnopqrstuvwxyz"
+		return int(move[1:])-1,letters.index(move[0].lower())
+	except:
+		raise AbortedException("Cannot convert GTP coordinates "+move+" to grid coordinates!")
 
 		
 
 
 def ij2gtp(m):
 	# (17,0) => a18
-	
-	if m==None:
-		return "pass"
-	i,j=m
-	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-	return letters[j]+str(i+1)
+	try:
+		if m==None:
+			return "pass"
+		i,j=m
+		#letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
+		letters="abcdefghjklmnopqrstuvwxyz"
+		return letters[j]+str(i+1)
+	except:
+		raise AbortedException("Cannot convert grid coordinates "+str(m)+" to GTP coordinates!")
 
 
 def ij2sgf(m):
 	# (17,0) => ???
-	
-	if m==None:
-		return "pass"
-	i,j=m
-	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-	return letters[j]+letters[i]
+	try:
+		if m==None:
+			return "pass"
+		i,j=m
+		letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
+		return letters[j]+letters[i]
+	except:
+		raise AbortedException("Cannot convert grid coordinates "+str(m)+" to SGF coordinates!")
 
 from gomill import sgf, sgf_moves
 from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu

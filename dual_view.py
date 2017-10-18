@@ -38,19 +38,19 @@ def get_node(root,number=0):
 		node=node[0]
 		k+=1
 	return node
-
+"""
 def gtp2ij(move):
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return int(move[1:])-1,letters.index(move[0].lower())
-
-
+"""
+"""
 def ij2gtp(m):
 	if m==None:
 		return "pass"
 	i,j=m
 	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 	return letters[j]+str(i+1)
-
+"""
 
 
 
@@ -636,11 +636,13 @@ class OpenMove():
 			try:
 				ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
 				ray=gtp(ray_command_line)
-				ray.boardsize(dim)
+				ok=ray.boardsize(dim)
 				ray.reset()
 				ray.komi(komi)
 				self.ray=ray
 				self.buttonray=buttonray
+				if not ok:
+					raise AbortedException("Boardsize value rejected by Ray")
 			except Exception, e:
 				okray=False
 				log("Could not launch Ray")
@@ -655,12 +657,14 @@ class OpenMove():
 			try:
 				leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
 				leela=gtp(leela_command_line)
-				leela.boardsize(dim)
+				ok=leela.boardsize(dim)
 				leela.reset()
 				leela.komi(komi)
 				time_per_move=int(Config.get("Leela", "TimePerMove"))
 				leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 				self.leela=leela
+				if not ok:
+					raise AbortedException("Boardsize value rejected by Leela")
 			except Exception, e:
 				okleela=False
 				log("Could not launch Leela")
@@ -675,10 +679,12 @@ class OpenMove():
 			try:
 				gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
 				gnugo=gtp(gnugo_command_line)
-				gnugo.boardsize(dim)
+				ok=gnugo.boardsize(dim)
 				gnugo.reset()
 				gnugo.komi(komi)
 				self.gnugo=gnugo
+				if not ok:
+					raise AbortedException("Boardsize value rejected by GnuGo")
 			except Exception, e:
 				okgnugo=False
 				log("Could not launch GnuGo")

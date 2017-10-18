@@ -310,9 +310,12 @@ class RunAnalysis(RunAnalysisBase):
 		log("Setting goban size as "+str(size)+"x"+str(size))
 		
 		try:
-			leela.boardsize(size)
+			ok=leela.boardsize(size)
 		except:
 			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			return False
+		if not ok:
+			show_error("Leela rejected this board size ("+str(size)+"x"+str(size)+")")
 			return False
 		log("Clearing the board")
 		leela.reset()

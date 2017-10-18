@@ -207,9 +207,12 @@ class RunAnalysis(RunAnalysisBase):
 		log("Version: "+self.bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
 		try:
-			ray.boardsize(size)
+			ok=ray.boardsize(size)
 		except:
 			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			return False
+		if not ok:
+			show_error("Ray rejected this board size ("+str(size)+"x"+str(size)+")")
 			return False
 		log("Clearing the board")
 		ray.reset()
