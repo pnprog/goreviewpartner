@@ -1,3 +1,10 @@
+# -*- coding:Utf-8 -*-
+
+import sys
+print "STDIN encoding:",sys.stdin.encoding
+print "STDOUT encoding:",sys.stdout.encoding
+print "STDERR encoding:",sys.stderr.encoding
+print "Fine system encoding:",sys.getfilesystemencoding()
 
 from Tkinter import * 
 
@@ -14,6 +21,7 @@ Label(app).pack()
 
 label = Label(app, text="This is GoReviewPartner")
 label.pack()
+
 
 popups=[]
 from sys import exit
