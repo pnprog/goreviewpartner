@@ -247,7 +247,7 @@ class RunAnalysis(RunAnalysisBase):
 		log("Starting Gnugo...")
 		try:
 			gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
-			gnugo=gtp(gnugo_command_line)
+			gnugo=GnuGo_gtp(gnugo_command_line)
 		except Exception,e:
 			show_error("Could not run GnuGo using the command from config.ini file: \n"+" ".join(gnugo_command_line)+"\n"+str(e))
 			return False
@@ -319,6 +319,82 @@ class RunAnalysis(RunAnalysisBase):
 		log("GnuGo initialization completed")
 		return True
 		
+
+
+class GnuGo_gtp(gtp):
+
+	def get_gnugo_initial_influence_black(self):
+		self.write("initial_influence black influence_regions")
+		one_line=self.readline()
+		one_line=one_line.split("= ")[1].strip().replace("  "," ")
+		lines=[one_line]
+		for i in range(self.size-1):
+			one_line=self.readline().strip().replace("  "," ")
+			lines.append(one_line)
+		
+		influence=[]
+		for i in range(self.size):
+			influence=[[int(s) for s in lines[i].split(" ")]]+influence
+		return influence
+
+	def get_gnugo_initial_influence_white(self):
+		self.write("initial_influence white influence_regions")
+		one_line=self.readline()
+		one_line=one_line.split("= ")[1].strip().replace("  "," ")
+		lines=[one_line]
+		for i in range(self.size-1):
+			one_line=self.readline().strip().replace("  "," ")
+			lines.append(one_line)
+		
+		influence=[]
+		for i in range(self.size):
+			influence=[[int(s) for s in lines[i].split(" ")]]+influence
+		return influence
+	
+	def get_gnugo_estimate_score(self):
+		self.write("estimate_score")
+		answer=self.readline().strip()
+		try:
+			return answer.split(" ")[1]
+		except:
+			raise GtpException("GtpException in get_gnugo_estimate_score()")
+	
+	def gnugo_top_moves_black(self):
+		self.write("top_moves_black")
+		answer=self.readline()[:-1]
+		try:
+			answer=answer.split(" ")[1:-1]
+		except:
+			raise GtpException("GtpException in get_gnugo_top_moves_black()")
+		answers_list=[]
+		for value in answer:
+			try:
+				score=float(value)
+			except:
+				answers_list.append(value)
+		return answers_list
+
+	def gnugo_top_moves_white(self):
+		self.write("top_moves_white")
+		answer=self.readline()[:-1]
+		try:
+			answer=answer.split(" ")[1:-1]
+		except:
+			raise GtpException("GtpException in get_gnugo_top_moves_white()")
+		answers_list=[]
+		for value in answer:
+			try:
+				score=float(value)
+			except:
+				answers_list.append(value)
+		return answers_list
+
+	
+	def get_gnugo_experimental_score(self,color):
+		self.write("experimental_score "+color)
+		answer=self.readline().strip()
+		return answer[2:]
+
 
 if __name__ == "__main__":
 	if len(argv)==1:

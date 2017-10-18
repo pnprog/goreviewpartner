@@ -16,14 +16,14 @@ import os
 import ConfigParser
 
 
-import time, os
+import os
 import threading
 import ttk
 
 import toolbox
 from toolbox import *
 
-
+from time import time
 
 
 class RunAnalysis(RunAnalysisBase):
@@ -181,7 +181,7 @@ class RunAnalysis(RunAnalysisBase):
 		log("Starting Ray...")
 		try:
 			ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
-			ray=gtp(ray_command_line)
+			ray=Ray_gtp(ray_command_line)
 			#ray=gtp(tuple(ray_command_line.split()))
 		except:
 			show_error("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
@@ -194,8 +194,8 @@ class RunAnalysis(RunAnalysisBase):
 			show_error("Ray did not replied as expected to the GTP name command:\n"+str(e))
 			return False
 		
-		if self.bot_name!="Ray":
-			show_error("Ray did not identified itself as expected:\n'Ray' != '"+self.bot_name+"'")
+		if self.bot_name!="Rayon":
+			show_error("Ray did not identified itself as expected:\n'Rayon' != '"+self.bot_name+"'")
 			return
 		log("Ray identified itself properly")
 		log("Checking version through GTP...")
@@ -242,6 +242,26 @@ class RunAnalysis(RunAnalysisBase):
 					ray.place_black(move)
 		log("Ray initialization completed")
 		return True
+
+
+class Ray_gtp(gtp):
+	def get_ray_stat(self,color):
+		t0=time()
+		self.write("ray-stat "+color)
+		header_line=self.readline()
+		log(">>>>>>>>>>>>",time()-t0)
+		log("HEADER:",header_line)
+		sequences=[]
+		
+		for i in range(10):
+			one_line=answer=self.process.stdout.readline().strip()
+			if one_line.strip()=="":
+				break
+			log("\t",[s.strip() for s in one_line.split("|")[1:]])
+			sequences.append([s.strip() for s in one_line.split("|")[1:]])
+		
+		return sequences
+
 
 if __name__ == "__main__":
 	if len(argv)==1:

@@ -14,8 +14,8 @@ import os
 
 import ConfigParser
 
-
-import time, os
+from time import sleep
+import os
 import threading
 import ttk
 
@@ -284,7 +284,7 @@ class RunAnalysis(RunAnalysisBase):
 		log("Starting Leela...")
 		try:
 			leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
-			leela=gtp(leela_command_line)
+			leela=Leela_gtp(leela_command_line)
 		except:
 			show_error("Could not run Leela using the command from config.ini file: \n"+" ".join(leela_command_line))
 			return False
@@ -348,6 +348,79 @@ class RunAnalysis(RunAnalysisBase):
 					leela.place_black(move)
 		log("Leela initialization completed")
 		return True
+
+
+class Leela_gtp(gtp):
+
+	def get_leela_final_score(self):
+		self.write("final_score")
+		answer=self.readline()
+		try:
+			return " ".join(answer.split(" ")[1:])
+		except:
+			raise GtpException("GtpException in Get_leela_final_score()")
+
+	def get_leela_influence(self):
+		self.write("influence")
+		one_line=self.readline() #empty line
+		buff=[]
+		while self.stderr_queue.empty():
+			sleep(.1)
+		while not self.stderr_queue.empty():
+			while not self.stderr_queue.empty():
+				buff.append(self.stderr_queue.get())
+			sleep(.1)
+		buff.reverse()
+		log(buff)
+		influence=[]
+		for i in range(self.size):
+			one_line=buff[i].strip()
+			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0").replace("w","1").replace("b","2")
+			one_line=[int(s) for s in one_line.split(" ")]
+			influence.append(one_line)
+		
+		return influence
+
+	def get_all_leela_moves(self):
+		buff_size=18
+		buff=[]
+		
+		sleep(.1)
+		while not self.stderr_queue.empty():
+			while not self.stderr_queue.empty():
+				buff.append(self.stderr_queue.get())
+			sleep(.1)
+		
+		buff.reverse()
+		
+		answers=[]
+		for err_line in buff:
+			if " ->" in err_line:
+				log(err_line)
+				one_answer=err_line.strip().split(" ")[0]
+				one_score= ' '.join(err_line.split()).split(' ')[4]
+				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
+				monte_carlo=float(err_line.split("(U:")[1].split('%)')[0].strip())
+				
+				if self.size==19:
+					value_network=float(err_line.split("(V:")[1].split('%')[0].strip())
+					policy_network=float(err_line.split("(N:")[1].split('%)')[0].strip())
+					evaluation=None
+					rave=None
+				else:
+					value_network=None
+					policy_network=None
+					evaluation=float(err_line.split("(N:")[1].split('%)')[0].strip())
+					rave=err_line.split("(R:")[1].split(')')[0].strip()
+				
+				
+				if one_score!="0.00%)":
+					sequence=err_line.split("PV: ")[1].strip()
+					answers=[[one_answer,sequence,float(one_score[:-2]),monte_carlo,value_network,policy_network,evaluation,rave,nodes]]+answers
+
+		return answers
+
+
 
 if __name__ == "__main__":
 	if len(argv)==1:
