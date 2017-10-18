@@ -276,46 +276,53 @@ class RunAnalysis(RunAnalysisBase):
 			leela_command_line=Config.get("Leela", "Command")
 		except:
 			show_error("The config.ini file does not contain entry for Leela command line!")
-			return
+			return False
 		
 		if not leela_command_line:
 			show_error("The config.ini file does not contain command line for Leela!")
-			return
+			return False
+		log("Starting Leela...")
 		try:
 			leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
 			leela=gtp(leela_command_line)
 		except:
 			show_error("Could not run Leela using the command from config.ini file: \n"+" ".join(leela_command_line))
-			return
-		
+			return False
+		log("Leela started")
+		log("Leela identification through GTP..")
 		try:
 			self.bot_name=leela.name()
 		except Exception, e:
 			show_error("Leela did not replied as expected to the GTP name command:\n"+str(e))
-			return
+			return False
 		
 		if self.bot_name!="Leela":
 			show_error("Leela did not identified itself as expected:\n'Leela' != '"+self.bot_name+"'")
-			return
-		
+			return False
+		log("Leela identified itself properly")
+		log("Checking version through GTP...")
 		try:
 			self.bot_version=leela.version()
 		except Exception, e:
 			show_error("Leela did not replied as expected to the GTP version command:\n"+str(e))
-			return
-		
+			return False
+		log("Version: "+self.bot_version)
+		log("Setting goban size as "+str(size)+"x"+str(size))
 		
 		try:
 			leela.boardsize(size)
 		except:
 			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
-			return
-
+			return False
+		log("Clearing the board")
 		leela.reset()
 		self.leela=leela
 		
+		log("Setting time per move")
 		self.time_per_move=int(Config.get("Leela", "TimePerMove"))
-		leela.set_time(main_time=self.time_per_move,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
+		leela.set_time(main_time=0,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
+		
+		log("Setting komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
 		leela.komi(self.komi)
@@ -325,7 +332,7 @@ class RunAnalysis(RunAnalysisBase):
 		
 		board, plays = sgf_moves.get_setup_and_moves(self.g)
 		handicap_stones=""
-		
+		log("Adding handicap stones, if any")
 		for colour, move0 in board.list_occupied_points():
 			if move0 != None:
 				row, col = move0
@@ -336,7 +343,8 @@ class RunAnalysis(RunAnalysisBase):
 				else:
 					log("Adding initial black stone at",move)
 					leela.place_black(move)
-						
+		log("Leela initialization completed")
+		return True
 
 if __name__ == "__main__":
 	if len(argv)==1:

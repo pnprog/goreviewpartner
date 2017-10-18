@@ -526,10 +526,13 @@ class RunAnalysisBase(Frame):
 		
 		self.error=None
 		try:
-			self.initialize_bot()
+			ok=self.initialize_bot()
 		except Exception,e:
 			self.error="Error while initializing the GTP bot:\n"+str(e)
 			self.abort()
+			return
+		
+		if not ok:
 			return
 		
 		try:

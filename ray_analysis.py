@@ -173,57 +173,60 @@ class RunAnalysis(RunAnalysisBase):
 			ray_command_line=Config.get("Ray", "Command")
 		except:
 			show_error("The config.ini file does not contain entry for Ray command line!")
-			return
+			return False
 		
 		if not ray_command_line:
 			show_error("The config.ini file does not contain command line for Ray!")
-			return
+			return False
+		log("Starting Ray...")
 		try:
 			ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
 			ray=gtp(ray_command_line)
 			#ray=gtp(tuple(ray_command_line.split()))
 		except:
 			show_error("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
-			return
-		
+			return False
+		log("Ray started")
+		log("Ray identification through GTP...")
 		try:
 			self.bot_name=ray.name()
 		except Exception, e:
 			show_error("Ray did not replied as expected to the GTP name command:\n"+str(e))
-			return
+			return False
 		
 		if self.bot_name!="Ray":
 			show_error("Ray did not identified itself as expected:\n'Ray' != '"+self.bot_name+"'")
 			return
-		
+		log("Ray identified itself properly")
+		log("Checking version through GTP...")
 		try:
 			self.bot_version=ray.version()
 		except Exception, e:
 			show_error("Ray did not replied as expected to the GTP version command:\n"+str(e))
-			return
-		
+			return False
+		log("Version: "+self.bot_version)
+		log("Setting goban size as "+str(size)+"x"+str(size))
 		try:
 			ray.boardsize(size)
 		except:
 			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
-			return
-
+			return False
+		log("Clearing the board")
 		ray.reset()
 		self.ray=ray
 		
-		#self.time_per_move=int(Config.get("Ray", "TimePerMove"))
+
 		self.time_per_move=0
-		#ray.set_time(main_time=self.time_per_move,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
+		
+		log("Setting komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
 		ray.komi(self.komi)
 
 		
-		
-		
 		board, plays = sgf_moves.get_setup_and_moves(self.g)
 		handicap_stones=""
-		
+		log("Adding handicap stones, if any")
 		for colour, move0 in board.list_occupied_points():
 			if move0 != None:
 				row, col = move0
@@ -234,7 +237,8 @@ class RunAnalysis(RunAnalysisBase):
 				else:
 					log("Adding initial black stone at",move)
 					ray.place_black(move)
-						
+		log("Ray initialization completed")
+		return True
 
 if __name__ == "__main__":
 	if len(argv)==1:
