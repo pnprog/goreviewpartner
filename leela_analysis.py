@@ -421,6 +421,54 @@ class Leela_gtp(gtp):
 		return answers
 
 
+class LeelaSettings(Frame):
+	def __init__(self,parent):
+		Frame.__init__(self,parent)
+		log("Initializing Leela setting interface")
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		row=0
+		
+		Label(self).grid(row=row,column=0)
+		Label(self,text="Leela").grid(row=row+1,column=1)
+		Label(self,text="Command").grid(row=row+2,column=1)
+		LeelaCommand = StringVar() 
+		LeelaCommand.set(Config.get("Leela","Command"))
+		Entry(self, textvariable=LeelaCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Parameters").grid(row=row+2,column=1)
+		LeelaParameters = StringVar() 
+		LeelaParameters.set(Config.get("Leela","Parameters"))
+		Entry(self, textvariable=LeelaParameters, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Time per move").grid(row=row+2,column=1)
+		TimePerMove = StringVar() 
+		TimePerMove.set(Config.get("Leela","TimePerMove"))
+		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
+		row+=1
+		LeelaNeededForReview = BooleanVar(value=Config.getboolean('Leela', 'NeededForReview'))
+		LeelaCheckbutton=Checkbutton(self, text="Needed for review", variable=LeelaNeededForReview,onvalue=True,offvalue=False)
+		LeelaCheckbutton.grid(row=row+2,column=1)
+		LeelaCheckbutton.var=LeelaNeededForReview
+
+		self.LeelaCommand=LeelaCommand
+		self.LeelaParameters=LeelaParameters
+		self.TimePerMove=TimePerMove
+		self.LeelaNeededForReview=LeelaNeededForReview
+
+	def save(self):
+		log("Saving Leela settings")
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		Config.set("Leela","Command",self.LeelaCommand.get())
+		Config.set("Leela","Parameters",self.LeelaParameters.get())
+		Config.set("Leela","TimePerMove",self.TimePerMove.get())
+		Config.set("Leela","NeededForReview",self.LeelaNeededForReview.get())
+		
+		Config.write(open("config.ini","w"))
+	
 
 if __name__ == "__main__":
 	if len(argv)==1:

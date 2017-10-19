@@ -263,6 +263,50 @@ class Ray_gtp(gtp):
 		return sequences
 
 
+
+class RaySettings(Frame):
+	def __init__(self,parent):
+		Frame.__init__(self,parent)
+		log("Initializing Ray setting interface")
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		row=0
+		
+		Label(self).grid(row=row,column=0)
+		Label(self,text="Ray").grid(row=row+1,column=1)
+		Label(self,text="Command").grid(row=row+2,column=1)
+		RayCommand = StringVar() 
+		RayCommand.set(Config.get("Ray","Command"))
+		Entry(self, textvariable=RayCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Parameters").grid(row=row+2,column=1)
+		RayParameters = StringVar() 
+		RayParameters.set(Config.get("Ray","Parameters"))
+		Entry(self, textvariable=RayParameters, width=30).grid(row=row+2,column=2)
+		row+=1
+		RayNeededForReview = BooleanVar(value=Config.getboolean('Ray', 'NeededForReview'))
+		RayCheckbutton=Checkbutton(self, text="Needed for review", variable=RayNeededForReview,onvalue=True,offvalue=False)
+		RayCheckbutton.grid(row=row+2,column=1)
+		RayCheckbutton.var=RayNeededForReview
+		
+		self.RayCommand=RayCommand
+		self.RayParameters=RayParameters
+		self.RayNeededForReview=RayNeededForReview
+	
+	def save(self):
+		log("Saving Ray settings")
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		Config.set("Ray","Command",self.RayCommand.get())
+		Config.set("Ray","Parameters",self.RayParameters.get())
+		Config.set("Ray","NeededForReview",self.RayNeededForReview.get())
+		
+		Config.write(open("config.ini","w"))
+	
+
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()

@@ -398,6 +398,64 @@ class GnuGo_gtp(gtp):
 		return answer[2:]
 
 
+class GnuGoSettings(Frame):
+	def __init__(self,parent):
+		Frame.__init__(self,parent)
+		log("Initializing GnuGo setting interface")
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		row=0
+		
+		Label(self).grid(row=row,column=0)
+		Label(self,text="GnuGo").grid(row=row+1,column=1)
+		Label(self,text="Command").grid(row=row+2,column=1)
+		GnugoCommand = StringVar() 
+		GnugoCommand.set(Config.get("GnuGo","Command"))
+		Entry(self, textvariable=GnugoCommand, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Parameters").grid(row=row+2,column=1)
+		GnugoParameters = StringVar() 
+		GnugoParameters.set(Config.get("GnuGo","Parameters"))
+		Entry(self, textvariable=GnugoParameters, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Variations").grid(row=row+2,column=1)
+		GnugoVariations = StringVar() 
+		GnugoVariations.set(Config.get("GnuGo","Variations"))
+		Entry(self, textvariable=GnugoVariations, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(self,text="Deepness").grid(row=row+2,column=1)
+		GnugoDeepness = StringVar() 
+		GnugoDeepness.set(Config.get("GnuGo","Deepness"))
+		Entry(self, textvariable=GnugoDeepness, width=30).grid(row=row+2,column=2)
+		row+=1
+		GnugoNeededForReview = BooleanVar(value=Config.getboolean('GnuGo', 'NeededForReview'))
+		GnugoCheckbutton=Checkbutton(self, text="Needed for review", variable=GnugoNeededForReview,onvalue=True,offvalue=False)
+		GnugoCheckbutton.grid(row=row+2,column=1)
+		GnugoCheckbutton.var=GnugoNeededForReview
+
+		self.GnugoCommand=GnugoCommand
+		self.GnugoParameters=GnugoParameters
+		self.GnugoVariations=GnugoVariations
+		self.GnugoDeepness=GnugoDeepness
+		self.GnugoNeededForReview=GnugoNeededForReview
+		
+
+	def save(self):
+		log("Saving GnuGo settings")
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		Config.set("GnuGo","Command",self.GnugoCommand.get())
+		Config.set("GnuGo","Parameters",self.GnugoParameters.get())
+		Config.set("GnuGo","Variations",self.GnugoVariations.get())
+		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
+		Config.set("GnuGo","NeededForReview",self.GnugoNeededForReview.get())
+		
+		Config.write(open("config.ini","w"))
+
+
+
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
