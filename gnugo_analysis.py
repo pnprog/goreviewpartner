@@ -283,6 +283,8 @@ class RunAnalysis(RunAnalysisBase):
 		gnugo.reset()
 		self.gnugo=gnugo
 		
+		self.time_per_move=0
+		
 		log("Setting komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
