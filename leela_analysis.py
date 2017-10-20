@@ -485,7 +485,7 @@ class LeelaOpenMove(BotOpenMove):
 			self.okbot=True
 			try:
 				leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
-				leela=gtp(leela_command_line)
+				leela=Leela_gtp(leela_command_line)
 				ok=leela.boardsize(dim)
 				leela.reset()
 				leela.komi(komi)

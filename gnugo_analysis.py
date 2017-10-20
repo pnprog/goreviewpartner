@@ -467,7 +467,7 @@ class GnuGoOpenMove(BotOpenMove):
 			self.okbot=True
 			try:
 				gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
-				gnugo=gtp(gnugo_command_line)
+				gnugo=GnuGo_gtp(gnugo_command_line)
 				ok=gnugo.boardsize(dim)
 				gnugo.reset()
 				gnugo.komi(komi)

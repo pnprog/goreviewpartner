@@ -320,7 +320,7 @@ class RayOpenMove(BotOpenMove):
 			self.okbot=True
 			try:
 				ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
-				ray=gtp(ray_command_line)
+				ray=Ray_gtp(ray_command_line)
 				ok=ray.boardsize(dim)
 				ray.reset()
 				ray.komi(komi)
