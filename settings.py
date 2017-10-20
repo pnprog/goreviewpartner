@@ -5,6 +5,7 @@ from toolbox import log
 from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
+from aq_analysis import AQSettings
 
 class OpenSettings(Toplevel):
 	def __init__(self,parent=None):
@@ -49,6 +50,11 @@ class OpenSettings(Toplevel):
 		self.gnugo.grid(row=row,column=1,columnspan=2)
 		
 		row+=3
+		
+		self.aq=AQSettings(self)
+		self.aq.grid(row=row,column=1,columnspan=2)
+		
+		row+=3
 		Label(self).grid(row=row,column=3)
 		
 		row+=3
@@ -69,6 +75,7 @@ class OpenSettings(Toplevel):
 		self.ray.save()
 		self.leela.save()
 		self.gnugo.save()
+		self.aq.save()
 		
 		log("Saving GRP settings")
 		Config = ConfigParser.ConfigParser()
