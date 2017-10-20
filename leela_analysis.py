@@ -468,7 +468,43 @@ class LeelaSettings(Frame):
 		Config.set("Leela","NeededForReview",self.LeelaNeededForReview.get())
 		
 		Config.write(open("config.ini","w"))
-	
+
+
+
+
+class LeelaOpenMove(BotOpenMove):
+	def __init__(self,parent,dim,komi):
+		BotOpenMove.__init__(self,parent)
+		self.name='Leela'
+		self.configure(text=self.name)
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+
+		if Config.getboolean('Leela', 'NeededForReview'):
+			self.okbot=True
+			try:
+				leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
+				leela=gtp(leela_command_line)
+				ok=leela.boardsize(dim)
+				leela.reset()
+				leela.komi(komi)
+				time_per_move=int(Config.get("Leela", "TimePerMove"))
+				leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				self.bot=leela
+				if not ok:
+					raise AbortedException("Boardsize value rejected by "+self.name)
+			except Exception, e:
+				log("Could not launch "+self.name)
+				log(e)
+				self.config(state='disabled')
+				self.okbot=False
+		else:
+			self.okbot=False
+			self.config(state='disabled')
+
+
+
 
 if __name__ == "__main__":
 	if len(argv)==1:

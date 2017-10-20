@@ -454,7 +454,34 @@ class GnuGoSettings(Frame):
 		
 		Config.write(open("config.ini","w"))
 
-
+class GnuGoOpenMove(BotOpenMove):
+	def __init__(self,parent,dim,komi):
+		BotOpenMove.__init__(self,parent)
+		self.name='Gnugo'
+		self.configure(text=self.name)
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+		
+		if Config.getboolean('GnuGo', 'NeededForReview'):
+			self.okbot=True
+			try:
+				gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
+				gnugo=gtp(gnugo_command_line)
+				ok=gnugo.boardsize(dim)
+				gnugo.reset()
+				gnugo.komi(komi)
+				self.bot=gnugo
+				if not ok:
+					raise AbortedException("Boardsize value rejected by "+self.name)
+			except Exception, e:
+				log("Could not launch "+self.name)
+				log(e)
+				self.config(state='disabled')
+				self.okbot=False
+		else:
+			self.okbot=False
+			self.config(state='disabled')
 
 if __name__ == "__main__":
 	if len(argv)==1:

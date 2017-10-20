@@ -722,6 +722,36 @@ class RunAnalysisBase(Frame):
 		self.root=root
 
 
+class BotOpenMove(Button):
+	def __init__(self,parent):
+		self.name='Bot'
+		Button.__init__(self,parent)
+		
+	def undo(self):
+		if self.okbot:
+			self.bot.undo()
+	
+	def place(self,move,color):
+		if self.okbot:
+			if not self.bot.place(move,color):
+				self.config(state='disabled')
+
+	def click(self,color):
+		log(self.name,"play")
+		n0=time.time()
+		if color==1:
+			move=self.bot.play_black()
+		else:
+			move=self.bot.play_white()
+		log("move=",move,"in",time.time()-n0,"s")
+		return move
+
+	def close(self):
+		if self.okbot:
+			log("killing",self.name)
+			self.bot.close()
+
+
 		
 
 

@@ -9,6 +9,10 @@ from functools import partial
 
 from toolbox import *
 
+from gnugo_analysis import GnuGoOpenMove
+from leela_analysis import LeelaOpenMove
+from ray_analysis import RayOpenMove
+
 import os
 
 from gtp import gtp
@@ -38,20 +42,6 @@ def get_node(root,number=0):
 		node=node[0]
 		k+=1
 	return node
-"""
-def gtp2ij(move):
-	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-	return int(move[1:])-1,letters.index(move[0].lower())
-"""
-"""
-def ij2gtp(m):
-	if m==None:
-		return "pass"
-	i,j=m
-	letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-	return letters[j]+str(i+1)
-"""
-
 
 
 class OpenChart():
@@ -67,41 +57,7 @@ class OpenChart():
 		self.popup.destroy()			
 		self.parent.all_popups.remove(self)
 		log("done")
-	
-	def click(self,event):
-		dim=self.dim
-		#add/remove black stone
-		#check pointer location
-		i,j=self.goban.xy2ij(event.x,event.y)
-		color=self.next_color
-		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
-			#inside the grid
-			#what is under the pointer ?
-			
-			if self.grid[i][j] not in (1,2):
-				#nothing, so we add a black stone			
-				
-				if self.okgnugo:
-					if not self.gnugo.place(ij2gtp((i,j)),color):
-						return
-				if self.okleela:
-					self.leela.place(ij2gtp((i,j)),color)
-				
-				if self.okray:
-					self.ray.place(ij2gtp((i,j)),color)
-				
-				self.history.append([copy(self.grid),copy(self.markup)])
-					
-				place(self.grid,i,j,color)
-				self.grid[i][j]=color
-					
-				self.markup=[["" for row in range(dim)] for col in range(dim)]
-				self.markup[i][j]=0
-					
-				self.goban.display(self.grid,self.markup)
-				self.next_color=3-color
-				self.undo_button.config(state='normal')
-	
+
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
@@ -319,13 +275,9 @@ class OpenChart():
 				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
 				x0=x1
 				
-
-
-
 	def save_as_ps(self,e=None):
 		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile=self.graph_mode.get()+' graph.ps')
 		self.chart.postscript(file=filename, colormode='color')
-
 
 class OpenMove():
 	def __init__(self,parent,move,dim,sgf,goban_size=200):
@@ -334,8 +286,10 @@ class OpenMove():
 		self.dim=dim
 		self.sgf=sgf
 		self.goban_size=goban_size
-		self.initialize()
 		
+		self.available_bots=[RayOpenMove, LeelaOpenMove, GnuGoOpenMove]
+		
+		self.initialize()
 		
 	def lock(self):
 		self.locked=True
@@ -353,16 +307,10 @@ class OpenMove():
 			return
 		log("closing popup")
 		self.popup.destroy()
-		if self.okgnugo:
-			log("killing gnugo")
-			self.gnugo.close()
-		if self.okleela:
-			log("killing leela")
-			self.leela.close()
-		if self.okray:
-			log("killing ray")
-			self.ray.close()
-			
+		
+		for bot in self.bots:
+			bot.close()
+
 		self.parent.all_popups.remove(self)
 		
 		log("done")
@@ -381,39 +329,33 @@ class OpenMove():
 		self.grid,self.markup=self.history.pop()
 		self.next_color=3-self.next_color
 		self.goban.display(self.grid,self.markup)
-		if self.okgnugo:
-			self.gnugo.undo()
-		if self.okleela:
-			self.leela.undo()
 		
-		if self.okray:
-			#Ray cannot undo
-			self.okray=False
-			self.buttonray.config(state='disabled')
-			
-	def click_leela(self):
+		for bot in self.bots:
+			bot.undo()
+		
+
+	def click_button(self,bot):
 		if self.locked:
 			return
-		log("leela play")
+		
 		dim=self.dim
-		color=self.next_color
-		n0=time.time()
+		
 		self.lock()
 		self.goban.display(self.grid,self.markup,True)
-		if color==1:
-			move=self.leela.play_black()
-		else:
-			move=self.leela.play_white()
-		log("move=",move,"in",time.time()-n0,"s")
+		
+		color=self.next_color
+		move=bot.click(color)
 		
 		if move.lower() not in ["pass","resign"]:
 			i,j=gtp2ij(move)
 			log('i,j=',i,j)
 			
-			if self.okgnugo:
-				self.gnugo.place(move,color)
-			if self.okray:
-				self.ray.place(move,color)
+			for other_bot in self.bots:
+				if other_bot!=bot:
+					try:
+						other_bot.place(move,color)
+					except:
+						pass
 			
 			self.history.append([copy(self.grid),copy(self.markup)])
 			
@@ -423,113 +365,20 @@ class OpenMove():
 			self.markup[i][j]=0
 			self.next_color=3-color
 		else:
-			self.leela.undo()
+			bot.undo()
+			#self.goban.display(self.grid,self.markup)
 			if color==1:
-				show_info("Leela/black: "+move)
+				show_info(bot.name+"/black: "+move)
 			else:
-				show_info("Leela/white: "+move)
-		
-		self.goban.display(self.grid,self.markup)
-		self.undo_button.config(state='normal')
-		self.unlock()
+				show_info(bot.name+"/white: "+move)
 
-	def click_ray(self):
-		dim=self.dim
-		if self.locked:
-			return
-		
-		log("ray play")
-		color=self.next_color
-		n0=time.time()
-		self.lock()
-		self.goban.display(self.grid,self.markup,True)
-		if color==1:
-			move=self.ray.play_black()
-		else:
-			move=self.ray.play_white()
-		log("move=",move,"in",time.time()-n0,"s")
-		
-		if move.lower() not in ["pass","resign"]:
-			i,j=gtp2ij(move)
-			log('i,j=',i,j)
-			
-
-			if self.okleela:
-				self.leela.place(move,color)
-			if self.okgnugo:
-				self.gnugo.place(move,color)
-				
-			self.history.append([copy(self.grid),copy(self.markup)])
-			
-			place(self.grid,i,j,color)
-			self.grid[i][j]=color
-			self.markup=[["" for row in range(dim)] for col in range(dim)]
-			self.markup[i][j]=0
-			self.next_color=3-color
-		else:
-			#self.ray.undo()
-			self.okray=False
-			self.buttonray.config(state='disabled')
-			
-			self.goban.display(self.grid,self.markup)
-			if color==1:
-				show_info("Ray/black: "+move)
-			else:
-				show_info("Ray/white: "+move)
 
 		self.goban.display(self.grid,self.markup)
-		self.undo_button.config(state='normal')
+		self.undo_button.config(state='normal') #???
 		self.unlock()
 
-	def click_gnugo(self):
-		dim=self.dim
-		if self.locked:
-			return
-		
-		log("gnugo play")
-		color=self.next_color
-		n0=time.time()
-		self.lock()
-		self.goban.display(self.grid,self.markup,True)
-		if color==1:
-			move=self.gnugo.play_black()
-		else:
-			move=self.gnugo.play_white()
-		log("move=",move,"in",time.time()-n0,"s")
-		
-		if move.lower() not in ["pass","resign"]:
-			i,j=gtp2ij(move)
-			log('i,j=',i,j)
-			
-
-			if self.okleela:
-				self.leela.place(move,color)
-			if self.okray:
-				self.ray.place(move,color)
-				
-			self.history.append([copy(self.grid),copy(self.markup)])
-			
-			place(self.grid,i,j,color)
-			self.grid[i][j]=color
-			self.markup=[["" for row in range(dim)] for col in range(dim)]
-			self.markup[i][j]=0
-			self.next_color=3-color
-		else:
-			self.gnugo.undo()
-			self.goban.display(self.grid,self.markup)
-			if color==1:
-				show_info("GnuGo/black: "+move)
-			else:
-				show_info("GnuGo/white: "+move)
-
-		self.goban.display(self.grid,self.markup)
-		self.undo_button.config(state='normal')
-		self.unlock()
-	
-	
 	def click(self,event):
 		dim=self.dim
-		log("dim:::",dim)
 		#add/remove black stone
 		#check pointer location
 		i,j=self.goban.xy2ij(event.x,event.y)
@@ -540,16 +389,9 @@ class OpenMove():
 			
 			if self.grid[i][j] not in (1,2):
 				#nothing, so we add a black stone			
-				
-				if self.okgnugo:
-					if not self.gnugo.place(ij2gtp((i,j)),color):
-						return
-				if self.okleela:
-					self.leela.place(ij2gtp((i,j)),color)
-				
-				if self.okray:
-					self.ray.place(ij2gtp((i,j)),color)
-				
+				for bot in self.bots:
+					bot.place(ij2gtp((i,j)),color)
+
 				self.history.append([copy(self.grid),copy(self.markup)])
 					
 				place(self.grid,i,j,color)
@@ -562,7 +404,7 @@ class OpenMove():
 				self.next_color=3-color
 				self.undo_button.config(state='normal')
 	
-	def set_status(self,msg):
+	def set_status(self,msg,event=None):
 		self.status_bar.config(text=msg)
 		
 	def clear_status(self):
@@ -593,21 +435,21 @@ class OpenMove():
 		undo_button=Button(panel, text=' undo  ',command=self.undo)
 		undo_button.grid(column=0,row=1)
 		undo_button.config(state='disabled')
-		buttonray=Button(panel, text='Ray',command=self.click_ray)
-		buttonray.grid(column=0,row=2)
-		buttonleela=Button(panel, text=' Leela ',command=self.click_leela)
-		buttonleela.grid(column=0,row=3)
-		buttongnugo=Button(panel, text='Gnugo',command=self.click_gnugo)
-		buttongnugo.grid(column=0,row=4)
-
 		undo_button.bind("<Enter>",lambda e: self.set_status("Undo last move. Shortcut: mouse middle button."))
-		buttongnugo.bind("<Enter>",lambda e: self.set_status("Ask GnuGo to play the next move."))
-		buttonleela.bind("<Enter>",lambda e: self.set_status("Ask Leela to play the next move."))
-		buttonray.bind("<Enter>",lambda e: self.set_status("Ask Ray to play the next move."))
 		
-		for button in [undo_button,buttongnugo,buttonleela,buttonray]:
-			button.bind("<Leave>",lambda e: self.clear_status())
-		
+		self.bots=[]
+		row=10
+		for available_bot in self.available_bots:
+			row+=2
+			one_bot=available_bot(panel,dim,komi)
+			
+			self.bots.append(one_bot)
+			
+			if one_bot.okbot:
+				one_bot.grid(column=0,row=row)
+				one_bot.config(command=partial(self.click_button,bot=one_bot))
+				one_bot.bind("<Enter>",partial(self.set_status,"Ask "+one_bot.name+" to play the next move."))
+				one_bot.bind("<Leave>",lambda e: self.clear_status())
 		
 		panel.grid(column=1,row=1,sticky=N)
 		
@@ -631,91 +473,20 @@ class OpenMove():
 		log("========================")
 		log("opening move",move)
 		
-		if Config.getboolean('Ray', 'NeededForReview'):
-			okray=True
-			try:
-				ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
-				ray=gtp(ray_command_line)
-				ok=ray.boardsize(dim)
-				ray.reset()
-				ray.komi(komi)
-				self.ray=ray
-				self.buttonray=buttonray
-				if not ok:
-					raise AbortedException("Boardsize value rejected by Ray")
-			except Exception, e:
-				okray=False
-				log("Could not launch Ray")
-				log(e)
-				buttonray.destroy()
-		else:
-			okray=False
-			buttonray.destroy()
-		
-		if Config.getboolean('Leela', 'NeededForReview'):
-			okleela=True
-			try:
-				leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
-				leela=gtp(leela_command_line)
-				ok=leela.boardsize(dim)
-				leela.reset()
-				leela.komi(komi)
-				time_per_move=int(Config.get("Leela", "TimePerMove"))
-				leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-				self.leela=leela
-				if not ok:
-					raise AbortedException("Boardsize value rejected by Leela")
-			except Exception, e:
-				okleela=False
-				log("Could not launch Leela")
-				log(e)
-				buttonleela.destroy()
-		else:
-			okleela=False
-			buttonleela.destroy()
-		
-		if Config.getboolean('GnuGo', 'NeededForReview'):
-			okgnugo=True
-			try:
-				gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
-				gnugo=gtp(gnugo_command_line)
-				ok=gnugo.boardsize(dim)
-				gnugo.reset()
-				gnugo.komi(komi)
-				self.gnugo=gnugo
-				if not ok:
-					raise AbortedException("Boardsize value rejected by GnuGo")
-			except Exception, e:
-				okgnugo=False
-				log("Could not launch GnuGo")
-				log(e)
-				buttongnugo.destroy()
-		else:
-			okgnugo=False
-			buttongnugo.destroy()
-		
 		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
 			row, col = move0
 			if colour=='b':
-				place(grid3,row,col,1)
-				if okleela:
-					leela.place_black(ij2gtp((row,col)))
-				if okgnugo:
-					gnugo.place_black(ij2gtp((row,col)))
-				if okray:
-					ray.place_black(ij2gtp((row,col)))
+				color=1
 			else:
-				place(grid3,row,col,2)
-				if okleela:
-					leela.place_white(ij2gtp((row,col)))
-				if okgnugo:
-					gnugo.place_white(ij2gtp((row,col)))
-				if okray:
-					ray.place_white(ij2gtp((row,col)))
-				
+				color=2
+			
+			place(grid3,row,col,color)
+			for bot in self.bots:
+				bot.place(ij2gtp((row,col)),color)
+		
 		m=0
 		for m in range(1,move):
 			one_move=get_node(gameroot,m)
@@ -732,13 +503,9 @@ class OpenMove():
 			else:
 				color=2
 			
-			if okleela:
-				leela.place(ij2gtp(ij),color)
-			if okgnugo:
-				gnugo.place(ij2gtp(ij),color)
-			if okray:
-				ray.place(ij2gtp(ij),color)
-				
+			for bot in self.bots:
+				bot.place(ij2gtp(ij),color)
+			
 			if ij==None:
 				log("(0)skipping because ij==None",ij)
 				continue
@@ -762,10 +529,9 @@ class OpenMove():
 		self.goban=goban3
 		self.grid=grid3
 		self.markup=markup3
-		self.okgnugo=okgnugo
-		self.okleela=okleela
-		self.okray=okray
+
 		self.undo_button=undo_button
+		
 		popup.protocol("WM_DELETE_WINDOW", self.close)
 		goban3.bind("<Button-1>",self.click)
 		goban3.bind("<Button-2>",self.undo)

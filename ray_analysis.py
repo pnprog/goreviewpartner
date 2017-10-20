@@ -305,7 +305,45 @@ class RaySettings(Frame):
 		Config.set("Ray","NeededForReview",self.RayNeededForReview.get())
 		
 		Config.write(open("config.ini","w"))
-	
+
+
+class RayOpenMove(BotOpenMove):
+	def __init__(self,parent,dim,komi):
+		BotOpenMove.__init__(self,parent)
+		self.name='Ray'
+		self.configure(text=self.name)
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read("config.ini")
+
+		if Config.getboolean('Ray', 'NeededForReview'):
+			self.okbot=True
+			try:
+				ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
+				ray=gtp(ray_command_line)
+				ok=ray.boardsize(dim)
+				ray.reset()
+				ray.komi(komi)
+				self.bot=ray
+				if not ok:
+					raise AbortedException("Boardsize value rejected by "+self.name)
+			except Exception, e:
+				log("Could not launch "+self.name)
+				log(e)
+				self.config(state='disabled')
+				self.okbot=False
+		else:
+			self.okbot=False
+			self.config(state='disabled')
+
+	def undo(self):
+		if self.okbot:
+			#ray cannot undo...
+			self.config(state='disabled')
+			#self.bot.undo()
+
+
+
 
 if __name__ == "__main__":
 	if len(argv)==1:
