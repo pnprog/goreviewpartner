@@ -8,7 +8,7 @@ print "Fine system encoding:",sys.getfilesystemencoding()
 
 from Tkinter import * 
 
-import leela_analysis,gnugo_analysis,ray_analysis
+import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis
 from toolbox import *
 import dual_view
 import settings
@@ -78,8 +78,9 @@ def download_sgf_for_review():
 	if Config.get("Leela","Command")!="":
 		bots.append(("Leela",leela_analysis.RunAnalysis))
 	if Config.get("GnuGo","Command")!="":
-			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
-	
+		bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
+	if Config.get("AQ","Command")!="":
+		bots.append(("AQ",aq_analysis.RunAnalysis))	
 	new_popup=DownloadFromURL(top,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
@@ -123,7 +124,7 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read("config.ini")
-	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="":
+	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="":
 		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')
