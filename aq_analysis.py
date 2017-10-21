@@ -96,15 +96,6 @@ class RunAnalysis(RunAnalysisBase):
 							linelog(str(100-one_score)+'%/'+str(one_score)+'%')
 					
 					
-					
-					"""
-					if best_move:
-						if player_color=='b':
-							linelog(str(one_score)+'%/'+str(100-one_score)+'%')
-						else:
-							linelog(str(100-one_score)+'%/'+str(one_score)+'%')
-					"""
-					
 					first_variation_move=True
 					for one_deep_move in one_sequence.split(' '):
 						if one_deep_move.lower() in ["pass","resign"]:
@@ -144,12 +135,6 @@ class RunAnalysis(RunAnalysisBase):
 								additional_comments+="\nAQ black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
 								one_move.set("BWR",str(one_score)+'%') #Black Win Rate
 								one_move.set("WWR",str(100-one_score)+'%') #White Win Rate
-								"""
-								if not bookmove:
-									additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
-									one_move.set("BWR",str(one_score)+'%') #Black Win Rate
-									one_move.set("WWR",str(100-one_score)+'%') #White Win Rate
-								"""
 						else:
 							if first_variation_move:
 								first_variation_move=False
@@ -178,16 +163,6 @@ class RunAnalysis(RunAnalysisBase):
 								additional_comments+="\nAQ black/white win probability for this position: "+str(100-one_score)+'%/'+str(one_score)+'%'
 								one_move.set("WWR",str(one_score)+'%') #White Win Rate
 								one_move.set("BWR",str(100-one_score)+'%') #Black Win Rate
-							
-							"""
-							if best_move:
-								best_move=False
-								if not bookmove:
-									additional_comments+="\nLeela black/white win probability for this position: "+str(100-one_score)+'%/'+str(one_score)+'%'
-									one_move.set("WWR",str(one_score)+'%') #White Win Rate
-									one_move.set("BWR",str(100-one_score)+'%') #Black Win Rate
-									
-							"""
 							
 						previous_move=new_child
 						if current_color in ('w','W'):
@@ -357,10 +332,7 @@ class AQ_gtp(gtp):
 			sleep(.1)
 		
 		buff.reverse()
-		#print "================================================="
-		#for err_line in buff:
-		#	print err_line
-		#print "================================================="
+
 		answers=[]
 		for err_line in buff:
 			if ("->" in err_line) and ('|' in err_line):
@@ -375,15 +347,16 @@ class AQ_gtp(gtp):
 				#print err_line.strip().split()
 				one_answer=err_line[0]
 				count=err_line[1]
-				value=err_line[2]
+				try:
+					value=float(err_line[2])
+				except:
+					value=0.0
 				roll=err_line[3]
 				prob=err_line[4]
 				depth=err_line[5]
 
-				print [one_answer,int(count),float(value),float(roll),float(prob),sequence]
-				
 				if sequence:
-					answers=[[one_answer,int(count),float(value),float(roll),float(prob),sequence]]+answers
+					answers=[[one_answer,int(count),value,float(roll),float(prob),sequence]]+answers
 
 		return answers
 
@@ -440,15 +413,10 @@ class AQOpenMove(BotOpenMove):
 		if Config.getboolean('AQ', 'NeededForReview'):
 			self.okbot=True
 			try:
-				print "1..."
 				aq_command_line=[Config.get("AQ", "Command")]
-				print "2..."
 				aq=AQ_gtp(aq_command_line)
-				print "3..."
 				ok=aq.boardsize(dim)
-				print "4..."
 				aq.reset()
-				print "5..."
 				aq.komi(komi)
 
 				self.bot=aq
