@@ -49,7 +49,7 @@ class Goban(Canvas):
 			x2=0-.5+k1*dim
 			y2=dim-1+.5
 			
-			self.wood.append([(x1+x2)/2-random()/2,y1,(x1+x2)/2+0.3+random()/2,y2,'#%02x%02x%02x' % (r0, g0, b0),(k1-k0)*dim])
+			self.wood.append([y1,(x1+x2)/2+random()-0.5,y2,(x1+x2)/2+random()-0.5,'#%02x%02x%02x' % (r0, g0, b0),(k1-k0)*dim])
 			
 			k0=k1
 			k1+=0.005+random()*0.01
