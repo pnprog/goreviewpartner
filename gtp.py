@@ -40,8 +40,8 @@ class gtp():
 	def write(self,txt):
 		try:
 			self.process.stdin.write(txt+"\n")
-		except:
-			log("Error while writting to stdin")
+		except Exception, e:
+			log("Error while writting to stdin\n"+str(e))
 			self.kill()
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
 		self.c+=1
@@ -109,24 +109,24 @@ class gtp():
 		answer=self.readline().strip()
 		try:
 			return " ".join(answer.split(" ")[1:])
-		except:
-			raise GtpException("GtpException in name()")
+		except Exception, e:
+			raise GtpException("GtpException in name()\nanswer='"+answer+"'\n"+str(e))
 	
 	def version(self):
 		self.write("version")
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
-		except:
-			raise GtpException("GtpException in version()")
+		except Exception,e:
+			raise GtpException("GtpException in version()\nanswer='"+answer+"'\n"+str(e))
 
 	def play_black(self):
 		self.write("genmove black")
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
-		except:
-			raise GtpException("GtpException in genmove_black()")
+		except Exception, e:
+			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
 
 		
 	def play_white(self):
@@ -134,16 +134,16 @@ class gtp():
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
-		except:
-			raise GtpException("GtpException in genmove_white()")
+		except Exception, e:
+			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
 	def set_free_handicap(self,stones):
 		self.write("set_free_handicap "+stones)
 		answer=self.readline().strip()
 		try:
 			return answer.split("= ")[1]
-		except:
-			raise GtpException("GtpException in set_free_handicap()")
+		except Exception, e:
+			raise GtpException("GtpException in set_free_handicap()\nanswer='"+answer+"'\n"+str(e))
 		
 	def undo(self):
 		self.write("undo")
@@ -153,8 +153,8 @@ class gtp():
 				return True
 			else:
 				return False			
-		except:
-			raise GtpException("GtpException in undo()")
+		except Exception, e:
+			raise GtpException("GtpException in undo()\nanswer='"+answer+"'\n"+str(e))
 
 	def show_board(self):
 		self.write("showboard")
@@ -185,8 +185,8 @@ class gtp():
 		try:
 			if answer[0]=="=":return True
 			else:return False
-		except:
-			raise GtpException("GtpException in set_time()")
+		except Exception, e:
+			raise GtpException("GtpException in set_time()\nanswer='"+answer+"'\n"+str(e))
 
 	def gtp_exit(self):
 		self.write("quit")
