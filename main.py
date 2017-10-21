@@ -51,10 +51,12 @@ def launch_analysis():
 	bots=[]
 	Config = ConfigParser.ConfigParser()
 	Config.read("config.ini")
-	if Config.get("Ray","Command")!="":
-		bots.append(("Ray",ray_analysis.RunAnalysis))
 	if Config.get("Leela","Command")!="":
 		bots.append(("Leela",leela_analysis.RunAnalysis))
+	if Config.get("AQ","Command")!="":
+		bots.append(("AQ",aq_analysis.RunAnalysis))
+	if Config.get("Ray","Command")!="":
+		bots.append(("Ray",ray_analysis.RunAnalysis))
 	if Config.get("GnuGo","Command")!="":
 			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
 	
