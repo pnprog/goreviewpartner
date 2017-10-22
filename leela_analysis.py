@@ -521,9 +521,9 @@ if __name__ == "__main__":
 		RangeSelector(top,filename,bots=[("Leela",RunAnalysis)]).pack()
 		top.mainloop()
 	else:
-		filename=argv[1]
 		top = Tk()
-		RunAnalysis(top,filename).pack()
+		filename,move_selection,intervals,variation,komi=parse_command_line(argv)
+		RunAnalysis(top,filename,move_selection,intervals,variation-1,komi).pack()
 		top.mainloop()
 	
 

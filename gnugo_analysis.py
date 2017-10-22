@@ -483,6 +483,8 @@ class GnuGoOpenMove(BotOpenMove):
 			self.okbot=False
 			self.config(state='disabled')
 
+
+
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
@@ -498,11 +500,11 @@ if __name__ == "__main__":
 		RangeSelector(top,filename,bots=[("GnuGo",RunAnalysis)]).pack()
 		top.mainloop()
 	else:
-		filename=argv[1]
 		top = Tk()
-		RunAnalysis(top,filename).pack()
+		filename,move_selection,intervals,variation,komi=parse_command_line(argv)
+		RunAnalysis(top,filename,move_selection,intervals,variation-1,komi).pack()
 		top.mainloop()
-	
+
 
 
 
