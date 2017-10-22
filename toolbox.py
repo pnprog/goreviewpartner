@@ -640,16 +640,19 @@ class RunAnalysisBase(Frame):
 		if self.current_move<=self.max_move:
 			self.root.after(1,self.follow_analysis)
 		else:
-			self.lab1.config(text="Completed")
-			self.lab2.config(text="")
-			self.pb["maximum"] = 100
-			self.pb["value"] = 100
-			
-			try:
-				import dual_view
-				Button(self,text="Start review",command=self.start_review).pack()
-			except:
-				pass
+			self.propose_review()
+
+	def propose_review(self):
+		self.lab1.config(text="Completed")
+		self.lab2.config(text="")
+		self.pb["maximum"] = 100
+		self.pb["value"] = 100
+		
+		try:
+			import dual_view
+			Button(self,text="Start review",command=self.start_review).pack()
+		except:
+			pass
 
 	def start_review(self):
 		import dual_view

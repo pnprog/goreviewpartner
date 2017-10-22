@@ -454,7 +454,9 @@ if __name__ == "__main__":
 	else:
 		top = Tk()
 		filename,move_selection,intervals,variation,komi=parse_command_line(argv)
-		RunAnalysis(top,filename,move_selection,intervals,variation-1,komi).pack()
+		app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
+		app.propose_review=app.close_app
+		app.pack()
 		top.mainloop()
 	
 
