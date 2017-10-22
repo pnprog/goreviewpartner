@@ -45,12 +45,14 @@ import tkMessageBox
 def show_error(txt):
 	try:
 		tkMessageBox.showerror("Error",txt)
+		log("ERROR: "+txt)
 	except:
 		log("ERROR: "+txt)
 
 def show_info(txt):
 	try:
 		tkMessageBox.showinfo("Info",txt)
+		log("INFO: "+txt)
 	except:
 		log("INFO: "+txt)
 
@@ -772,20 +774,10 @@ class BotOpenMove(Button):
 
 import getopt
 
-def parse_command_line(argv):
-		usage="""usage: python gnugo_analysis.py [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] <sgf file>"""
-		
-		try:
-			parameters=getopt.getopt(argv[1:], '', ['range=', 'color=', 'komi=',"variation="])
-		except Exception, e:
-			show_error(str(e)+"\n"+usage)
-			sys.exit()
-			
-		if parameters[1]:
-			filename=parameters[1][0]
-			log("File to analyse:",filename)
-		else:
-			show_error("SGF file missing\n"+usage)
+import __main__
+usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] <sgf file1> <sgf file2> <sgf file3>"
+
+def parse_command_line(filename,argv):
 		
 		txt = open(filename)
 		content=txt.read()
@@ -797,7 +789,7 @@ def parse_command_line(argv):
 		leaves=get_all_sgf_leaves(move_zero)
 		
 		found=False
-		for p,v in parameters[0]:
+		for p,v in argv:
 			if p=="--variation":
 				try:
 					variation=int(v)
@@ -828,7 +820,7 @@ def parse_command_line(argv):
 		#nb_moves=get_moves_number(move_zero)
 		
 		found=False
-		for p,v in parameters[0]:
+		for p,v in argv:
 			if p=="--range":
 				if v=="":
 					show_error("Wrong range parameter\n"+usage)
@@ -851,7 +843,7 @@ def parse_command_line(argv):
 			log("Range: all")
 				
 		found=False
-		for p,v in parameters[0]:
+		for p,v in argv:
 			if p=="--color":
 				
 				if v in ["black","white"]:
@@ -872,7 +864,7 @@ def parse_command_line(argv):
 		print move_selection
 		
 		found=False
-		for p,v in parameters[0]:
+		for p,v in argv:
 			if p=="--komi":
 				try:
 					komi=float(v)
@@ -892,4 +884,4 @@ def parse_command_line(argv):
 		
 		log("Komi:",komi)
 		
-		return filename,move_selection,intervals,variation,komi
+		return move_selection,intervals,variation,komi

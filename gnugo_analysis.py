@@ -484,7 +484,7 @@ class GnuGoOpenMove(BotOpenMove):
 			self.config(state='disabled')
 
 
-
+import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
@@ -500,12 +500,26 @@ if __name__ == "__main__":
 		RangeSelector(top,filename,bots=[("GnuGo",RunAnalysis)]).pack()
 		top.mainloop()
 	else:
-		top = Tk()
-		filename,move_selection,intervals,variation,komi=parse_command_line(argv)
-		app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
-		app.propose_review=app.close_app
-		app.pack()
-		top.mainloop()
+		try:
+			parameters=getopt.getopt(argv[1:], '', ['range=', 'color=', 'komi=',"variation="])
+		except Exception, e:
+			show_error(str(e)+"\n"+usage)
+			sys.exit()
+		
+		if not parameters[1]:
+			show_error("SGF file missing\n"+usage)
+			sys.exit()
+		
+		for filename in parameters[1]:
+			log("File to analyse:",filename)
+			
+			move_selection,intervals,variation,komi=parse_command_line(filename,parameters[0])
+			
+			top = Tk()
+			app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
+			app.propose_review=app.close_app
+			app.pack()
+			top.mainloop()
 
 
 
