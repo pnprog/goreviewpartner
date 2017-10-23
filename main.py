@@ -187,10 +187,14 @@ bouton=Button(app, text="Settings", command=launch_settings)
 bouton.pack()
 
 Label(app).pack()
+
+"""
 bouton=Button(app, text="Quit", command=close_app)
 bouton.pack()
 
 Label(app).pack()
+"""
+
 app.protocol("WM_DELETE_WINDOW", close_app)
 
 refresh()
