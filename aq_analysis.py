@@ -28,7 +28,7 @@ import tkMessageBox
 class RunAnalysis(RunAnalysisBase):
 	
 	def win_rate(self,current_move,value,roll):
-		return value
+		return roll
 		#see discussion at https://github.com/ymgaq/AQ/issues/20
 		if current_move<=160:
 			lmbd=0.8
@@ -170,7 +170,7 @@ class RunAnalysis(RunAnalysisBase):
 						else:
 							current_color='w'
 				log("==== no more sequences =====")
-					
+				aq.undo()
 			else:
 				log('adding "'+answer.lower()+'" to the sgf file')
 				additional_comments+="\nFor this position, AQ would "+answer.lower()
