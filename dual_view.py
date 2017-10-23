@@ -959,10 +959,8 @@ class DualView(Frame):
 			Config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
 			Config.write(open("config.ini","w"))
 			
-		txt = open(self.filename)
-		self.sgf = sgf.Sgf_game.from_string(txt.read())
-		txt.close()
-		
+		self.sgf = open_sgf(self.filename)
+
 		self.dim=self.sgf.get_size()
 		self.komi=self.sgf.get_komi()
 		

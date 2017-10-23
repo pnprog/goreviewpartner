@@ -223,10 +223,8 @@ class RunAnalysis(RunAnalysisBase):
 		
 		self.nb_workers=self.nb_variations
 		
-		txt = open(self.filename)
-		self.g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
-		txt.close()
-		
+		self.g=open_sgf(self.filename)
+
 		leaves=get_all_sgf_leaves(self.g.get_root())
 		log("keeping only variation",self.variation)
 		keep_only_one_leaf(leaves[self.variation][0])

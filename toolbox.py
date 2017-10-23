@@ -193,10 +193,12 @@ class DownloadFromURL(Frame):
 			filename+=black+'_VS_'+white+'.sgf'
 		
 		log(filename)
-		text_file = open(filename, "w")
-		text_file.write(sgf)
-		text_file.close()
-			
+		#text_file = open(filename, "w")
+		#text_file.write(sgf)
+		#text_file.close()
+		
+		write_rsgf(filename,sgf)
+		
 		#self.parent.destroy()
 		self.destroy()
 		#newtop=Tk()
@@ -224,6 +226,7 @@ class WriteException(Exception):
 
 def write_rsgf(filename,sgf_content):
 	try:
+		log("Saving RSGF file",filename)
 		new_file=open(filename,'w')
 		new_file.write(sgf_content)
 		new_file.close()
@@ -231,6 +234,19 @@ def write_rsgf(filename,sgf_content):
 		log("Could not save the RSGF file",filename)
 		log(e)
 		raise WriteException("Could not save the RSGF file: "+filename+"\n"+str(e))
+
+def open_sgf(filename):
+	try:
+		log("Opening SGF file",filename)
+		txt = open(filename)
+		g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
+		txt.close()
+		return g
+	except Exception,e:
+		log("Could not open the SGF file",filename)
+		log(e)
+		raise WriteException("Could not save the SGF file: "+filename+"\n"+str(e))
+
 
 def clean_sgf(txt):
 	return txt
@@ -323,10 +339,13 @@ class RangeSelector(Frame):
 		root.parent.title('GoReviewPartner')
 		self.bots=bots
 		
-		txt = open(self.filename)
-		content=txt.read()
-		txt.close()
-		self.g = sgf.Sgf_game.from_string(clean_sgf(content))
+		#txt = open(self.filename)
+		#content=txt.read()
+		#txt.close()
+		
+		self.g=open_sgf(self.filename)
+		content=self.g.serialise()
+		#self.g = sgf.Sgf_game.from_string(clean_sgf(content))
 		self.move_zero=self.g.get_root()
 		nb_moves=get_moves_number(self.move_zero)
 		self.nb_moves=nb_moves
@@ -778,110 +797,108 @@ import __main__
 usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] <sgf file1> <sgf file2> <sgf file3>"
 
 def parse_command_line(filename,argv):
-		
-		txt = open(filename)
-		content=txt.read()
-		txt.close()
-		g = sgf.Sgf_game.from_string(clean_sgf(content))
-		move_zero=g.get_root()
-		
-		
-		leaves=get_all_sgf_leaves(move_zero)
-		
-		found=False
-		for p,v in argv:
-			if p=="--variation":
-				try:
-					variation=int(v)
-					found=True
-				except:
-					show_error("Wrong variation parameter\n"+usage)
-					sys.exit()
-		if not found:
-			variation=1
-		
-		log("Variation:",variation)
-		
-		if variation<1:
-			show_error("Wrong variation parameter, it must be a positive integer")
-			sys.exit()
-		
-		if variation>len(leaves):
-			show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)")
-			sys.exit()
-		
-		nb_moves=leaves[variation-1][1]
-		log("Moves for this variation:",nb_moves)
-		
-		if nb_moves==0:
-			show_error("This variation is empty (0 move), the analysis cannot be performed!")
-			sys.exit()
-		
-		#nb_moves=get_moves_number(move_zero)
-		
-		found=False
-		for p,v in argv:
-			if p=="--range":
-				if v=="":
+	
+	g=open_sgf(filename)
+	content=g.serialise()
+	
+	move_zero=g.get_root()
+	
+	leaves=get_all_sgf_leaves(move_zero)
+	
+	found=False
+	for p,v in argv:
+		if p=="--variation":
+			try:
+				variation=int(v)
+				found=True
+			except:
+				show_error("Wrong variation parameter\n"+usage)
+				sys.exit()
+	if not found:
+		variation=1
+	
+	log("Variation:",variation)
+	
+	if variation<1:
+		show_error("Wrong variation parameter, it must be a positive integer")
+		sys.exit()
+	
+	if variation>len(leaves):
+		show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)")
+		sys.exit()
+	
+	nb_moves=leaves[variation-1][1]
+	log("Moves for this variation:",nb_moves)
+	
+	if nb_moves==0:
+		show_error("This variation is empty (0 move), the analysis cannot be performed!")
+		sys.exit()
+	
+	#nb_moves=get_moves_number(move_zero)
+	
+	found=False
+	for p,v in argv:
+		if p=="--range":
+			if v=="":
+				show_error("Wrong range parameter\n"+usage)
+				sys.exit()
+			elif v=="all":
+				break
+			else:
+				intervals=v
+				log("Range:",v)
+				move_selection=check_selection(v.replace('"',''),nb_moves)
+				if move_selection==False:
 					show_error("Wrong range parameter\n"+usage)
 					sys.exit()
-				elif v=="all":
-					break
-				else:
-					intervals=v
-					log("Range:",v)
-					move_selection=check_selection(v.replace('"',''),nb_moves)
-					if move_selection==False:
-						show_error("Wrong range parameter\n"+usage)
-						sys.exit()
-					found=True
-					break
+				found=True
+				break
+		
+	if not found:
+		move_selection=range(1,nb_moves+1)
+		intervals="all moves"
+		log("Range: all")
 			
-		if not found:
-			move_selection=range(1,nb_moves+1)
-			intervals="all moves"
-			log("Range: all")
-				
-		found=False
-		for p,v in argv:
-			if p=="--color":
-				
-				if v in ["black","white"]:
-					log("Color:",v)
-					move_selection=check_selection_for_color(move_zero,move_selection,v)
-					intervals+=" ("+v+"only)"
-					found=True
-					break
-				elif v=="both":
-					break
-				else:
-					show_error("Wrong color parameter\n"+usage)
-					sys.exit()
-		if not found:
-			intervals+=" (both colors)"
-			log("Color: both")
-		
-		print move_selection
-		
-		found=False
-		for p,v in argv:
-			if p=="--komi":
-				try:
-					komi=float(v)
-					found=True
-				except:
-					show_error("Wrong komi parameter\n"+usage)
-					sys.exit()
-		if not found:
-			try:
-				komi=g.get_komi()
-			except Exception, e:
-				msg="Error while reading komi value, please check:\n"+str(e)
-				msg+="\nPlease indicate komi using --komi parameter"
-				log(msg)
-				show_error(msg)
+	found=False
+	for p,v in argv:
+		if p=="--color":
+			
+			if v in ["black","white"]:
+				log("Color:",v)
+				move_selection=check_selection_for_color(move_zero,move_selection,v)
+				intervals+=" ("+v+"only)"
+				found=True
+				break
+			elif v=="both":
+				break
+			else:
+				show_error("Wrong color parameter\n"+usage)
 				sys.exit()
-		
-		log("Komi:",komi)
-		
-		return move_selection,intervals,variation,komi
+	if not found:
+		intervals+=" (both colors)"
+		log("Color: both")
+	
+	print move_selection
+	
+	found=False
+	for p,v in argv:
+		if p=="--komi":
+			try:
+				komi=float(v)
+				found=True
+			except:
+				show_error("Wrong komi parameter\n"+usage)
+				sys.exit()
+	if not found:
+		try:
+			komi=g.get_komi()
+		except Exception, e:
+			msg="Error while reading komi value, please check:\n"+str(e)
+			msg+="\nPlease indicate komi using --komi parameter"
+			log(msg)
+			show_error(msg)
+			sys.exit()
+	
+	log("Komi:",komi)
+	
+	return move_selection,intervals,variation,komi
