@@ -4,7 +4,7 @@ import sys
 print "STDIN encoding:",sys.stdin.encoding
 print "STDOUT encoding:",sys.stdout.encoding
 print "STDERR encoding:",sys.stderr.encoding
-print "Fine system encoding:",sys.getfilesystemencoding()
+print "File system encoding:",sys.getfilesystemencoding()
 
 from Tkinter import * 
 
