@@ -103,7 +103,7 @@ class Goban(Canvas):
 		u=i+self.mesh[i][j][0]
 		v=j+self.mesh[i][j][1]
 		c1,c2,c3=self.black_stones[i][j]
-		self.draw_point(u,v,.9,color=c1,outline="#808080",width=1)
+		self.draw_point(u,v,.9,color=c1,outline="#000000",width=1)
 		self.draw_point(u-0.1,v+0.1,.5,color=c2,outline="")
 		self.draw_point(u-0.1,v+0.1,.2,color=c3,outline="")
 		
