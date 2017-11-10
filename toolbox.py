@@ -794,7 +794,11 @@ class BotOpenMove(Button):
 import getopt
 
 import __main__
-usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] <sgf file1> <sgf file2> <sgf file3>"
+try:
+	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] <sgf file1> <sgf file2> <sgf file3>"
+except:
+	log("Command line features are disabled")
+	usage=""
 
 def parse_command_line(filename,argv):
 	

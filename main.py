@@ -8,11 +8,22 @@ print "Fine system encoding:",sys.getfilesystemencoding()
 
 from Tkinter import * 
 
-import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis
 from toolbox import *
+
+log("Checking availability of config file")
+import ConfigParser
+Config = ConfigParser.ConfigParser()
+try:
+	Config.readfp(open("config.ini"))
+except Exception, e:
+	show_error("Could not open the config file of Go Review Partner\n"+str(e))
+	sys.exit()
+
+import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis
+
 import dual_view
 import settings
-import ConfigParser
+
 import tkFileDialog
 app = Tk()
 
