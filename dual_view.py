@@ -1160,7 +1160,7 @@ class DualView(Frame):
 
 from gomill import sgf, sgf_moves
 import goban
-goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
+#goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 
 if __name__ == "__main__":
 
