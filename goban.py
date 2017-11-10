@@ -69,17 +69,17 @@ class Goban(Canvas):
 	def ij2xy(self,i,j):
 		space=self.space
 		dim=self.dim
-		y=(0.5+dim-i)*space+self.anchor_x
-		x=(0.5+1.+j)*space+self.anchor_y
+		y=(0.5+dim-i)*space+self.anchor_y
+		x=(0.5+1.+j)*space+self.anchor_x
 		return x,y
 
 	def xy2ij(self,x,y):
 		dim=self.dim
 		space=self.space
-		
+
 		x-=self.anchor_x
 		y-=self.anchor_y
-		
+
 		return int(round(0.5+dim-1.*y/space)),int(round(1.*x/space-0.5)-1)
 
 	def draw_point(self,i,j,diameter,color="black",outline="black",width=1):

@@ -456,7 +456,10 @@ class OpenMove():
 		
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban3.space=self.goban_size/(dim+1+1)
-		goban3.grid(column=2,row=1)
+		goban3.grid(column=2,row=1,sticky=N+S+E+W)
+		popup.grid_rowconfigure(1, weight=1)
+		popup.grid_columnconfigure(2, weight=1)
+		
 		
 		self.popup.bind('<Control-q>', self.save_as_ps)
 		goban3.bind("<Enter>",lambda e: self.set_status("<Ctrl+Q> to export goban as postscript image."))
@@ -539,6 +542,23 @@ class OpenMove():
 		goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
 		
 		self.history=[]
+
+		self.goban.bind("<Configure>",self.redraw)
+	
+	def redraw(self, event):
+		new_size=min(event.width,event.height)
+		new_space=new_size/(self.dim+1+1)
+		self.goban.space=new_space
+		
+		new_anchor_x=(event.width-new_size)/2.
+		self.goban.anchor_x=new_anchor_x
+		
+		new_anchor_y=(event.height-new_size)/2.
+		self.goban.anchor_y=new_anchor_y
+		
+		self.goban.redraw()
+
+
 
 	def save_as_ps(self,e=None):
 		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
@@ -1102,14 +1122,17 @@ class DualView(Frame):
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
-		self.goban1.space=new_size/(self.dim+1+1)
-		self.goban2.space=new_size/(self.dim+1+1)
+		new_space=new_size/(self.dim+1+1)
+		self.goban1.space=new_space
+		self.goban2.space=new_space
 		
-		self.goban1.anchor_x=(event.height-new_size)/2.
-		self.goban2.anchor_x=(event.height-new_size)/2.
+		new_anchor_x=(event.width-new_size)/2
+		self.goban1.anchor_x=new_anchor_x
+		self.goban2.anchor_x=new_anchor_x
 		
-		self.goban1.anchor_y=(event.width-new_size)/2.
-		self.goban2.anchor_y=(event.width-new_size)/2.
+		new_anchor_y=(event.height-new_size)/2
+		self.goban1.anchor_y=new_anchor_y
+		self.goban2.anchor_y=new_anchor_y
 		
 		self.goban1.redraw()
 		self.goban2.redraw()
