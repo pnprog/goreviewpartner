@@ -19,9 +19,9 @@ class OpenSettings(Toplevel):
 		self.setting_frame=Frame(self.right_column)
 		key=self.setting_mode.get()
 		new_settings=settings_dict[key](self.setting_frame)
-		new_settings.grid(row=0,column=0)
+		new_settings.grid(row=0,column=0, padx=5, pady=5)
 		
-		Button(self.setting_frame,text="Save settings",command=new_settings.save).grid(row=1,column=0)
+		Button(self.setting_frame,text="Save settings",command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 		
 		self.setting_frame.pack()
 		

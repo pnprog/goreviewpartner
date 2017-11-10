@@ -157,6 +157,13 @@ class OpenChart():
 		for item in self.chart.find_all():
 			self.chart.delete(item)
 		
+		self.chart.create_line(0, 0, width, 0, fill='#000000',width=4)
+		self.chart.create_line(0, height, width, height, fill='#000000',width=4)
+		
+		self.chart.create_line(0, 0, 0, height, fill='#000000',width=4)
+		
+		self.chart.create_line(width, 0, width, height, fill='#000000',width=4)
+		
 		moves=[]
 		if self.graph_mode.get()!="Win rate":
 			if self.graph_mode.get()=="Black comparison":

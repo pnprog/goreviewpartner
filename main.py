@@ -67,7 +67,7 @@ def draw_logo(event=None):
 logo.bind("<Configure>",draw_logo)
 
 label = Label(app, text="This is GoReviewPartner")
-label.pack()
+label.pack(padx=5, pady=5)
 
 
 popups=[]
@@ -112,9 +112,8 @@ def launch_analysis():
 	popups.append(new_popup)
 	top.mainloop()
 
-Label(app).pack()
 analysis_bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
-analysis_bouton.pack()
+analysis_bouton.pack(fill=X,padx=5, pady=5)
 
 def download_sgf_for_review():
 	top = Toplevel()
@@ -135,9 +134,8 @@ def download_sgf_for_review():
 	popups.append(new_popup)
 	top.mainloop()
 
-Label(app).pack()
 download_bouton=Button(app, text="Download *.sgf for analysis", command=download_sgf_for_review)
-download_bouton.pack()
+download_bouton.pack(fill=X,padx=5, pady=5)
 
 def launch_review():
 	filename = tkFileDialog.askopenfilename(parent=app,title='Select a file',filetypes = [('sgf reviewed', '.rsgf')])
@@ -160,9 +158,8 @@ def launch_review():
 	popups.append(new_popup)
 	top.mainloop()
 	
-Label(app).pack()
 review_bouton=Button(app, text="Open *.rsgf for review", command=launch_review)
-review_bouton.pack()
+review_bouton.pack(fill=X,padx=5, pady=5)
 
 
 def launch_settings():
@@ -182,21 +179,19 @@ def refresh():
 		analysis_bouton.config(state='normal')
 		download_bouton.config(state='normal')
 
-Label(app).pack()
+
 bouton=Button(app, text="Settings", command=launch_settings)
-bouton.pack()
+bouton.pack(fill=X,padx=5, pady=5)
 
-Label(app).pack()
 
-"""
-bouton=Button(app, text="Quit", command=close_app)
-bouton.pack()
-
-Label(app).pack()
-"""
 
 app.protocol("WM_DELETE_WINDOW", close_app)
-
+#app.wm_iconphoto(True, PhotoImage(file='../logo.png'))
+try:
+	ico = Image("photo", file="icon.gif")
+	app.tk.call('wm', 'iconphoto', str(app), '-default', ico)
+except:
+	log("(Could not load the application icon)")
 refresh()
 app.refresh=refresh
 app.mainloop()
