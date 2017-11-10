@@ -82,7 +82,7 @@ class RunAnalysis(RunAnalysisBase):
 				log(all_moves)
 				
 				#for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
-				for sequence_first_move,_count,value,roll,_prob,one_sequence in all_moves:
+				for sequence_first_move,count,value,roll,_prob,one_sequence in all_moves:
 					log("Adding sequence starting from",sequence_first_move)
 					previous_move=one_move.parent
 					current_color=player_color
@@ -109,26 +109,13 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								variation_comment="black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%'
+								variation_comment+="\nCount: "+str(count)
+								variation_comment+="\nValue: "+str(value)
+								variation_comment+="\nRoll: "+str(roll)
+								variation_comment+="\nProb: "+str(prob)
+								
 								new_child.add_comment_text(variation_comment)
 								
-								"""
-								if not bookmove:
-									variation_comment="black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%'
-									variation_comment+="\nMonte Carlo win probalbility for this move: "+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
-									if one_value_network!=None:
-										variation_comment+="\nValue network win probalbility for this move: "+str(one_value_network)+'%/'+str(100-one_value_network)
-									if one_policy_network!=None:
-										variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
-									if one_evaluation!=None:
-										variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
-									if one_rave!=None:
-										variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
-									variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
-									new_child.add_comment_text(variation_comment)
-									#new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
-								else:
-									new_child.add_comment_text("Book move")
-								"""
 							if best_move:
 								
 								best_move=False
@@ -139,25 +126,13 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								variation_comment="black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
+								variation_comment+="\nCount: "+str(count)
+								variation_comment+="\nValue: "+str(value)
+								variation_comment+="\nRoll: "+str(roll)
+								variation_comment+="\nProb: "+str(prob)
+								
 								new_child.add_comment_text(variation_comment)
-								"""
-								if not bookmove:
-									variation_comment="black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
-									variation_comment+="\nMonte Carlo win probalbility for this move: "+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
-									if one_value_network!=None:
-										variation_comment+="\nValue network win probalbility for this move: "+str(100-one_value_network)+'%/'+str(one_value_network)
-									if one_policy_network!=None:
-										variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
-									if one_evaluation!=None:
-										variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
-									if one_rave!=None:
-										variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
-									variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
-									new_child.add_comment_text(variation_comment)
-									#new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
-								else:
-									new_child.add_comment_text("Book move")
-								"""
+
 							if best_move:
 								best_move=False
 								additional_comments+="\nAQ black/white win probability for this position: "+str(100-one_score)+'%/'+str(one_score)+'%'
