@@ -342,8 +342,7 @@ class AQSettings(Frame):
 		
 		row=0
 		
-		Label(self).grid(row=row,column=0)
-		Label(self,text="AQ").grid(row=row+1,column=1)
+		Label(self,text="AQ settings").grid(row=row+1,column=1)
 		Label(self,text="Command").grid(row=row+2,column=1)
 		AQCommand = StringVar() 
 		AQCommand.set(Config.get("AQ","Command"))

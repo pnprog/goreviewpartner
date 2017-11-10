@@ -405,8 +405,7 @@ class GnuGoSettings(Frame):
 		
 		row=0
 		
-		Label(self).grid(row=row,column=0)
-		Label(self,text="GnuGo").grid(row=row+1,column=1)
+		Label(self,text="GnuGo settings").grid(row=row+1,column=1)
 		Label(self,text="Command").grid(row=row+2,column=1)
 		GnugoCommand = StringVar() 
 		GnugoCommand.set(Config.get("GnuGo","Command"))

@@ -270,9 +270,8 @@ class RaySettings(Frame):
 		Config.read("config.ini")
 		
 		row=0
-		
-		Label(self).grid(row=row,column=0)
-		Label(self,text="Ray").grid(row=row+1,column=1)
+
+		Label(self,text="Ray settings").grid(row=row+1,column=1)
 		Label(self,text="Command").grid(row=row+2,column=1)
 		RayCommand = StringVar() 
 		RayCommand.set(Config.get("Ray","Command"))

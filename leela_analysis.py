@@ -426,9 +426,8 @@ class LeelaSettings(Frame):
 		Config.read("config.ini")
 		
 		row=0
-		
-		Label(self).grid(row=row,column=0)
-		Label(self,text="Leela").grid(row=row+1,column=1)
+
+		Label(self,text="Leela settings").grid(row=row+1,column=1)
 		Label(self,text="Command").grid(row=row+2,column=1)
 		LeelaCommand = StringVar() 
 		LeelaCommand.set(Config.get("Leela","Command"))
