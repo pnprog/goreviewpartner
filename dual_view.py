@@ -1044,7 +1044,9 @@ class DualView(Frame):
 		#self.goban1 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban1 = Goban(self.dim,master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		
-		self.goban1.grid(column=1,row=row)
+
+		
+		self.goban1.grid(column=1,row=row,sticky=W+E+N+S)
 		Label(self, text='            ',background=bg).grid(column=2,row=row)
 		#self.goban2 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
@@ -1052,8 +1054,12 @@ class DualView(Frame):
 		self.goban2.wood=self.goban1.wood
 		self.goban2.black_stones=self.goban1.black_stones
 		self.goban2.white_stones=self.goban1.white_stones
-		self.goban2.grid(column=3,row=row)
-
+		self.goban2.grid(column=3,row=row,sticky=W+E+N+S)
+		
+		self.grid_rowconfigure(row, weight=1)
+		self.grid_columnconfigure(1, weight=1)
+		self.grid_columnconfigure(3, weight=1)
+		
 		self.goban1.space=self.goban_size/(self.dim+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1)
 		
@@ -1092,7 +1098,22 @@ class DualView(Frame):
 		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
+		self.goban1.bind("<Configure>",self.redraw)
+	
+	def redraw(self, event):
+		new_size=min(event.width,event.height)
+		self.goban1.space=new_size/(self.dim+1+1)
+		self.goban2.space=new_size/(self.dim+1+1)
 		
+		self.goban1.anchor_x=(event.height-new_size)/2.
+		self.goban2.anchor_x=(event.height-new_size)/2.
+		
+		self.goban1.anchor_y=(event.width-new_size)/2.
+		self.goban2.anchor_y=(event.width-new_size)/2.
+		
+		self.goban1.redraw()
+		self.goban2.redraw()
+
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
 		
@@ -1138,7 +1159,7 @@ if __name__ == "__main__":
 	
 	width=int(display_factor*screen_width)
 	height=int(display_factor*screen_height)
-
+	
 	DualView(top,filename,min(width,height)).pack(fill=BOTH,expand=1)
 	top.mainloop()
 
