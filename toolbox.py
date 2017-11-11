@@ -909,12 +909,10 @@ def parse_command_line(filename,argv):
 	return move_selection,intervals,variation,komi
 
 try:
-	log("script name:",__file__)
-	pathname=os.path.dirname(__file__)
+	pathname=module_path()
 except:
-	log("script name:",sys.argv[0])
-	pathname=os.path.dirname(sys.argv[0])
+	pathname=os.path.dirname(__file__)
 
-log('full path:', os.path.abspath(pathname))
+log('GRP path:', os.path.abspath(pathname))
 config_file=os.path.join(os.path.abspath(pathname),"config.ini")
 log('Config file:', config_file)
