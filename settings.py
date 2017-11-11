@@ -1,7 +1,7 @@
 
 from Tkinter import *
 import ConfigParser
-from toolbox import log
+from toolbox import log, config_file
 from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
@@ -31,7 +31,7 @@ class OpenSettings(Toplevel):
 		
 		log("Initializing GRP setting interface")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")		
+		Config.read(config_file)		
 		
 		setting_frame=Frame(top_setting_frame)
 		
@@ -96,13 +96,13 @@ class OpenSettings(Toplevel):
 	def save(self):
 		log("Saving GRP settings")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
 		
-		Config.write(open("config.ini","w"))
+		Config.write(open(config_file,"w"))
 		
 		if self.parent!=None:
 			self.parent.refresh()

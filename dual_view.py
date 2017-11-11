@@ -20,7 +20,7 @@ from gtp import gtp
 import ConfigParser
 
 Config = ConfigParser.ConfigParser()
-Config.read("config.ini")
+Config.read(config_file)
 
 bg='#C0C0C0'
 
@@ -62,7 +62,7 @@ class OpenChart():
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		popup_width=self.parent.winfo_width()
 		popup_height=self.parent.winfo_height()/2
@@ -421,7 +421,7 @@ class OpenMove():
 	def initialize(self):
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		sgf=self.sgf
 		komi=self.sgf.get_komi()
@@ -986,7 +986,7 @@ class DualView(Frame):
 			self.realgamedeepness=int(Config.get("Review", "RealGameSequenceDeepness"))
 		except:
 			Config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
-			Config.write(open("config.ini","w"))
+			Config.write(open(config_file,"w"))
 			
 		self.sgf = open_sgf(self.filename)
 
@@ -1187,7 +1187,7 @@ if __name__ == "__main__":
 		display_factor=float(Config.get("Review", "GobanScreenRatio"))
 	except:
 		Config.set("Review", "GobanScreenRatio",display_factor)
-		Config.write(open("config.ini","w"))
+		Config.write(open(config_file,"w"))
 	
 	screen_width = top.winfo_screenwidth()
 	screen_height = top.winfo_screenheight()

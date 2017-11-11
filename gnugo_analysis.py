@@ -207,20 +207,20 @@ class RunAnalysis(RunAnalysisBase):
 	
 	def initialize_bot(self):
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		self.nb_variations=4
 		try:
 			self.nb_variations=int(Config.get("GnuGo", "variations"))
 		except:
 			Config.set("GnuGo", "variations",self.nb_variations)
-			Config.write(open("config.ini","w"))
+			Config.write(open(config_file,"w"))
 		
 		self.deepness=4
 		try:
 			self.deepness=int(Config.get("GnuGo", "deepness"))
 		except:
 			Config.set("GnuGo", "deepness",self.deepness)
-			Config.write(open("config.ini","w"))
+			Config.write(open(config_file,"w"))
 		
 		self.nb_workers=self.nb_variations
 		
@@ -402,7 +402,7 @@ class GnuGoSettings(Frame):
 		Frame.__init__(self,parent)
 		log("Initializing GnuGo setting interface")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		row=0
 		
@@ -442,7 +442,7 @@ class GnuGoSettings(Frame):
 	def save(self):
 		log("Saving GnuGo settings")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		Config.set("GnuGo","Command",self.GnugoCommand.get())
 		Config.set("GnuGo","Parameters",self.GnugoParameters.get())
@@ -450,7 +450,7 @@ class GnuGoSettings(Frame):
 		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
 		Config.set("GnuGo","NeededForReview",self.GnugoNeededForReview.get())
 		
-		Config.write(open("config.ini","w"))
+		Config.write(open(config_file,"w"))
 
 class GnuGoOpenMove(BotOpenMove):
 	def __init__(self,parent,dim,komi):
@@ -459,7 +459,7 @@ class GnuGoOpenMove(BotOpenMove):
 		self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		if Config.getboolean('GnuGo', 'NeededForReview'):
 			self.okbot=True

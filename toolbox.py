@@ -907,3 +907,14 @@ def parse_command_line(filename,argv):
 	log("Komi:",komi)
 	
 	return move_selection,intervals,variation,komi
+
+try:
+	log("script name:",__file__)
+	pathname=os.path.dirname(__file__)
+except:
+	log("script name:",sys.argv[0])
+	pathname=os.path.dirname(sys.argv[0])
+
+log('full path:', os.path.abspath(pathname))
+config_file=os.path.join(os.path.abspath(pathname),"config.ini")
+log('Config file:', config_file)

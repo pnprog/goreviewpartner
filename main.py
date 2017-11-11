@@ -1,6 +1,6 @@
 # -*- coding:Utf-8 -*-
 
-import sys
+import sys, os
 print "STDIN encoding:",sys.stdin.encoding
 print "STDOUT encoding:",sys.stdout.encoding
 print "STDERR encoding:",sys.stderr.encoding
@@ -13,13 +13,16 @@ except Exception, e:
 	print str(e)
 	raw_input()
 	sys.exit()
+
 from toolbox import *
+
+
 
 log("Checking availability of config file")
 import ConfigParser
 Config = ConfigParser.ConfigParser()
 try:
-	Config.readfp(open("config.ini"))
+	Config.readfp(open(config_file))
 except Exception, e:
 	show_error("Could not open the config file of Go Review Partner\n"+str(e))
 	sys.exit()
@@ -113,7 +116,7 @@ def launch_analysis():
 	
 	bots=[]
 	Config = ConfigParser.ConfigParser()
-	Config.read("config.ini")
+	Config.read(config_file)
 	if Config.get("Leela","Command")!="":
 		bots.append(("Leela",leela_analysis.RunAnalysis))
 	if Config.get("AQ","Command")!="":
@@ -136,7 +139,7 @@ def download_sgf_for_review():
 	
 	bots=[]
 	Config = ConfigParser.ConfigParser()
-	Config.read("config.ini")
+	Config.read(config_file)
 	if Config.get("Ray","Command")!="":
 		bots.append(("Ray",ray_analysis.RunAnalysis))
 	if Config.get("Leela","Command")!="":
@@ -185,7 +188,7 @@ def refresh():
 	log("refreshing")
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
-	Config.read("config.ini")
+	Config.read(config_file)
 	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="":
 		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')

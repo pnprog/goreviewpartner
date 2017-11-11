@@ -258,7 +258,7 @@ class RunAnalysis(RunAnalysisBase):
 	def initialize_bot(self):
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		self.g=open_sgf(self.filename)
 		
@@ -424,7 +424,7 @@ class LeelaSettings(Frame):
 		Frame.__init__(self,parent)
 		log("Initializing Leela setting interface")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		row=0
 
@@ -457,14 +457,14 @@ class LeelaSettings(Frame):
 	def save(self):
 		log("Saving Leela settings")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		Config.set("Leela","Command",self.LeelaCommand.get())
 		Config.set("Leela","Parameters",self.LeelaParameters.get())
 		Config.set("Leela","TimePerMove",self.TimePerMove.get())
 		Config.set("Leela","NeededForReview",self.LeelaNeededForReview.get())
 		
-		Config.write(open("config.ini","w"))
+		Config.write(open(config_file,"w"))
 
 
 
@@ -476,7 +476,7 @@ class LeelaOpenMove(BotOpenMove):
 		self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 
 		if Config.getboolean('Leela', 'NeededForReview'):
 			self.okbot=True

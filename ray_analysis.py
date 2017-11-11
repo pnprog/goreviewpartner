@@ -154,7 +154,7 @@ class RunAnalysis(RunAnalysisBase):
 	def initialize_bot(self):
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		self.g=open_sgf(self.filename)
 		
@@ -267,7 +267,7 @@ class RaySettings(Frame):
 		log("Initializing Ray setting interface")
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		row=0
 
@@ -294,13 +294,13 @@ class RaySettings(Frame):
 	def save(self):
 		log("Saving Ray settings")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		Config.set("Ray","Command",self.RayCommand.get())
 		Config.set("Ray","Parameters",self.RayParameters.get())
 		Config.set("Ray","NeededForReview",self.RayNeededForReview.get())
 		
-		Config.write(open("config.ini","w"))
+		Config.write(open(config_file,"w"))
 
 
 class RayOpenMove(BotOpenMove):
@@ -310,7 +310,7 @@ class RayOpenMove(BotOpenMove):
 		self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 
 		if Config.getboolean('Ray', 'NeededForReview'):
 			self.okbot=True

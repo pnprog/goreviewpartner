@@ -185,7 +185,7 @@ class RunAnalysis(RunAnalysisBase):
 	def initialize_bot(self):
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		self.g=open_sgf(self.filename)
 		
@@ -339,7 +339,7 @@ class AQSettings(Frame):
 		Frame.__init__(self,parent)
 		log("Initializing AQ setting interface")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		row=0
 		
@@ -363,12 +363,12 @@ class AQSettings(Frame):
 	def save(self):
 		log("Saving AQ settings")
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 		
 		Config.set("AQ","Command",self.AQCommand.get())
 		Config.set("AQ","NeededForReview",self.AQNeededForReview.get())
 		
-		Config.write(open("config.ini","w"))
+		Config.write(open(config_file,"w"))
 
 
 
@@ -380,7 +380,7 @@ class AQOpenMove(BotOpenMove):
 		self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
+		Config.read(config_file)
 
 		if Config.getboolean('AQ', 'NeededForReview'):
 			self.okbot=True
