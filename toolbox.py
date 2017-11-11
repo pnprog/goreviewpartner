@@ -623,7 +623,7 @@ class RunAnalysisBase(Frame):
 			except:
 				pass
 			log("leaving thread")
-			exit()
+			sys.exit()
 			
 
 	def abort(self):
