@@ -1097,7 +1097,7 @@ class DualView(Frame):
 		
 		police = tkFont.nametofont("TkFixedFont")
 		lpix = police.measure("a")
-
+		self.lpix=lpix
 		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 		self.comment_box1.grid(column=1,row=row+4)
 		
@@ -1143,6 +1143,11 @@ class DualView(Frame):
 		
 		self.goban1.redraw()
 		self.goban2.redraw()
+
+		self.comment_box1.config(width=int(event.width/self.lpix-2))
+		self.comment_box2.config(width=int(event.width/self.lpix-2))
+		
+		#self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
