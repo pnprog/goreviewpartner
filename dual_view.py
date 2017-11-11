@@ -213,7 +213,7 @@ class OpenChart():
 						y00=y1
 		else:
 			
-			self.chart.create_text(border,border/2, text="Black win",fill='black',font=("Arial", str(lpix)))
+			self.chart.create_text(len("Black win rate")*lpix/2,border/2, text="Black win rate",fill='black',font=("Arial", str(lpix)))
 			x00=border
 			y00=height-border-(height-2*border)/2.
 			for one_data in self.data:
