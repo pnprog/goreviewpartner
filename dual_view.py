@@ -65,7 +65,7 @@ class OpenChart():
 		Config.read(config_file)
 		
 		popup_width=self.parent.winfo_width()
-		popup_height=self.parent.winfo_height()/2
+		popup_height=self.parent.winfo_height()/2+10
 		
 		
 
@@ -82,14 +82,14 @@ class OpenChart():
 		
 		self.graph_mode=StringVar()
 		self.graph_mode.set("Win rate") # initialize		
-		Radiobutton(top_frame, text="Win rate",command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT)
-		Radiobutton(top_frame, text="Black comparison",command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT)
-		Radiobutton(top_frame, text="White comparison",command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT)
+		Radiobutton(top_frame, text="Win rate",command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
+		Radiobutton(top_frame, text="Black comparison",command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+		Radiobutton(top_frame, text="White comparison",command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
 		
 		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
 		#self.chart.grid(sticky=N+S+W+E)
 		
-		self.chart.pack(fill=BOTH,expand=1)
+		self.chart.pack(fill=BOTH,expand=1, padx=5)
 		self.chart.bind("<Configure>",self.display)
 		
 		bottom_frame=Frame(popup)
@@ -436,12 +436,12 @@ class OpenMove():
 		#popup.configure(background=bg)
 		bg=popup.cget("background")
 		self.locked=False
-		panel=Frame(popup)
+		panel=Frame(popup, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
 		panel.configure(background=bg)
 		
 		
-		undo_button=Button(panel, text=' undo  ',command=self.undo)
-		undo_button.grid(column=0,row=1)
+		undo_button=Button(panel, text='undo',command=self.undo)
+		undo_button.grid(column=0,row=1,sticky=E+W)
 		undo_button.config(state='disabled')
 		undo_button.bind("<Enter>",lambda e: self.set_status("Undo last move. Shortcut: mouse middle button."))
 		
@@ -454,12 +454,12 @@ class OpenMove():
 			self.bots.append(one_bot)
 			
 			if one_bot.okbot:
-				one_bot.grid(column=0,row=row)
+				one_bot.grid(column=0,row=row,sticky=E+W)
 				one_bot.config(command=partial(self.click_button,bot=one_bot))
 				one_bot.bind("<Enter>",partial(self.set_status,"Ask "+one_bot.name+" to play the next move."))
 				one_bot.bind("<Leave>",lambda e: self.clear_status())
 		
-		panel.grid(column=1,row=1,sticky=N)
+		panel.grid(column=1,row=1,sticky=N+S)
 		
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban3.space=self.goban_size/(dim+1+1)
