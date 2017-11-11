@@ -6,8 +6,13 @@ print "STDOUT encoding:",sys.stdout.encoding
 print "STDERR encoding:",sys.stderr.encoding
 print "File system encoding:",sys.getfilesystemencoding()
 
-from Tkinter import * 
-
+try:
+	from Tkinter import * 
+except Exception, e:
+	print "Could not import the Tkinter librairy, please double check it is installed:"
+	print str(e)
+	raw_input()
+	sys.exit()
 from toolbox import *
 
 log("Checking availability of config file")
