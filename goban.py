@@ -174,8 +174,8 @@ class Goban(Canvas):
 			
 			
 			for i in range(dim):
-				self.no_redraw.append(self.draw_line(i,0,i,dim-1,color=black))
-				self.no_redraw.append(self.draw_line(0,i,dim-1,i,color=black))
+				self.no_redraw.append(self.draw_line(i,0,i,dim-1,color=black,width=space/22.))
+				self.no_redraw.append(self.draw_line(0,i,dim-1,i,color=black,width=space/22.))
 				
 				x,y=self.ij2xy(-1-0.1,i)
 				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRSTUVWXYZ"[i],font=("Arial", str(int(space/2.5)))))
