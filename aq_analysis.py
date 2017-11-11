@@ -83,7 +83,7 @@ class RunAnalysis(RunAnalysisBase):
 				#log(all_moves)
 				
 				#for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
-				for sequence_first_move,count,value,roll,_prob,one_sequence in all_moves:
+				for sequence_first_move,count,value,roll,prob,one_sequence in all_moves:
 					log("Adding sequence starting from",sequence_first_move)
 					previous_move=one_move.parent
 					current_color=player_color
