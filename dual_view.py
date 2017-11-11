@@ -304,10 +304,10 @@ class OpenMove():
 
 	def unlock(self,after=False):
 		if after:
-			log("unlocking 2/2")
+			#log("unlocking 2/2")
 			self.locked=False
 		else:
-			log("unlocking 1/2")
+			#log("unlocking 1/2")
 			self.popup.after(100,lambda: self.unlock(True))
 	
 	def close(self):
@@ -356,7 +356,7 @@ class OpenMove():
 		
 		if move.lower() not in ["pass","resign"]:
 			i,j=gtp2ij(move)
-			log('i,j=',i,j)
+			#log('i,j=',i,j)
 			
 			for other_bot in self.bots:
 				if other_bot!=bot:
@@ -507,7 +507,7 @@ class OpenMove():
 			
 			ij=one_move.get_move()[1]
 			
-			log(ij)
+			#log(ij)
 			
 			if one_move.get_move()[0]=='b':
 				color=1
@@ -710,7 +710,7 @@ class DualView(Frame):
 		
 		move=(self.current_variation_move+1)%(len(self.current_variation_sequence)+1)
 		move=max(1,move)
-		log(move,'/',len(self.current_variation_sequence))
+		#log(move,'/',len(self.current_variation_sequence))
 		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 	
 	def show_variation_prev(self,event=None):
@@ -758,8 +758,8 @@ class DualView(Frame):
 					computer_win_rate=one_move.get('WWR').replace("%","")
 					player_win_rate=get_node(self.gameroot,m+1).get('WWR').replace("%","")
 				else:
-					log("#"+str(m)+"#BWR#",one_move.get('BWR'))
-					log(one_move.get('BWR').replace("%",""))
+					#log("#"+str(m)+"#BWR#",one_move.get('BWR'))
+					#log(one_move.get('BWR').replace("%",""))
 					computer_win_rate=one_move.get('BWR').replace("%","")
 					player_win_rate=get_node(self.gameroot,m+1).get('BWR').replace("%","")
 				one_data['computer_win_rate']=float(computer_win_rate)
@@ -774,11 +774,13 @@ class DualView(Frame):
 				data.append(one_data)
 			except Exception, e:
 				if str(e) in ("'BWR'","'WWR'"):
-					log("No win rate information for move",m)
-					log(e)
+					#log("No win rate information for move",m)
+					#log(e)
+					pass
 				elif str(e) in ("'CBM'"):
-					log("No computer best move information for move",m)
-					log(e)
+					#log("No computer best move information for move",m)
+					#log(e)
+					pass
 				else:
 					log(e)
 				data.append(None)
@@ -1146,8 +1148,6 @@ class DualView(Frame):
 
 		self.comment_box1.config(width=int(event.width/self.lpix-2))
 		self.comment_box2.config(width=int(event.width/self.lpix-2))
-		
-		#self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)

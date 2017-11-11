@@ -62,9 +62,10 @@ class RunAnalysis(RunAnalysisBase):
 		gnugo=self.gnugo
 		if current_move in self.move_range:
 			max_move=self.max_move
+			log()
 			linelog("move",str(current_move)+'/'+str(max_move))
 			final_score=gnugo.get_gnugo_estimate_score()
-			linelog(final_score)
+			#linelog(final_score)
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
 				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)

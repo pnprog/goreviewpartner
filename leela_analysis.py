@@ -38,6 +38,7 @@ class RunAnalysis(RunAnalysisBase):
 			
 			max_move=self.max_move
 			
+			log()
 			linelog("move",str(current_move)+'/'+str(max_move))
 			
 			additional_comments="Move "+str(current_move)
@@ -66,7 +67,7 @@ class RunAnalysis(RunAnalysisBase):
 					bookmove=False
 				all_moves2=all_moves[:]
 				nb_undos=1
-				log("====move",current_move+1,all_moves[0],'~',answer)
+				#log("====move",current_move+1,all_moves[0],'~',answer)
 				
 				
 				#making sure the first line of play is more than one move deep
@@ -87,15 +88,15 @@ class RunAnalysis(RunAnalysisBase):
 
 					
 
-					linelog(all_moves[0],'+',answer)
+					#linelog(all_moves[0],'+',answer)
 					all_moves2=leela.get_all_leela_moves()
 					if (answer.lower() not in ["pass","resign"]):
 						
-						log("all_moves2:",all_moves2)
+						#log("all_moves2:",all_moves2)
 						if all_moves2==[]:
 							all_moves2=[[answer,answer,666,666,666,666,666,666,666]]
 
-						log('+',all_moves2)
+						#log('+',all_moves2)
 						all_moves[0][1]+=" "+all_moves2[0][1]
 						
 						
@@ -109,7 +110,7 @@ class RunAnalysis(RunAnalysisBase):
 						log("last play on the fist of play was",answer,"so leaving")
 				
 				for u in range(nb_undos):
-					log("undo...")
+					#log("undo...")
 					leela.undo()
 				
 				
@@ -119,7 +120,7 @@ class RunAnalysis(RunAnalysisBase):
 				best_move=True
 				#variation=-1
 				log("Number of alternative sequences:",len(all_moves))
-				log(all_moves)
+				#log(all_moves)
 				for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
 					log("Adding sequence starting from",sequence_first_move)
 					previous_move=one_move.parent
@@ -368,7 +369,7 @@ class Leela_gtp(gtp):
 				buff.append(self.stderr_queue.get())
 			sleep(.1)
 		buff.reverse()
-		log(buff)
+		#log(buff)
 		influence=[]
 		for i in range(self.size):
 			one_line=buff[i].strip()
@@ -393,7 +394,7 @@ class Leela_gtp(gtp):
 		answers=[]
 		for err_line in buff:
 			if " ->" in err_line:
-				log(err_line)
+				#log(err_line)
 				one_answer=err_line.strip().split(" ")[0]
 				one_score= ' '.join(err_line.split()).split(' ')[4]
 				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))

@@ -37,7 +37,7 @@ class RunAnalysis(RunAnalysisBase):
 		if current_move in self.move_range:
 			
 			max_move=self.max_move
-			
+			log()
 			linelog("move",str(current_move)+'/'+str(max_move))
 			
 			additional_comments="Move "+str(current_move)
@@ -55,7 +55,7 @@ class RunAnalysis(RunAnalysisBase):
 				answer=ray.get_ray_stat("black")
 				#answer=leela.play_black()
 				
-			log("*****************")
+			#log("*****************")
 			log(len(answer),"sequences")
 			
 			
@@ -71,7 +71,7 @@ class RunAnalysis(RunAnalysisBase):
 					one_sequence=one_sequence.replace("b ",',b')
 					one_sequence=one_sequence.replace("w ",',w')
 					one_sequence=one_sequence.replace(" ",'')
-					log("one_sequence=",one_sequence[1:])
+					#log("one_sequence=",one_sequence[1:])
 					first_variation_move=True
 					for one_deep_move in one_sequence.split(',')[1:]:
 						if one_deep_move.lower() in ["pass","resign"]:
@@ -99,7 +99,7 @@ class RunAnalysis(RunAnalysisBase):
 								if value:
 									variation_comment+="\nValue: "+value
 								if best_move and win:
-									log("===BWR/WWR",win)
+									#log("===BWR/WWR",win)
 									best_move=False
 									one_move.set("CBM",one_deep_move.lower())
 									if current_color=='b':
@@ -108,7 +108,7 @@ class RunAnalysis(RunAnalysisBase):
 									else:
 										one_move.set("WWR",str(win)+'%') #White Win Rate
 										one_move.set("BWR",str(100-float(win))+'%') #Black Win Rate
-									log("===BWR/WWR")
+									#log("===BWR/WWR")
 								new_child.add_comment_text(variation_comment.strip())
 							previous_move=new_child
 						else:

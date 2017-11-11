@@ -50,6 +50,7 @@ class RunAnalysis(RunAnalysisBase):
 			
 			max_move=self.max_move
 			
+			log()
 			linelog("move",str(current_move)+'/'+str(max_move))
 			
 			additional_comments="Move "+str(current_move)
@@ -72,14 +73,14 @@ class RunAnalysis(RunAnalysisBase):
 				
 				one_move.set("CBM",answer.lower()) #Computer Best Move
 				
-				log("====move",current_move+1,all_moves[0],'~',answer)
+				#log("====move",current_move+1,all_moves[0],'~',answer)
 				
 				#best_winrate=all_moves[0][2]
 				
 				best_move=True
 
 				log("Number of alternative sequences:",len(all_moves))
-				log(all_moves)
+				#log(all_moves)
 				
 				#for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
 				for sequence_first_move,count,value,roll,_prob,one_sequence in all_moves:
