@@ -63,7 +63,7 @@ class RunAnalysis(RunAnalysisBase):
 			#if (answer.lower() not in ["pass","resign"]):
 			if len(answer)>0:
 				best_move=True
-				for sequence_first_move,count,simulation,policy,value,win,one_sequence in answer:
+				for sequence_first_move,count,simulation,policy,value,win,one_sequence in answer[:self.maxvariations]:
 					log("Adding sequence starting from",sequence_first_move)
 					previous_move=one_move.parent
 					current_color=player_color

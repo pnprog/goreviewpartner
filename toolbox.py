@@ -587,6 +587,11 @@ class RunAnalysisBase(Frame):
 			self.error="Error while initializing the graphical interface:\n"+str(e)
 			self.abort()
 			return
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
+		
 		self.root.after(500,self.follow_analysis)
 	
 	def run_analysis(self,current_move):
@@ -624,6 +629,7 @@ class RunAnalysisBase(Frame):
 				pass
 			log("leaving thread")
 			sys.exit()
+
 			
 
 	def abort(self):

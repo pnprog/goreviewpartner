@@ -54,14 +54,21 @@ class OpenSettings(Toplevel):
 		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
 		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(setting_frame,text="Maximum number of variations to display").grid(row=row+2,column=1)
+		Label(setting_frame,text="Maximum number of variations to record during analysis").grid(row=row+2,column=1)
+		MaxVariationsToRecord = StringVar() 
+		MaxVariationsToRecord.set(Config.get("Analysis","MaxVariations"))
+		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row+2,column=2)
+		row+=1
+		Label(setting_frame,text="Maximum number of variations to display during review").grid(row=row+2,column=1)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row+2,column=2)
+
 		
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
 		self.GobanScreenRatio=GobanScreenRatio
+		self.MaxVariationsToRecord=MaxVariationsToRecord
 		self.MaxVariationsToDisplay=MaxVariationsToDisplay
 		
 		setting_frame.save=self.save
@@ -102,6 +109,7 @@ class OpenSettings(Toplevel):
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
+		Config.set("Analysis","MaxVariations",self.MaxVariationsToRecord.get())
 		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		
 		Config.write(open(config_file,"w"))

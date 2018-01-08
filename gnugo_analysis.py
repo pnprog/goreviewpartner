@@ -88,7 +88,7 @@ class RunAnalysis(RunAnalysisBase):
 			for one_top_move in top_moves:
 				log("\t",one_top_move)
 			print
-			top_moves=top_moves[:self.nb_variations]
+			top_moves=top_moves[:min(self.nb_variations,self.maxvariations)]
 			if (answer.lower() not in ["pass","resign"]):
 				gnugo.undo()
 				
