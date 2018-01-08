@@ -13,6 +13,7 @@ from gnugo_analysis import GnuGoOpenMove
 from leela_analysis import LeelaOpenMove
 from ray_analysis import RayOpenMove
 from aq_analysis import AQOpenMove
+from leela_zero_analysis import LeelaZeroOpenMove
 
 import os
 
@@ -295,7 +296,7 @@ class OpenMove():
 		self.sgf=sgf
 		self.goban_size=goban_size
 		
-		self.available_bots=[RayOpenMove, LeelaOpenMove, GnuGoOpenMove, AQOpenMove]
+		self.available_bots=[RayOpenMove, LeelaOpenMove, GnuGoOpenMove, AQOpenMove, LeelaZeroOpenMove]
 		
 		self.initialize()
 		

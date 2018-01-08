@@ -27,7 +27,7 @@ except Exception, e:
 	show_error("Could not open the config file of Go Review Partner\n"+str(e))
 	sys.exit()
 
-import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis
+import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
 
 import dual_view
 import settings
@@ -125,7 +125,8 @@ def launch_analysis():
 		bots.append(("Ray",ray_analysis.RunAnalysis))
 	if Config.get("GnuGo","Command")!="":
 			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
-	
+	if Config.get("Leela_Zero","Command")!="":
+			bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
 	new_popup=RangeSelector(top,filename,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
@@ -147,7 +148,9 @@ def download_sgf_for_review():
 	if Config.get("GnuGo","Command")!="":
 		bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
 	if Config.get("AQ","Command")!="":
-		bots.append(("AQ",aq_analysis.RunAnalysis))	
+		bots.append(("AQ",aq_analysis.RunAnalysis))
+	if Config.get("Leela_Zero","Command")!="":
+		bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
 	new_popup=DownloadFromURL(top,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
@@ -189,7 +192,7 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="":
+	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="" and Config.get("Leela Zero","Command")=="": #j'ai honte :)
 		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')

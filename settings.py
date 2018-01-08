@@ -6,6 +6,7 @@ from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
 from aq_analysis import AQSettings
+from leela_zero_analysis import LeelaZeroSettings
 
 class OpenSettings(Toplevel):
 
@@ -14,7 +15,7 @@ class OpenSettings(Toplevel):
 		if self.setting_frame:
 			self.setting_frame.pack_forget()
 		
-		settings_dict={"GRP":self.display_GRP_settings, "AQ":AQSettings, "GnuGo":GnuGoSettings, "Leela":LeelaSettings, "Ray":RaySettings}
+		settings_dict={"GRP":self.display_GRP_settings, "AQ":AQSettings, "GnuGo":GnuGoSettings, "Leela":LeelaSettings, "Ray":RaySettings, "Leela Zero":LeelaZeroSettings}
 		
 		self.setting_frame=Frame(self.right_column)
 		key=self.setting_mode.get()
@@ -80,7 +81,7 @@ class OpenSettings(Toplevel):
 		Radiobutton(left_column, text="GnuGo",command=self.display_settings,variable=self.setting_mode, value="GnuGo",indicatoron=0).pack(side=TOP, fill=X)
 		Radiobutton(left_column, text="Leela",command=self.display_settings,variable=self.setting_mode, value="Leela",indicatoron=0).pack(side=TOP, fill=X)
 		Radiobutton(left_column, text="Ray",command=self.display_settings,variable=self.setting_mode, value="Ray",indicatoron=0).pack(side=TOP, fill=X)
-		
+		Radiobutton(left_column, text="Leela Zero",command=self.display_settings,variable=self.setting_mode, value="Leela Zero",indicatoron=0).pack(side=TOP, fill=X)
 
 
 		self.right_column=right_column
