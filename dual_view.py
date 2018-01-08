@@ -917,7 +917,7 @@ class DualView(Frame):
 			
 			return
 		
-		for a in range(1,len(parent)):
+		for a in range(1,min(len(parent),self.maxvariations+1)):
 			one_alternative=parent[a]
 			ij=one_alternative.get_move()[1]
 			
@@ -988,7 +988,14 @@ class DualView(Frame):
 		except:
 			Config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
 			Config.write(open(config_file,"w"))
-			
+		
+		self.maxvariations=10
+		try:
+			self.maxvariations=int(Config.get("Review", "MaxVariations"))
+		except:
+			Config.set("Review", "MaxVariations",self.maxvariations)
+			Config.write(open(config_file,"w"))
+		
 		self.sgf = open_sgf(self.filename)
 
 		self.dim=self.sgf.get_size()

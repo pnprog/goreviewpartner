@@ -53,12 +53,18 @@ class OpenSettings(Toplevel):
 		GobanScreenRatio = StringVar() 
 		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
 		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row+2,column=2)
-		
-		setting_frame.save=self.save
+		row+=1
+		Label(setting_frame,text="Maximum number of variations to display").grid(row=row+2,column=1)
+		MaxVariationsToDisplay = StringVar() 
+		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
+		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row+2,column=2)
 		
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
 		self.GobanScreenRatio=GobanScreenRatio
+		self.MaxVariationsToDisplay=MaxVariationsToDisplay
+		
+		setting_frame.save=self.save
 		
 		return setting_frame
 		
@@ -88,12 +94,6 @@ class OpenSettings(Toplevel):
 		self.setting_frame=None
 		self.display_settings()
 
-		
-		
-
-		
-
-		
 	def save(self):
 		log("Saving GRP settings")
 		Config = ConfigParser.ConfigParser()
@@ -102,6 +102,7 @@ class OpenSettings(Toplevel):
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
+		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		
 		Config.write(open(config_file,"w"))
 		
