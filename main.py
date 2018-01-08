@@ -192,7 +192,7 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="" and Config.get("Leela Zero","Command")=="": #j'ai honte :)
+	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="" and Config.get("Leela_Zero","Command")=="": #j'ai honte :)
 		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')

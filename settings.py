@@ -59,6 +59,12 @@ class OpenSettings(Toplevel):
 		MaxVariationsToRecord.set(Config.get("Analysis","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row+2,column=2)
 		row+=1
+		Label(setting_frame,text="Save bot command line into RSGF file").grid(row=row+2,column=1)
+		SaveCommandLine = BooleanVar(value=Config.getboolean('Analysis', 'SaveCommandLine'))
+		SaveCommandLineCheckbutton=Checkbutton(setting_frame, text="", variable=SaveCommandLine,onvalue=True,offvalue=False)
+		SaveCommandLineCheckbutton.grid(row=row+2,column=2,sticky=W)
+		SaveCommandLineCheckbutton.var=SaveCommandLine
+		row+=1
 		Label(setting_frame,text="Maximum number of variations to display during review").grid(row=row+2,column=1)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
@@ -69,6 +75,7 @@ class OpenSettings(Toplevel):
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
 		self.GobanScreenRatio=GobanScreenRatio
 		self.MaxVariationsToRecord=MaxVariationsToRecord
+		self.SaveCommandLine=SaveCommandLine
 		self.MaxVariationsToDisplay=MaxVariationsToDisplay
 		
 		setting_frame.save=self.save
@@ -110,6 +117,7 @@ class OpenSettings(Toplevel):
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
 		Config.set("Analysis","MaxVariations",self.MaxVariationsToRecord.get())
+		Config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
 		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		
 		Config.write(open(config_file,"w"))

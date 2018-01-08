@@ -238,7 +238,7 @@ class RunAnalysis(RunAnalysisBase):
 					log("Adding initial black stone at",move)
 					ray.place_black(move)
 		log("Ray initialization completed")
-		return True
+		return ray
 
 
 class Ray_gtp(gtp):

@@ -318,7 +318,7 @@ class RunAnalysis(RunAnalysisBase):
 					for worker in self.workers:
 						worker.place_black(move)
 		log("GnuGo initialization completed")
-		return True
+		return gnugo
 		
 
 

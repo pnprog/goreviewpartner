@@ -572,13 +572,13 @@ class RunAnalysisBase(Frame):
 		
 		self.error=None
 		try:
-			ok=self.initialize_bot()
+			self.bot=self.initialize_bot()
 		except Exception,e:
 			self.error="Error while initializing the GTP bot:\n"+str(e)
 			self.abort()
 			return
 		
-		if not ok:
+		if not self.bot:
 			return
 		
 		try:
@@ -763,6 +763,13 @@ class RunAnalysisBase(Frame):
 		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
 		first_comment+="\nKomi: "+str(self.komi)
 		first_comment+="\nIntervals: "+self.intervals
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
+		if Config.getboolean('Analysis', 'SaveCommandLine'):
+			first_comment+="\nCommand line: "+self.bot.command_line
+		
 		first_move.add_comment_text(first_comment)
 		threading.Thread(target=self.run_all_analysis).start()
 		

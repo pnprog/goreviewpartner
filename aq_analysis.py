@@ -274,7 +274,7 @@ class RunAnalysis(RunAnalysisBase):
 					log("Adding initial black stone at",move)
 					aq.place_black(move)
 		log("AQ initialization completed")
-		return True
+		return aq
 
 import ntpath
 import subprocess

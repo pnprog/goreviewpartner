@@ -13,7 +13,7 @@ class gtp():
 		self.c=1
 		self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
-		
+		self.command_line=command[0]+" "+" ".join(command[1:])
 		self.stderr_queue=Queue.Queue()
 		
 		threading.Thread(target=self.consume_stderr).start()

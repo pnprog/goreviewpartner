@@ -280,7 +280,8 @@ class RunAnalysis(RunAnalysisBase):
 					log("Adding initial black stone at",move)
 					leela_zero.place_black(move)
 		log("Leela Zero initialization completed")
-		return True
+		
+		return leela_zero
 
 
 class Leela_Zero_gtp(gtp):
