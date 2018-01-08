@@ -69,9 +69,8 @@ class RunAnalysis(RunAnalysisBase):
 				nb_undos=1
 				#log("====move",current_move+1,all_moves[0],'~',answer)
 				
-				
 				#making sure the first line of play is more than one move deep
-				best_winrate=all_moves[0][2]
+
 				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
 					log("going deeper for first line of play (",nb_undos,")")
 
@@ -112,9 +111,6 @@ class RunAnalysis(RunAnalysisBase):
 				for u in range(nb_undos):
 					#log("undo...")
 					leela.undo()
-				
-				
-				#all_moves[0][2]=best_winrate #it would be best to sort again all variation based on new winrate...
 				
 
 				best_move=True
