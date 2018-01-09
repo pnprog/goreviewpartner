@@ -76,8 +76,19 @@ def go_to_move(move_zero,move_number=0):
 			return False
 		move=move[0]
 		k+=1
+	color=move.get_move()[0]
+	if not color:
+		log("SGF does not provive color information for move",move_number)
+		previous_move=go_to_move(move_zero,move_number-1)
+		previous_move_color=previous_move.get_move()[0]
+		if previous_move_color.lower()=="b":
+			log("=> it should be white to play")
+			color="w"
+		else:
+			log("=> it should be black to play")
+			color="b"
+		move.set(color.upper(), move.get_move()[1])
 	return move
-
 
 def gtp2ij(move):
 	try:
@@ -605,18 +616,18 @@ class RunAnalysisBase(Frame):
 	
 	def run_all_analysis(self):
 		self.current_move=1
-		try:
+		#try:
 
 			
-			while self.current_move<=self.max_move:
-				self.lock1.acquire()
-				self.run_analysis(self.current_move)
-				self.current_move+=1
-				self.lock1.release()
-				self.lock2.acquire()
-				self.lock2.release()
-			return
-		except Exception,e:
+		while self.current_move<=self.max_move:
+			self.lock1.acquire()
+			self.run_analysis(self.current_move)
+			self.current_move+=1
+			self.lock1.release()
+			self.lock2.acquire()
+			self.lock2.release()
+		return
+		"""except Exception,e:
 			self.error=str(e)
 			log("releasing lock")
 			try:
@@ -629,7 +640,7 @@ class RunAnalysisBase(Frame):
 				pass
 			log("leaving thread")
 			sys.exit()
-
+		"""
 			
 
 	def abort(self):
