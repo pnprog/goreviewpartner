@@ -47,11 +47,11 @@ def get_node(root,number=0):
 
 
 class OpenChart():
-	def __init__(self,parent,data):
+	def __init__(self,parent,data,current_move=0):
 		self.parent=parent
 		
 		self.data=data
-		
+		self.current_move=current_move
 
 		self.initialize()
 	def close(self):
@@ -164,6 +164,12 @@ class OpenChart():
 		self.chart.create_line(0, 0, 0, height, fill='#000000',width=4)
 		
 		self.chart.create_line(width, 0, width, height, fill='#000000',width=4)
+		
+		y00=height-border
+		x0=border+(self.current_move-1)*space
+		x1=x0+space
+		y1=border
+		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
 		
 		moves=[]
 		if self.graph_mode.get()!="Win rate":
@@ -606,7 +612,7 @@ class DualView(Frame):
 			self.pressed=time.time()
 			self.current_move-=1
 			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
-			self.parent.after(0,lambda: pf())
+			self.parent.after(1,lambda: pf())
 	
 	def next_10_move(self,event=None):
 		self.current_move=min(get_node_number(self.gameroot),self.current_move+10)
@@ -619,7 +625,7 @@ class DualView(Frame):
 			self.pressed=time.time()
 			self.current_move+=1
 			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
-			self.parent.after(0,lambda: pf())
+			self.parent.after(1,lambda: pf())
 			
 	def first_move(self,event=None):
 		self.current_move=1
@@ -788,9 +794,8 @@ class DualView(Frame):
 		return data
 	
 	def show_graphs(self,event=None):
-
-		
 		new_popup=OpenChart(self,self.data_for_chart)
+		new_popup.current_move=self.current_move
 		self.all_popups.append(new_popup)
 		
 	
@@ -802,7 +807,10 @@ class DualView(Frame):
 		goban1=self.goban1
 		goban2=self.goban2
 		
-
+		for popup in self.all_popups[:]:
+			if isinstance(popup,OpenChart):
+				popup.current_move=move
+				popup.display()
 		
 		self.move_number.config(text=str(move)+'/'+str(get_node_number(self.gameroot)))
 		log("========================")
@@ -1011,8 +1019,8 @@ class DualView(Frame):
 		self.parent.title('GoReviewPartner')
 		self.parent.protocol("WM_DELETE_WINDOW", self.close_app)
 		
-		
 		self.all_popups=[]
+		
 		bg=self.cget("background")
 		#self.configure(background=bg)
 		
