@@ -56,7 +56,7 @@ class OpenChart():
 		self.initialize()
 	def close(self):
 		log("closing popup")
-		self.popup.destroy()			
+		self.popup.destroy()
 		self.parent.all_popups.remove(self)
 		log("done")
 
@@ -102,6 +102,8 @@ class OpenChart():
 	
 		self.clear_status()
 		self.popup.bind('<Control-q>', self.save_as_ps)
+		
+		self.popup.protocol("WM_DELETE_WINDOW", self.close)
 	
 	def set_status(self,event=None,msg=''):
 		self.status_bar.config(text=msg)
@@ -612,7 +614,7 @@ class DualView(Frame):
 			self.pressed=time.time()
 			self.current_move-=1
 			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
-			self.parent.after(1,lambda: pf())
+			self.parent.after(0,lambda: pf())
 	
 	def next_10_move(self,event=None):
 		self.current_move=min(get_node_number(self.gameroot),self.current_move+10)
@@ -625,7 +627,7 @@ class DualView(Frame):
 			self.pressed=time.time()
 			self.current_move+=1
 			pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
-			self.parent.after(1,lambda: pf())
+			self.parent.after(0,lambda: pf())
 			
 	def first_move(self,event=None):
 		self.current_move=1
@@ -642,13 +644,26 @@ class DualView(Frame):
 
 	def goto_move(self,move_number,pressed=None):
 		self.move_number.config(text=str(move_number)+'/'+str(get_node_number(self.gameroot)))
-		self.update_idletasks()
+		
 		if not pressed:
 			self.current_move=move_number
 			self.display_move(self.current_move)
+			for popup in self.all_popups:
+				if isinstance(popup,OpenChart):
+					popup.current_move=self.current_move
+					#self.parent.after(0,popup.display)
+					popup.display()
+		
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
-			
+			for popup in self.all_popups:
+				if isinstance(popup,OpenChart):
+					popup.current_move=self.current_move
+					#self.parent.after(0,popup.display)
+					popup.display()
+
+		self.update_idletasks()
+		
 	def leave_variation(self,goban,grid,markup):
 		self.comment_box2.delete(1.0, END)
 		self.parent.bind("<Up>", lambda e: None)
@@ -806,11 +821,6 @@ class DualView(Frame):
 		dim=self.dim
 		goban1=self.goban1
 		goban2=self.goban2
-		
-		for popup in self.all_popups[:]:
-			if isinstance(popup,OpenChart):
-				popup.current_move=move
-				popup.display()
 		
 		self.move_number.config(text=str(move)+'/'+str(get_node_number(self.gameroot)))
 		log("========================")
