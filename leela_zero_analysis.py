@@ -21,6 +21,7 @@ import ttk
 
 import toolbox
 from toolbox import *
+from toolbox import _
 
 import tkMessageBox
 
@@ -43,9 +44,9 @@ class RunAnalysis(RunAnalysisBase):
 			
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
-				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			else:
-				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 
 			if player_color in ('w',"W"):
 				log("leela Zero play white")
@@ -124,25 +125,25 @@ class RunAnalysis(RunAnalysisBase):
 						if player_color=='b':
 							if first_variation_move:
 								first_variation_move=False
-								variation_comment="Value network black/white win probability for this move: "+str(one_value_network)+'%/'+str(100-one_value_network)
-								variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
-								variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
+								variation_comment=_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
+								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
+								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
 								new_child.add_comment_text(variation_comment)
 							if best_move:
 								best_move=False
-								additional_comments+="\nValue network black/white win probability for this position: "+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
+								additional_comments+=_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
 								one_move.set("BWR",str(one_value_network)+'%') #Black value network
 								one_move.set("WWR",str(100-one_value_network)+'%') #White value network
 						else:
 							if first_variation_move:
 								first_variation_move=False
-								variation_comment="Value network black/white win probability for this move: "+str(100-one_value_network)+'%/'+str(one_value_network)
-								variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
-								variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
+								variation_comment=_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)
+								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
+								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
 								new_child.add_comment_text(variation_comment)
 							if best_move:
 								best_move=False
-								additional_comments+="\nValue network black/white win probability for this position: "+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
+								additional_comments+=_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
 								one_move.set("WWR",str(one_value_network)+'%') #White value network
 								one_move.set("BWR",str(100-one_value_network)+'%') #Black value network
 									
@@ -157,7 +158,7 @@ class RunAnalysis(RunAnalysisBase):
 
 			else:
 				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\nFor this position, Leela Zero would "+answer.lower()
+				additional_comments+="\n"+_("For this position, %s would %s"%("Leela Zero",answer.lower()))
 				if answer.lower()=="pass":
 					leela_zero.undo()
 			
@@ -182,7 +183,7 @@ class RunAnalysis(RunAnalysisBase):
 	
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
-		self.lab2.config(text="Now closing, please wait...")
+		self.lab2.config(text=_("Now closing, please wait..."))
 		self.update_idletasks()
 		log("killing leela Zero")
 		self.leela_zero.close()
@@ -208,36 +209,36 @@ class RunAnalysis(RunAnalysisBase):
 		try:
 			leela_zero_command_line=Config.get("Leela_Zero", "Command")
 		except:
-			show_error("The config.ini file does not contain entry for Leela Zero command line!")
+			show_error(_("The config.ini file does not contain entry for %s command line!")%"Leela ZEro")
 			return False
 		
 		if not leela_zero_command_line:
-			show_error("The config.ini file does not contain command line for Leela Zero!")
+			show_error(_("The config.ini file does not contain command line for %s!")%"Leela Zero")
 			return False
 		log("Starting Leela Zero...")
 		try:
 			leela_zero_command_line=[Config.get("Leela_Zero", "Command")]+Config.get("Leela_Zero", "Parameters").split()
 			leela_zero=Leela_Zero_gtp(leela_zero_command_line)
 		except:
-			show_error("Could not run Leela Zero using the command from config.ini file: \n"+" ".join(leela_zero_command_line))
+			show_error((_("Could not run %s using the command from config.ini file:")%"Leela Zero")+"\n"+" ".join(leela_zero_command_line)+"\n"+str(e))
 			return False
 		log("Leela Zero started")
 		log("Leela Zero identification through GTP..")
 		try:
 			self.bot_name=leela_zero.name()
 		except Exception, e:
-			show_error("Leela Zero did not replied as expected to the GTP name command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP name command:")%"Leela Zero")+"\n"+str(e))
 			return False
 		
 		if self.bot_name!="Leela Zero":
-			show_error("Leela Zero did not identified itself as expected:\n'Leela Zero' != '"+self.bot_name+"'")
+			show_error((_("%s did not identified itself as expected:")%"Leela Zero")+"\n'Leela Zero' != '"+self.bot_name+"'")
 			return False
 		log("Leela Zero identified itself properly")
 		log("Checking version through GTP...")
 		try:
 			self.bot_version=leela_zero.version()
 		except Exception, e:
-			show_error("Leela Zero did not replied as expected to the GTP version command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP version command:")%"Leela Zero")+"\n"+str(e))
 			return False
 		log("Version: "+self.bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
@@ -245,10 +246,10 @@ class RunAnalysis(RunAnalysisBase):
 		try:
 			ok=leela_zero.boardsize(size)
 		except:
-			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"Leela Zero"))
 			return False
 		if not ok:
-			show_error("Leela Zero rejected this board size ("+str(size)+"x"+str(size)+")")
+			show_error(_("%s rejected this board size (%ix%i)")%("Leela Zero",size,size))
 			return False
 		log("Clearing the board")
 		leela_zero.reset()
@@ -351,24 +352,24 @@ class LeelaZeroSettings(Frame):
 		
 		row=0
 
-		Label(self,text="Leela Zero settings").grid(row=row+1,column=1)
-		Label(self,text="Command").grid(row=row+2,column=1)
+		Label(self,text=_("%s settings")%"Leela Zero").grid(row=row+1,column=1)
+		Label(self,text=_("Command")).grid(row=row+2,column=1)
 		LeelaZeroCommand = StringVar() 
 		LeelaZeroCommand.set(Config.get("Leela_Zero","Command"))
 		Entry(self, textvariable=LeelaZeroCommand, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Parameters").grid(row=row+2,column=1)
+		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
 		LeelaZeroParameters = StringVar() 
 		LeelaZeroParameters.set(Config.get("Leela_Zero","Parameters"))
 		Entry(self, textvariable=LeelaZeroParameters, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Time per move").grid(row=row+2,column=1)
+		Label(self,text=_("Time per move (s)")).grid(row=row+2,column=1)
 		TimePerMove = StringVar() 
 		TimePerMove.set(Config.get("Leela_Zero","TimePerMove"))
 		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
 		row+=1
 		LeelaZeroNeededForReview = BooleanVar(value=Config.getboolean('Leela_Zero', 'NeededForReview'))
-		LeelaZeroCheckbutton=Checkbutton(self, text="Needed for review", variable=LeelaZeroNeededForReview,onvalue=True,offvalue=False)
+		LeelaZeroCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=LeelaZeroNeededForReview,onvalue=True,offvalue=False)
 		LeelaZeroCheckbutton.grid(row=row+2,column=1)
 		LeelaZeroCheckbutton.var=LeelaZeroNeededForReview
 
@@ -429,7 +430,7 @@ class LeelaZeroOpenMove(BotOpenMove):
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('sgf', '.sgf')])
 		temp_root.destroy()
 		log(filename)
 		log("gamename:",filename[:-4])

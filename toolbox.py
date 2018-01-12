@@ -44,14 +44,14 @@ import tkMessageBox
 
 def show_error(txt):
 	try:
-		tkMessageBox.showerror("Error",txt)
+		tkMessageBox.showerror(_("Error"),txt)
 		log("ERROR: "+txt)
 	except:
 		log("ERROR: "+txt)
 
 def show_info(txt):
 	try:
-		tkMessageBox.showinfo("Info",txt)
+		tkMessageBox.showinfo(_("Information"),txt)
 		log("INFO: "+txt)
 	except:
 		log("INFO: "+txt)
@@ -78,7 +78,7 @@ def go_to_move(move_zero,move_number=0):
 		k+=1
 	color=move.get_move()[0]
 	if not color:
-		log("SGF does not provive color information for move",move_number)
+		log("SGF does not provive color information for move %d",move_number)
 		previous_move=go_to_move(move_zero,move_number-1)
 		previous_move_color=previous_move.get_move()[0]
 		if previous_move_color.lower()=="b":
@@ -143,11 +143,11 @@ class DownloadFromURL(Frame):
 		Label(self,text='   ').grid(column=0,row=0)
 		Label(self,text='   ').grid(column=2,row=4)
 		
-		Label(self,text="Paste the URL to the sgf file (http or https):").grid(row=1,column=1,sticky=W)
+		Label(self,text=_("Paste the URL to the SGF file (http or https):")).grid(row=1,column=1,sticky=W)
 		self.url_entry=Entry(self)
 		self.url_entry.grid(row=2,column=1,sticky=W)
 		
-		Button(self,text="Get",command=self.get).grid(row=3,column=1,sticky=E)
+		Button(self,text=_("Get"),command=self.get).grid(row=3,column=1,sticky=E)
 		self.popup=None
 		
 	def get(self):
@@ -168,7 +168,7 @@ class DownloadFromURL(Frame):
 		try:
 			h=urllib2.urlopen(r)
 		except:
-			show_error("Could not download the URL")
+			show_error(_("Could not download the URL"))
 			return
 		filename=""
 		
@@ -176,7 +176,7 @@ class DownloadFromURL(Frame):
 		
 		if sgf[:7]!="(;FF[4]":
 			log("not a sgf file")
-			show_error("Not a sgf file!")
+			show_error(_("Not a SGF file!"))
 			log(sgf[:7])
 			return
 		
@@ -244,7 +244,7 @@ def write_rsgf(filename,sgf_content):
 	except Exception,e:
 		log("Could not save the RSGF file",filename)
 		log(e)
-		raise WriteException("Could not save the RSGF file: "+filename+"\n"+str(e))
+		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
 
 def open_sgf(filename):
 	try:
@@ -256,7 +256,7 @@ def open_sgf(filename):
 	except Exception,e:
 		log("Could not open the SGF file",filename)
 		log(e)
-		raise WriteException("Could not save the SGF file: "+filename+"\n"+str(e))
+		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
 
 
 def clean_sgf(txt):
@@ -367,7 +367,7 @@ class RangeSelector(Frame):
 		
 		row+=1
 		if bots!=None:
-			Label(self,text="Bot to use for analysis:").grid(row=row,column=1,sticky=N+W)
+			Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
 			self.bot_selection = Listbox(self,height=len(bots))
 			self.bot_selection.grid(row=row,column=2,sticky=W)
 			for bot,f in bots:
@@ -378,7 +378,7 @@ class RangeSelector(Frame):
 			Label(self,text="").grid(row=row,column=1)
 		
 		row+=1
-		Label(self,text="Select variation to be analysed").grid(row=3,column=1,sticky=W)
+		Label(self,text=_("Select variation to be analysed")).grid(row=3,column=1,sticky=W)
 		self.leaves=get_all_sgf_leaves(self.move_zero)
 		self.variation_selection=StringVar()
 		self.variation_selection.trace("w", self.variation_changed)
@@ -386,7 +386,7 @@ class RangeSelector(Frame):
 		options=[]
 		v=1
 		for leaf,deep in self.leaves:
-			options.append("Variation "+str(v)+" ("+str(deep)+" moves)")
+			options.append(_("Variation %i (%i moves)")%(v,deep))
 			v+=1
 		self.variation_selection.set(options[0])
 		
@@ -396,15 +396,15 @@ class RangeSelector(Frame):
 		Label(self,text="").grid(row=row,column=1)
 		
 		row+=1
-		Label(self,text="Select moves to be analysed").grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Select moves to be analysed")).grid(row=row,column=1,sticky=W)
 		
 		row+=1
-		self.r1=Radiobutton(self,text="Analyse all "+str(nb_moves)+" moves",variable=s, value="all")
+		self.r1=Radiobutton(self,text=_("Analyse all %i moves")%nb_moves,variable=s, value="all")
 		self.r1.grid(row=row,column=1,sticky=W)
 		self.after(0,self.r1.select)
 		
 		row+=1
-		r2=Radiobutton(self,text="Analyse only those moves: ",variable=s, value="only")
+		r2=Radiobutton(self,text=_("Analyse only those moves:"),variable=s, value="only")
 		r2.grid(row=row,column=1,sticky=W)
 		
 		only_entry=Entry(self)
@@ -417,13 +417,13 @@ class RangeSelector(Frame):
 		row+=3
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text="Select colors to be analysed").grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Select colors to be analysed")).grid(row=row,column=1,sticky=W)
 		
 		c = StringVar()
 		c.set("both")
 		
 		row+=1
-		c0=Radiobutton(self,text="Black & white",variable=c, value="both")
+		c0=Radiobutton(self,text=_("Black & white"),variable=c, value="both")
 		c0.grid(row=row,column=1,sticky=W)
 		self.after(0,c0.select)
 		
@@ -446,17 +446,17 @@ class RangeSelector(Frame):
 			white_player=''
 		
 		row+=1
-		c1=Radiobutton(self,text="Black only"+black_player,variable=c, value="black")
+		c1=Radiobutton(self,text=_("Black only")+black_player,variable=c, value="black")
 		c1.grid(row=row,column=1,sticky=W)
 		
 		row+=1
-		c2=Radiobutton(self,text="White only"+white_player,variable=c, value="white")
+		c2=Radiobutton(self,text=_("White only")+white_player,variable=c, value="white")
 		c2.grid(row=row,column=1,sticky=W)
 		
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text="Confirm the value of komi").grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Confirm the value of komi")).grid(row=row,column=1,sticky=W)
 		
 		komi_entry=Entry(self)
 		komi_entry.grid(row=row,column=2,sticky=W)
@@ -467,14 +467,14 @@ class RangeSelector(Frame):
 			komi_entry.insert(0, str(komi))
 		except Exception, e:
 			log("Error while reading komi value, please check:\n"+str(e))
-			show_error("Error while reading komi value, please check:\n"+str(e))
+			show_error(_("Error while reading komi value, please check:")+"\n"+str(e))
 			komi_entry.insert(0, "0")
 		
 		
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Button(self,text="Start",command=self.start).grid(row=row,column=2,sticky=E)
+		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
 		self.mode=s
 		self.color=c
 		self.nb_moves=nb_moves
@@ -492,7 +492,7 @@ class RangeSelector(Frame):
 			if deep>0:
 				self.only_entry.insert(0, "1-"+str(deep))
 			
-			self.r1.config(text="Analyse all "+str(deep)+" moves")
+			self.r1.config(text="Analyse all % moves"%deep)
 			
 			self.nb_moves=deep
 			
@@ -514,13 +514,13 @@ class RangeSelector(Frame):
 	def start(self):
 		
 		if self.nb_moves==0:
-			show_error("This variation is empty (0 move), the analysis cannot be performed!")
+			show_error(_("This variation is empty (0 move), the analysis cannot be performed!"))
 			return
 		
 		try:
 			komi=float(self.komi_entry.get())
 		except:
-			show_error("Incorrect value for komi ("+str(self.komi_entry.get())+"), please double check.")
+			show_error(_("Incorrect value for komi (%s), please double check.")%self.komi_entry.get())
 			return
 		
 		if self.bots!=None:
@@ -536,7 +536,7 @@ class RangeSelector(Frame):
 			intervals="moves "+selection
 			move_selection=check_selection(selection,self.nb_moves)
 			if move_selection==False:
-				show_error("Could not make sense of the move range.\nPlease indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")")
+				show_error(_("Could not make sense of the moves range.")+"\n"+_("Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"))
 				return
 
 		if self.color.get()=="black":
@@ -585,7 +585,7 @@ class RunAnalysisBase(Frame):
 		try:
 			self.bot=self.initialize_bot()
 		except Exception,e:
-			self.error="Error while initializing the GTP bot:\n"+str(e)
+			self.error=_("Error while initializing the GTP bot:")+"\n"+str(e)
 			self.abort()
 			return
 		
@@ -595,7 +595,7 @@ class RunAnalysisBase(Frame):
 		try:
 			self.initialize_UI()
 		except Exception,e:
-			self.error="Error while initializing the graphical interface:\n"+str(e)
+			self.error=_("Error while initializing the graphical interface:")+"\n"+str(e)
 			self.abort()
 			return
 		
@@ -645,12 +645,12 @@ class RunAnalysisBase(Frame):
 
 	def abort(self):
 		try:
-			self.lab1.config(text="Aborted")
+			self.lab1.config(text=_("Aborted"))
 			self.lab2.config(text="")
 		except:
 			pass
 		log("Leaving follow_anlysis()")
-		show_error("Analysis aborted:\n\n"+self.error)
+		show_error(_("Analysis aborted:")+"\n\n"+self.error)
 
 	def follow_analysis(self):
 		if self.error:
@@ -668,8 +668,8 @@ class RunAnalysisBase(Frame):
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
 			if self.time_per_move<>0:
-				self.lab2.config(text="Remaining time: "+str(remaining_h)+"h, "+str(remaining_m)+"mn, "+str(remaining_s)+"s")
-			self.lab1.config(text="Currently at move "+str(self.current_move)+'/'+str(self.max_move))
+				self.lab2.config(text=_("Remaining time: %ih, %imn, %is")%(remaining_h,remaining_m,remaining_s))
+			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
 			self.pb.step()
 			self.update_idletasks()
 			self.lock2.release()
@@ -682,14 +682,14 @@ class RunAnalysisBase(Frame):
 			self.propose_review()
 
 	def propose_review(self):
-		self.lab1.config(text="Completed")
+		self.lab1.config(text=_("Completed"))
 		self.lab2.config(text="")
 		self.pb["maximum"] = 100
 		self.pb["value"] = 100
 		
 		try:
 			import dual_view
-			Button(self,text="Start review",command=self.start_review).pack()
+			Button(self,text=_("Start review"),command=self.start_review).pack()
 		except:
 			pass
 
@@ -744,7 +744,7 @@ class RunAnalysisBase(Frame):
 		root.parent.protocol("WM_DELETE_WINDOW", self.close_app)
 		
 		
-		Label(root,text="Analysis of: "+os.path.basename(self.filename)).pack()
+		Label(root,text=_("Analysis of: %s")%os.path.basename(self.filename)).pack()
 				
 		self.lab1=Label(root)
 		self.lab1.pack()
@@ -752,7 +752,7 @@ class RunAnalysisBase(Frame):
 		self.lab2=Label(root)
 		self.lab2.pack()
 		
-		self.lab1.config(text="Currently at move 1/"+str(self.max_move))
+		self.lab1.config(text=_("Currently at move %i/%i")%(1,self.max_move))
 		
 		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
@@ -763,23 +763,23 @@ class RunAnalysisBase(Frame):
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		except Exception,e:
 			show_error(str(e))
-			self.lab1.config(text="Aborted")
+			self.lab1.config(text=_("Aborted"))
 			self.lab2.config(text="")
 			return
 
 		self.lock2.acquire()
 		self.t0=time.time()
 		first_move=go_to_move(self.move_zero,1)
-		first_comment="Analysis by GoReviewPartner"
-		first_comment+="\nBot: "+self.bot_name+'/'+self.bot_version
-		first_comment+="\nKomi: "+str(self.komi)
-		first_comment+="\nIntervals: "+self.intervals
+		first_comment=_("Analysis by GoReviewPartner")
+		first_comment+="\n"+("Bot: %s/%s"%(self.bot_name,self.bot_version))
+		first_comment+="\n"+("Komi: %i"%self.komi)
+		first_comment+="\n"+("Intervals: %s"%self.intervals)
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
-			first_comment+="\nCommand line: "+self.bot.command_line
+			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
 		
 		first_move.add_comment_text(first_comment)
 		threading.Thread(target=self.run_all_analysis).start()
@@ -950,6 +950,60 @@ def module_path():
 
 	return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))
 
+
+import locale
+
+lang=locale.getdefaultlocale()[0].split('_')[0]
+
+translations={}
+
+
+
+log("System langage:",lang)
+
+def prepare_translations():
+	global translations
+	
+	if lang=='en':
+		return
+
+	data_file_url=os.path.join(os.path.abspath(pathname),"translations",lang+".po")
+	log("Loading translation file:",data_file_url)
+	
+	data_file = open(data_file_url,"r")
+	translation_data=data_file.read()
+	data_file.close()
+	
+	entry=""
+	translation=""
+	
+	for line in translation_data.split('\n'):
+
+		key="msgid"
+		if line[:len(key)+2]==key+' "':
+			entry=line[len(key)+2:-1]
+			translation=""
+		
+		key="msgstr"
+		if line[:len(key)+2]==key+' "':
+			translation=line[len(key)+2:-1]
+			
+			if len(entry)>0 and len(translation)>0:
+				translations[entry]=translation
+			entry=""
+			translation=""
+
+def _(txt=None):
+	global translations
+	if not translations:
+		return txt
+	
+	if translations.has_key(txt):
+		return translations[txt]
+	
+	return txt
+
+
 try:
 	pathname=module_path()
 except:
@@ -958,3 +1012,10 @@ except:
 log('GRP path:', os.path.abspath(pathname))
 config_file=os.path.join(os.path.abspath(pathname),"config.ini")
 log('Config file:', config_file)
+
+available_translations=["fr"]
+if lang in available_translations:
+	prepare_translations()
+else:
+	log("No translation file lang="+lang,"falling back on english.")
+

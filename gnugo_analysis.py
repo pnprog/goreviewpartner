@@ -22,6 +22,7 @@ import ttk
 
 
 from toolbox import *
+from toolbox import _
 
 def get_full_sequence_threaded(worker,current_color,deepness):
 	sequence=get_full_sequence(worker,current_color,deepness)
@@ -66,12 +67,12 @@ class RunAnalysis(RunAnalysisBase):
 			linelog("move",str(current_move)+'/'+str(max_move))
 			final_score=gnugo.get_gnugo_estimate_score()
 			#linelog(final_score)
-			additional_comments="Move "+str(current_move)
+			additional_comments=_("Move %i")%current_move
 			if player_color in ('w',"W"):
-				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			else:
-				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
-			additional_comments+="\nGnugo score estimation before the move was played: "+final_score
+				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
+			additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
 
 			if player_color in ('w',"W"):
 				log("gnugo plays white")
@@ -120,7 +121,7 @@ class RunAnalysis(RunAnalysisBase):
 						
 					for one_thread in all_threads:
 						if type(one_thread.sequence)!=type("abc"):
-							raise AbortedException("GnuGo thread failed:\n"+str(one_thread.sequence))
+							raise AbortedException(_("GnuGo thread failed:")+"\n"+str(one_thread.sequence))
 						
 						one_sequence=one_thread.one_top_move+" "+one_thread.sequence
 						one_sequence=one_sequence.strip()
@@ -143,7 +144,7 @@ class RunAnalysis(RunAnalysisBase):
 
 			else:
 				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\nFor this position, Gnugo would "+answer.lower()
+				additional_comments+="\n"+_("For this position, %s would %s"%("GnuGo",answer.lower()))
 				if answer.lower()=="pass":
 					gnugo.undo()
 
@@ -194,7 +195,7 @@ class RunAnalysis(RunAnalysisBase):
 
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
-		self.lab2.config(text="Now closing, please wait...")
+		self.lab2.config(text=_("Now closing, please wait..."))
 		self.update_idletasks()
 		log("killing gnugo")
 		self.gnugo.close()
@@ -237,46 +238,46 @@ class RunAnalysis(RunAnalysisBase):
 		try:
 			gnugo_command_line=Config.get("GnuGo", "Command")
 		except:
-			show_error("The config.ini file does not contain entry for GnuGo command line!")
+			show_error(_("The config.ini file does not contain entry for %s command line!")%"GnuGo")
 			return False
 		
 		if not gnugo_command_line:
-			show_error("The config.ini file does not contain command line for GnuGo!")
+			show_error(_("The config.ini file does not contain command line for %s!")%"GnuGo")
 			return False
 		log("Starting Gnugo...")
 		try:
 			gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
 			gnugo=GnuGo_gtp(gnugo_command_line)
 		except Exception,e:
-			show_error("Could not run GnuGo using the command from config.ini file: \n"+" ".join(gnugo_command_line)+"\n"+str(e))
+			show_error((_("Could not run %s using the command from config.ini file:")%"GnuGo")+"\n"+" ".join(gnugo_command_line)+"\n"+str(e))
 			return False
 		log("GnuGo started")
 		log("GnuGo identification through GTP...")
 		try:
 			self.bot_name=gnugo.name()
 		except Exception, e:
-			show_error("GnuGo did not replied as expected to the GTP name command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP name command:")%"GnuGo")+"\n"+str(e))
 			return False
 		
 		if self.bot_name!="GNU Go":
-			show_error("GnuGo did not identified itself as expected:\n'GNU Go' != '"+self.bot_name+"'")
+			show_error((_("%s did not identified itself as expected:")%"GnuGo")+"\n'GNU Go' != '"+self.bot_name+"'")
 			return False
 		log("GnuGo identified itself properly")
 		log("Checking version through GTP...")
 		try:
 			self.bot_version=gnugo.version()
 		except Exception, e:
-			show_error("GnuGo did not replied as expected to the GTP version command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP version command:")%"GnuGo")+"\n"+str(e))
 			return False
 		log("Version: "+self.bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
 		try:
 			ok=gnugo.boardsize(size)
 		except:
-			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"GnuGo"))
 			return False
 		if not ok:
-			show_error("GnuGo rejected this board size ("+str(size)+"x"+str(size)+")")
+			show_error(_("%s rejected this board size (%ix%i)")%("GnuGo",size,size))
 			return False
 		log("Clearing the board")
 		gnugo.reset()
@@ -406,29 +407,29 @@ class GnuGoSettings(Frame):
 		
 		row=0
 		
-		Label(self,text="GnuGo settings").grid(row=row+1,column=1)
-		Label(self,text="Command").grid(row=row+2,column=1)
+		Label(self,text=_("%s settings")%"GnuGo").grid(row=row+1,column=1)
+		Label(self,text=_("Command")).grid(row=row+2,column=1)
 		GnugoCommand = StringVar() 
 		GnugoCommand.set(Config.get("GnuGo","Command"))
 		Entry(self, textvariable=GnugoCommand, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Parameters").grid(row=row+2,column=1)
+		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
 		GnugoParameters = StringVar() 
 		GnugoParameters.set(Config.get("GnuGo","Parameters"))
 		Entry(self, textvariable=GnugoParameters, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Variations").grid(row=row+2,column=1)
+		Label(self,text=_("Maximum number of variations")).grid(row=row+2,column=1)
 		GnugoVariations = StringVar() 
 		GnugoVariations.set(Config.get("GnuGo","Variations"))
 		Entry(self, textvariable=GnugoVariations, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Deepness").grid(row=row+2,column=1)
+		Label(self,text=_("Deepness for each variation")).grid(row=row+2,column=1)
 		GnugoDeepness = StringVar() 
 		GnugoDeepness.set(Config.get("GnuGo","Deepness"))
 		Entry(self, textvariable=GnugoDeepness, width=30).grid(row=row+2,column=2)
 		row+=1
 		GnugoNeededForReview = BooleanVar(value=Config.getboolean('GnuGo', 'NeededForReview'))
-		GnugoCheckbutton=Checkbutton(self, text="Needed for review", variable=GnugoNeededForReview,onvalue=True,offvalue=False)
+		GnugoCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=GnugoNeededForReview,onvalue=True,offvalue=False)
 		GnugoCheckbutton.grid(row=row+2,column=1)
 		GnugoCheckbutton.var=GnugoNeededForReview
 
@@ -471,7 +472,7 @@ class GnuGoOpenMove(BotOpenMove):
 				gnugo.komi(komi)
 				self.bot=gnugo
 				if not ok:
-					raise AbortedException("Boardsize value rejected by "+self.name)
+					raise AbortedException("Boardsize value rejected by %s"%self.name)
 			except Exception, e:
 				log("Could not launch "+self.name)
 				log(e)
@@ -486,7 +487,7 @@ import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [(_('SGF file'), '.sgf')])
 		temp_root.destroy()
 		log(filename)
 		log("gamename:",filename[:-4])

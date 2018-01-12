@@ -21,6 +21,7 @@ import ttk
 
 import toolbox
 from toolbox import *
+from toolbox import _
 
 import tkMessageBox
 
@@ -43,9 +44,9 @@ class RunAnalysis(RunAnalysisBase):
 			
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
-				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			else:
-				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 
 			if player_color in ('w',"W"):
 				log("leela play white")
@@ -143,50 +144,50 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								if not bookmove:
-									variation_comment="black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%'
-									variation_comment+="\nMonte Carlo win probalbility for this move: "+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
+									variation_comment=_("black/white win probability for this variation: ")+str(one_score)+'%/'+str(100-one_score)+'%'
+									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
 									if one_value_network!=None:
-										variation_comment+="\nValue network win probalbility for this move: "+str(one_value_network)+'%/'+str(100-one_value_network)
+										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
 									if one_policy_network!=None:
-										variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
+										variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
 									if one_evaluation!=None:
-										variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
+										variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
 									if one_rave!=None:
-										variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
-									variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
+										variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
+									variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
 									new_child.add_comment_text(variation_comment)
 									#new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
 								else:
-									new_child.add_comment_text("Book move")
+									new_child.add_comment_text(_("Book move"))
 							if best_move:
 								best_move=False
 								if not bookmove:
-									additional_comments+="\nLeela black/white win probability for this position: "+str(one_score)+'%/'+str(100-one_score)+'%'
+									additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+str(one_score)+'%/'+str(100-one_score)+'%'
 									one_move.set("BWR",str(one_score)+'%') #Black Win Rate
 									one_move.set("WWR",str(100-one_score)+'%') #White Win Rate
 						else:
 							if first_variation_move:
 								first_variation_move=False
 								if not bookmove:
-									variation_comment="black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%'
-									variation_comment+="\nMonte Carlo win probalbility for this move: "+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
+									variation_comment=_("black/white win probability for this variation: ")+str(100-one_score)+'%/'+str(one_score)+'%'
+									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
 									if one_value_network!=None:
-										variation_comment+="\nValue network win probalbility for this move: "+str(100-one_value_network)+'%/'+str(one_value_network)
+										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)
 									if one_policy_network!=None:
-										variation_comment+="\nPolicy network value for this move: "+str(one_policy_network)+'%'
+										variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
 									if one_evaluation!=None:
-										variation_comment+="\nEvaluation for this move: "+str(one_evaluation)+'%'
+										variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
 									if one_rave!=None:
-										variation_comment+="\nRAVE(x%: y) for this move: "+str(one_rave)+'%'
-									variation_comment+="\nNumber of playouts used to estimate this variation: "+str(one_nodes)
+										variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
+									variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
 									new_child.add_comment_text(variation_comment)
 									#new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
 								else:
-									new_child.add_comment_text("Book move")
+									new_child.add_comment_text(_("Book move"))
 							if best_move:
 								best_move=False
 								if not bookmove:
-									additional_comments+="\nLeela black/white win probability for this position: "+str(100-one_score)+'%/'+str(one_score)+'%'
+									additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+str(100-one_score)+'%/'+str(one_score)+'%'
 									one_move.set("WWR",str(one_score)+'%') #White Win Rate
 									one_move.set("BWR",str(100-one_score)+'%') #Black Win Rate
 									
@@ -218,7 +219,7 @@ class RunAnalysis(RunAnalysisBase):
 				
 			else:
 				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\nFor this position, Leela would "+answer.lower()
+				additional_comments+="\n"+_("For this position, %s would %s"%("Leela",answer.lower()))
 				if answer.lower()=="pass":
 					leela.undo()
 			
@@ -243,7 +244,7 @@ class RunAnalysis(RunAnalysisBase):
 	
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
-		self.lab2.config(text="Now closing, please wait...")
+		self.lab2.config(text=_("Now closing, please wait..."))
 		self.update_idletasks()
 		log("killing leela")
 		self.leela.close()
@@ -269,36 +270,36 @@ class RunAnalysis(RunAnalysisBase):
 		try:
 			leela_command_line=Config.get("Leela", "Command")
 		except:
-			show_error("The config.ini file does not contain entry for Leela command line!")
+			show_error(_("The config.ini file does not contain entry for %s command line!")%"Leela")
 			return False
 		
 		if not leela_command_line:
-			show_error("The config.ini file does not contain command line for Leela!")
+			show_error(_("The config.ini file does not contain command line for %s!")%"Leela")
 			return False
 		log("Starting Leela...")
 		try:
 			leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
 			leela=Leela_gtp(leela_command_line)
 		except:
-			show_error("Could not run Leela using the command from config.ini file: \n"+" ".join(leela_command_line))
+			show_error((_("Could not run %s using the command from config.ini file:")%"Leela")+"\n"+" ".join(leela_command_line)+"\n"+str(e))
 			return False
 		log("Leela started")
 		log("Leela identification through GTP..")
 		try:
 			self.bot_name=leela.name()
 		except Exception, e:
-			show_error("Leela did not replied as expected to the GTP name command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP name command:")%"Leela")+"\n"+str(e))
 			return False
 		
 		if self.bot_name!="Leela":
-			show_error("Leela did not identified itself as expected:\n'Leela' != '"+self.bot_name+"'")
+			show_error((_("%s did not identified itself as expected:")%"Leela")+"\n'Leela' != '"+self.bot_name+"'")
 			return False
 		log("Leela identified itself properly")
 		log("Checking version through GTP...")
 		try:
 			self.bot_version=leela.version()
 		except Exception, e:
-			show_error("Leela did not replied as expected to the GTP version command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP version command:")%"Leela")+"\n"+str(e))
 			return False
 		log("Version: "+self.bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
@@ -306,10 +307,10 @@ class RunAnalysis(RunAnalysisBase):
 		try:
 			ok=leela.boardsize(size)
 		except:
-			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"Leela"))
 			return False
 		if not ok:
-			show_error("Leela rejected this board size ("+str(size)+"x"+str(size)+")")
+			show_error(_("%s rejected this board size (%ix%i)")%("Leela",size,size))
 			return False
 		log("Clearing the board")
 		leela.reset()
@@ -424,24 +425,24 @@ class LeelaSettings(Frame):
 		
 		row=0
 
-		Label(self,text="Leela settings").grid(row=row+1,column=1)
-		Label(self,text="Command").grid(row=row+2,column=1)
+		Label(self,text=_("%s settings")%"Leela").grid(row=row+1,column=1)
+		Label(self,text=_("Command")).grid(row=row+2,column=1)
 		LeelaCommand = StringVar() 
 		LeelaCommand.set(Config.get("Leela","Command"))
 		Entry(self, textvariable=LeelaCommand, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Parameters").grid(row=row+2,column=1)
+		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
 		LeelaParameters = StringVar() 
 		LeelaParameters.set(Config.get("Leela","Parameters"))
 		Entry(self, textvariable=LeelaParameters, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Time per move").grid(row=row+2,column=1)
+		Label(self,text=_("Time per move (s)")).grid(row=row+2,column=1)
 		TimePerMove = StringVar() 
 		TimePerMove.set(Config.get("Leela","TimePerMove"))
 		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
 		row+=1
 		LeelaNeededForReview = BooleanVar(value=Config.getboolean('Leela', 'NeededForReview'))
-		LeelaCheckbutton=Checkbutton(self, text="Needed for review", variable=LeelaNeededForReview,onvalue=True,offvalue=False)
+		LeelaCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=LeelaNeededForReview,onvalue=True,offvalue=False)
 		LeelaCheckbutton.grid(row=row+2,column=1)
 		LeelaCheckbutton.var=LeelaNeededForReview
 
@@ -486,7 +487,7 @@ class LeelaOpenMove(BotOpenMove):
 				leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 				self.bot=leela
 				if not ok:
-					raise AbortedException("Boardsize value rejected by "+self.name)
+					raise AbortedException("Boardsize value rejected by %s"%self.name)
 			except Exception, e:
 				log("Could not launch "+self.name)
 				log(e)
@@ -502,7 +503,7 @@ class LeelaOpenMove(BotOpenMove):
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('sgf', '.sgf')])
 		temp_root.destroy()
 		log(filename)
 		log("gamename:",filename[:-4])

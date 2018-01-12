@@ -1,7 +1,7 @@
 
 from Tkinter import *
 import ConfigParser
-from toolbox import log, config_file
+from toolbox import log, config_file, _
 from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
@@ -22,7 +22,7 @@ class OpenSettings(Toplevel):
 		new_settings=settings_dict[key](self.setting_frame)
 		new_settings.grid(row=0,column=0, padx=5, pady=5)
 		
-		Button(self.setting_frame,text="Save settings",command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
+		Button(self.setting_frame,text=_("Save settings"),command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 		
 		self.setting_frame.pack()
 		
@@ -38,34 +38,34 @@ class OpenSettings(Toplevel):
 		
 		row=0
 
-		Label(setting_frame,text="Go Review Partner settings").grid(row=row+1,column=1)
-		Label(setting_frame,text="Fuzzy Stone").grid(row=row+2,column=1)
+		Label(setting_frame,text=_("%s settings")%"Go Review Partner").grid(row=row+1,column=1)
+		Label(setting_frame,text=_("Fuzzy Stone")).grid(row=row+2,column=1)
 		FuzzyStonePlacement = StringVar() 
 		FuzzyStonePlacement.set(Config.get("Review","FuzzyStonePlacement"))
 		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(setting_frame,text="Real game sequence deepness").grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Real game sequence deepness")).grid(row=row+2,column=1)
 		RealGameSequenceDeepness = StringVar() 
 		RealGameSequenceDeepness.set(Config.get("Review","RealGameSequenceDeepness"))
 		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(setting_frame,text="Goban/screen ratio").grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row+2,column=1)
 		GobanScreenRatio = StringVar() 
 		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
 		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(setting_frame,text="Maximum number of variations to record during analysis").grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Maximum number of variations to record during analysis")).grid(row=row+2,column=1)
 		MaxVariationsToRecord = StringVar() 
 		MaxVariationsToRecord.set(Config.get("Analysis","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(setting_frame,text="Save bot command line into RSGF file").grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Save bot command line into RSGF file")).grid(row=row+2,column=1)
 		SaveCommandLine = BooleanVar(value=Config.getboolean('Analysis', 'SaveCommandLine'))
 		SaveCommandLineCheckbutton=Checkbutton(setting_frame, text="", variable=SaveCommandLine,onvalue=True,offvalue=False)
 		SaveCommandLineCheckbutton.grid(row=row+2,column=2,sticky=W)
 		SaveCommandLineCheckbutton.var=SaveCommandLine
 		row+=1
-		Label(setting_frame,text="Maximum number of variations to display during review").grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row+2,column=1)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row+2,column=2)

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-  # Définition l'encodage des caractères
+# -*- coding: utf-8 -*-
 
 from Tkinter import *
 from ScrolledText import *
@@ -8,6 +8,7 @@ import tkFileDialog
 from functools import partial
 
 from toolbox import *
+from toolbox import _
 
 from gnugo_analysis import GnuGoOpenMove
 from leela_analysis import LeelaOpenMove
@@ -61,7 +62,6 @@ class OpenChart():
 		log("done")
 
 	def initialize(self):
-		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
@@ -83,9 +83,9 @@ class OpenChart():
 		
 		self.graph_mode=StringVar()
 		self.graph_mode.set("Win rate") # initialize		
-		Radiobutton(top_frame, text="Win rate",command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
-		Radiobutton(top_frame, text="Black comparison",command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
-		Radiobutton(top_frame, text="White comparison",command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+		Radiobutton(top_frame, text=_("Win rate"),command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
+		Radiobutton(top_frame, text=_("Black comparison"),command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+		Radiobutton(top_frame, text=_("White comparison"),command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
 		
 		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
 		#self.chart.grid(sticky=N+S+W+E)
@@ -109,7 +109,7 @@ class OpenChart():
 		self.status_bar.config(text=msg)
 	
 	def clear_status(self,event=None):
-		self.status_bar.config(text="<Ctrl+Q> to export goban as postscript image.")
+		self.status_bar.config(text=_("<Ctrl+Q> to export goban as postscript image."))
 	
 	def goto_move(self,event=None,move=None):
 		if move:
@@ -205,13 +205,13 @@ class OpenChart():
 							y2=y1+delta*(height-2*border)/100.
 							if delta<0:
 								red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
-								msg2="The computer believes it's own move win rate would be "+str(-delta)+"pp higher."
+								msg2=_("The computer believes it's own move win rate would be %.2fpp higher.")%(-delta)
 								self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
 								self.chart.tag_bind(red_bar, "<Leave>", self.clear_status)
 								self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
 							else:
 								green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
-								msg2="The computer believes your move is "+str(delta)+"pp better than it's best move."
+								msg2=_("The computer believes your move is %.2fpp better than it's best move.")%(delta)
 								self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
 								self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
 								self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
@@ -222,7 +222,7 @@ class OpenChart():
 						y00=y1
 		else:
 			
-			self.chart.create_text(len("Black win rate")*lpix/2,border/2, text="Black win rate",fill='black',font=("Arial", str(lpix)))
+			self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
 			x00=border
 			y00=height-border-(height-2*border)/2.
 			for one_data in self.data:
@@ -235,16 +235,18 @@ class OpenChart():
 					player_win_rate=one_data["player_win_rate"]
 					if one_data["player_color"]=="w":
 						player_win_rate=100.-player_win_rate
-						color="White"
+						color=_("White")
 					else:
-						color="Black"
+						color=_("Black")
 					player_win_rate=float(int(player_win_rate*100)/100.)
 					y0=height-border
 					y1=height-border-player_win_rate*(height-2*border)/100.
 					
 					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
 					
-					msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+					#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+					msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+					
 					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
@@ -293,7 +295,7 @@ class OpenChart():
 				x0=x1
 				
 	def save_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile=self.graph_mode.get()+' graph.ps')
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile=self.graph_mode.get()+' graph.ps')
 		self.chart.postscript(file=filename, colormode='color')
 
 class OpenMove():
@@ -385,9 +387,9 @@ class OpenMove():
 			bot.undo()
 			#self.goban.display(self.grid,self.markup)
 			if color==1:
-				show_info(bot.name+"/black: "+move)
+				show_info(bot.name+"/"+_("Black")+": "+move)
 			else:
-				show_info(bot.name+"/white: "+move)
+				show_info(bot.name+"/"+_("White")+": "+move)
 
 
 		self.goban.display(self.grid,self.markup)
@@ -428,7 +430,6 @@ class OpenMove():
 		self.status_bar.config(text="")
 	
 	def initialize(self):
-		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
@@ -449,10 +450,10 @@ class OpenMove():
 		panel.configure(background=bg)
 		
 		
-		undo_button=Button(panel, text='undo',command=self.undo)
+		undo_button=Button(panel, text=_('Undo'),command=self.undo)
 		undo_button.grid(column=0,row=1,sticky=E+W)
 		undo_button.config(state='disabled')
-		undo_button.bind("<Enter>",lambda e: self.set_status("Undo last move. Shortcut: mouse middle button."))
+		undo_button.bind("<Enter>",lambda e: self.set_status(_("Undo last move. Shortcut: mouse middle button.")))
 		
 		self.bots=[]
 		row=10
@@ -465,7 +466,8 @@ class OpenMove():
 			if one_bot.okbot:
 				one_bot.grid(column=0,row=row,sticky=E+W)
 				one_bot.config(command=partial(self.click_button,bot=one_bot))
-				one_bot.bind("<Enter>",partial(self.set_status,"Ask "+one_bot.name+" to play the next move."))
+				msg=_("Ask %s to play the next move.")%one_bot.name
+				one_bot.bind("<Enter>",partial(self.set_status,msg))
 				one_bot.bind("<Leave>",lambda e: self.clear_status())
 		
 		panel.grid(column=1,row=1,sticky=N+S)
@@ -478,7 +480,7 @@ class OpenMove():
 		
 		
 		self.popup.bind('<Control-q>', self.save_as_ps)
-		goban3.bind("<Enter>",lambda e: self.set_status("<Ctrl+Q> to export goban as postscript image."))
+		goban3.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to export goban as postscript image.")))
 		goban3.bind("<Leave>",lambda e: self.clear_status())
 		
 		Label(popup,text='   ',background=bg).grid(row=0,column=3)
@@ -493,7 +495,7 @@ class OpenMove():
 		log("========================")
 		log("opening move",move)
 		
-		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
+		board, noneed = sgf_moves.get_setup_and_moves(self.sgf)
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
@@ -560,6 +562,7 @@ class OpenMove():
 		self.history=[]
 
 		self.goban.bind("<Configure>",self.redraw)
+
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
@@ -577,7 +580,7 @@ class OpenMove():
 
 
 	def save_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
 		self.goban.postscript(file=filename, colormode='color')
 
 class DualView(Frame):
@@ -717,7 +720,7 @@ class DualView(Frame):
 		self.parent.bind("<MouseWheel>", self.mouse_wheel)
 		goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
 		goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
-		self.set_status("Use mouse wheel or keyboard up/down keys to display the sequence move by move.")
+		self.set_status(_("Use mouse wheel or keyboard up/down keys to display the sequence move by move."))
 	
 	def mouse_wheel(self,event):
 		if self.current_variation_sequence==None:
@@ -763,8 +766,8 @@ class DualView(Frame):
 			
 			try:
 				one_data={}
-				txt=""
-				txt+="move "+str(m)
+				#txt=""
+				#txt+="move "+str(m)
 				
 				one_move=get_node(self.gameroot,m)
 				
@@ -829,7 +832,7 @@ class DualView(Frame):
 		markup1=[["" for row in range(dim)] for col in range(dim)]
 		grid2=[[0 for row in range(dim)] for col in range(dim)]
 		markup2=[["" for row in range(dim)] for col in range(dim)]
-		board, _ = sgf_moves.get_setup_and_moves(self.sgf)
+		board, noneed = sgf_moves.get_setup_and_moves(self.sgf)
 
 		self.current_grid=grid1
 		self.current_markup=markup1
@@ -986,6 +989,7 @@ class DualView(Frame):
 		
 	def open_move(self):
 		log("Opening move",self.current_move)
+		
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		new_popup.goban.mesh=self.goban1.mesh
 		new_popup.goban.wood=self.goban1.wood
@@ -1045,7 +1049,7 @@ class DualView(Frame):
 		prev_10_moves_button=Button(buttons_bar, text=' << ',command=self.prev_10_move)
 		prev_10_moves_button.grid(column=9,row=1)
 		
-		prev_button=Button(buttons_bar, text='prev',command=self.prev_move)
+		prev_button=Button(buttons_bar, text=' <  ',command=self.prev_move)
 		prev_button.grid(column=10,row=1)
 		
 		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
@@ -1057,7 +1061,7 @@ class DualView(Frame):
 		
 		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
 		
-		next_button=Button(buttons_bar, text='next',command=self.next_move)
+		next_button=Button(buttons_bar, text='  > ',command=self.next_move)
 		next_button.grid(column=30,row=1)
 		
 		next_10_moves_button=Button(buttons_bar, text=' >> ',command=self.next_10_move)
@@ -1069,10 +1073,10 @@ class DualView(Frame):
 		buttons_bar2=Frame(self,background=bg)
 		buttons_bar2.grid(column=1,row=2,sticky=W)
 		
-		open_button=Button(buttons_bar2, text='open',command=self.open_move)
+		open_button=Button(buttons_bar2, text=_('Open position'),command=self.open_move)
 		open_button.grid(column=1,row=1)
 		
-		self.territory_button=Button(buttons_bar2, text='territories')
+		self.territory_button=Button(buttons_bar2, text=_('Show territories'))
 		self.territory_button.grid(column=2,row=1)
 		self.territory_button.bind('<Button-1>', self.show_territories)
 		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
@@ -1082,7 +1086,7 @@ class DualView(Frame):
 			if data<>None:
 				
 				
-				self.charts_button=Button(self, text='graphs')
+				self.charts_button=Button(self, text=_('Graphs'))
 				self.charts_button.bind('<Button-1>', self.show_graphs)
 				self.charts_button.grid(column=3,row=2,sticky=E)
 				break
@@ -1139,17 +1143,17 @@ class DualView(Frame):
 		
 		goban.show_variation=self.show_variation
 		
-		self.goban1.bind("<Enter>",lambda e: self.set_status("<Ctrl+Q> to export goban as postscript image."))
-		self.goban2.bind("<Enter>",lambda e: self.set_status("<Ctrl+W> to export goban as postscript image."))
+		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to export goban as postscript image.")))
+		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to export goban as postscript image.")))
 		
-		first_move_button.bind("<Enter>",lambda e: self.set_status("Go to first move."))
-		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go back 10 moves."))
-		prev_button.bind("<Enter>",lambda e: self.set_status("Go back one move. Shortcut: keyboard left key."))
-		open_button.bind("<Enter>",lambda e: self.set_status("Open this position onto a third goban to play out variations."))
-		next_button.bind("<Enter>",lambda e: self.set_status("Go forward one move. Shortcut: keyboard right key."))
-		next_10_moves_button.bind("<Enter>",lambda e: self.set_status("Go forward 10 moves."))
-		final_move_button.bind("<Enter>",lambda e: self.set_status("Go to final move."))
-		self.territory_button.bind("<Enter>",lambda e: self.set_status("Keep pressed to show territories."))
+		first_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to first move.")))
+		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go back 10 moves.")))
+		prev_button.bind("<Enter>",lambda e: self.set_status(_("Go back one move. Shortcut: keyboard left key.")))
+		open_button.bind("<Enter>",lambda e: self.set_status(_("Open this position onto a third goban to play out variations.")))
+		next_button.bind("<Enter>",lambda e: self.set_status(_("Go forward one move. Shortcut: keyboard right key.")))
+		next_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go forward 10 moves.")))
+		final_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to final move.")))
+		self.territory_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show territories.")))
 		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
@@ -1182,11 +1186,11 @@ class DualView(Frame):
 		self.status_bar.config(text="")
 
 	def save_left_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
 		self.goban1.postscript(file=filename, colormode='color')
 	
 	def save_right_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title='Choose a filename',filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
 		self.goban2.postscript(file=filename, colormode='color')
 
 from gomill import sgf, sgf_moves
@@ -1197,7 +1201,7 @@ if __name__ == "__main__":
 
 	if len(sys.argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf for review', '.rsgf')])
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('SGF file reviewed', '.rsgf')])
 		temp_root.destroy()
 		log(filename)
 

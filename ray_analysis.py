@@ -22,6 +22,7 @@ import ttk
 
 import toolbox
 from toolbox import *
+from toolbox import _
 
 from time import time
 
@@ -42,9 +43,9 @@ class RunAnalysis(RunAnalysisBase):
 			
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
-				additional_comments+="\nWhite to play, in the game, white played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			else:
-				additional_comments+="\nBlack to play, in the game, black played "+ij2gtp(player_move)
+				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 
 			if player_color in ('w',"W"):
 				log("ray play white")
@@ -87,9 +88,9 @@ class RunAnalysis(RunAnalysisBase):
 								variation_comment=''
 								if win:
 									if current_color=='b':
-										variation_comment+="black/white win probability for this variation: "+str(win)+'%/'+str(100-float(win))+'%'
+										variation_comment+=_("black/white win probability for this variation: ")+str(win)+'%/'+str(100-float(win))+'%'
 									else:
-										variation_comment+="black/white win probability for this variation: "+str(100-float(win))+'%/'+str(win)+'%'
+										variation_comment+=_("black/white win probability for this variation: ")+str(100-float(win))+'%/'+str(win)+'%'
 								if count:
 									variation_comment+="\nCount: "+count
 								if simulation:
@@ -120,7 +121,7 @@ class RunAnalysis(RunAnalysisBase):
 				
 			else:
 				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\nFor this position, Ray would "+answer.lower()
+				additional_comments+="\n"+_("For this position, %s would %s"%("Ray",answer.lower()))
 				if answer.lower()=="pass":
 					ray.undo()
 			
@@ -144,7 +145,7 @@ class RunAnalysis(RunAnalysisBase):
 	
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
-		self.lab2.config(text="Now closing, please wait...")
+		self.lab2.config(text=_("Now closing, please wait..."))
 		self.update_idletasks()
 		log("killing ray")
 		self.ray.close()
@@ -169,11 +170,11 @@ class RunAnalysis(RunAnalysisBase):
 		try:
 			ray_command_line=Config.get("Ray", "Command")
 		except:
-			show_error("The config.ini file does not contain entry for Ray command line!")
+			show_error(_("The config.ini file does not contain entry for %s command line!")%"Ray")
 			return False
 		
 		if not ray_command_line:
-			show_error("The config.ini file does not contain command line for Ray!")
+			show_error(_("The config.ini file does not contain command line for %s!")%"Ray")
 			return False
 		log("Starting Ray...")
 		try:
@@ -181,35 +182,35 @@ class RunAnalysis(RunAnalysisBase):
 			ray=Ray_gtp(ray_command_line)
 			#ray=gtp(tuple(ray_command_line.split()))
 		except:
-			show_error("Could not run Ray using the command from config.ini file: \n"+" ".join(ray_command_line))
+			show_error((_("Could not run %s using the command from config.ini file:")%"Ray")+"\n"+" ".join(ray_command_line)+"\n"+str(e))
 			return False
 		log("Ray started")
 		log("Ray identification through GTP...")
 		try:
 			self.bot_name=ray.name()
 		except Exception, e:
-			show_error("Ray did not replied as expected to the GTP name command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP name command:")%"Ray")+"\n"+str(e))
 			return False
 		
 		if self.bot_name!="Rayon":
-			show_error("Ray did not identified itself as expected:\n'Rayon' != '"+self.bot_name+"'")
+			show_error((_("%s did not identified itself as expected:")%"Ray")+"\n'Rayon' != '"+self.bot_name+"'")
 			return
 		log("Ray identified itself properly")
 		log("Checking version through GTP...")
 		try:
 			self.bot_version=ray.version()
 		except Exception, e:
-			show_error("Ray did not replied as expected to the GTP version command:\n"+str(e))
+			show_error((_("%s did not replied as expected to the GTP version command:")%"Ray")+"\n"+str(e))
 			return False
 		log("Version: "+self.bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
 		try:
 			ok=ray.boardsize(size)
 		except:
-			show_error("Could not set the goboard size using GTP command. Check that the bot is running in GTP mode.")
+			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"Ray"))
 			return False
 		if not ok:
-			show_error("Ray rejected this board size ("+str(size)+"x"+str(size)+")")
+			show_error(_("%s rejected this board size (%ix%i)")%("Ray",size,size))
 			return False
 		log("Clearing the board")
 		ray.reset()
@@ -336,19 +337,19 @@ class RaySettings(Frame):
 		
 		row=0
 
-		Label(self,text="Ray settings").grid(row=row+1,column=1)
-		Label(self,text="Command").grid(row=row+2,column=1)
+		Label(self,text=_("%s settings")%"Ray").grid(row=row+1,column=1)
+		Label(self,text=_("Command")).grid(row=row+2,column=1)
 		RayCommand = StringVar() 
 		RayCommand.set(Config.get("Ray","Command"))
 		Entry(self, textvariable=RayCommand, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text="Parameters").grid(row=row+2,column=1)
+		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
 		RayParameters = StringVar() 
 		RayParameters.set(Config.get("Ray","Parameters"))
 		Entry(self, textvariable=RayParameters, width=30).grid(row=row+2,column=2)
 		row+=1
 		RayNeededForReview = BooleanVar(value=Config.getboolean('Ray', 'NeededForReview'))
-		RayCheckbutton=Checkbutton(self, text="Needed for review", variable=RayNeededForReview,onvalue=True,offvalue=False)
+		RayCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=RayNeededForReview,onvalue=True,offvalue=False)
 		RayCheckbutton.grid(row=row+2,column=1)
 		RayCheckbutton.var=RayNeededForReview
 		
@@ -409,7 +410,7 @@ class RayOpenMove(BotOpenMove):
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title='Choose a file',filetypes = [('sgf', '.sgf')])
+		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('sgf', '.sgf')])
 		temp_root.destroy()
 		log(filename)
 		log("gamename:",filename[:-4])

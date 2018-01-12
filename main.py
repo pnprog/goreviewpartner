@@ -14,8 +14,12 @@ except Exception, e:
 	raw_input()
 	sys.exit()
 
+import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
+import dual_view
+import settings
+import tkFileDialog
 from toolbox import *
-
+from toolbox import _
 
 
 log("Checking availability of config file")
@@ -24,15 +28,10 @@ Config = ConfigParser.ConfigParser()
 try:
 	Config.readfp(open(config_file))
 except Exception, e:
-	show_error("Could not open the config file of Go Review Partner\n"+str(e))
+	show_error(_("Could not open the config file of Go Review Partner")+"\n"+str(e))
 	sys.exit()
 
-import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
 
-import dual_view
-import settings
-
-import tkFileDialog
 app = Tk()
 
 app.title('GoReviewPartner')
@@ -85,7 +84,7 @@ def draw_logo(event=None):
 
 logo.bind("<Configure>",draw_logo)
 
-label = Label(app, text="This is GoReviewPartner")
+label = Label(app, text=_("This is GoReviewPartner"))
 label.pack(padx=5, pady=5)
 
 
@@ -95,9 +94,7 @@ from time import sleep
 def close_app():
 	global popups, app
 	for popup in popups:
-		log("================closing popup")
 		popup.close_app()
-		log("================popup closed")
 	log("closing")
 	app.destroy()
 	app.quit()
@@ -105,7 +102,7 @@ def close_app():
 	
 def launch_analysis():
 	global popups
-	filename = tkFileDialog.askopenfilename(parent=app,title='Choose a file',filetypes = [('sgf', '.sgf')])
+	filename = tkFileDialog.askopenfilename(parent=app,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
 	log(filename)
 	log("gamename:",filename[:-4])
 	if not filename:
@@ -132,7 +129,7 @@ def launch_analysis():
 	popups.append(new_popup)
 	top.mainloop()
 
-analysis_bouton=Button(app, text="Run *.sgf analysis", command=launch_analysis)
+analysis_bouton=Button(app, text=_("Run a SGF file analysis"), command=launch_analysis)
 analysis_bouton.pack(fill=X,padx=5, pady=5)
 
 def download_sgf_for_review():
@@ -156,11 +153,11 @@ def download_sgf_for_review():
 	popups.append(new_popup)
 	top.mainloop()
 
-download_bouton=Button(app, text="Download *.sgf for analysis", command=download_sgf_for_review)
+download_bouton=Button(app, text=_("Download a SGF file for analysis"), command=download_sgf_for_review)
 download_bouton.pack(fill=X,padx=5, pady=5)
 
 def launch_review():
-	filename = tkFileDialog.askopenfilename(parent=app,title='Select a file',filetypes = [('sgf reviewed', '.rsgf')])
+	filename = tkFileDialog.askopenfilename(parent=app,title=_('Select a file'),filetypes = [(_('SGF file reviewed'), '.rsgf')])
 	log(filename)
 	if not filename:
 		return
@@ -180,7 +177,7 @@ def launch_review():
 	popups.append(new_popup)
 	top.mainloop()
 	
-review_bouton=Button(app, text="Open *.rsgf for review", command=launch_review)
+review_bouton=Button(app, text=_("Open a RSGF file for review"), command=launch_review)
 review_bouton.pack(fill=X,padx=5, pady=5)
 
 
@@ -202,7 +199,7 @@ def refresh():
 		download_bouton.config(state='normal')
 
 
-bouton=Button(app, text="Settings", command=launch_settings)
+bouton=Button(app, text=_("Settings"), command=launch_settings)
 bouton.pack(fill=X,padx=5, pady=5)
 
 
