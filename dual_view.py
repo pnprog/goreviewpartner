@@ -82,10 +82,20 @@ class OpenChart():
 		top_frame.pack()
 		
 		self.graph_mode=StringVar()
-		self.graph_mode.set("Win rate") # initialize		
+		self.graph_mode.set("Win rate") # initialize
 		Radiobutton(top_frame, text=_("Win rate"),command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
-		Radiobutton(top_frame, text=_("Black comparison"),command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
-		Radiobutton(top_frame, text=_("White comparison"),command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+		for data in self.data:
+			if data:
+				if "delta" in data:
+					if data["player_color"]=="b":
+						Radiobutton(top_frame, text=_("Black comparison"),command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+						break
+		for data in self.data:
+			if data:
+				if "delta" in data:
+					if data["player_color"]=="w":
+						Radiobutton(top_frame, text=_("White comparison"),command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+						break
 		
 		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
 		#self.chart.grid(sticky=N+S+W+E)
@@ -184,7 +194,7 @@ class OpenChart():
 			y00=height-border-(height-2*border)/2.
 			for one_data in self.data:
 				if one_data:
-					if one_data["player_color"]==player_color:
+					if (one_data["player_color"]==player_color) and ("delta" in one_data):
 						player_win_rate=one_data["player_win_rate"]
 						move=one_data["move"]
 						moves.append(move)
@@ -199,7 +209,6 @@ class OpenChart():
 						self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 						self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 						self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
-						
 						delta=one_data["delta"]
 						if delta<>0:
 							y2=y1+delta*(height-2*border)/100.
@@ -763,40 +772,39 @@ class DualView(Frame):
 	def prepare_data_for_chart(self):
 		data=[]
 		for m in range(1,get_node_number(self.gameroot)+1):
-			
 			try:
 				one_data={}
-				#txt=""
-				#txt+="move "+str(m)
-				
+				data.append(one_data)
 				one_move=get_node(self.gameroot,m)
 				
-				computer_move=one_move.get('CBM')
 				
 				player_color,player_move=one_move.get_move()
 				player_move=ij2gtp(player_move)
-				
+
+
+				if player_color in ('w',"W"):
+					player_win_rate=get_node(self.gameroot,m+1).get('WWR').replace("%","")
+				else:
+					player_win_rate=get_node(self.gameroot,m+1).get('BWR').replace("%","")
+				one_data['player_win_rate']=float(player_win_rate)
 				one_data['move']=m
 				one_data['player_color']=player_color.lower()
 				
 				if player_color in ('w',"W"):
 					computer_win_rate=one_move.get('WWR').replace("%","")
-					player_win_rate=get_node(self.gameroot,m+1).get('WWR').replace("%","")
 				else:
-					#log("#"+str(m)+"#BWR#",one_move.get('BWR'))
-					#log(one_move.get('BWR').replace("%",""))
 					computer_win_rate=one_move.get('BWR').replace("%","")
-					player_win_rate=get_node(self.gameroot,m+1).get('BWR').replace("%","")
+					
 				one_data['computer_win_rate']=float(computer_win_rate)
-				one_data['player_win_rate']=float(player_win_rate)
 				
+				computer_move=one_move.get('CBM')
 				if player_move==computer_move:
 					player_win_rate=computer_win_rate
-
+					one_data['player_win_rate']=float(player_win_rate)
 				delta=float(player_win_rate.replace("%",""))-float(computer_win_rate.replace("%",""))
 				one_data['delta']=delta
 
-				data.append(one_data)
+				
 			except Exception, e:
 				if str(e) in ("'BWR'","'WWR'"):
 					#log("No win rate information for move",m)
@@ -806,9 +814,9 @@ class DualView(Frame):
 					#log("No computer best move information for move",m)
 					#log(e)
 					pass
-				else:
-					log(e)
-				data.append(None)
+				#else:
+				#	log(e)
+				#	data[-1]=None
 		return data
 	
 	def show_graphs(self,event=None):
@@ -1084,8 +1092,6 @@ class DualView(Frame):
 		self.data_for_chart=self.prepare_data_for_chart()
 		for data in self.data_for_chart:
 			if data<>None:
-				
-				
 				self.charts_button=Button(self, text=_('Graphs'))
 				self.charts_button.bind('<Button-1>', self.show_graphs)
 				self.charts_button.grid(column=3,row=2,sticky=E)
