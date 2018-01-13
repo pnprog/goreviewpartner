@@ -255,9 +255,18 @@ class RunAnalysis(RunAnalysisBase):
 		leela_zero.reset()
 		self.leela_zero=leela_zero
 		
-		log("Setting time per move")
-		self.time_per_move=int(Config.get("Leela_Zero", "TimePerMove"))
-		leela_zero.set_time(main_time=0,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
+		try:
+			time_per_move=Config.get("Leela_Zero", "TimePerMove")
+			if time_per_move:
+				time_per_move=int(time_per_move)
+				if time_per_move>0:
+					log("Setting time per move")
+					leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+		except:
+			log("Wrong value for Leela Zero thinking time:",Config.get("Leela_Zero", "TimePerMove"))
+			log("Erasing that value in the config file")
+			Config.set("Leela_Zero","TimePerMove","")
+			Config.write(open(config_file,"w"))
 		
 		log("Setting komi")
 		self.move_zero=self.g.get_root()
