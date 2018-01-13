@@ -67,7 +67,7 @@ class RunAnalysis(RunAnalysisBase):
 				
 				
 				#making sure the first line of play is more than one move deep				
-				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]):	
+				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]) and (nb_undos<=20):
 					log("going deeper for first line of play (",nb_undos,")")
 
 					if player_color in ('w',"W") and nb_undos%2==0:
@@ -301,7 +301,7 @@ class Leela_Zero_gtp(gtp):
 		answer=self.readline()
 		try:
 			return " ".join(answer.split(" ")[1:])
-		except:
+		except: and (nb_undos<=20):
 			raise GtpException("GtpException in Get_leela_zero_final_score()")
 
 	def get_leela_zero_influence(self):
