@@ -255,6 +255,7 @@ class RunAnalysis(RunAnalysisBase):
 		leela_zero.reset()
 		self.leela_zero=leela_zero
 		
+		self.time_per_move=0
 		try:
 			time_per_move=Config.get("Leela_Zero", "TimePerMove")
 			if time_per_move:
@@ -262,6 +263,7 @@ class RunAnalysis(RunAnalysisBase):
 				if time_per_move>0:
 					log("Setting time per move")
 					leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+					self.time_per_move=time_per_move
 		except:
 			log("Wrong value for Leela Zero thinking time:",Config.get("Leela_Zero", "TimePerMove"))
 			log("Erasing that value in the config file")
@@ -301,7 +303,7 @@ class Leela_Zero_gtp(gtp):
 		answer=self.readline()
 		try:
 			return " ".join(answer.split(" ")[1:])
-		except: and (nb_undos<=20):
+		except:
 			raise GtpException("GtpException in Get_leela_zero_final_score()")
 
 	def get_leela_zero_influence(self):
@@ -419,8 +421,14 @@ class LeelaZeroOpenMove(BotOpenMove):
 				ok=leela_zero.boardsize(dim)
 				leela_zero.reset()
 				leela_zero.komi(komi)
-				time_per_move=int(Config.get("Leela_Zero", "TimePerMove"))
-				leela_zero.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				try:
+					time_per_move=Config.get("Leela_Zero", "TimePerMove")
+					if time_per_move:
+						time_per_move=int(time_per_move)
+						if time_per_move>0:
+							leela_zero.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				except:
+					pass #silent fail...
 				self.bot=leela_zero
 				if not ok:
 					raise AbortedException("Boardsize value rejected by "+self.name)

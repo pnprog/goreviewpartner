@@ -222,8 +222,8 @@ class RunAnalysis(RunAnalysisBase):
 				additional_comments+="\n"+_("For this position, %s would %s"%("Leela",answer.lower()))
 				if answer.lower()=="pass":
 					leela.undo()
-			
-			
+
+						
 			one_move.add_comment_text(additional_comments)
 			
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
@@ -316,7 +316,7 @@ class RunAnalysis(RunAnalysisBase):
 		leela.reset()
 		self.leela=leela
 		
-		
+		self.time_per_move=0
 		try:
 			time_per_move=Config.get("Leela", "TimePerMove")
 			if time_per_move:
@@ -324,6 +324,7 @@ class RunAnalysis(RunAnalysisBase):
 				if time_per_move>0:
 					log("Setting time per move")
 					leela.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+					self.time_per_move=time_per_move
 		except:
 			log("Wrong value for Leela thinking time:",Config.get("Leela", "TimePerMove"))
 			log("Erasing that value in the config file")
@@ -493,8 +494,14 @@ class LeelaOpenMove(BotOpenMove):
 				ok=leela.boardsize(dim)
 				leela.reset()
 				leela.komi(komi)
-				time_per_move=int(Config.get("Leela", "TimePerMove"))
-				leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				try:
+					time_per_move=Config.get("Leela", "TimePerMove")
+					if time_per_move:
+						time_per_move=int(time_per_move)
+						if time_per_move>0:
+							leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				except:
+					pass #silent fail...
 				self.bot=leela
 				if not ok:
 					raise AbortedException("Boardsize value rejected by %s"%self.name)
