@@ -21,8 +21,7 @@ import os
 from gtp import gtp
 import ConfigParser
 
-Config = ConfigParser.ConfigParser()
-Config.read(config_file)
+
 
 bg='#C0C0C0'
 
@@ -600,6 +599,11 @@ class DualView(Frame):
 		self.filename=filename
 		self.goban_size=goban_size
 		
+		global Config, goban
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
+
 		self.initialize()
 		
 		self.current_move=1
@@ -1204,7 +1208,10 @@ import goban
 #goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 
 if __name__ == "__main__":
-
+	
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+	
 	if len(sys.argv)==1:
 		temp_root = Tk()
 		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('SGF file reviewed', '.rsgf')])

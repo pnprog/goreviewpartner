@@ -3,7 +3,7 @@ from copy import deepcopy as copy
 
 space=10
 
-fuzzy=0.2
+fuzzy=0.0
 
 
 from random import random,seed,choice
