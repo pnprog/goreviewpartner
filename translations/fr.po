@@ -185,6 +185,9 @@ msgstr "<Ctrl+Q> pour exporter le goban comme image postscript"
 msgid "The computer believes it's own move win rate would be %.2fpp higher."
 msgstr "Le programme estime que son propre coup serait %.2fpp meilleur."
 
+msgid "The computer believes your move is %.2fpp better than it's best move."
+msgstr "Le programme estime que votre coup serait %.2fpp meilleur que le sien."
+
 msgid "Black win rate"
 msgstr "Taux de victoire pour Noir"
 
