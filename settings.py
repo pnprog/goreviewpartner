@@ -65,6 +65,14 @@ class OpenSettings(Toplevel):
 		SaveCommandLineCheckbutton.grid(row=row+2,column=2,sticky=W)
 		SaveCommandLineCheckbutton.var=SaveCommandLine
 		row+=1
+		Label(setting_frame,text=_("Stop the analysis if the bot resigns")).grid(row=row+2,column=1)
+		StopAtFirstResign = BooleanVar(value=Config.getboolean('Analysis', 'StopAtFirstResign'))
+		StopAtFirstResignCheckbutton=Checkbutton(setting_frame, text="", variable=StopAtFirstResign,onvalue=True,offvalue=False)
+		StopAtFirstResignCheckbutton.grid(row=row+2,column=2,sticky=W)
+		StopAtFirstResignCheckbutton.var=StopAtFirstResign
+		
+		
+		row+=1
 		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row+2,column=1)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
@@ -76,6 +84,7 @@ class OpenSettings(Toplevel):
 		self.GobanScreenRatio=GobanScreenRatio
 		self.MaxVariationsToRecord=MaxVariationsToRecord
 		self.SaveCommandLine=SaveCommandLine
+		self.StopAtFirstResign=StopAtFirstResign
 		self.MaxVariationsToDisplay=MaxVariationsToDisplay
 		
 		setting_frame.save=self.save
@@ -118,6 +127,7 @@ class OpenSettings(Toplevel):
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
 		Config.set("Analysis","MaxVariations",self.MaxVariationsToRecord.get())
 		Config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
+		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		
 		Config.write(open(config_file,"w"))

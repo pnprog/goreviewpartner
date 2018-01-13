@@ -153,7 +153,12 @@ class RunAnalysis(RunAnalysisBase):
 				additional_comments+="\n"+_("For this position, %s would %s"%("AQ",answer.lower()))
 				if answer.lower()=="pass":
 					aq.undo()
-			
+				elif answer.lower()=="resign":
+					if self.stop_at_first_resign:
+						log("")
+						log("The analysis will stop now")
+						log("")
+						self.move_range=[]
 			
 			one_move.add_comment_text(additional_comments)
 			
@@ -161,7 +166,10 @@ class RunAnalysis(RunAnalysisBase):
 
 			self.total_done+=1
 		else:
-			log("Move",current_move,"not in the list of moves to be analysed, skipping")
+			if self.move_range:
+				log("Move",current_move,"not in the list of moves to be analysed, skipping")
+			else:
+				return
 
 		linelog("now asking AQ to play the game move:")
 		if player_color in ('w',"W"):

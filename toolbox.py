@@ -470,6 +470,19 @@ class RangeSelector(Frame):
 			show_error(_("Error while reading komi value, please check:")+"\n"+str(e))
 			komi_entry.insert(0, "0")
 		
+		row+=10
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
+		Label(self,text=_("Stop the analysis if the bot resigns")).grid(row=row,column=1,sticky=W)
+		StopAtFirstResign = BooleanVar(value=Config.getboolean('Analysis', 'StopAtFirstResign'))
+		StopAtFirstResignCheckbutton=Checkbutton(self, text="", variable=StopAtFirstResign,onvalue=True,offvalue=False)
+		StopAtFirstResignCheckbutton.grid(row=row,column=2,sticky=W)
+		StopAtFirstResignCheckbutton.var=StopAtFirstResign
+		self.StopAtFirstResign=StopAtFirstResign
 		
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
@@ -557,6 +570,13 @@ class RangeSelector(Frame):
 		variation=int(self.variation_selection.get().split(" ")[1])-1
 		log(variation)
 		
+		####################################
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
+		Config.write(open(config_file,"w"))
+		
+		####################################
 		self.parent.destroy()
 		newtop=Tk()
 		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
@@ -602,6 +622,17 @@ class RunAnalysisBase(Frame):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
+		
+		try:
+			if Config.getboolean('Analysis', 'StopAtFirstResign'):
+				log("Stop_At_First_Resign is ON")
+				self.stop_at_first_resign=True
+			else:
+				self.stop_at_first_resign=False
+				log("Stop_At_First_Resign is OFF")
+		except:
+			self.stop_at_first_resign=False
+			log("Stop_At_First_Resign is OFF")
 		
 		self.root.after(500,self.follow_analysis)
 	
@@ -660,7 +691,7 @@ class RunAnalysisBase(Frame):
 		if self.lock1.acquire(False):
 			if self.total_done>0:
 				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
-				log(self.total_done,"move(s) analysed in",int(10*(time.time()-self.t0))/10.,"secondes =>",int(10*self.time_per_move)/10.,"s/m")
+				#log(self.total_done,"move(s) analysed in",int(10*(time.time()-self.t0))/10.,"secondes =>",int(10*self.time_per_move)/10.,"s/m")
 				#log("self.time_per_move=",(time.time()-self.t0),"/",self.total_done,"=",self.time_per_move)
 			remaining_s=int((len(self.move_range)-self.total_done)*self.time_per_move)
 			remaining_h=remaining_s/3600
