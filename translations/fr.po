@@ -171,7 +171,7 @@ msgstr "Analyse par GoReviewPartner"
 ####### RSGF review ########
 ############################
 msgid "Win rate"
-msgstr "Taux de victoire"
+msgstr "Probabitité de victoire"
 
 msgid "Black comparison"
 msgstr "Graphique de comparaison pour Noir"
@@ -189,7 +189,7 @@ msgid "The computer believes your move is %.2fpp better than it's best move."
 msgstr "Le programme estime que votre coup serait %.2fpp meilleur que le sien."
 
 msgid "Black win rate"
-msgstr "Taux de victoire pour Noir"
+msgstr "Probabilité de victoire pour Noir"
 
 msgid "White"
 msgstr "Blanc"
@@ -198,13 +198,13 @@ msgid "Black"
 msgstr "Noir"
 
 msgid "Move %i (%s), black/white win rate: "
-msgstr "Coup %i (%s), taux de victoire noir/blanc: "
+msgstr "Coup %i (%s), probabilité de victoire noir/blanc: "
 
 msgid "Choose a filename"
 msgstr "Choisissez un nom de fichier"
 
 msgid "Undo last move. Shortcut: mouse middle button."
-msgstr "Annuler le dernier coup. Raccourcis clavier: click milieu souris"
+msgstr "Annuler le dernier coup. Raccourcis clavier: click milieu souris."
 
 msgid "Ask %s to play the next move."
 msgstr "Demander à %s de jouer le prochain coup"
@@ -360,7 +360,7 @@ msgstr "Ferméture en cours, veuillez patienter..."
 ###############################
 
 msgid "black/white win probability for this variation: "
-msgstr "Probabilités noire/blanche de victoire pour cette variation"
+msgstr "Probabilités noire/blanche de victoire pour cette variation: "
 
 msgid "Monte Carlo win probalbility for this move: "
 msgstr "Probabilités Monte Carlo de victoire pour ce coups: "
@@ -378,13 +378,13 @@ msgid "RAVE(x%: y) for this move: "
 msgstr "RAVE(x%: y) pour ce coup: "
 
 msgid "Number of playouts used to estimate this variation: "
-msgstr "Nombre de simulations utilisées pour estimer cette variation"
+msgstr "Nombre de simulations utilisées pour estimer cette variation: "
 
 msgid "Book move"
 msgstr ""
 
 msgid "%s black/white win probability for this position: "
-msgstr "Probabilités noire/blanche de victoire pour cette variation selon %s"
+msgstr "Probabilités noire/blanche de victoire pour cette variation selon %s: "
 
 msgid "Time per move (s)"
 msgstr "Temps de réflexion par coup (en secondes)"
