@@ -21,6 +21,8 @@ import os
 from gtp import gtp
 import ConfigParser
 
+import threading, Queue
+
 
 
 bg='#C0C0C0'
@@ -320,19 +322,35 @@ class OpenMove():
 		
 	def lock(self):
 		self.locked=True
+		
+		self.undo_button.config(state='disabled')
+		self.menu.config(state='disabled')
+		self.play_button.config(state='disabled')
+		self.white_button.config(state='disabled')
+		self.black_button.config(state='disabled')
+		if (not self.white_autoplay) or (not self.black_autoplay):
+			
+			self.selfplay_button.config(state='disabled')
 
 	def unlock(self,after=False):
 		if after:
-			#log("unlocking 2/2")
+			log("unlocking 2/2")
 			self.locked=False
 		else:
-			#log("unlocking 1/2")
+			log("unlocking 1/2")
 			self.popup.after(100,lambda: self.unlock(True))
+			self.undo_button.config(state='normal')
+			self.menu.config(state='normal')
+			self.play_button.config(state='normal')
+			self.white_button.config(state='normal')
+			self.black_button.config(state='normal')
+			self.selfplay_button.config(state='normal')
 	
 	def close(self):
 		if self.locked:
 			return
 		log("closing popup")
+		self.display_queue.put(0)
 		self.popup.destroy()
 		
 		for bot in self.bots:
@@ -344,9 +362,9 @@ class OpenMove():
 	
 	def undo(self,event=None):
 		log("UNDO")
-		if self.locked:
-			log("failed!")
-			return
+		#if self.locked:
+		#	log("failed!")
+		#	return
 
 		if len(self.history)<1:
 			return
@@ -362,13 +380,10 @@ class OpenMove():
 		
 
 	def click_button(self,bot):
-		if self.locked:
-			return
-		
 		dim=self.dim
-		
-		self.lock()
-		self.goban.display(self.grid,self.markup,True)
+		if not self.locked:
+			self.lock()
+			self.display_queue.put(2)
 		
 		color=self.next_color
 		move=bot.click(color)
@@ -393,18 +408,32 @@ class OpenMove():
 			self.next_color=3-color
 		else:
 			bot.undo()
-			#self.goban.display(self.grid,self.markup)
-			if color==1:
-				show_info(bot.name+"/"+_("Black")+": "+move)
+			self.display_queue.put(bot.name+" ("+_("Black")+"): "+move.lower())
+		
+		if self.white_autoplay and self.black_autoplay:
+			if move.lower() not in ["pass","resign"]:
+				log("SELF PLAY")
+				self.display_queue.put(2)
+				
+				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))
+				self.popup.after(0,one_thread.start())
+				return
 			else:
-				show_info(bot.name+"/"+_("White")+": "+move)
-
-
-		self.goban.display(self.grid,self.markup)
-		self.undo_button.config(state='normal') #???
-		self.unlock()
-
+				log("End of SELF PLAY")
+				self.click_selfplay()
+				self.display_queue.put(1)
+				self.unlock()
+				return
+		else:
+			self.display_queue.put(1)
+			self.unlock()
+			return
+		
+		
+		
 	def click(self,event):
+		if self.locked:
+			return
 		dim=self.dim
 		#add/remove black stone
 		#check pointer location
@@ -417,7 +446,13 @@ class OpenMove():
 			if self.grid[i][j] not in (1,2):
 				#nothing, so we add a black stone			
 				for bot in self.bots:
-					bot.place(ij2gtp((i,j)),color)
+					if bot.place(ij2gtp((i,j)),color)==False:
+						del self.menu_bots[bot.name]
+						self.selected_bot=StringVar()
+						self.selected_bot.set(self.menu_bots.keys()[0])
+						self.menu.pack_forget()
+						self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+						self.menu.pack(fill=BOTH,expand=1)
 
 				self.history.append([copy(self.grid),copy(self.markup)])
 					
@@ -430,13 +465,83 @@ class OpenMove():
 				self.goban.display(self.grid,self.markup)
 				self.next_color=3-color
 				self.undo_button.config(state='normal')
-	
+				
+				if color==1:
+					if self.white_autoplay:
+						threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
+						#self.click_button(self.menu_bots[self.selected_bot.get()])
+				else:
+					if self.black_autoplay:
+						threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
+						#self.click_button(self.menu_bots[self.selected_bot.get()])
+						
 	def set_status(self,msg,event=None):
 		self.status_bar.config(text=msg)
 		
 	def clear_status(self):
 		self.status_bar.config(text="")
 	
+	def click_play_one_move(self):
+		#if self.locked:
+		#	return
+		log("Asking",self.selected_bot.get(),"to play one move")
+		self.white_button.config(relief=RAISED)
+		self.black_button.config(relief=RAISED)
+		self.selfplay_button.config(relief=RAISED)
+		
+		self.black_autoplay=False
+		self.white_autoplay=False
+		
+		threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
+		#self.click_button(self.menu_bots[self.selected_bot.get()])
+
+
+	def click_white_answer(self):
+		
+		if self.white_button.cget("relief")!=SUNKEN:
+			self.white_button.config(relief=SUNKEN)
+			self.white_autoplay=True
+		else:
+			self.white_button.config(relief=RAISED)
+			self.white_autoplay=False
+		
+		self.black_autoplay=False
+		
+		self.black_button.config(relief=RAISED)
+		self.selfplay_button.config(relief=RAISED)
+		
+	def click_black_answer(self):
+		
+		if self.black_button.cget("relief")!=SUNKEN:
+			self.black_button.config(relief=SUNKEN)
+			self.black_autoplay=True
+		else:
+			self.black_button.config(relief=RAISED)
+			self.black_autoplay=False
+		
+		self.white_autoplay=False
+		
+		self.white_button.config(relief=RAISED)
+		self.selfplay_button.config(relief=RAISED)
+
+	def click_selfplay(self):
+		self.white_button.config(relief=RAISED)
+		self.black_button.config(relief=RAISED)
+		if self.selfplay_button.cget("relief")!=SUNKEN:
+			if self.locked:
+				self.selfplay_button.config(relief=RAISED)
+				return
+			self.selfplay_button.config(relief=SUNKEN)
+			self.black_autoplay=True
+			self.white_autoplay=True
+			self.selfplay_button.config(text=_('Abort'))
+			threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
+		else:
+			self.selfplay_button.config(relief=RAISED)
+			self.black_autoplay=False
+			self.white_autoplay=False
+			self.selfplay_button.config(text=_('Self play'))
+		
 	def initialize(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -462,21 +567,70 @@ class OpenMove():
 		undo_button.grid(column=0,row=1,sticky=E+W)
 		undo_button.config(state='disabled')
 		undo_button.bind("<Enter>",lambda e: self.set_status(_("Undo last move. Shortcut: mouse middle button.")))
+		undo_button.bind("<Leave>",lambda e: self.clear_status())
 		
 		self.bots=[]
+		self.menu_bots={}
 		row=10
 		for available_bot in self.available_bots:
 			row+=2
-			one_bot=available_bot(panel,dim,komi)
-			
+			one_bot=available_bot(dim,komi)
 			self.bots.append(one_bot)
 			
 			if one_bot.okbot:
-				one_bot.grid(column=0,row=row,sticky=E+W)
-				one_bot.config(command=partial(self.click_button,bot=one_bot))
-				msg=_("Ask %s to play the next move.")%one_bot.name
-				one_bot.bind("<Enter>",partial(self.set_status,msg))
-				one_bot.bind("<Leave>",lambda e: self.clear_status())
+				#self.menu_bots.append(one_bot)
+				self.menu_bots[one_bot.name]=one_bot
+				#one_bot.grid(column=0,row=row,sticky=E+W)
+				#one_bot.config(command=partial(self.click_button,bot=one_bot))
+				#msg=_("Ask %s to play the next move.")%one_bot.name
+				#one_bot.bind("<Enter>",partial(self.set_status,msg))
+				#one_bot.bind("<Leave>",lambda e: self.clear_status())
+		
+		row+=10
+		Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
+		
+		row+=1
+		self.selected_bot=StringVar()
+		self.selected_bot.set(self.menu_bots.keys()[0])
+		
+		self.menu_wrapper=Frame(panel)
+		self.menu_wrapper.grid(row=row,column=0,sticky=E+W)
+		self.menu_wrapper.bind("<Enter>",lambda e: self.set_status(_("Select a bot.")))
+		self.menu_wrapper.bind("<Leave>",lambda e: self.clear_status())
+		
+		self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+		self.menu.pack(fill=BOTH,expand=1)
+		
+		row+=1
+		Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
+		
+		row+=1
+		self.play_button=Button(panel, text=_('Play one move'),command=self.click_play_one_move)
+		self.play_button.grid(column=0,row=row,sticky=E+W)
+		self.play_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play one move.")))
+		self.play_button.bind("<Leave>",lambda e: self.clear_status())
+		
+		
+		row+=1
+		self.white_button=Button(panel, text=_('Play as white'),command=self.click_white_answer)
+		self.white_button.grid(column=0,row=row,sticky=E+W)
+		self.white_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play as White.")))
+		self.white_button.bind("<Leave>",lambda e: self.clear_status())
+		
+		row+=1
+		self.black_button=Button(panel, text=_('Play as black'),command=self.click_black_answer)
+		self.black_button.grid(column=0,row=row,sticky=E+W)
+		self.black_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play as Black.")))
+		self.black_button.bind("<Leave>",lambda e: self.clear_status())
+		
+		row+=1
+		self.selfplay_button=Button(panel, text=_('Self play'),command=self.click_selfplay)
+		self.selfplay_button.grid(column=0,row=row,sticky=E+W)
+		self.selfplay_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play alone.")))
+		self.selfplay_button.bind("<Leave>",lambda e: self.clear_status())
+		
+		self.black_autoplay=False
+		self.white_autoplay=False
 		
 		panel.grid(column=1,row=1,sticky=N+S)
 		
@@ -570,7 +724,29 @@ class OpenMove():
 		self.history=[]
 
 		self.goban.bind("<Configure>",self.redraw)
-
+		
+		self.display_queue=Queue.Queue(1)
+		self.parent.after(100,self.wait_for_display)
+	
+	def wait_for_display(self):
+		try:
+			msg=self.display_queue.get(False)
+			
+			if msg==0:
+				pass
+			elif msg==1:
+				self.goban.display(self.grid,self.markup)
+				self.parent.after(250,self.wait_for_display)
+			elif msg==2:
+				self.goban.display(self.grid,self.markup,True)
+				self.parent.after(250,self.wait_for_display)
+			else:
+				show_info(msg)
+				self.goban.display(self.grid,self.markup)
+				self.parent.after(0,self.wait_for_display)
+		except:
+			self.parent.after(250,self.wait_for_display)
+		
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)

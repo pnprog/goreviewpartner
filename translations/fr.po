@@ -206,8 +206,8 @@ msgstr "Choisissez un nom de fichier"
 msgid "Undo last move. Shortcut: mouse middle button."
 msgstr "Annuler le dernier coup. Raccourcis clavier: click milieu souris."
 
-msgid "Ask %s to play the next move."
-msgstr "Demander à %s de jouer le prochain coup"
+#msgid "Ask %s to play the next move."
+#msgstr "Demander à %s de jouer le prochain coup"
 
 msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
 msgstr "Utiliser la molette de souris ou les touches clavier haut/bas pour afficher la séquence coup par coup."
@@ -250,6 +250,37 @@ msgstr "Maintenez appuyer pour afficher les territoires."
 
 msgid "Undo"
 msgstr "Annuler"
+
+msgid "Select a bot."
+msgstr "Choissisez un programme"
+
+msgid "Play one move"
+msgstr "Jouer un coup"
+
+msgid "Ask the bot to play one move."
+msgstr "Demander au programme de jouer un coup."
+
+msgid "Play as white"
+msgstr "Jouer en tant que Blanc"
+
+msgid "Ask the bot to play as White."
+msgstr "Demander au programme de jouer en tant que Blanc."
+
+msgid "Play as black"
+msgstr "Jouer en tant que Noir"
+
+msgid "Ask the bot to play as Black."
+msgstr "Demander au programme de jouer en tant que Noir."
+
+msgid "Self play"
+msgstr "Jouer seul"
+
+msgid "Ask the bot to play alone."
+msgstr "Demander au programme de jouer contre lui même."
+
+msgid "Abort"
+msgstr "Interrompre"
+
 
 ########################
 #### Settings panel ####

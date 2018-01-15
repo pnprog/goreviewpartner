@@ -392,10 +392,9 @@ class GnuGoSettings(Frame):
 		Config.write(open(config_file,"w"))
 
 class GnuGoOpenMove(BotOpenMove):
-	def __init__(self,parent,dim,komi):
-		BotOpenMove.__init__(self,parent)
+	def __init__(self,dim,komi):
+		BotOpenMove.__init__(self)
 		self.name='Gnugo'
-		self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -414,11 +413,9 @@ class GnuGoOpenMove(BotOpenMove):
 			except Exception, e:
 				log("Could not launch "+self.name)
 				log(e)
-				self.config(state='disabled')
 				self.okbot=False
 		else:
 			self.okbot=False
-			self.config(state='disabled')
 
 
 import getopt

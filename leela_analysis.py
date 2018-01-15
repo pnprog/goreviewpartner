@@ -422,10 +422,10 @@ class LeelaSettings(Frame):
 
 
 class LeelaOpenMove(BotOpenMove):
-	def __init__(self,parent,dim,komi):
-		BotOpenMove.__init__(self,parent)
+	def __init__(self,dim,komi):
+		BotOpenMove.__init__(self)
 		self.name='Leela'
-		self.configure(text=self.name)
+		#self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -452,11 +452,11 @@ class LeelaOpenMove(BotOpenMove):
 			except Exception, e:
 				log("Could not launch "+self.name)
 				log(e)
-				self.config(state='disabled')
+				#self.config(state='disabled')
 				self.okbot=False
 		else:
 			self.okbot=False
-			self.config(state='disabled')
+			#self.config(state='disabled')
 
 
 

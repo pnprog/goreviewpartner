@@ -776,7 +776,7 @@ class RunAnalysisBase(Frame):
 		
 		
 		Label(root,text=_("Analysis of: %s")%os.path.basename(self.filename)).pack()
-				
+		
 		self.lab1=Label(root)
 		self.lab1.pack()
 		
@@ -818,10 +818,10 @@ class RunAnalysisBase(Frame):
 		self.root=root
 
 
-class BotOpenMove(Button):
-	def __init__(self,parent):
+class BotOpenMove():
+	def __init__(self):
 		self.name='Bot'
-		Button.__init__(self,parent)
+		#Button.__init__(self,parent)
 		
 	def undo(self):
 		if self.okbot:
@@ -830,7 +830,9 @@ class BotOpenMove(Button):
 	def place(self,move,color):
 		if self.okbot:
 			if not self.bot.place(move,color):
-				self.config(state='disabled')
+				#self.config(state='disabled')
+				return False
+			return True
 
 	def click(self,color):
 		log(self.name,"play")

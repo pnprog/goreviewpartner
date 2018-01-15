@@ -322,10 +322,9 @@ class AQSettings(Frame):
 
 
 class AQOpenMove(BotOpenMove):
-	def __init__(self,parent,dim,komi):
-		BotOpenMove.__init__(self,parent)
+	def __init__(self,dim,komi):
+		BotOpenMove.__init__(self)
 		self.name='AQ'
-		self.configure(text=self.name)
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -345,11 +344,9 @@ class AQOpenMove(BotOpenMove):
 			except Exception, e:
 				log("Could not launch "+self.name)
 				log(e)
-				self.config(state='disabled')
 				self.okbot=False
 		else:
 			self.okbot=False
-			self.config(state='disabled')
 
 	def close(self):
 		if self.okbot:
