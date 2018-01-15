@@ -175,80 +175,16 @@ class RunAnalysis(RunAnalysisBase):
 		log("size of the tree:", size)
 		self.size=size
 
-		try:
-			ray_command_line=Config.get("Ray", "Command")
-		except:
-			show_error(_("The config.ini file does not contain entry for %s command line!")%"Ray")
-			return False
-		
-		if not ray_command_line:
-			show_error(_("The config.ini file does not contain command line for %s!")%"Ray")
-			return False
-		log("Starting Ray...")
-		try:
-			ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
-			ray=Ray_gtp(ray_command_line)
-			#ray=gtp(tuple(ray_command_line.split()))
-		except:
-			show_error((_("Could not run %s using the command from config.ini file:")%"Ray")+"\n"+" ".join(ray_command_line)+"\n"+str(e))
-			return False
-		log("Ray started")
-		log("Ray identification through GTP...")
-		try:
-			self.bot_name=ray.name()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP name command:")%"Ray")+"\n"+str(e))
-			return False
-		
-		if self.bot_name!="Rayon":
-			show_error((_("%s did not identified itself as expected:")%"Ray")+"\n'Rayon' != '"+self.bot_name+"'")
-			return
-		log("Ray identified itself properly")
-		log("Checking version through GTP...")
-		try:
-			self.bot_version=ray.version()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP version command:")%"Ray")+"\n"+str(e))
-			return False
-		log("Version: "+self.bot_version)
-		log("Setting goban size as "+str(size)+"x"+str(size))
-		try:
-			ok=ray.boardsize(size)
-		except:
-			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"Ray"))
-			return False
-		if not ok:
-			show_error(_("%s rejected this board size (%ix%i)")%("Ray",size,size))
-			return False
-		log("Clearing the board")
-		ray.reset()
-		self.ray=ray
-		
-
-		self.time_per_move=0
-		
-		log("Setting komi")
+		log("Setting new komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
-		ray.komi(self.komi)
 
-		
-		board, plays = sgf_moves.get_setup_and_moves(self.g)
-		handicap_stones=""
-		log("Adding handicap stones, if any")
-		for colour, move0 in board.list_occupied_points():
-			if move0 != None:
-				row, col = move0
-				move=ij2gtp((row,col))
-				if colour in ('w',"W"):
-					log("Adding initial white stone at",move)
-					ray.place_white(move)
-				else:
-					log("Adding initial black stone at",move)
-					ray.place_black(move)
+		ray=bot_starting_procedure("Ray","Rayon",Ray_gtp,self.g)
+		self.ray=ray
+		self.time_per_move=0
+
 		log("Ray initialization completed")
 		return ray
-
 
 class Ray_gtp(gtp):
 	def __init__(self,command):

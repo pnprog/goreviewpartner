@@ -131,7 +131,7 @@ class RunAnalysis(RunAnalysisBase):
 								new_child.add_comment_text(variation_comment)
 							if best_move:
 								best_move=False
-								additional_comments+=_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
+								additional_comments+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
 								one_move.set("BWR",str(one_value_network)+'%') #Black value network
 								one_move.set("WWR",str(100-one_value_network)+'%') #White value network
 						else:
@@ -143,7 +143,7 @@ class RunAnalysis(RunAnalysisBase):
 								new_child.add_comment_text(variation_comment)
 							if best_move:
 								best_move=False
-								additional_comments+=_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
+								additional_comments+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
 								one_move.set("WWR",str(one_value_network)+'%') #White value network
 								one_move.set("BWR",str(100-one_value_network)+'%') #Black value network
 									
@@ -214,53 +214,11 @@ class RunAnalysis(RunAnalysisBase):
 		log("size of the tree:", size)
 		self.size=size
 
-		try:
-			leela_zero_command_line=Config.get("Leela_Zero", "Command")
-		except:
-			show_error(_("The config.ini file does not contain entry for %s command line!")%"Leela ZEro")
-			return False
-		
-		if not leela_zero_command_line:
-			show_error(_("The config.ini file does not contain command line for %s!")%"Leela Zero")
-			return False
-		log("Starting Leela Zero...")
-		try:
-			leela_zero_command_line=[Config.get("Leela_Zero", "Command")]+Config.get("Leela_Zero", "Parameters").split()
-			leela_zero=Leela_Zero_gtp(leela_zero_command_line)
-		except:
-			show_error((_("Could not run %s using the command from config.ini file:")%"Leela Zero")+"\n"+" ".join(leela_zero_command_line)+"\n"+str(e))
-			return False
-		log("Leela Zero started")
-		log("Leela Zero identification through GTP..")
-		try:
-			self.bot_name=leela_zero.name()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP name command:")%"Leela Zero")+"\n"+str(e))
-			return False
-		
-		if self.bot_name!="Leela Zero":
-			show_error((_("%s did not identified itself as expected:")%"Leela Zero")+"\n'Leela Zero' != '"+self.bot_name+"'")
-			return False
-		log("Leela Zero identified itself properly")
-		log("Checking version through GTP...")
-		try:
-			self.bot_version=leela_zero.version()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP version command:")%"Leela Zero")+"\n"+str(e))
-			return False
-		log("Version: "+self.bot_version)
-		log("Setting goban size as "+str(size)+"x"+str(size))
-		
-		try:
-			ok=leela_zero.boardsize(size)
-		except:
-			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"Leela Zero"))
-			return False
-		if not ok:
-			show_error(_("%s rejected this board size (%ix%i)")%("Leela Zero",size,size))
-			return False
-		log("Clearing the board")
-		leela_zero.reset()
+		log("Setting new komi")
+		self.move_zero=self.g.get_root()
+		self.g.get_root().set("KM", self.komi)
+
+		leela_zero=bot_starting_procedure("Leela_Zero","Leela Zero",Leela_Zero_gtp,self.g)
 		self.leela_zero=leela_zero
 		
 		self.time_per_move=0
@@ -278,27 +236,6 @@ class RunAnalysis(RunAnalysisBase):
 			Config.set("Leela_Zero","TimePerMove","")
 			Config.write(open(config_file,"w"))
 		
-		log("Setting komi")
-		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
-		leela_zero.komi(self.komi)
-
-		
-		
-		
-		board, plays = sgf_moves.get_setup_and_moves(self.g)
-		handicap_stones=""
-		log("Adding handicap stones, if any")
-		for colour, move0 in board.list_occupied_points():
-			if move0 != None:
-				row, col = move0
-				move=ij2gtp((row,col))
-				if colour in ('w',"W"):
-					log("Adding initial white stone at",move)
-					leela_zero.place_white(move)
-				else:
-					log("Adding initial black stone at",move)
-					leela_zero.place_black(move)
 		log("Leela Zero initialization completed")
 		
 		return leela_zero

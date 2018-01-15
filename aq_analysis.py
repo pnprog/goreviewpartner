@@ -206,82 +206,14 @@ class RunAnalysis(RunAnalysisBase):
 		log("size of the tree:", size)
 		self.size=size
 
-		try:
-			aq_command_line=Config.get("AQ", "Command")
-		except:
-			show_error(_("The config.ini file does not contain entry for %s command line!")%"AQ")
-			return False
-		
-		if not aq_command_line:
-			show_error(_("The config.ini file does not contain command line for %s!")%"AQ")
-			return False
-		log("Starting AQ...")
-		try:
-			aq_command_line=[Config.get("AQ", "Command")]
-			aq=AQ_gtp(aq_command_line)
-		except Exception, e:
-			show_error((_("Could not run %s using the command from config.ini file:")%"AQ")+"\n"+" ".join(aq_command_line)+"\n"+str(e))
-			return False
-		log("AQ started")
-		log("AQ identification through GTP..")
-		try:
-			self.bot_name=aq.name()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP name command:")%"AQ")+"\n"+str(e))
-			return False
-		
-		if self.bot_name!="AQ":
-			show_error((_("%s did not identified itself as expected:")%"AQ")+"\n'AQ' != '"+self.bot_name+"'")
-			return False
-		log("AQ identified itself properly")
-		log("Checking version through GTP...")
-		try:
-			self.bot_version=aq.version()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP version command:")%"AQ")+"\n"+str(e))
-			return False
-		log("Version: "+self.bot_version)
-		log("Setting goban size as "+str(size)+"x"+str(size))
-		
-		try:
-			ok=aq.boardsize(size)
-		except:
-			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"AQ"))
-			return False
-		if not ok:
-			show_error(_("%s rejected this board size (%ix%i)")%("AQ",size,size))
-			return False
-		log("Clearing the board")
-		aq.reset()
-		self.aq=aq
-		
-		self.time_per_move=0
-		
-		#log("Setting time per move")
-		#self.time_per_move=int(Config.get("Leela", "TimePerMove"))
-		#leela.set_time(main_time=0,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
-		
-		log("Setting komi")
+		log("Setting new komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
-		aq.komi(self.komi)
 
-		
-		
-		
-		board, plays = sgf_moves.get_setup_and_moves(self.g)
-		handicap_stones=""
-		log("Adding handicap stones, if any")
-		for colour, move0 in board.list_occupied_points():
-			if move0 != None:
-				row, col = move0
-				move=ij2gtp((row,col))
-				if colour in ('w',"W"):
-					log("Adding initial white stone at",move)
-					aq.place_white(move)
-				else:
-					log("Adding initial black stone at",move)
-					aq.place_black(move)
+		aq=bot_starting_procedure("AQ","AQ",AQ_gtp,self.g)
+		self.aq=aq
+		self.time_per_move=0
+
 		log("AQ initialization completed")
 		return aq
 
@@ -358,6 +290,11 @@ class AQSettings(Frame):
 		AQCommand.set(Config.get("AQ","Command"))
 		Entry(self, textvariable=AQCommand, width=30).grid(row=row+2,column=2)
 		row+=1
+		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
+		AQParameters = StringVar() 
+		AQParameters.set(Config.get("AQ","Parameters"))
+		Entry(self, textvariable=AQParameters, width=30).grid(row=row+2,column=2)
+		row+=1
 		AQNeededForReview = BooleanVar(value=Config.getboolean('AQ', 'NeededForReview'))
 		AQCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=AQNeededForReview,onvalue=True,offvalue=False)
 		AQCheckbutton.grid(row=row+2,column=1)
@@ -367,6 +304,7 @@ class AQSettings(Frame):
 		
 		
 		self.AQCommand=AQCommand
+		self.AQParameters=AQParameters
 		self.AQNeededForReview=AQNeededForReview
 
 	def save(self):
@@ -375,6 +313,7 @@ class AQSettings(Frame):
 		Config.read(config_file)
 		
 		Config.set("AQ","Command",self.AQCommand.get())
+		Config.set("AQ","Parameters",self.AQParameters.get())
 		Config.set("AQ","NeededForReview",self.AQNeededForReview.get())
 		
 		Config.write(open(config_file,"w"))

@@ -243,93 +243,23 @@ class RunAnalysis(RunAnalysisBase):
 		log("size of the tree:", size)
 		self.size=size
 		
-		try:
-			gnugo_command_line=Config.get("GnuGo", "Command")
-		except:
-			show_error(_("The config.ini file does not contain entry for %s command line!")%"GnuGo")
-			return False
-		
-		if not gnugo_command_line:
-			show_error(_("The config.ini file does not contain command line for %s!")%"GnuGo")
-			return False
-		log("Starting Gnugo...")
-		try:
-			gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
-			gnugo=GnuGo_gtp(gnugo_command_line)
-		except Exception,e:
-			show_error((_("Could not run %s using the command from config.ini file:")%"GnuGo")+"\n"+" ".join(gnugo_command_line)+"\n"+str(e))
-			return False
-		log("GnuGo started")
-		log("GnuGo identification through GTP...")
-		try:
-			self.bot_name=gnugo.name()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP name command:")%"GnuGo")+"\n"+str(e))
-			return False
-		
-		if self.bot_name!="GNU Go":
-			show_error((_("%s did not identified itself as expected:")%"GnuGo")+"\n'GNU Go' != '"+self.bot_name+"'")
-			return False
-		log("GnuGo identified itself properly")
-		log("Checking version through GTP...")
-		try:
-			self.bot_version=gnugo.version()
-		except Exception, e:
-			show_error((_("%s did not replied as expected to the GTP version command:")%"GnuGo")+"\n"+str(e))
-			return False
-		log("Version: "+self.bot_version)
-		log("Setting goban size as "+str(size)+"x"+str(size))
-		try:
-			ok=gnugo.boardsize(size)
-		except:
-			show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%"GnuGo"))
-			return False
-		if not ok:
-			show_error(_("%s rejected this board size (%ix%i)")%("GnuGo",size,size))
-			return False
-		log("Clearing the board")
-		gnugo.reset()
-		self.gnugo=gnugo
-		
-		self.time_per_move=0
-		
-		log("Setting komi")
+		log("Setting new komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
-		gnugo.komi(self.komi)
 		
+		gnugo=bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,self.g)
+		self.gnugo=gnugo
+		self.time_per_move=0
+				
 		log("Starting all GnuGo workers")
 		self.workers=[]
 		for w in range(self.nb_workers):
 			log("\t Starting worker",w+1)
-			gnugo_worker=gtp(gnugo_command_line)
-			gnugo_worker.boardsize(size)
-			gnugo_worker.reset()
-			gnugo_worker.komi(self.komi)
+			gnugo_worker=bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,self.g)
 			self.workers.append(gnugo_worker)
 		log("All workers ready")
-		
-		board, plays = sgf_moves.get_setup_and_moves(self.g)
-		handicap_stones=""
-		log("Adding handicap stones, if any")
-		for colour, move0 in board.list_occupied_points():
-			if move0 != None:
-				row, col = move0
-				move=ij2gtp((row,col))
-				if colour in ('w',"W"):
-					log("Adding initial white stone at",move)
-					gnugo.place_white(move)
-					for worker in self.workers:
-						worker.place_white(move)
-				else:
-					log("Adding initial black stone at",move)
-					gnugo.place_black(move)
-					for worker in self.workers:
-						worker.place_black(move)
-		log("GnuGo initialization completed")
-		return gnugo
-		
 
+		return gnugo
 
 class GnuGo_gtp(gtp):
 

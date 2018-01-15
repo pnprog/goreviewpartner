@@ -802,8 +802,8 @@ class RunAnalysisBase(Frame):
 		self.t0=time.time()
 		first_move=go_to_move(self.move_zero,1)
 		first_comment=_("Analysis by GoReviewPartner")
-		first_comment+="\n"+("Bot: %s/%s"%(self.bot_name,self.bot_version))
-		first_comment+="\n"+("Komi: %i"%self.komi)
+		first_comment+="\n"+("Bot: %s/%s"%(self.bot.bot_name,self.bot.bot_version))
+		first_comment+="\n"+("Komi: %0.1f"%self.komi)
 		first_comment+="\n"+("Intervals: %s"%self.intervals)
 		
 		Config = ConfigParser.ConfigParser()
@@ -846,6 +846,92 @@ class BotOpenMove(Button):
 		if self.okbot:
 			log("killing",self.name)
 			self.bot.close()
+
+		
+
+def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g):
+	
+	size=sgf_g.get_size()
+	
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+	
+	
+	try:
+		bot_command_line=Config.get(bot_name, "Command")
+	except:
+		show_error(_("The config.ini file does not contain entry for %s command line!")%bot_name)
+		return False
+	
+	if not bot_command_line:
+		show_error(_("The config.ini file does not contain command line for %s!")%bot_name)
+		return False
+	log("Starting "+bot_name+"...")
+	try:
+		bot_command_line=[Config.get(bot_name, "Command")]+Config.get(bot_name, "Parameters").split()
+		bot=bot_gtp(bot_command_line)
+	except Exception,e:
+		show_error((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+Config.get(bot_name, "Command")+" "+Config.get(bot_name, "Parameters")+"\n"+str(e))
+		return False
+	log(bot_name+" started")
+	log(bot_name+" identification through GTP...")
+	try:
+		answer=bot.name()
+	except Exception, e:
+		show_error((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+str(e))
+		return False
+	
+	if answer!=bot_gtp_name:
+		show_error((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
+		return False
+	
+	log(bot_name+" identified itself properly")
+	log("Checking version through GTP...")
+	try:
+		bot_version=bot.version()
+	except Exception, e:
+		show_error((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+str(e))
+		return False
+	log("Version: "+bot_version)
+	log("Setting goban size as "+str(size)+"x"+str(size))
+	try:
+		ok=bot.boardsize(size)
+	except:
+		show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%bot_name))
+		return False
+	if not ok:
+		show_error(_("%s rejected this board size (%ix%i)")%(bot_name,size,size))
+		return False
+	
+	log("Clearing the board")
+	bot.reset()
+	
+	log("Setting komi")
+	bot.komi(sgf_g.get_komi())
+	
+	board, plays = sgf_moves.get_setup_and_moves(sgf_g)
+	handicap_stones=""
+	log("Adding handicap stones, if any")
+	for colour, move0 in board.list_occupied_points():
+		if move0 != None:
+			row, col = move0
+			move=ij2gtp((row,col))
+			if colour in ('w',"W"):
+				log("Adding initial white stone at",move)
+				bot.place_white(move)
+			else:
+				log("Adding initial black stone at",move)
+				bot.place_black(move)
+	log(bot_name+" initialization completed")
+	
+	bot.bot_name=bot_gtp_name
+	bot.bot_version=bot_version
+	
+	return bot
+
+
+
+
 
 import getopt
 
