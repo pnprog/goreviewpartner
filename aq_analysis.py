@@ -287,30 +287,57 @@ class AQSettings(Frame):
 		Config.read(config_file)
 		
 		row=0
+		Label(self,text=_("%s settings")%"AQ", font="-weight bold").grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
 		
-		Label(self,text=_("%s settings")%"AQ").grid(row=row+1,column=1)
-		Label(self,text=_("Command")).grid(row=row+2,column=1)
+		row+=1
+		Label(self,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		AQCommand = StringVar() 
 		AQCommand.set(Config.get("AQ","Command"))
-		Entry(self, textvariable=AQCommand, width=30).grid(row=row+2,column=2)
+		Entry(self, textvariable=AQCommand, width=30).grid(row=row,column=2)
 		row+=1
-		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		AQParameters = StringVar() 
 		AQParameters.set(Config.get("AQ","Parameters"))
-		Entry(self, textvariable=AQParameters, width=30).grid(row=row+2,column=2)
+		Entry(self, textvariable=AQParameters, width=30).grid(row=row,column=2)
+		
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
+		
 		row+=1
 		AQNeededForReview = BooleanVar(value=Config.getboolean('AQ', 'NeededForReview'))
 		AQCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=AQNeededForReview,onvalue=True,offvalue=False)
-		AQCheckbutton.grid(row=row+2,column=1)
+		AQCheckbutton.grid(row=row,column=1,sticky=W)
 		AQCheckbutton.var=AQNeededForReview
 		row+=1
-		Label(self,text=_("See AQ parameters in aq_config.txt")).grid(row=row+2,column=1,columnspan=2)
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		ReviewAQCommand = StringVar() 
+		ReviewAQCommand.set(Config.get("AQ","ReviewCommand"))
+		Entry(self, textvariable=ReviewAQCommand, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		ReviewAQParameters = StringVar() 
+		ReviewAQParameters.set(Config.get("AQ","ReviewParameters"))
+		Entry(self, textvariable=ReviewAQParameters, width=30).grid(row=row,column=2)
+		
+		
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("See AQ parameters in aq_config.txt")).grid(row=row,column=1,columnspan=2,sticky=W)
 		
 		
 		self.AQCommand=AQCommand
 		self.AQParameters=AQParameters
 		self.AQNeededForReview=AQNeededForReview
-
+		self.ReviewAQCommand=ReviewAQCommand
+		self.ReviewAQParameters=ReviewAQParameters
+		
 	def save(self):
 		log("Saving AQ settings")
 		Config = ConfigParser.ConfigParser()
@@ -319,6 +346,9 @@ class AQSettings(Frame):
 		Config.set("AQ","Command",self.AQCommand.get())
 		Config.set("AQ","Parameters",self.AQParameters.get())
 		Config.set("AQ","NeededForReview",self.AQNeededForReview.get())
+		Config.set("AQ","ReviewCommand",self.ReviewAQCommand.get())
+		Config.set("AQ","ReviewParameters",self.ReviewAQParameters.get())
+		
 		
 		Config.write(open(config_file,"w"))
 
@@ -336,7 +366,7 @@ class AQOpenMove(BotOpenMove):
 		if Config.getboolean('AQ', 'NeededForReview'):
 			self.okbot=True
 			try:
-				aq_command_line=[Config.get("AQ", "Command")]
+				aq_command_line=[Config.get("AQ", "ReviewCommand")]+Config.get("AQ", "ReviewParameters").split()
 				aq=AQ_gtp(aq_command_line)
 				ok=aq.boardsize(dim)
 				aq.reset()

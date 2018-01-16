@@ -344,50 +344,77 @@ class GnuGoSettings(Frame):
 		Config.read(config_file)
 		
 		row=0
+		Label(self,text=_("%s settings")%"GnuGo", font="-weight bold").grid(row=row,column=1,sticky=W)
 		
-		Label(self,text=_("%s settings")%"GnuGo").grid(row=row+1,column=1)
-		Label(self,text=_("Command")).grid(row=row+2,column=1)
-		GnugoCommand = StringVar() 
-		GnugoCommand.set(Config.get("GnuGo","Command"))
-		Entry(self, textvariable=GnugoCommand, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
-		GnugoParameters = StringVar() 
-		GnugoParameters.set(Config.get("GnuGo","Parameters"))
-		Entry(self, textvariable=GnugoParameters, width=30).grid(row=row+2,column=2)
+		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("Maximum number of variations")).grid(row=row+2,column=1)
-		GnugoVariations = StringVar() 
-		GnugoVariations.set(Config.get("GnuGo","Variations"))
-		Entry(self, textvariable=GnugoVariations, width=30).grid(row=row+2,column=2)
+		Label(self,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
+		
 		row+=1
-		Label(self,text=_("Deepness for each variation")).grid(row=row+2,column=1)
-		GnugoDeepness = StringVar() 
-		GnugoDeepness.set(Config.get("GnuGo","Deepness"))
-		Entry(self, textvariable=GnugoDeepness, width=30).grid(row=row+2,column=2)
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		Command = StringVar() 
+		Command.set(Config.get("GnuGo","Command"))
+		Entry(self, textvariable=Command, width=30).grid(row=row,column=2)
 		row+=1
-		GnugoNeededForReview = BooleanVar(value=Config.getboolean('GnuGo', 'NeededForReview'))
-		GnugoCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=GnugoNeededForReview,onvalue=True,offvalue=False)
-		GnugoCheckbutton.grid(row=row+2,column=1)
-		GnugoCheckbutton.var=GnugoNeededForReview
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		Parameters = StringVar() 
+		Parameters.set(Config.get("GnuGo","Parameters"))
+		Entry(self, textvariable=Parameters, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Maximum number of variations")).grid(row=row,column=1,sticky=W)
+		Variations = StringVar()
+		Variations.set(Config.get("GnuGo","Variations"))
+		Entry(self, textvariable=Variations, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Deepness for each variation")).grid(row=row,column=1,sticky=W)
+		Deepness = StringVar() 
+		Deepness.set(Config.get("GnuGo","Deepness"))
+		Entry(self, textvariable=Deepness, width=30).grid(row=row,column=2)
+		
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
+		
+		row+=1
+		NeededForReview = BooleanVar(value=Config.getboolean('GnuGo', 'NeededForReview'))
+		Cbutton=Checkbutton(self, text=_("Needed for review"), variable=NeededForReview,onvalue=True,offvalue=False)
+		Cbutton.grid(row=row,column=1,sticky=W)
+		Cbutton.var=NeededForReview
 
-		self.GnugoCommand=GnugoCommand
-		self.GnugoParameters=GnugoParameters
-		self.GnugoVariations=GnugoVariations
-		self.GnugoDeepness=GnugoDeepness
-		self.GnugoNeededForReview=GnugoNeededForReview
-		
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		ReviewCommand = StringVar() 
+		ReviewCommand.set(Config.get("GnuGo","ReviewCommand"))
+		Entry(self, textvariable=ReviewCommand, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		ReviewParameters = StringVar() 
+		ReviewParameters.set(Config.get("GnuGo","ReviewParameters"))
+		Entry(self, textvariable=ReviewParameters, width=30).grid(row=row,column=2)
+
+		self.Command=Command
+		self.Parameters=Parameters
+		self.Variations=Variations
+		self.Deepness=Deepness
+		self.NeededForReview=NeededForReview
+		self.ReviewCommand=ReviewCommand
+		self.ReviewParameters=ReviewParameters
 
 	def save(self):
 		log("Saving GnuGo settings")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-		Config.set("GnuGo","Command",self.GnugoCommand.get())
-		Config.set("GnuGo","Parameters",self.GnugoParameters.get())
-		Config.set("GnuGo","Variations",self.GnugoVariations.get())
-		Config.set("GnuGo","Deepness",self.GnugoDeepness.get())
-		Config.set("GnuGo","NeededForReview",self.GnugoNeededForReview.get())
+		Config.set("GnuGo","Command",self.Command.get())
+		Config.set("GnuGo","Parameters",self.Parameters.get())
+		Config.set("GnuGo","Variations",self.Variations.get())
+		Config.set("GnuGo","Deepness",self.Deepness.get())
+		Config.set("GnuGo","NeededForReview",self.NeededForReview.get())
+		Config.set("GnuGo","ReviewCommand",self.ReviewCommand.get())
+		Config.set("GnuGo","ReviewParameters",self.ReviewParameters.get())
+		
 		
 		Config.write(open(config_file,"w"))
 
@@ -402,7 +429,7 @@ class GnuGoOpenMove(BotOpenMove):
 		if Config.getboolean('GnuGo', 'NeededForReview'):
 			self.okbot=True
 			try:
-				gnugo_command_line=[Config.get("GnuGo", "Command")]+Config.get("GnuGo", "Parameters").split()
+				gnugo_command_line=[Config.get("GnuGo", "ReviewCommand")]+Config.get("GnuGo", "ReviewParameters").split()
 				gnugo=GnuGo_gtp(gnugo_command_line)
 				ok=gnugo.boardsize(dim)
 				gnugo.reset()

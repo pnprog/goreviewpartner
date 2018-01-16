@@ -586,49 +586,50 @@ class OpenMove():
 			if one_bot.okbot:
 				self.menu_bots[one_bot.name]=one_bot
 
-		
-		row+=10
-		Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
-		
-		row+=1
-		self.selected_bot=StringVar()
-		self.selected_bot.set(self.menu_bots.keys()[0])
-		
-		self.menu_wrapper=Frame(panel)
-		self.menu_wrapper.grid(row=row,column=0,sticky=E+W)
-		self.menu_wrapper.bind("<Enter>",lambda e: self.set_status(_("Select a bot.")))
-		self.menu_wrapper.bind("<Leave>",lambda e: self.clear_status())
-		
-		self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
-		self.menu.pack(fill=BOTH,expand=1)
-		
-		row+=1
-		Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
-		
-		row+=1
-		self.play_button=Button(panel, text=_('Play one move'),command=self.click_play_one_move)
-		self.play_button.grid(column=0,row=row,sticky=E+W)
-		self.play_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play one move.")))
-		self.play_button.bind("<Leave>",lambda e: self.clear_status())
-		
-		
-		row+=1
-		self.white_button=Button(panel, text=_('Play as white'),command=self.click_white_answer)
-		self.white_button.grid(column=0,row=row,sticky=E+W)
-		self.white_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play as White.")))
-		self.white_button.bind("<Leave>",lambda e: self.clear_status())
-		
-		row+=1
-		self.black_button=Button(panel, text=_('Play as black'),command=self.click_black_answer)
-		self.black_button.grid(column=0,row=row,sticky=E+W)
-		self.black_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play as Black.")))
-		self.black_button.bind("<Leave>",lambda e: self.clear_status())
-		
-		row+=1
-		self.selfplay_button=Button(panel, text=_('Self play'),command=self.click_selfplay)
-		self.selfplay_button.grid(column=0,row=row,sticky=E+W)
-		self.selfplay_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play alone.")))
-		self.selfplay_button.bind("<Leave>",lambda e: self.clear_status())
+		if len(self.menu_bots)>0:
+			
+			row+=10
+			Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
+			
+			row+=1
+			self.selected_bot=StringVar()
+			self.selected_bot.set(self.menu_bots.keys()[0])
+			
+			self.menu_wrapper=Frame(panel)
+			self.menu_wrapper.grid(row=row,column=0,sticky=E+W)
+			self.menu_wrapper.bind("<Enter>",lambda e: self.set_status(_("Select a bot.")))
+			self.menu_wrapper.bind("<Leave>",lambda e: self.clear_status())
+			
+			self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+			self.menu.pack(fill=BOTH,expand=1)
+			
+			row+=1
+			Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
+			
+			row+=1
+			self.play_button=Button(panel, text=_('Play one move'),command=self.click_play_one_move)
+			self.play_button.grid(column=0,row=row,sticky=E+W)
+			self.play_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play one move.")))
+			self.play_button.bind("<Leave>",lambda e: self.clear_status())
+			
+			
+			row+=1
+			self.white_button=Button(panel, text=_('Play as white'),command=self.click_white_answer)
+			self.white_button.grid(column=0,row=row,sticky=E+W)
+			self.white_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play as White.")))
+			self.white_button.bind("<Leave>",lambda e: self.clear_status())
+			
+			row+=1
+			self.black_button=Button(panel, text=_('Play as black'),command=self.click_black_answer)
+			self.black_button.grid(column=0,row=row,sticky=E+W)
+			self.black_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play as Black.")))
+			self.black_button.bind("<Leave>",lambda e: self.clear_status())
+			
+			row+=1
+			self.selfplay_button=Button(panel, text=_('Self play'),command=self.click_selfplay)
+			self.selfplay_button.grid(column=0,row=row,sticky=E+W)
+			self.selfplay_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play alone.")))
+			self.selfplay_button.bind("<Leave>",lambda e: self.clear_status())
 		
 		self.black_autoplay=False
 		self.white_autoplay=False

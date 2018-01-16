@@ -43,7 +43,7 @@ logo.pack(fill=BOTH,expand=1)
 
 logo.bind("<Configure>",lambda e: draw_logo(logo,e))
 
-label = Label(app, text=_("This is GoReviewPartner"))
+label = Label(app, text=_("This is GoReviewPartner"), font="-weight bold")
 label.pack(padx=5, pady=5)
 
 
@@ -81,7 +81,7 @@ def launch_analysis():
 		bots.append(("Ray",ray_analysis.RunAnalysis))
 	if Config.get("GnuGo","Command")!="":
 			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
-	if Config.get("Leela_Zero","Command")!="":
+	if Config.get("LeelaZero","Command")!="":
 			bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
 	new_popup=RangeSelector(top,filename,bots=bots)
 	new_popup.pack()
@@ -105,7 +105,7 @@ def download_sgf_for_review():
 		bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
 	if Config.get("AQ","Command")!="":
 		bots.append(("AQ",aq_analysis.RunAnalysis))
-	if Config.get("Leela_Zero","Command")!="":
+	if Config.get("LeelaZero","Command")!="":
 		bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
 	new_popup=DownloadFromURL(top,bots=bots)
 	new_popup.pack()
@@ -148,7 +148,7 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="" and Config.get("Leela_Zero","Command")=="": #j'ai honte :)
+	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="" and Config.get("LeelaZero","Command")=="": #j'ai honte :)
 		#review_bouton.config(state='disabled')
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')

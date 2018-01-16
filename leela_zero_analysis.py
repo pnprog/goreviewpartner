@@ -222,12 +222,12 @@ class RunAnalysis(RunAnalysisBase):
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
 
-		leela_zero=bot_starting_procedure("Leela_Zero","Leela Zero",Leela_Zero_gtp,self.g)
+		leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,self.g)
 		self.leela_zero=leela_zero
 		
 		self.time_per_move=0
 		try:
-			time_per_move=Config.get("Leela_Zero", "TimePerMove")
+			time_per_move=Config.get("LeelaZero", "TimePerMove")
 			if time_per_move:
 				time_per_move=int(time_per_move)
 				if time_per_move>0:
@@ -235,9 +235,9 @@ class RunAnalysis(RunAnalysisBase):
 					leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 					self.time_per_move=time_per_move
 		except:
-			log("Wrong value for Leela Zero thinking time:",Config.get("Leela_Zero", "TimePerMove"))
+			log("Wrong value for Leela Zero thinking time:",Config.get("LeelaZero", "TimePerMove"))
 			log("Erasing that value in the config file")
-			Config.set("Leela_Zero","TimePerMove","")
+			Config.set("LeelaZero","TimePerMove","")
 			Config.write(open(config_file,"w"))
 		
 		log("Leela Zero initialization completed")
@@ -302,55 +302,13 @@ class Leela_Zero_gtp(gtp):
 
 		return answers
 
+from leela_analysis import LeelaSettings
 
-class LeelaZeroSettings(Frame):
+class LeelaZeroSettings(LeelaSettings):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
-		log("Initializing Leela Zero setting interface")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		row=0
-
-		Label(self,text=_("%s settings")%"Leela Zero").grid(row=row+1,column=1)
-		Label(self,text=_("Command")).grid(row=row+2,column=1)
-		LeelaZeroCommand = StringVar() 
-		LeelaZeroCommand.set(Config.get("Leela_Zero","Command"))
-		Entry(self, textvariable=LeelaZeroCommand, width=30).grid(row=row+2,column=2)
-		row+=1
-		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
-		LeelaZeroParameters = StringVar() 
-		LeelaZeroParameters.set(Config.get("Leela_Zero","Parameters"))
-		Entry(self, textvariable=LeelaZeroParameters, width=30).grid(row=row+2,column=2)
-		row+=1
-		Label(self,text=_("Time per move (s)")).grid(row=row+2,column=1)
-		TimePerMove = StringVar() 
-		TimePerMove.set(Config.get("Leela_Zero","TimePerMove"))
-		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
-		row+=1
-		LeelaZeroNeededForReview = BooleanVar(value=Config.getboolean('Leela_Zero', 'NeededForReview'))
-		LeelaZeroCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=LeelaZeroNeededForReview,onvalue=True,offvalue=False)
-		LeelaZeroCheckbutton.grid(row=row+2,column=1)
-		LeelaZeroCheckbutton.var=LeelaZeroNeededForReview
-
-		self.LeelaZeroCommand=LeelaZeroCommand
-		self.LeelaZeroParameters=LeelaZeroParameters
-		self.TimePerMove=TimePerMove
-		self.LeelaZeroNeededForReview=LeelaZeroNeededForReview
-
-	def save(self):
-		log("Saving Leela Zero settings")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		Config.set("Leela_Zero","Command",self.LeelaZeroCommand.get())
-		Config.set("Leela_Zero","Parameters",self.LeelaZeroParameters.get())
-		Config.set("Leela_Zero","TimePerMove",self.TimePerMove.get())
-		Config.set("Leela_Zero","NeededForReview",self.LeelaZeroNeededForReview.get())
-		
-		Config.write(open(config_file,"w"))
-
-
+		self.name="LeelaZero"
+		self.initialize()
 
 
 class LeelaZeroOpenMove(BotOpenMove):
@@ -361,16 +319,16 @@ class LeelaZeroOpenMove(BotOpenMove):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 
-		if Config.getboolean('Leela_Zero', 'NeededForReview'):
+		if Config.getboolean("LeelaZero", 'NeededForReview'):
 			self.okbot=True
 			try:
-				leela_zero_command_line=[Config.get("Leela_Zero", "Command")]+Config.get("Leela_Zero", "Parameters").split()
+				leela_zero_command_line=[Config.get("LeelaZero", "ReviewCommand")]+Config.get("LeelaZero", "ReviewParameters").split()
 				leela_zero=Leela_Zero_gtp(leela_zero_command_line)
 				ok=leela_zero.boardsize(dim)
 				leela_zero.reset()
 				leela_zero.komi(komi)
 				try:
-					time_per_move=Config.get("Leela_Zero", "TimePerMove")
+					time_per_move=Config.get("LeelaZero", "ReviewTimePerMove")
 					if time_per_move:
 						time_per_move=int(time_per_move)
 						if time_per_move>0:

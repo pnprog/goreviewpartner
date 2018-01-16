@@ -378,47 +378,90 @@ class Leela_gtp(gtp):
 class LeelaSettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
-		log("Initializing Leela setting interface")
+		self.name="Leela"
+		self.initialize()
+		
+	def initialize(self):
+		bot=self.name
+		log("Initializing "+bot+" setting interface")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
 		row=0
+		title=Label(self,text=_("%s settings")%bot, font="-weight bold").grid(row=row,column=1,sticky=W)
 
-		Label(self,text=_("%s settings")%"Leela").grid(row=row+1,column=1)
-		Label(self,text=_("Command")).grid(row=row+2,column=1)
-		LeelaCommand = StringVar() 
-		LeelaCommand.set(Config.get("Leela","Command"))
-		Entry(self, textvariable=LeelaCommand, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
-		LeelaParameters = StringVar() 
-		LeelaParameters.set(Config.get("Leela","Parameters"))
-		Entry(self, textvariable=LeelaParameters, width=30).grid(row=row+2,column=2)
+		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("Time per move (s)")).grid(row=row+2,column=1)
+		Label(self,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
+		
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		Command = StringVar() 
+		Command.set(Config.get(bot,"Command"))
+		Entry(self, textvariable=Command, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		Parameters = StringVar() 
+		Parameters.set(Config.get(bot,"Parameters"))
+		Entry(self, textvariable=Parameters, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
 		TimePerMove = StringVar() 
-		TimePerMove.set(Config.get("Leela","TimePerMove"))
-		Entry(self, textvariable=TimePerMove, width=30).grid(row=row+2,column=2)
+		TimePerMove.set(Config.get(bot,"TimePerMove"))
+		Entry(self, textvariable=TimePerMove, width=30).grid(row=row,column=2)
+		
 		row+=1
-		LeelaNeededForReview = BooleanVar(value=Config.getboolean('Leela', 'NeededForReview'))
-		LeelaCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=LeelaNeededForReview,onvalue=True,offvalue=False)
-		LeelaCheckbutton.grid(row=row+2,column=1)
-		LeelaCheckbutton.var=LeelaNeededForReview
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
+		
+		row+=1
+		NeededForReview = BooleanVar(value=Config.getboolean(bot, 'NeededForReview'))
+		Cbutton=Checkbutton(self, text=_("Needed for review"), variable=NeededForReview,onvalue=True,offvalue=False)
+		Cbutton.grid(row=row,column=1,sticky=W)
+		Cbutton.var=NeededForReview
+		
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		ReviewCommand = StringVar() 
+		ReviewCommand.set(Config.get(bot,"ReviewCommand"))
+		Entry(self, textvariable=ReviewCommand, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		ReviewParameters = StringVar() 
+		ReviewParameters.set(Config.get(bot,"ReviewParameters"))
+		Entry(self, textvariable=ReviewParameters, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
+		ReviewTimePerMove = StringVar() 
+		ReviewTimePerMove.set(Config.get(bot,"ReviewTimePerMove"))
+		Entry(self, textvariable=ReviewTimePerMove, width=30).grid(row=row,column=2)
+		
 
-		self.LeelaCommand=LeelaCommand
-		self.LeelaParameters=LeelaParameters
+
+		self.Command=Command
+		self.Parameters=Parameters
 		self.TimePerMove=TimePerMove
-		self.LeelaNeededForReview=LeelaNeededForReview
+		self.NeededForReview=NeededForReview
+		self.ReviewCommand=ReviewCommand
+		self.ReviewParameters=ReviewParameters
+		self.ReviewTimePerMove=ReviewTimePerMove
+		
 
 	def save(self):
-		log("Saving Leela settings")
+		bot=self.name
+		log("Saving "+bot+" settings")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-		Config.set("Leela","Command",self.LeelaCommand.get())
-		Config.set("Leela","Parameters",self.LeelaParameters.get())
-		Config.set("Leela","TimePerMove",self.TimePerMove.get())
-		Config.set("Leela","NeededForReview",self.LeelaNeededForReview.get())
+		Config.set(bot,"Command",self.Command.get())
+		Config.set(bot,"Parameters",self.Parameters.get())
+		Config.set(bot,"TimePerMove",self.TimePerMove.get())
+		Config.set(bot,"NeededForReview",self.NeededForReview.get())
+		Config.set(bot,"ReviewCommand",self.ReviewCommand.get())
+		Config.set(bot,"ReviewParameters",self.ReviewParameters.get())
+		Config.set(bot,"ReviewTimePerMove",self.ReviewTimePerMove.get())
 		
 		Config.write(open(config_file,"w"))
 
@@ -437,13 +480,13 @@ class LeelaOpenMove(BotOpenMove):
 		if Config.getboolean('Leela', 'NeededForReview'):
 			self.okbot=True
 			try:
-				leela_command_line=[Config.get("Leela", "Command")]+Config.get("Leela", "Parameters").split()
+				leela_command_line=[Config.get("Leela", "ReviewCommand")]+Config.get("Leela", "ReviewParameters").split()
 				leela=Leela_gtp(leela_command_line)
 				ok=leela.boardsize(dim)
 				leela.reset()
 				leela.komi(komi)
 				try:
-					time_per_move=Config.get("Leela", "TimePerMove")
+					time_per_move=Config.get("Leela", "ReviewTimePerMove")
 					if time_per_move:
 						time_per_move=int(time_per_move)
 						if time_per_move>0:

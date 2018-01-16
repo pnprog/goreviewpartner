@@ -284,35 +284,61 @@ class RaySettings(Frame):
 		Config.read(config_file)
 		
 		row=0
-
-		Label(self,text=_("%s settings")%"Ray").grid(row=row+1,column=1)
-		Label(self,text=_("Command")).grid(row=row+2,column=1)
-		RayCommand = StringVar() 
-		RayCommand.set(Config.get("Ray","Command"))
-		Entry(self, textvariable=RayCommand, width=30).grid(row=row+2,column=2)
+		Label(self,text=_("%s settings")%"Ray", font="-weight bold").grid(row=row,column=1,sticky=W)
 		row+=1
-		Label(self,text=_("Parameters")).grid(row=row+2,column=1)
-		RayParameters = StringVar() 
-		RayParameters.set(Config.get("Ray","Parameters"))
-		Entry(self, textvariable=RayParameters, width=30).grid(row=row+2,column=2)
-		row+=1
-		RayNeededForReview = BooleanVar(value=Config.getboolean('Ray', 'NeededForReview'))
-		RayCheckbutton=Checkbutton(self, text=_("Needed for review"), variable=RayNeededForReview,onvalue=True,offvalue=False)
-		RayCheckbutton.grid(row=row+2,column=1)
-		RayCheckbutton.var=RayNeededForReview
+		Label(self,text="").grid(row=row,column=1)
 		
-		self.RayCommand=RayCommand
-		self.RayParameters=RayParameters
-		self.RayNeededForReview=RayNeededForReview
+		row+=1
+		Label(self,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		Command = StringVar() 
+		Command.set(Config.get("Ray","Command"))
+		Entry(self, textvariable=Command, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		Parameters = StringVar() 
+		Parameters.set(Config.get("Ray","Parameters"))
+		Entry(self, textvariable=Parameters, width=30).grid(row=row,column=2)
+		
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
+		
+		row+=1
+		NeededForReview = BooleanVar(value=Config.getboolean('Ray', 'NeededForReview'))
+		Cbutton=Checkbutton(self, text=_("Needed for review"), variable=NeededForReview,onvalue=True,offvalue=False)
+		Cbutton.grid(row=row,column=1,sticky=W)
+		Cbutton.var=NeededForReview
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		ReviewCommand = StringVar() 
+		ReviewCommand.set(Config.get("Ray","ReviewCommand"))
+		Entry(self, textvariable=ReviewCommand, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		ReviewParameters = StringVar() 
+		ReviewParameters.set(Config.get("Ray","ReviewParameters"))
+		Entry(self, textvariable=ReviewParameters, width=30).grid(row=row,column=2)
+
+		
+		self.Command=Command
+		self.Parameters=Parameters
+		self.NeededForReview=NeededForReview
+		self.ReviewCommand=ReviewCommand
+		self.ReviewParameters=ReviewParameters
 	
 	def save(self):
 		log("Saving Ray settings")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-		Config.set("Ray","Command",self.RayCommand.get())
-		Config.set("Ray","Parameters",self.RayParameters.get())
-		Config.set("Ray","NeededForReview",self.RayNeededForReview.get())
+		Config.set("Ray","Command",self.Command.get())
+		Config.set("Ray","Parameters",self.Parameters.get())
+		Config.set("Ray","NeededForReview",self.NeededForReview.get())
+		Config.set("Ray","ReviewCommand",self.ReviewCommand.get())
+		Config.set("Ray","ReviewParameters",self.ReviewParameters.get())
 		
 		Config.write(open(config_file,"w"))
 
@@ -328,7 +354,7 @@ class RayOpenMove(BotOpenMove):
 		if Config.getboolean('Ray', 'NeededForReview'):
 			self.okbot=True
 			try:
-				ray_command_line=[Config.get("Ray", "Command")]+Config.get("Ray", "Parameters").split()
+				ray_command_line=[Config.get("Ray", "ReviewCommand")]+Config.get("Ray", "ReviewParameters").split()
 				ray=Ray_gtp(ray_command_line)
 				ok=ray.boardsize(dim)
 				ray.reset()

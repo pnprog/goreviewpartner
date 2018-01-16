@@ -322,6 +322,13 @@ msgstr "Paramètres"
 msgid "Stop the analysis if the bot resigns"
 msgstr "Arrêter l'analyse si le programme abandonne"
 
+msgid "Parameters for the analysis"
+msgstr "Réglages pour l'analyse"
+
+msgid "Parameters for the review"
+msgstr "Réglages pour la revue"
+
+
 ############################
 ###### GnuGo specific ######
 ############################

@@ -37,46 +37,58 @@ class OpenSettings(Toplevel):
 		setting_frame=Frame(top_setting_frame)
 		
 		row=0
+		Label(setting_frame,text=_("%s settings")%"Go Review Partner", font="-weight bold").grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(setting_frame,text="").grid(row=row,column=1)
 
-		Label(setting_frame,text=_("%s settings")%"Go Review Partner").grid(row=row+1,column=1)
-		Label(setting_frame,text=_("Fuzzy Stone")).grid(row=row+2,column=1)
-		FuzzyStonePlacement = StringVar() 
-		FuzzyStonePlacement.set(Config.get("Review","FuzzyStonePlacement"))
-		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row+2,column=2)
 		row+=1
-		Label(setting_frame,text=_("Real game sequence deepness")).grid(row=row+2,column=1)
-		RealGameSequenceDeepness = StringVar() 
-		RealGameSequenceDeepness.set(Config.get("Review","RealGameSequenceDeepness"))
-		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row+2,column=2)
+		Label(setting_frame,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
+
 		row+=1
-		Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row+2,column=1)
-		GobanScreenRatio = StringVar() 
-		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
-		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row+2,column=2)
-		row+=1
-		Label(setting_frame,text=_("Maximum number of variations to record during analysis")).grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Maximum number of variations to record during analysis")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToRecord = StringVar() 
 		MaxVariationsToRecord.set(Config.get("Analysis","MaxVariations"))
-		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row+2,column=2)
+		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row,column=2)
 		row+=1
-		Label(setting_frame,text=_("Save bot command line into RSGF file")).grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Save bot command line into RSGF file")).grid(row=row,column=1,sticky=W)
 		SaveCommandLine = BooleanVar(value=Config.getboolean('Analysis', 'SaveCommandLine'))
 		SaveCommandLineCheckbutton=Checkbutton(setting_frame, text="", variable=SaveCommandLine,onvalue=True,offvalue=False)
-		SaveCommandLineCheckbutton.grid(row=row+2,column=2,sticky=W)
+		SaveCommandLineCheckbutton.grid(row=row,column=2,sticky=W)
 		SaveCommandLineCheckbutton.var=SaveCommandLine
 		row+=1
-		Label(setting_frame,text=_("Stop the analysis if the bot resigns")).grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Stop the analysis if the bot resigns")).grid(row=row,column=1,sticky=W)
 		StopAtFirstResign = BooleanVar(value=Config.getboolean('Analysis', 'StopAtFirstResign'))
 		StopAtFirstResignCheckbutton=Checkbutton(setting_frame, text="", variable=StopAtFirstResign,onvalue=True,offvalue=False)
-		StopAtFirstResignCheckbutton.grid(row=row+2,column=2,sticky=W)
+		StopAtFirstResignCheckbutton.grid(row=row,column=2,sticky=W)
 		StopAtFirstResignCheckbutton.var=StopAtFirstResign
-		
+
+		row+=1
+		Label(setting_frame,text="").grid(row=row,column=1)
+		row+=1
+		Label(setting_frame,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
 		
 		row+=1
-		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row+2,column=1)
+		Label(setting_frame,text=_("Fuzzy Stone")).grid(row=row,column=1,sticky=W)
+		FuzzyStonePlacement = StringVar() 
+		FuzzyStonePlacement.set(Config.get("Review","FuzzyStonePlacement"))
+		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row,column=2)
+		row+=1
+		Label(setting_frame,text=_("Real game sequence deepness")).grid(row=row,column=1,sticky=W)
+		RealGameSequenceDeepness = StringVar() 
+		RealGameSequenceDeepness.set(Config.get("Review","RealGameSequenceDeepness"))
+		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row,column=2)
+		row+=1
+		Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row,column=1,sticky=W)
+		GobanScreenRatio = StringVar() 
+		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
+		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row,column=2)
+		
+
+		row+=1
+		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
-		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row+2,column=2)
+		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
 
 		
 		self.FuzzyStonePlacement=FuzzyStonePlacement
@@ -138,5 +150,5 @@ class OpenSettings(Toplevel):
 		
 if __name__ == "__main__":
 	top = Tk()
-	OpenSettings()
+	OpenSettings(top)
 	top.mainloop()
