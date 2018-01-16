@@ -720,7 +720,7 @@ class RunAnalysisBase(Frame):
 		
 		try:
 			import dual_view
-			Button(self,text=_("Start review"),command=self.start_review).pack()
+			Button(self.right_frame,text=_("Start review"),command=self.start_review).pack(side=TOP)
 		except:
 			pass
 
@@ -781,7 +781,7 @@ class RunAnalysisBase(Frame):
 		
 		right_frame=Frame(root)
 		right_frame.pack(side=LEFT,padx=5, pady=5)
-		
+		self.right_frame=right_frame
 		Label(right_frame,text=_("Analysis of: %s")%os.path.basename(self.filename)).pack()
 		
 		self.lab1=Label(right_frame)
