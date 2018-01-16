@@ -774,18 +774,25 @@ class RunAnalysisBase(Frame):
 		root.parent.title('GoReviewPartner')
 		root.parent.protocol("WM_DELETE_WINDOW", self.close_app)
 		
+		bg=root.cget("background")
+		logo = Canvas(root,bg=bg,width=5,height=5)
+		logo.pack(fill=BOTH,expand=1,side=LEFT)
+		logo.bind("<Configure>",lambda e: draw_logo(logo,e,"vertical"))
 		
-		Label(root,text=_("Analysis of: %s")%os.path.basename(self.filename)).pack()
+		right_frame=Frame(root)
+		right_frame.pack(side=LEFT,padx=5, pady=5)
 		
-		self.lab1=Label(root)
+		Label(right_frame,text=_("Analysis of: %s")%os.path.basename(self.filename)).pack()
+		
+		self.lab1=Label(right_frame)
 		self.lab1.pack()
 		
-		self.lab2=Label(root)
+		self.lab2=Label(right_frame)
 		self.lab2.pack()
 		
 		self.lab1.config(text=_("Currently at move %i/%i")%(1,self.max_move))
 		
-		self.pb = ttk.Progressbar(root, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
+		self.pb = ttk.Progressbar(right_frame, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
 
 		current_move=1
@@ -932,6 +939,49 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g):
 	return bot
 
 
+
+def draw_logo(logo,event=None,stretch="horizontal"):
+	
+	for item in logo.find_all():
+		logo.delete(item)
+	
+	width=event.width
+	height=event.height
+	
+	if stretch=="horizontal":
+		logo.config(height=width)
+	else:
+		logo.config(width=height)
+		
+	border=0.1
+	w=width*(1-2*border)
+	b=width*border
+	
+	for u in [1/4.,2/4.,3/4.]:
+		for v in [1/4.,2/4.,3/4.]:
+			x1=b+w*(u-1/8.)
+			y1=b+w*(v-1/8.)
+			x2=b+w*(u+1/8.)
+			y2=b+w*(v+1/8.)
+			
+			logo.create_oval(x1, y1, x2, y2, fill="#ADC5E7", outline="")
+	
+	for k in [1/4.,2/4.,3/4.]:
+		x1=b+k*w
+		y1=b
+		x2=x1
+		y2=b+w
+		logo.create_line(x1, y1, x2, y2, width=w*7/318., fill="#21409A")
+		logo.create_line(y1, x1, y2, x2, width=w*7/318., fill="#21409A")
+	
+	for u,v in [(2/4.,1/4.),(3/4.,2/4.),(1/4.,3/4.),(2/4.,3/4.),(3/4.,3/4.)]:
+		x1=b+w*(u-1/8.)
+		y1=b+w*(v-1/8.)
+		x2=b+w*(u+1/8.)
+		y2=b+w*(v+1/8.)
+		
+		logo.create_oval(x1, y1, x2, y2, fill="black", outline="")
+	
 
 
 

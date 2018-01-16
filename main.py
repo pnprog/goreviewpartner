@@ -40,49 +40,8 @@ bg=app.cget("background")
 logo = Canvas(app,bg=bg,width=5,height=5)
 logo.pack(fill=BOTH,expand=1)
 
-def draw_logo(event=None):
-	global logo
-	
-	for item in logo.find_all():
-		logo.delete(item)
-	
-	width=event.width
-	height=event.height
-	logo.config(height=width)
-	
-	border=0.1
-	w=width*(1-2*border)
-	b=width*border
-	
-	for u in [1/4.,2/4.,3/4.]:
-		for v in [1/4.,2/4.,3/4.]:
-			x1=b+w*(u-1/8.)
-			y1=b+w*(v-1/8.)
-			x2=b+w*(u+1/8.)
-			y2=b+w*(v+1/8.)
-			
-			logo.create_oval(x1, y1, x2, y2, fill="#ADC5E7", outline="")
-	
-	for k in [1/4.,2/4.,3/4.]:
-		x1=b+k*w
-		y1=b
-		x2=x1
-		y2=b+w
-		logo.create_line(x1, y1, x2, y2, width=w*7/318., fill="#21409A")
-		logo.create_line(y1, x1, y2, x2, width=w*7/318., fill="#21409A")
-	
-	for u,v in [(2/4.,1/4.),(3/4.,2/4.),(1/4.,3/4.),(2/4.,3/4.),(3/4.,3/4.)]:
-		x1=b+w*(u-1/8.)
-		y1=b+w*(v-1/8.)
-		x2=b+w*(u+1/8.)
-		y2=b+w*(v+1/8.)
-		
-		logo.create_oval(x1, y1, x2, y2, fill="black", outline="")
-	
 
-	
-
-logo.bind("<Configure>",draw_logo)
+logo.bind("<Configure>",lambda e: draw_logo(logo,e))
 
 label = Label(app, text=_("This is GoReviewPartner"))
 label.pack(padx=5, pady=5)
