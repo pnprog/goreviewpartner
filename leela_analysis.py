@@ -145,6 +145,8 @@ class RunAnalysis(RunAnalysisBase):
 								first_variation_move=False
 								if not bookmove:
 									variation_comment=_("black/white win probability for this variation: ")+str(one_score)+'%/'+str(100-one_score)+'%'
+									new_child.set("BWR",str(one_score)+'%') #Black Win Rate
+									new_child.set("WWR",str(100-one_score)+'%') #White Win Rate
 									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
 									if one_value_network!=None:
 										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
@@ -170,6 +172,8 @@ class RunAnalysis(RunAnalysisBase):
 								first_variation_move=False
 								if not bookmove:
 									variation_comment=_("black/white win probability for this variation: ")+str(100-one_score)+'%/'+str(one_score)+'%'
+									new_child.set("WWR",str(one_score)+'%') #White Win Rate
+									new_child.set("BWR",str(100-one_score)+'%') #Black Win Rate
 									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
 									if one_value_network!=None:
 										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)

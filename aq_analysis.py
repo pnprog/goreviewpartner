@@ -111,6 +111,8 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								variation_comment=_("black/white win probability for this variation: ")+str(one_score)+'%/'+str(100-one_score)+'%'
+								new_child.set("BWR",str(one_score)+'%') #Black Win Rate
+								new_child.set("WWR",str(100-one_score)+'%') #White Win Rate
 								variation_comment+="\nCount: "+str(count)
 								variation_comment+="\nValue: "+str(value)
 								variation_comment+="\nRoll: "+str(roll)
@@ -128,6 +130,8 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								variation_comment=_("black/white win probability for this variation: ")+str(100-one_score)+'%/'+str(one_score)+'%'
+								new_child.set("WWR",str(one_score)+'%') #White Win Rate
+								new_child.set("BWR",str(100-one_score)+'%') #Black Win Rate
 								variation_comment+="\nCount: "+str(count)
 								variation_comment+="\nValue: "+str(value)
 								variation_comment+="\nRoll: "+str(roll)

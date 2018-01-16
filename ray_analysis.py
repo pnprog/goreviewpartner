@@ -89,8 +89,12 @@ class RunAnalysis(RunAnalysisBase):
 								if win:
 									if current_color=='b':
 										variation_comment+=_("black/white win probability for this variation: ")+str(win)+'%/'+str(100-float(win))+'%'
+										new_child.set("BWR",str(win)+'%') #Black Win Rate
+										new_child.set("WWR",str(100-float(win))+'%') #White Win Rate
 									else:
 										variation_comment+=_("black/white win probability for this variation: ")+str(100-float(win))+'%/'+str(win)+'%'
+										new_child.set("WWR",str(win)+'%') #White Win Rate
+										new_child.set("BWR",str(100-float(win))+'%') #Black Win Rate
 								if count:
 									variation_comment+="\nCount: "+count
 								if simulation:

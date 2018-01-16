@@ -1129,32 +1129,29 @@ class DualView(Frame):
 		for a in range(1,min(len(parent),self.maxvariations+1)):
 			one_alternative=parent[a]
 			ij=one_alternative.get_move()[1]
-			
-			
-			
+
 			displaycolor='black'
-			
 			
 			if one_alternative.get_move()[0]=='b': c=1
 			else: c=2
 
+			if one_alternative.has_property("BWR"):
+				black_prob=float(one_alternative.get("BWR")[:-1])
+				white_prob=100-black_prob
+				print "===========",black_prob,white_prob
+				if c==1:
+					if black_prob>=50:
+						displaycolor="blue"
+					else:
+						displaycolor="red"
+				else:
+					if black_prob>50:
+						displaycolor="red"
+					else:
+						displaycolor="blue"
+				
 			if one_alternative.has_property("C"):
 				comment=one_alternative.get("C")
-				try:
-					black_prob=float(one_alternative.get("C").split(": ")[1].replace("%","").split('/')[0])
-					white_prob=100-black_prob
-					if c==1:
-						if black_prob>=50:
-							displaycolor="blue"
-						else:
-							displaycolor="red"
-					else:
-						if black_prob>50:
-							displaycolor="red"
-						else:
-							displaycolor="blue"
-				except:
-					pass
 			else: comment=''
 			
 			if ij==real_game_ij: letter_color="black"
@@ -1172,8 +1169,6 @@ class DualView(Frame):
 			
 		goban1.display(grid1,markup1)
 		goban2.display(grid2,markup2)
-		
-
 		
 	def open_move(self):
 		log("Opening move",self.current_move)

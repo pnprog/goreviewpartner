@@ -126,6 +126,8 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								variation_comment=_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
+								new_child.set("BWR",str(one_value_network)+'%') #Black value network
+								new_child.set("WWR",str(100-one_value_network)+'%') #White value network
 								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
 								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
 								new_child.add_comment_text(variation_comment)
@@ -138,6 +140,8 @@ class RunAnalysis(RunAnalysisBase):
 							if first_variation_move:
 								first_variation_move=False
 								variation_comment=_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)
+								new_child.set("WWR",str(one_value_network)+'%') #White value network
+								new_child.set("BWR",str(100-one_value_network)+'%') #Black value network
 								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
 								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
 								new_child.add_comment_text(variation_comment)
