@@ -329,7 +329,6 @@ class OpenMove():
 		self.white_button.config(state='disabled')
 		self.black_button.config(state='disabled')
 		if (not self.white_autoplay) or (not self.black_autoplay):
-			
 			self.selfplay_button.config(state='disabled')
 
 	def unlock(self,after=False):
@@ -448,12 +447,19 @@ class OpenMove():
 				for bot in self.bots:
 					if bot.place(ij2gtp((i,j)),color)==False:
 						del self.menu_bots[bot.name]
-						self.selected_bot=StringVar()
-						self.selected_bot.set(self.menu_bots.keys()[0])
 						self.menu.pack_forget()
-						self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
-						self.menu.pack(fill=BOTH,expand=1)
-
+						if len(self.menu_bots):
+							self.selected_bot.set(self.menu_bots.keys()[0])
+							self.selected_bot=StringVar()
+							self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+							self.menu.pack(fill=BOTH,expand=1)
+						else:
+							self.menu.config(state='disabled')
+							self.play_button.config(state='disabled')
+							self.white_button.config(state='disabled')
+							self.black_button.config(state='disabled')
+							self.selfplay_button.config(state='disabled')
+							
 				self.history.append([copy(self.grid),copy(self.markup)])
 					
 				place(self.grid,i,j,color)
@@ -578,13 +584,8 @@ class OpenMove():
 			self.bots.append(one_bot)
 			
 			if one_bot.okbot:
-				#self.menu_bots.append(one_bot)
 				self.menu_bots[one_bot.name]=one_bot
-				#one_bot.grid(column=0,row=row,sticky=E+W)
-				#one_bot.config(command=partial(self.click_button,bot=one_bot))
-				#msg=_("Ask %s to play the next move.")%one_bot.name
-				#one_bot.bind("<Enter>",partial(self.set_status,msg))
-				#one_bot.bind("<Leave>",lambda e: self.clear_status())
+
 		
 		row+=10
 		Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
