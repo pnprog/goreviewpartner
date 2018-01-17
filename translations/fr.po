@@ -328,6 +328,12 @@ msgstr "Réglages pour l'analyse"
 msgid "Parameters for the review"
 msgstr "Réglages pour la revue"
 
+msgid "General parameters"
+msgstr "Réglages généraux"
+
+msgid "Language"
+msgstr "Langue"
+
 
 ############################
 ###### GnuGo specific ######

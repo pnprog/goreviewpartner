@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 class AbortedException(Exception):
     pass
@@ -1120,16 +1121,50 @@ def module_path():
 	return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))
 
 
-import locale
 
-lang=locale.getdefaultlocale()[0].split('_')[0]
+try:
+	pathname=module_path()
+except:
+	pathname=os.path.dirname(__file__)
 
+log('GRP path:', os.path.abspath(pathname))
+config_file=os.path.join(os.path.abspath(pathname),"config.ini")
+log('Config file:', config_file)
+
+log("Reading language setting from config file")
+Config = ConfigParser.ConfigParser()
+Config.read(config_file)
+lang=Config.get("General","Language")
+
+
+available_translations={"en": u"English", "fr" : u"Français"}
+if not lang:
+	log("No language setting in the config file")
+	log("System language detection:")
+	import locale
+	lang=locale.getdefaultlocale()[0].split('_')[0]
+	log("System language:",lang,"("+locale.getdefaultlocale()[0]+")")
+	if lang in available_translations:
+		log("There is a translation available for lang="+lang)
+	else:
+		log("No translation available for lang="+lang)
+		log("Falling back on lang=en")
+		lang="en"
+	log("Saving the lang parameter in config.ini")
+	Config.set("General","Language",lang)
+	Config.write(open(config_file,"w"))
+else:
+	if lang in available_translations:
+		log("lang="+lang)
+	else:
+		log("Unkonwn language setting in config.ini (lang="+lang+")")
+		log("Falling back on lang=en")
+		lang="en"
+		log("Saving the lang parameter in config.ini")
+		Config.set("General","Language",lang)
+		Config.write(open(config_file,"w"))
+		
 translations={}
-
-
-
-log("System langage:",lang)
-
 def prepare_translations():
 	global translations
 	
@@ -1162,29 +1197,13 @@ def prepare_translations():
 			entry=""
 			translation=""
 
+prepare_translations()
+
 def _(txt=None):
 	global translations
 	if not translations:
 		return txt
-	
 	if translations.has_key(txt):
 		return translations[txt]
-	
 	return txt
-
-
-try:
-	pathname=module_path()
-except:
-	pathname=os.path.dirname(__file__)
-
-log('GRP path:', os.path.abspath(pathname))
-config_file=os.path.join(os.path.abspath(pathname),"config.ini")
-log('Config file:', config_file)
-
-available_translations=["fr"]
-if lang in available_translations:
-	prepare_translations()
-else:
-	log("No translation file lang="+lang,"falling back on english.")
 

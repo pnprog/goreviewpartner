@@ -1,12 +1,12 @@
 
 from Tkinter import *
 import ConfigParser
-from toolbox import log, config_file, _
 from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
 from aq_analysis import AQSettings
 from leela_zero_analysis import LeelaZeroSettings
+from toolbox import log, config_file, _, available_translations, lang
 
 class OpenSettings(Toplevel):
 
@@ -41,6 +41,17 @@ class OpenSettings(Toplevel):
 		row+=1
 		Label(setting_frame,text="").grid(row=row,column=1)
 
+		row+=1
+		Label(setting_frame,text=_("General parameters")).grid(row=row,column=1,sticky=W)
+
+		row+=1
+		Label(setting_frame,text=_("Language")).grid(row=row,column=1,sticky=W)
+		Language = StringVar()
+		Language.set(available_translations[lang])		
+		OptionMenu(setting_frame,Language,*tuple(available_translations.values())).grid(row=row,column=2,sticky=W)
+		
+		row+=1
+		Label(setting_frame,text="").grid(row=row,column=1)
 		row+=1
 		Label(setting_frame,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
 
@@ -90,7 +101,7 @@ class OpenSettings(Toplevel):
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
 
-		
+		self.Language=Language
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
 		self.GobanScreenRatio=GobanScreenRatio
@@ -130,10 +141,15 @@ class OpenSettings(Toplevel):
 		self.display_settings()
 
 	def save(self):
+		global lang, translations
 		log("Saving GRP settings")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
+		for lang2, language in available_translations.iteritems():
+			if language==self.Language.get():
+				if lang!=lang2:
+					Config.set("General","Language",lang2)
+				break
 		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
 		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
@@ -150,5 +166,5 @@ class OpenSettings(Toplevel):
 		
 if __name__ == "__main__":
 	top = Tk()
-	OpenSettings(top)
+	OpenSettings()
 	top.mainloop()
