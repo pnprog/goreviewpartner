@@ -147,7 +147,7 @@ class RunAnalysis(RunAnalysisBase):
 									variation_comment=_("black/white win probability for this variation: ")+str(one_score)+'%/'+str(100-one_score)+'%'
 									new_child.set("BWR",str(one_score)+'%') #Black Win Rate
 									new_child.set("WWR",str(100-one_score)+'%') #White Win Rate
-									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)
+									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)+'%'
 									if one_value_network!=None:
 										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
 									if one_policy_network!=None:
