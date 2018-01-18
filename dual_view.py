@@ -196,23 +196,30 @@ class OpenChart():
 			for one_data in self.data:
 				if one_data:
 					if (one_data["player_color"]==player_color) and ("delta" in one_data):
-						player_win_rate=one_data["player_win_rate"]
+						position_win_rate=one_data["position_win_rate"]
 						move=one_data["move"]
 						moves.append(move)
 						x0=border+(move-1)*space
 						x1=x0+space*2
 						
 						y0=height-border
-						y1=height-border-player_win_rate*(height-2*border)/100.
+						y1=height-border-position_win_rate*(height-2*border)/100.
 						
 						grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
-						msg="Move "+str(move)+", win rate: "+str(player_win_rate)+"%"
+						
+						delta=one_data["delta"]
+						
+						if player_color.lower()=="b":
+							msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+						else:
+							msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+						
 						self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 						self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 						self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
-						delta=one_data["delta"]
+						
 						if delta<>0:
-							y2=y1+delta*(height-2*border)/100.
+							y2=y1-delta*(height-2*border)/100.
 							if delta<0:
 								red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
 								msg2=_("The computer believes it's own move win rate would be %.2fpp higher.")%(-delta)
@@ -221,7 +228,7 @@ class OpenChart():
 								self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
 							else:
 								green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
-								msg2=_("The computer believes your move is %.2fpp better than it's best move.")%(delta)
+								msg2=_("The computer believes the actual move is %.2fpp better than it's best move.")%(delta)
 								self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
 								self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
 								self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
@@ -242,20 +249,20 @@ class OpenChart():
 					x0=border+(move-1)*space
 					x1=x0+space
 					
-					player_win_rate=one_data["player_win_rate"]
+					position_win_rate=one_data["position_win_rate"]
 					if one_data["player_color"]=="w":
-						player_win_rate=100.-player_win_rate
+						position_win_rate=100.-position_win_rate
 						color=_("White")
 					else:
 						color=_("Black")
-					player_win_rate=float(int(player_win_rate*100)/100.)
+					player_win_rate=float(int(position_win_rate*100)/100.)
 					y0=height-border
-					y1=height-border-player_win_rate*(height-2*border)/100.
+					y1=height-border-position_win_rate*(height-2*border)/100.
 					
 					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
 					
 					#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
-					msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+					msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(position_win_rate)+"%/"+str(100-player_win_rate)+"%"
 					
 					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
@@ -953,7 +960,7 @@ class DualView(Frame):
 	
 	def prepare_data_for_chart(self):
 		data=[]
-		for m in range(1,get_node_number(self.gameroot)+1):
+		for m in range(0,get_node_number(self.gameroot)+1):
 			try:
 				one_data={}
 				data.append(one_data)
@@ -963,27 +970,42 @@ class DualView(Frame):
 				player_color,player_move=one_move.get_move()
 				player_move=ij2gtp(player_move)
 
+				#position win rate is the win rate for the position right before the player plays his move
+				#so it is the win rate of the best move by the computer for this position
+				#because we consider the bot plays perfectly
+				
+				if player_color in ('w',"W"):
+					current_position_win_rate=float(one_move.get('WWR').replace("%",""))
+				else:
+					current_position_win_rate=float(one_move.get('BWR').replace("%",""))
+				
+				one_data['position_win_rate']=current_position_win_rate
+				one_data['move']=m #move number
+				one_data['player_color']=player_color.lower() #which turn it is to play
+				
+				#delta is the [position win rate of the next move] - [position win rate of the current move]
+				#so it allows to compare how the game would evolve from that position:
+				# 1/ in the case the computer best move is played (current_position_win_rate)
+				# 2/ compared with when the actual game move was played (next_position_win_rate)
+				# positive delta means the game evolves better when the actual game move is played
+				# negative delta means the game evolves better when the computer move is played
+				
+				next_move=get_node(self.gameroot,m+1)
+				if player_color in ('w',"W"):
+					next_position_win_rate=float(next_move.get('WWR').replace("%",""))
+				else:
+					next_position_win_rate=float(next_move.get('BWR').replace("%",""))
 
-				if player_color in ('w',"W"):
-					player_win_rate=get_node(self.gameroot,m+1).get('WWR').replace("%","")
-				else:
-					player_win_rate=get_node(self.gameroot,m+1).get('BWR').replace("%","")
-				one_data['player_win_rate']=float(player_win_rate)
-				one_data['move']=m
-				one_data['player_color']=player_color.lower()
-				
-				if player_color in ('w',"W"):
-					computer_win_rate=one_move.get('WWR').replace("%","")
-				else:
-					computer_win_rate=one_move.get('BWR').replace("%","")
-					
-				one_data['computer_win_rate']=float(computer_win_rate)
-				
 				computer_move=one_move.get('CBM')
 				if player_move==computer_move:
-					player_win_rate=computer_win_rate
-					one_data['player_win_rate']=float(player_win_rate)
-				delta=float(player_win_rate.replace("%",""))-float(computer_win_rate.replace("%",""))
+					# in case the computer best move is the actual game move then:
+					# 1/ normally delta=0
+					# 2/ let's update current_position_win_rate using next_position_win_rate because it is a better evaluation
+					current_position_win_rate=next_position_win_rate
+					one_data['position_win_rate']=next_position_win_rate
+								
+				delta=next_position_win_rate-current_position_win_rate
+				
 				one_data['delta']=delta
 
 				
@@ -1140,7 +1162,6 @@ class DualView(Frame):
 			if one_alternative.has_property("BWR"):
 				black_prob=float(one_alternative.get("BWR")[:-1])
 				white_prob=100-black_prob
-				print "===========",black_prob,white_prob
 				if c==1:
 					if black_prob>=50:
 						displaycolor="blue"

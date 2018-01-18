@@ -171,7 +171,7 @@ msgstr "Analyse par GoReviewPartner"
 ####### RSGF review ########
 ############################
 msgid "Win rate"
-msgstr "Probabitité de victoire"
+msgstr "Probabitité de gagner"
 
 msgid "Black comparison"
 msgstr "Graphique de comparaison pour Noir"
@@ -182,14 +182,20 @@ msgstr "Graphique de comparaison pour Blanc"
 msgid "<Ctrl+Q> to export goban as postscript image."
 msgstr "<Ctrl+Q> pour exporter le goban comme image postscript"
 
+msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
+msgstr "Coup %i: probabilité de gagner pour le coup de Noir: %s, probabilité de gagner pour le coup de l'ordinateur: %s"
+
+msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
+msgstr "Coup %i: probabilité de gagner pour le coup de Blanc: %s, probabilité de gagner pour le coup de l'ordinateur: %s"
+
 msgid "The computer believes it's own move win rate would be %.2fpp higher."
 msgstr "Le programme estime que son propre coup serait %.2fpp meilleur."
 
-msgid "The computer believes your move is %.2fpp better than it's best move."
-msgstr "Le programme estime que votre coup serait %.2fpp meilleur que le sien."
+msgid "The computer believes the actual move is %.2fpp better than it's best move."
+msgstr "Le programme estime que le coup de la partie serait %.2fpp meilleur que le sien."
 
 msgid "Black win rate"
-msgstr "Probabilité de victoire pour Noir"
+msgstr "Probabilité de gagner pour Noir"
 
 msgid "White"
 msgstr "Blanc"
@@ -198,7 +204,7 @@ msgid "Black"
 msgstr "Noir"
 
 msgid "Move %i (%s), black/white win rate: "
-msgstr "Coup %i (%s), probabilité de victoire noir/blanc: "
+msgstr "Coup %i (%s), probabilités noire/blanche de gagner: "
 
 msgid "Choose a filename"
 msgstr "Choisissez un nom de fichier"
@@ -404,10 +410,10 @@ msgstr "Ferméture en cours, veuillez patienter..."
 ###############################
 
 msgid "black/white win probability for this variation: "
-msgstr "Probabilités noire/blanche de victoire pour cette variation: "
+msgstr "Probabilités noire/blanche de gagner pour cette variation: "
 
 msgid "Monte Carlo win probalbility for this move: "
-msgstr "Probabilités Monte Carlo de victoire pour ce coups: "
+msgstr "Probabilités Monte Carlo pour ce coup: "
 
 msgid "Value network black/white win probability for this move: "
 msgstr "Probabilités \"Value Network\" noire/blanche pour ce coup: "
@@ -428,7 +434,7 @@ msgid "Book move"
 msgstr ""
 
 msgid "%s black/white win probability for this position: "
-msgstr "Probabilités noire/blanche de victoire pour cette variation selon %s: "
+msgstr "Probabilités noire/blanche de gagner pour cette variation selon %s: "
 
 msgid "Time per move (s)"
 msgstr "Temps de réflexion par coup (en secondes)"
