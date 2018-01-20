@@ -23,7 +23,8 @@ import ConfigParser
 
 import threading, Queue
 
-
+import mss
+import mss.tools
 
 bg='#C0C0C0'
 
@@ -112,7 +113,7 @@ class OpenChart():
 		bottom_frame.pack()
 	
 		self.clear_status()
-		self.popup.bind('<Control-q>', self.save_as_ps)
+		self.popup.bind('<Control-q>', self.save_as_png)
 		
 		self.popup.protocol("WM_DELETE_WINDOW", self.close)
 	
@@ -120,7 +121,7 @@ class OpenChart():
 		self.status_bar.config(text=msg)
 	
 	def clear_status(self,event=None):
-		self.status_bar.config(text=_("<Ctrl+Q> to export goban as postscript image."))
+		self.status_bar.config(text=_("<Ctrl+Q> to save the graph as an image."))
 	
 	def goto_move(self,event=None,move=None):
 		if move:
@@ -311,9 +312,12 @@ class OpenChart():
 				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
 				x0=x1
 				
-	def save_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile=self.graph_mode.get()+' graph.ps')
-		self.chart.postscript(file=filename, colormode='color')
+	def save_as_png(self,e=None):
+		top=Tk()
+		top.withdraw()
+		filename = tkFileDialog.asksaveasfilename(parent=top,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile=self.graph_mode.get()+' graph.png')
+		top.destroy()
+		canvas2png(self.chart,filename)
 
 class OpenMove():
 	def __init__(self,parent,move,dim,sgf,goban_size=200):
@@ -650,8 +654,8 @@ class OpenMove():
 		popup.grid_columnconfigure(2, weight=1)
 		
 		
-		self.popup.bind('<Control-q>', self.save_as_ps)
-		goban3.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to export goban as postscript image.")))
+		self.popup.bind('<Control-q>', self.save_as_png)
+		goban3.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		goban3.bind("<Leave>",lambda e: self.clear_status())
 		
 		Label(popup,text='   ',background=bg).grid(row=0,column=3)
@@ -772,10 +776,14 @@ class OpenMove():
 
 
 
-	def save_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile='variation_move'+str(self.move)+'.ps')
-		self.goban.postscript(file=filename, colormode='color')
-
+	def save_as_png(self,e=None):
+		top=Tk()
+		top.withdraw()
+		filename = tkFileDialog.asksaveasfilename(parent=top,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile='variation_move'+str(self.move)+'.png')
+		top.destroy()
+		#self.goban.postscript(file=filename, colormode='color')
+		canvas2png(self.goban,filename)
+		
 class DualView(Frame):
 	def __init__(self,parent,filename,goban_size=200):
 		Frame.__init__(self,parent)
@@ -1326,8 +1334,8 @@ class DualView(Frame):
 		self.goban1.space=self.goban_size/(self.dim+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1)
 		
-		self.parent.bind('<Control-q>', self.save_left_as_ps)
-		self.parent.bind('<Control-w>', self.save_right_as_ps)
+		self.parent.bind('<Control-q>', self.save_left_as_png)
+		self.parent.bind('<Control-w>', self.save_right_as_png)
 		
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 		
@@ -1347,8 +1355,8 @@ class DualView(Frame):
 		
 		goban.show_variation=self.show_variation
 		
-		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to export goban as postscript image.")))
-		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to export goban as postscript image.")))
+		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
 		
 		first_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to first move.")))
 		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go back 10 moves.")))
@@ -1391,13 +1399,23 @@ class DualView(Frame):
 	def clear_status(self):
 		self.status_bar.config(text="")
 
-	def save_left_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
-		self.goban1.postscript(file=filename, colormode='color')
+	def save_left_as_png(self,e=None):
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile='move'+str(self.current_move)+'.png')
+		canvas2png(self.goban1,filename)
+
+		
+	def save_right_as_png(self,e=None):
+		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile='move'+str(self.current_move)+'.png')
+		canvas2png(self.goban2,filename)
 	
-	def save_right_as_ps(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('Postscript', '.ps')],initialfile='move'+str(self.current_move)+'.ps')
-		self.goban2.postscript(file=filename, colormode='color')
+def canvas2png(goban,filename):
+	top = goban.winfo_rooty()
+	left = goban.winfo_rootx()
+	width = goban.winfo_width()
+	height = goban.winfo_height()
+	monitor = {'top': top, 'left': left, 'width': width, 'height': height}
+	sct_img = mss.mss().grab(monitor)
+	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
 
 from gomill import sgf, sgf_moves
 import goban

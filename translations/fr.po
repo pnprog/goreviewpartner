@@ -179,8 +179,11 @@ msgstr "Graphique de comparaison pour Noir"
 msgid "White comparison"
 msgstr "Graphique de comparaison pour Blanc"
 
-msgid "<Ctrl+Q> to export goban as postscript image."
-msgstr "<Ctrl+Q> pour exporter le goban comme image postscript"
+msgid "<Ctrl+Q> to save the goban as an image."
+msgstr "<Ctrl+Q> pour enregistrer le goban comme image."
+
+msgid "<Ctrl+Q> to save the graph as an image."
+msgstr "<Ctrl+Q> pour enregistrer le diagramme comme image."
 
 msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
 msgstr "Coup %i: probabilité de gagner pour le coup de Noir: %s, probabilité de gagner pour le coup de l'ordinateur: %s"
@@ -227,8 +230,8 @@ msgstr "Montrer les territoires"
 msgid "Graphs"
 msgstr "Graphiques"
 
-msgid "<Ctrl+W> to export goban as postscript image."
-msgid "<Ctrl+W> to export goban as postscript image."
+msgid "<Ctrl+W> to save the goban as an image."
+msgstr "<Ctrl+W> pour enregistrer le goban comme image."
 
 msgid "Go to first move."
 msgstr "Aller au premier coup de la partie."
