@@ -25,7 +25,7 @@ class OpenSettings(Toplevel):
 		Button(self.setting_frame,text=_("Save settings"),command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 		
 		self.setting_frame.pack()
-		
+		self.focus()
 
 			
 	def display_GRP_settings(self,top_setting_frame):

@@ -150,6 +150,7 @@ class DownloadFromURL(Frame):
 		
 		Button(self,text=_("Get"),command=self.get).grid(row=3,column=1,sticky=E)
 		self.popup=None
+		self.focus()
 		
 	def get(self):
 		user_agent = 'GoReviewPartner (https://github.com/pnprog/goreviewpartner/)'
@@ -495,6 +496,9 @@ class RangeSelector(Frame):
 		self.only_entry=only_entry
 		self.popup=None
 		self.komi_entry=komi_entry
+		
+		self.focus()
+		self.parent.focus()
 		
 	def variation_changed(self,*args):
 		log("variation changed!",self.variation_selection.get())

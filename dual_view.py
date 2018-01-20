@@ -116,6 +116,7 @@ class OpenChart():
 		self.popup.bind('<Control-q>', self.save_as_png)
 		
 		self.popup.protocol("WM_DELETE_WINDOW", self.close)
+		popup.focus()
 	
 	def set_status(self,event=None,msg=''):
 		self.status_bar.config(text=msg)
@@ -737,6 +738,7 @@ class OpenMove():
 		self.history=[]
 
 		self.goban.bind("<Configure>",self.redraw)
+		popup.focus()
 		
 		self.display_queue=Queue.Queue(1)
 		self.parent.after(100,self.wait_for_display)
@@ -803,6 +805,7 @@ class DualView(Frame):
 		self.display_move(self.current_move)
 
 		self.pressed=0
+		self.parent.focus()
 
 	def close_app(self):
 		for popup in self.all_popups[:]:
