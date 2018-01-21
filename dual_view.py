@@ -1393,8 +1393,8 @@ class DualView(Frame):
 		
 		if sys.platform!="darwin":
 			#https://github.com/pnprog/goreviewpartner/issues/7
-			self.comment_box1.config(width=int(event.width/self.lpix-2))
-			self.comment_box2.config(width=int(event.width/self.lpix-2))
+			self.comment_box1.config(width=int(event.width/self.lpix-10))
+			self.comment_box2.config(width=int(event.width/self.lpix-10))
 
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
