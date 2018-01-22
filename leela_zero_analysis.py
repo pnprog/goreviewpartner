@@ -244,9 +244,22 @@ class RunAnalysis(RunAnalysisBase):
 		
 		return leela_zero
 
+import ntpath
+import subprocess
+import threading, Queue
 
 class Leela_Zero_gtp(gtp):
+	def __init__(self,command):
+		self.c=1
+		leela_zero_working_directory=command[0][:-len(ntpath.basename(command[0]))]
+		log("Leela Zero working directory:",leela_zero_working_directory)
 
+		self.process=subprocess.Popen(command,cwd=leela_zero_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		self.size=0
+		
+		self.stderr_queue=Queue.Queue()
+		
+		threading.Thread(target=self.consume_stderr).start()
 	def get_leela_zero_final_score(self):
 		self.write("final_score")
 		answer=self.readline()
