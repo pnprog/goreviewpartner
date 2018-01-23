@@ -1195,7 +1195,7 @@ def prepare_translations():
 		key="msgstr"
 		if line[:len(key)+2]==key+' "':
 			translation=line[len(key)+2:-1]
-			
+			translation=translation.replace("\\\"","\"")
 			if len(entry)>0 and len(translation)>0:
 				translations[entry]=translation
 			entry=""
