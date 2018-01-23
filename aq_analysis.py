@@ -239,6 +239,68 @@ class AQ_gtp(gtp):
 		
 		threading.Thread(target=self.consume_stderr).start()
 
+		self.history=[]
+	
+	def place_black(self,move):
+		self.write("play black "+move)
+		answer=self.readline()
+		if answer[0]=="=":
+			self.history.append(["b",move])
+			return True
+		else:return False	
+	
+	def place_white(self,move):
+		self.write("play white "+move)
+		answer=self.readline()
+		if answer[0]=="=":
+			self.history.append(["w",move])
+			return True
+		else:return False
+
+
+	def play_black(self):
+		self.write("genmove black")
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			if move.lower()!="resign":
+				self.history.append(["b",move])
+			return move
+		except Exception, e:
+			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
+
+		
+	def play_white(self):
+		self.write("genmove white")
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			if move.lower()!="resign":
+				self.history.append(["w",move])
+			return move
+		except Exception, e:
+			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
+
+
+	def undo(self):
+		self.write("clear_board")
+		answer=self.readline()
+		try:
+			if answer[0]!="=":
+				return False
+			self.history.pop()
+			history=self.history[:]
+			self.history=[]
+			for color,move in history:
+				if color=="b":
+					if not self.place_black(move):
+						return False
+				else:
+					if not self.place_white(move):
+						return False
+			return True			
+		except Exception, e:
+			raise GtpException("GtpException in undo()\n"+str(e))
 
 	def get_all_aq_moves(self):
 		buff=[]
