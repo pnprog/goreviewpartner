@@ -8,7 +8,6 @@ from gomill import sgf, sgf_moves
 from sys import exit,argv
 
 from Tkinter import *
-
 import tkFileDialog
 import sys
 import os
@@ -20,7 +19,6 @@ import os
 import threading
 import ttk
 
-import toolbox
 from toolbox import *
 from toolbox import _
 
@@ -390,7 +388,6 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		toolbox.RunAnalysis=RunAnalysis
 		RangeSelector(top,filename,bots=[("Ray",RunAnalysis)]).pack()
 		top.mainloop()
 	else:

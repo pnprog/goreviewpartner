@@ -6,7 +6,7 @@ from time import sleep,time
 from toolbox import log
 
 class GtpException(Exception):
-    pass
+	pass
 
 class gtp():
 	def __init__(self,command):
@@ -156,11 +156,6 @@ class gtp():
 		except Exception, e:
 			raise GtpException("GtpException in undo()\nanswer='"+answer+"'\n"+str(e))
 
-	def show_board(self):
-		self.write("showboard")
-		answer=self.readline(3+self.size).strip()
-		return answer[4:]
-	
 	def countlib(self,move):
 		self.write("countlib "+move)
 		answer=self.readline()

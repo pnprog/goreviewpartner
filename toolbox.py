@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 class AbortedException(Exception):
-    pass
+	pass
 
 
 def log(*args):
@@ -235,7 +235,7 @@ class DownloadFromURL(Frame):
 
 
 class WriteException(Exception):
-    pass
+	pass
 
 def write_rsgf(filename,sgf_content):
 	try:
@@ -271,7 +271,7 @@ def clean_sgf(txt):
 	return txt
 
 
-RunAnalysis=None
+
 
 def get_all_sgf_leaves(root,deep=0):
 	
@@ -510,7 +510,7 @@ class RangeSelector(Frame):
 			if deep>0:
 				self.only_entry.insert(0, "1-"+str(deep))
 			
-			self.r1.config(text="Analyse all % moves"%deep)
+			self.r1.config(text=_("Analyse all %i moves")%deep)
 			
 			self.nb_moves=deep
 			
@@ -606,6 +606,13 @@ class RunAnalysisBase(Frame):
 		self.variation=variation
 		self.komi=komi
 		
+		self.move_zero=None
+		self.g=None
+		self.move_zero=None
+		
+		self.current_move=None
+		self.time_per_move=None
+		
 		self.error=None
 		try:
 			self.bot=self.initialize_bot()
@@ -641,6 +648,9 @@ class RunAnalysisBase(Frame):
 		
 		self.root.after(500,self.follow_analysis)
 	
+	def initialize_bot(self):
+		pass
+	
 	def run_analysis(self,current_move):
 		
 		#################################################
@@ -663,21 +673,6 @@ class RunAnalysisBase(Frame):
 			self.lock2.acquire()
 			self.lock2.release()
 		return
-		"""except Exception,e:
-			self.error=str(e)
-			log("releasing lock")
-			try:
-				self.lock1.release()
-			except:
-				pass
-			try:
-				self.lock2.release()
-			except:
-				pass
-			log("leaving thread")
-			sys.exit()
-		"""
-			
 
 	def abort(self):
 		try:
@@ -724,13 +719,14 @@ class RunAnalysisBase(Frame):
 		self.pb["value"] = 100
 		
 		try:
-			import dual_view
+			#import dual_view
 			Button(self.right_frame,text=_("Start review"),command=self.start_review).pack(side=TOP)
 		except:
 			pass
 
 	def start_review(self):
 		import dual_view
+		
 		app=self.parent
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
@@ -833,6 +829,8 @@ class RunAnalysisBase(Frame):
 class BotOpenMove():
 	def __init__(self):
 		self.name='Bot'
+		self.bot=None
+		self.okbot=False
 		#Button.__init__(self,parent)
 		
 	def undo(self):

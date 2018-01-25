@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from gtp import gtp
+from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
 
@@ -19,7 +19,6 @@ import os
 import threading
 import ttk
 
-import toolbox
 from toolbox import *
 from toolbox import _
 
@@ -461,7 +460,6 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		toolbox.RunAnalysis=RunAnalysis
 		RangeSelector(top,filename,bots=[("AQ",RunAnalysis)]).pack()
 		top.mainloop()
 	else:

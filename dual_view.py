@@ -463,7 +463,8 @@ class OpenMove():
 						if len(self.menu_bots):
 							self.selected_bot.set(self.menu_bots.keys()[0])
 							self.selected_bot=StringVar()
-							self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+							#self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+							self.menu=apply(OptionMenu, (self.menu_wrapper, self.selected_bot) + tuple(self.menu_bots.keys()))
 							self.menu.pack(fill=BOTH,expand=1)
 						else:
 							self.menu.config(state='disabled')
@@ -612,7 +613,8 @@ class OpenMove():
 			self.menu_wrapper.bind("<Enter>",lambda e: self.set_status(_("Select a bot.")))
 			self.menu_wrapper.bind("<Leave>",lambda e: self.clear_status())
 			
-			self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+			#self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
+			self.menu=apply(OptionMenu, (self.menu_wrapper, self.selected_bot) + tuple(self.menu_bots.keys()))
 			self.menu.pack(fill=BOTH,expand=1)
 			
 			row+=1
@@ -705,7 +707,7 @@ class OpenMove():
 				bot.place(ij2gtp(ij),color)
 			
 			if ij==None:
-				log("(0)skipping because ij==None",ij)
+				log("(1)skipping because ij==None",ij)
 				continue
 
 			i,j=ij
@@ -733,7 +735,7 @@ class OpenMove():
 		popup.protocol("WM_DELETE_WINDOW", self.close)
 		goban3.bind("<Button-1>",self.click)
 		goban3.bind("<Button-2>",self.undo)
-		goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
+		#goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
 		
 		self.history=[]
 
@@ -1076,24 +1078,24 @@ class DualView(Frame):
 		for m in range(1,move):
 			one_move=get_node(self.gameroot,m)
 			if one_move==False:
-				log("(0)leaving because one_move==False")
+				log("(2)leaving because one_move==False")
 				return
 			
 			ij=one_move.get_move()[1]
 			
 			if ij==None:
-				log("(0)skipping because ij==None",ij)
+				log("(3)skipping because ij==None",ij)
 				continue
 
 			
 			if one_move.get_move()[0]=='b':color=1
 			else:color=2
-			i,j=ij
+			i,j=list(ij)
 			place(grid1,i,j,color)
 			place(grid2,i,j,color)
 			
 			if len(one_move)==0:
-				log("(0)leaving because len(one_move)==0")
+				log("(4)leaving because len(one_move)==0")
 				goban1.display(grid1,markup1)
 				goban2.display(grid2,markup2)
 				return
@@ -1128,11 +1130,11 @@ class DualView(Frame):
 		for m in range(self.realgamedeepness):
 			one_move=get_node(self.gameroot,move+m)
 			if one_move==False:
-				log("(00)leaving because one_move==False")
+				log("(5)leaving because one_move==False")
 				break
 			ij=one_move.get_move()[1]
 			if ij==None:
-				log("(0)skipping because ij==None",ij)
+				log("(6)skipping because ij==None",ij)
 				break
 			if one_move.get_move()[0]=='b':	c=1
 			else: c=2
@@ -1141,7 +1143,7 @@ class DualView(Frame):
 				real_game_ij=ij
 		try:
 			#i,j=one_move=get_node(self.gameroot,move).get_move()[1]
-			i,j=get_node(self.gameroot,move).get_move()[1]
+			i,j=list(get_node(self.gameroot,move).get_move()[1])
 		except:
 			self.prev_move()
 			return
@@ -1150,7 +1152,7 @@ class DualView(Frame):
 		#alternative sequences ####################################################################################
 		parent=get_node(self.gameroot,move-1)
 		if parent==False:
-			log("(1)leaving because one_move==False")
+			log("(7)leaving because one_move==False")
 			return
 		if len(parent)<=1:
 			log("no alternative move")

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from gtp import gtp
+from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
 
