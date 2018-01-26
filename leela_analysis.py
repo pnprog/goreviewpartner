@@ -135,65 +135,47 @@ class RunAnalysis(RunAnalysisBase):
 							break
 						i,j=gtp2ij(one_deep_move)
 						new_child=previous_move.new_child()
-						new_child.set_move(current_color,(i,j))
-						#new_child.add_comment_text("black/white win probability: "+str(one_score)+'%/'+str(100-one_score)+'%')
-						
+						new_child.set_move(current_color,(i,j))						
 						
 						if player_color=='b':
-							if first_variation_move:
-								first_variation_move=False
-								if not bookmove:
-									variation_comment=_("black/white win probability for this variation: ")+str(one_score)+'%/'+str(100-one_score)+'%'
-									new_child.set("BWR",str(one_score)+'%') #Black Win Rate
-									new_child.set("WWR",str(100-one_score)+'%') #White Win Rate
-									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(one_monte_carlo)+'%/'+str(100-one_monte_carlo)+'%'
-									if one_value_network!=None:
-										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
-									if one_policy_network!=None:
-										variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
-									if one_evaluation!=None:
-										variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
-									if one_rave!=None:
-										variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
-									variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
-									new_child.add_comment_text(variation_comment)
-									#new_child.add_comment_text("black/white win probability for this variation: "+str(one_score)+'%/'+str(100-one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
-								else:
-									new_child.add_comment_text(_("Book move"))
-							if best_move:
-								best_move=False
-								if not bookmove:
-									additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+str(one_score)+'%/'+str(100-one_score)+'%'
-									one_move.set("BWR",str(one_score)+'%') #Black Win Rate
-									one_move.set("WWR",str(100-one_score)+'%') #White Win Rate
+							black_win_rate=str(one_score)+'%'
+							white_win_rate=str(100-one_score)+'%'
+							black_mc_win_rate=str(one_monte_carlo)+'%'
+							white_mc_win_rate=str(100-one_monte_carlo)+'%'
 						else:
-							if first_variation_move:
-								first_variation_move=False
-								if not bookmove:
-									variation_comment=_("black/white win probability for this variation: ")+str(100-one_score)+'%/'+str(one_score)+'%'
-									new_child.set("WWR",str(one_score)+'%') #White Win Rate
-									new_child.set("BWR",str(100-one_score)+'%') #Black Win Rate
-									variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+str(100-one_monte_carlo)+'%/'+str(one_monte_carlo)
-									if one_value_network!=None:
-										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)
-									if one_policy_network!=None:
-										variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
-									if one_evaluation!=None:
-										variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
-									if one_rave!=None:
-										variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
-									variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
-									new_child.add_comment_text(variation_comment)
-									#new_child.add_comment_text("black/white win probability for this variation: "+str(100-one_score)+'%/'+str(one_score)+'%\nNumber of playouts used to estimate this variation: '+str(one_nodes)+'\nNeural network value for this move: '+str(one_nn)+'%')
-								else:
-									new_child.add_comment_text(_("Book move"))
-							if best_move:
-								best_move=False
-								if not bookmove:
-									additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+str(100-one_score)+'%/'+str(one_score)+'%'
-									one_move.set("WWR",str(one_score)+'%') #White Win Rate
-									one_move.set("BWR",str(100-one_score)+'%') #Black Win Rate
-									
+							black_win_rate=str(100-one_score)+'%'
+							white_win_rate=str(one_score)+'%'
+							black_mc_win_rate=str(100-one_monte_carlo)+'%'
+							white_mc_win_rate=str(one_monte_carlo)+'%'
+						
+						if first_variation_move:
+							first_variation_move=False
+							if not bookmove:
+								variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+								new_child.set("BWR",black_win_rate) #Black Win Rate
+								new_child.set("WWR",white_win_rate) #White Win Rate
+								variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+black_mc_win_rate+'/'+white_mc_win_rate
+								if one_value_network!=None:
+									if player_color=='b':
+										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
+									else:
+										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
+								if one_policy_network!=None:
+									variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
+								if one_evaluation!=None:
+									variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
+								if one_rave!=None:
+									variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
+								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
+								new_child.add_comment_text(variation_comment)
+							else:
+								new_child.add_comment_text(_("Book move"))
+						if best_move:
+							best_move=False
+							if not bookmove:
+								additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+black_win_rate+'/'+white_win_rate
+								one_move.set("BWR",black_win_rate) #Black Win Rate
+								one_move.set("WWR",white_win_rate) #White Win Rate
 						
 						previous_move=new_child
 						if current_color in ('w','W'):

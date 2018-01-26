@@ -122,34 +122,26 @@ class RunAnalysis(RunAnalysisBase):
 
 						
 						if player_color=='b':
-							if first_variation_move:
-								first_variation_move=False
-								variation_comment=_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)
-								new_child.set("BWR",str(one_value_network)+'%') #Black value network
-								new_child.set("WWR",str(100-one_value_network)+'%') #White value network
-								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
-								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
-								new_child.add_comment_text(variation_comment)
-							if best_move:
-								best_move=False
-								additional_comments+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
-								one_move.set("BWR",str(one_value_network)+'%') #Black value network
-								one_move.set("WWR",str(100-one_value_network)+'%') #White value network
+							black_win_rate=str(one_value_network)+'%'
+							white_win_rate=str(100-one_value_network)+'%'
 						else:
-							if first_variation_move:
-								first_variation_move=False
-								variation_comment=_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)
-								new_child.set("WWR",str(one_value_network)+'%') #White value network
-								new_child.set("BWR",str(100-one_value_network)+'%') #Black value network
-								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
-								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
-								new_child.add_comment_text(variation_comment)
-							if best_move:
-								best_move=False
-								additional_comments+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
-								one_move.set("WWR",str(one_value_network)+'%') #White value network
-								one_move.set("BWR",str(100-one_value_network)+'%') #Black value network
-									
+							black_win_rate=str(100-one_value_network)+'%'
+							white_win_rate=str(one_value_network)+'%'
+							
+						if first_variation_move:
+							first_variation_move=False
+							variation_comment=_("Value network black/white win probability for this move: ")+black_win_rate+'/'+white_win_rate
+							new_child.set("BWR",black_win_rate) #Black value network
+							new_child.set("WWR",white_win_rate) #White value network
+							variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
+							variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
+							new_child.add_comment_text(variation_comment)
+						if best_move:
+							best_move=False
+							additional_comments+="\n"+_("Value network black/white win probability for this move: ")+black_win_rate+'/'+white_win_rate
+							one_move.set("BWR",black_win_rate) #Black value network
+							one_move.set("WWR",white_win_rate) #White value network
+							
 						
 						previous_move=new_child
 						if current_color in ('w','W'):

@@ -51,7 +51,7 @@ class RunAnalysis(RunAnalysisBase):
 			max_move=self.max_move
 			
 			log()
-			linelog("move",str(current_move)+'/'+str(max_move))
+			log("move",str(current_move)+'/'+str(max_move))
 			
 			additional_comments="Move "+str(current_move)
 			if player_color in ('w',"W"):
@@ -66,7 +66,7 @@ class RunAnalysis(RunAnalysisBase):
 				log("AQ plays black")
 				answer=aq.play_black()
 
-			
+			log("AQ preferred move:",answer)
 			all_moves=aq.get_all_aq_moves()
 			
 			if (answer.lower() not in ["pass","resign"]):
@@ -89,16 +89,10 @@ class RunAnalysis(RunAnalysisBase):
 					current_color=player_color
 					
 					one_score=self.win_rate(current_move,value,roll)
-					
-					if best_move:
-						if player_color=='b':
-							linelog(str(one_score)+'%/'+str(100-one_score)+'%')
-						else:
-							linelog(str(100-one_score)+'%/'+str(one_score)+'%')
-					
-					
+
 					first_variation_move=True
 					for one_deep_move in one_sequence.split(' '):
+
 						if one_deep_move.lower() in ["pass","resign"]:
 							log("Leaving the variation when encountering",one_deep_move.lower())
 							break
@@ -106,44 +100,33 @@ class RunAnalysis(RunAnalysisBase):
 						new_child=previous_move.new_child()
 						new_child.set_move(current_color,(i,j))
 
+						
 						if player_color=='b':
-							if first_variation_move:
-								first_variation_move=False
-								variation_comment=_("black/white win probability for this variation: ")+str(one_score)+'%/'+str(100-one_score)+'%'
-								new_child.set("BWR",str(one_score)+'%') #Black Win Rate
-								new_child.set("WWR",str(100-one_score)+'%') #White Win Rate
-								variation_comment+="\nCount: "+str(count)
-								variation_comment+="\nValue: "+str(value)
-								variation_comment+="\nRoll: "+str(roll)
-								variation_comment+="\nProb: "+str(prob)
-								
-								new_child.add_comment_text(variation_comment)
-								
-							if best_move:
-								
-								best_move=False
-								additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"AQ")+str(one_score)+'%/'+str(100-one_score)+'%'
-								one_move.set("BWR",str(one_score)+'%') #Black Win Rate
-								one_move.set("WWR",str(100-one_score)+'%') #White Win Rate
+							black_win_rate=str(one_score)+'%'
+							white_win_rate=str(100-one_score)+'%'
 						else:
-							if first_variation_move:
-								first_variation_move=False
-								variation_comment=_("black/white win probability for this variation: ")+str(100-one_score)+'%/'+str(one_score)+'%'
-								new_child.set("WWR",str(one_score)+'%') #White Win Rate
-								new_child.set("BWR",str(100-one_score)+'%') #Black Win Rate
-								variation_comment+="\nCount: "+str(count)
-								variation_comment+="\nValue: "+str(value)
-								variation_comment+="\nRoll: "+str(roll)
-								variation_comment+="\nProb: "+str(prob)
-								
-								new_child.add_comment_text(variation_comment)
-
-							if best_move:
-								best_move=False
-								additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"AQ")+str(100-one_score)+'%/'+str(one_score)+'%'
-								one_move.set("WWR",str(one_score)+'%') #White Win Rate
-								one_move.set("BWR",str(100-one_score)+'%') #Black Win Rate
+							black_win_rate=str(100-one_score)+'%'
+							white_win_rate=str(one_score)+'%'
 							
+						if first_variation_move:
+							first_variation_move=False
+							variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+							new_child.set("BWR",black_win_rate) #Black Win Rate
+							new_child.set("WWR",white_win_rate) #White Win Rate
+							variation_comment+="\nCount: "+str(count)
+							variation_comment+="\nValue: "+str(value)
+							variation_comment+="\nRoll: "+str(roll)
+							variation_comment+="\nProb: "+str(prob)
+							
+							new_child.add_comment_text(variation_comment)
+							
+						if best_move:
+							
+							best_move=False
+							additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
+							one_move.set("BWR",black_win_rate) #Black Win Rate
+							one_move.set("WWR",white_win_rate) #White Win Rate
+						
 						previous_move=new_child
 						if current_color in ('w','W'):
 							current_color='b'
@@ -174,7 +157,7 @@ class RunAnalysis(RunAnalysisBase):
 			else:
 				return
 
-		linelog("now asking AQ to play the game move:")
+		log("now asking AQ to play the game move:")
 		if player_color in ('w',"W"):
 			log("white at",ij2gtp(player_move))
 			aq.place_white(ij2gtp(player_move))
@@ -314,6 +297,19 @@ class AQ_gtp(gtp):
 
 		answers=[]
 		for err_line in buff:
+			if "total games=" in err_line:
+				v1,v2=[int(v) for v in err_line.split("=")[-1].replace(")","").split("(")]
+				if v2!=0:
+					log("Computing requirement margin: "+str(int(100.*v1/v2)-100)+"%")
+				if v1<v2:
+					log("=======================================================")
+					log("=== WARNING: AQ thinking time seems to be too low ! ===")
+					log("=======================================================")
+				elif v1==0 and v2==0:
+					log("===============================================================================")
+					log("=== WARNING: AQ thinking time IS too low for the analysis to be performed ! ===")
+					log("===============================================================================")
+					log("\a") #let's make this annoying enough :)
 			if ("->" in err_line) and ('|' in err_line):
 				log(err_line)
 				sequence=err_line.split("|")[-1].strip()
