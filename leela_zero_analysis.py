@@ -40,16 +40,12 @@ class RunAnalysis(RunAnalysisBase):
 		additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
 			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-
-		if player_color in ('w',"W"):
 			log("leela Zero play white")
 			answer=leela_zero.play_white()
 		else:
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("leela Zero play black")
 			answer=leela_zero.play_black()
-
 		
 		all_moves=leela_zero.get_all_leela_zero_moves()
 		if (answer.lower() not in ["pass","resign"]):

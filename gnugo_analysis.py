@@ -69,11 +69,7 @@ class RunAnalysis(RunAnalysisBase):
 		final_score=gnugo.get_gnugo_estimate_score()
 		#linelog(final_score)
 		additional_comments=_("Move %i")%current_move
-		if player_color in ('w',"W"):
-			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-		additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
+
 
 		es=final_score.split()[0]
 		one_move.set("ES",es) #estimated score
@@ -87,6 +83,13 @@ class RunAnalysis(RunAnalysisBase):
 		
 		one_move.set("UBS",ubs) #upper bound score
 		one_move.set("LBS",lbs) #lower bound score
+		
+		if player_color in ('w',"W"):
+			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
+		else:
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
+		
+		additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
 		
 		if player_color in ('w',"W"):
 			log("gnugo plays white")
@@ -193,11 +196,8 @@ class RunAnalysis(RunAnalysisBase):
 		if white_influence_points!=[]:
 			one_move.parent.set("TW",white_influence_points)			
 
-		
-		
-
-
 	def run_all_analysis(self):
+		#GnuGo needs to rewrite this method because it additionnaly deals with all the workers
 		self.current_move=1
 
 		while self.current_move<=self.max_move:

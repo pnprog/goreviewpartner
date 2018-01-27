@@ -33,8 +33,6 @@ class RunAnalysis(RunAnalysisBase):
 		player_color,player_move=one_move.get_move()
 		ray=self.ray
 		
-
-			
 		max_move=self.max_move
 		log()
 		linelog("move",str(current_move)+'/'+str(max_move))
@@ -42,24 +40,15 @@ class RunAnalysis(RunAnalysisBase):
 		additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
 			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-
-		if player_color in ('w',"W"):
 			log("ray play white")
-			#answer=leela.play_white()
 			answer=ray.get_ray_stat("white")
 		else:
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("ray play black")
 			answer=ray.get_ray_stat("black")
-			#answer=leela.play_black()
-			
-		#log("*****************")
+
 		log(len(answer),"sequences")
-		
-		
-		
-		#if (answer.lower() not in ["pass","resign"]):
+
 		if len(answer)>0:
 			best_move=True
 			for sequence_first_move,count,simulation,policy,value,win,one_sequence in answer[:self.maxvariations]:

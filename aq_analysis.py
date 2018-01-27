@@ -48,13 +48,10 @@ class RunAnalysis(RunAnalysisBase):
 		additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
 			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-
-		if player_color in ('w',"W"):
 			log("AQ plays white")
 			answer=aq.play_white()
 		else:
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("AQ plays black")
 			answer=aq.play_black()
 

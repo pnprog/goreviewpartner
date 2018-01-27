@@ -28,14 +28,11 @@ import tkMessageBox
 class RunAnalysis(RunAnalysisBase):
 
 	def run_analysis(self,current_move):
-		
-		
+
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color,player_move=one_move.get_move()
 		leela=self.leela
-		
 
-		
 		max_move=self.max_move
 		
 		log()
@@ -44,17 +41,13 @@ class RunAnalysis(RunAnalysisBase):
 		additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
 			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-
-		if player_color in ('w',"W"):
 			log("leela play white")
 			answer=leela.play_white()
 		else:
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("leela play black")
 			answer=leela.play_black()
-
-		
+	
 		all_moves=leela.get_all_leela_moves()
 		if (answer.lower() not in ["pass","resign"]):
 			
