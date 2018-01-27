@@ -74,6 +74,19 @@ class RunAnalysis(RunAnalysisBase):
 				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
 
+			es=final_score.split()[0]
+			one_move.set("ES",es) #estimated score
+			
+			if es[0]=="B":
+				lbs="B%+d"%(-1*float(final_score.split()[3][:-1]))
+				ubs="B%+d"%(-1*float(final_score.split()[5][:-1]))
+			else:
+				ubs="W%+d"%(float(final_score.split()[3][:-1]))
+				lbs="W%+d"%(float(final_score.split()[5][:-1]))
+			
+			one_move.set("UBS",ubs) #upper bound score
+			one_move.set("LBS",lbs) #lower bound score
+			
 			if player_color in ('w',"W"):
 				log("gnugo plays white")
 				top_moves=gnugo.gnugo_top_moves_white()
@@ -295,7 +308,7 @@ class GnuGo_gtp(gtp):
 		self.write("estimate_score")
 		answer=self.readline().strip()
 		try:
-			return answer.split(" ")[1]
+			return answer[2:]
 		except:
 			raise GtpException("GtpException in get_gnugo_estimate_score()")
 	

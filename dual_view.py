@@ -50,9 +50,9 @@ def get_node(root,number=0):
 
 
 class OpenChart():
-	def __init__(self,parent,data,current_move=0):
+	def __init__(self,parent,data,nb_moves,current_move=0):
 		self.parent=parent
-		
+		self.nb_moves=nb_moves
 		self.data=data
 		self.current_move=current_move
 
@@ -84,8 +84,22 @@ class OpenChart():
 		top_frame.pack()
 		
 		self.graph_mode=StringVar()
-		self.graph_mode.set("Win rate") # initialize
-		Radiobutton(top_frame, text=_("Win rate"),command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
+		
+		for data in self.data:
+			if data:
+				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
+					Radiobutton(top_frame, text=_("Score estimation"),command=self.display,variable=self.graph_mode, value="Score estimation",indicatoron=0).pack(side=LEFT, padx=5)
+					self.graph_mode.set("Score estimation") # initialize
+					break
+		
+		
+		for data in self.data:
+			if data:
+				if "position_win_rate" in data:
+					Radiobutton(top_frame, text=_("Win rate"),command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
+					self.graph_mode.set("Win rate") # initialize
+					break
+		
 		for data in self.data:
 			if data:
 				if "delta" in data:
@@ -157,136 +171,9 @@ class OpenChart():
 			self.parent.goto_move(move_number=move)
 		
 	
-	def display(self,event=None):
-		if event:
-			width=event.width
-			height=event.height
-			self.width=width
-			self.height=height
-		else:
-			width=self.width
-			height=self.height
-		
-		border=min(max(20,width/25),200)
-		space=1.0*(width-2*border)/len(self.data)
-		lpix=int(border/4)
-		for item in self.chart.find_all():
-			self.chart.delete(item)
-		
-		self.chart.create_line(0, 0, width, 0, fill='#000000',width=4)
-		self.chart.create_line(0, height, width, height, fill='#000000',width=4)
-		
-		self.chart.create_line(0, 0, 0, height, fill='#000000',width=4)
-		
-		self.chart.create_line(width, 0, width, height, fill='#000000',width=4)
-		
-		y00=height-border
-		x0=border+(self.current_move-1)*space
-		x1=x0+space
-		y1=border
-		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
-		
-		moves=[]
-		if self.graph_mode.get()!="Win rate":
-			if self.graph_mode.get()=="Black comparison":
-				player_color='b'
-			else:
-				player_color='w'
-				
-			x00=border
-			y00=height-border-(height-2*border)/2.
-			for one_data in self.data:
-				if one_data:
-					if (one_data["player_color"]==player_color) and ("delta" in one_data):
-						position_win_rate=one_data["position_win_rate"]
-						move=one_data["move"]
-						moves.append(move)
-						x0=border+(move-1)*space
-						x1=x0+space*2
-						
-						y0=height-border
-						y1=height-border-position_win_rate*(height-2*border)/100.
-						
-						grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
-						
-						delta=one_data["delta"]
-						
-						if player_color.lower()=="b":
-							msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
-						else:
-							msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
-						
-						self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-						self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
-						self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
-						
-						if delta<>0:
-							y2=y1-delta*(height-2*border)/100.
-							if delta<0:
-								red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
-								msg2=_("The computer believes it's own move win rate would be %.2fpp higher.")%(-delta)
-								self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
-								self.chart.tag_bind(red_bar, "<Leave>", self.clear_status)
-								self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
-							else:
-								green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
-								msg2=_("The computer believes the actual move is %.2fpp better than it's best move.")%(delta)
-								self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
-								self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
-								self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
-								
-						self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
-						self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
-						x00=x1
-						y00=y1
-		else:
-			
-			self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
-			x00=border
-			y00=height-border-(height-2*border)/2.
-			for one_data in self.data:
-				if one_data:
-					move=one_data["move"]
-					moves.append(move)
-					x0=border+(move-1)*space
-					x1=x0+space
-					
-					position_win_rate=one_data["position_win_rate"]
-					if one_data["player_color"]=="w":
-						position_win_rate=100.-position_win_rate
-						color=_("White")
-					else:
-						color=_("Black")
-					player_win_rate=float(int(position_win_rate*100)/100.)
-					y0=height-border
-					y1=height-border-position_win_rate*(height-2*border)/100.
-					
-					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
-					
-					#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
-					msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(position_win_rate)+"%/"+str(100-player_win_rate)+"%"
-					
-					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
-					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
-					
-					self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
-					self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
-					x00=x1
-					y00=y1
-		
-		#drawing axis
-		x0=border
-		y0=height-border
-		y1=border
-		self.chart.create_line(x0, y0, x0, y1, fill='black')
-		x1=width-border
-		self.chart.create_line(x1, y0, x1, y1, fill='black')
-		self.chart.create_line(x0, y0, x1, y0, fill='black')
-		self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
-		
+	def display_vertical_winrate_graduation(self,border,height,width):
 		#drawing vertical graduation
-		
+		lpix=int(border/4)
 		graduations=[x*10 for x in range(10+1)]
 		y0=height+1000
 		x0=border/2
@@ -299,20 +186,246 @@ class OpenChart():
 				self.chart.create_text(x1,y1, text=str(g)+"%",fill='black',font=("Arial", str(lpix)))
 				#self.chart.create_line(x0, y1, x1, y1, fill='black')
 				y0=y1
+	
+	def display_vertical_score_graduation(self,border,height,width,maximum):
+		#drawing vertical graduation
+		lpix=int(border/4)
+		graduations=[x*20 for x in range(int(-maximum/20.),int((maximum+20)/20.))]
+		y0=height+1000
+		x0=border/2
+		x1=width-border/2
+		middle=height-border-(height-2*border)/2
+		for g in graduations:
+			y1=height-border-g*(height-2*border)/100.
+			y1=g/2*(height-2*border)/maximum
+			y1=middle-y1
+			if y0-y1>=border:
+				self.chart.create_text(x0,y1, text=str(g),fill='black',font=("Arial", str(lpix)))
+				self.chart.create_text(x1,y1, text=str(g),fill='black',font=("Arial", str(lpix)))
+				#self.chart.create_line(x0, y1, x1, y1, fill='black')
+				y0=y1
+	
+	def display(self,event=None):
+		if event:
+			width=event.width
+			height=event.height
+			self.width=width
+			self.height=height
+		else:
+			width=self.width
+			height=self.height
 		
+		border=min(max(20,width/25),200)
+		space=1.0*(width-2*border)/self.nb_moves
+		lpix=int(border/4)
+		
+		for item in self.chart.find_all():
+			self.chart.delete(item)
+		
+		self.chart.create_line(0, 0, width, 0, fill='#000000',width=4)
+		self.chart.create_line(0, height, width, height, fill='#000000',width=4)
+		self.chart.create_line(0, 0, 0, height, fill='#000000',width=4)
+		self.chart.create_line(width, 0, width, height, fill='#000000',width=4)
+		
+		y00=height-border
+		x0=border+(self.current_move-1)*space
+		x1=x0+space
+		y1=border
+		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
+		
+		if self.graph_mode.get() in ("Black comparison","White comparison"):
+			moves=self.display_comparison_graph(border,height,width)
+		elif self.graph_mode.get()=="Win rate":
+			moves=self.display_winrate_graph(border,height,width,lpix)
+		elif self.graph_mode.get()=="Score estimation":
+			moves=self.display_score_graph(border,height,width,lpix)
+		
+		self.display_horizontal_graduation(moves,height,width,border,lpix)
+		self.display_axis(moves,height,width,border,lpix)
+
+	def display_comparison_graph(self,border,height,width):
+		moves=[]
+		space=1.0*(width-2*border)/self.nb_moves
+		if self.graph_mode.get()=="Black comparison":
+			player_color='b'
+		else:
+			player_color='w'
+		x00=border
+		y00=height-border-(height-2*border)/2.
+		for one_data in self.data:
+			if (one_data["player_color"]==player_color) and ("delta" in one_data):
+				position_win_rate=one_data["position_win_rate"]
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space*2
+				
+				y0=height-border
+				y1=height-border-position_win_rate*(height-2*border)/100.
+				
+				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				delta=one_data["delta"]
+				
+				if player_color.lower()=="b":
+					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+				else:
+					msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+				
+				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				if delta<>0:
+					y2=y1-delta*(height-2*border)/100.
+					if delta<0:
+						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
+						msg2=_("The computer believes it's own move win rate would be %.2fpp higher.")%(-delta)
+						self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
+						self.chart.tag_bind(red_bar, "<Leave>", self.clear_status)
+						self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
+					else:
+						green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
+						msg2=_("The computer believes the actual move is %.2fpp better than it's best move.")%(delta)
+						self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
+						self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
+						self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
+						
+				self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y1
+		#drawing vertical graduation
+		self.display_vertical_winrate_graduation(border,height,width)
+		return moves
+		
+	def display_winrate_graph(self,border,height,width,lpix):
+		moves=[]
+		space=1.0*(width-2*border)/self.nb_moves
+		
+		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
+		x00=border
+		y00=height-border-(height-2*border)/2.
+		for one_data in self.data:
+			move=one_data["move"]
+			moves.append(move)
+			x0=border+(move-1)*space
+			x1=x0+space
+			
+			position_win_rate=one_data["position_win_rate"]
+			if one_data["player_color"]=="w":
+				position_win_rate=100.-position_win_rate
+				color=_("White")
+			else:
+				color=_("Black")
+			player_win_rate=float(int(position_win_rate*100)/100.)
+			y0=height-border
+			y1=height-border-position_win_rate*(height-2*border)/100.
+			
+			grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+			
+			#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+			msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(position_win_rate)+"%/"+str(100-player_win_rate)+"%"
+			
+			self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+			self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+			self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+			
+			self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+			self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+			x00=x1
+			y00=y1
+		#drawing vertical graduation
+		self.display_vertical_winrate_graduation(border,height,width)
+		return moves
+
+	def display_score_graph(self,border,height,width,lpix):
+		self.chart.create_text(border+len(_("Black win"))*lpix/2,border+lpix, text=_("Black win"),fill='black',font=("Arial", str(lpix)))
+		self.chart.create_text(border+len(_("White win"))*lpix/2,height-border-lpix, text=_("White win"),fill='black',font=("Arial", str(lpix)))
+		moves=[]
+		#checking graph limits
+		maximum=-1000
+		for one_data in self.data:
+			maximum=max(maximum,max([abs(x) for x in (one_data["upper_bound_score"],one_data["lower_bound_score"],one_data["score_estimation"])]))
+		maximum+=5
+		space=1.0*(width-2*border)/self.nb_moves
+		middle=height-border-(height-2*border)/2
+		x00=border
+		y00=middle
+		for one_data in self.data:
+			move=one_data["move"]
+			moves.append(move)
+			x0=border+(move-1)*space
+			x1=x0+space
+			estimated_score=one_data["score_estimation"]
+			upper_bound_score=one_data["upper_bound_score"]
+			lower_bound_score=one_data["lower_bound_score"]
+
+			y0=middle-lower_bound_score*(height-2*border)/2./maximum
+			y1=middle-upper_bound_score*(height-2*border)/2./maximum
+			y2=middle-estimated_score*(height-2*border)/2./maximum
+			y3=min(middle,y0,y1,y2)
+			y4=max(middle,y0,y1,y2)
+			
+			white_bar=self.chart.create_rectangle(x0, y3, x1, y4, fill='',outline='')
+			grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+			
+			self.chart.create_line(x0, y2, x1, y2, fill='#0000ff',width=2)
+			self.chart.create_line(x0, y2, x00, y00, fill='#0000ff')
+
+			x00=x1
+			y00=y2					
+			
+			if one_data["player_color"]=="w":
+				color=_("White")
+			else:
+				color=_("Black")
+			
+			if estimated_score>=0:
+				msg=(_("Move %i (%s), estimated score: ")%(move,color))
+				msg+="B+"+str(estimated_score)
+				msg+=" [B%+.1f, B%+.1f]"%(lower_bound_score,upper_bound_score)
+			else:
+				msg=(_("Move %i (%s), estimated score: ")%(move,color))
+				msg+="W+"+str(abs(estimated_score))
+				msg+=" [W%+.1f, W%+.1f]"%(-lower_bound_score,-upper_bound_score)
+			
+			self.chart.tag_bind(white_bar, "<Enter>", partial(self.set_status,msg=msg))
+			self.chart.tag_bind(white_bar, "<Leave>", self.clear_status)
+			self.chart.tag_bind(white_bar, "<Button-1>",partial(self.goto_move,move=move))
+			self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+			self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+			self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+			
+		self.display_vertical_score_graduation(border,height,width,maximum)
+		return moves
+
+	def display_axis(self,moves,height,width,border,lpix):
+		#drawing axis
+		x0=border
+		y0=height-border
+		y1=border
+		self.chart.create_line(x0, y0, x0, y1, fill='black')
+		x1=width-border
+		self.chart.create_line(x1, y0, x1, y1, fill='black')
+		self.chart.create_line(x0, y0, x1, y0, fill='black')
+		self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
+	
+	def display_horizontal_graduation(self,moves,height,width,border,lpix):
 		#drawing horizontal graduation
 		graduations=[x for x in moves]
 		x0=-1000
 		y0=height-border/2
 		y1=height-border
 		for g in graduations:
-			x1=border+(g)*(width-2*border)/len(self.data)*1.0
+			x1=border+(g)*(width-2*border)/self.nb_moves*1.0
 			
 			if x1-x0>=border:
 				self.chart.create_text(x1,y0, text=str(g),fill='black',font=("Arial", str(lpix)))
 				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
 				x0=x1
-				
+		
+		
 	def save_as_png(self,e=None):
 		top=Tk()
 		top.withdraw()
@@ -974,41 +1087,80 @@ class DualView(Frame):
 	def prepare_data_for_chart(self):
 		data=[]
 		for m in range(0,get_node_number(self.gameroot)+1):
+			one_data={}
+			data.append(one_data)
+			one_move=get_node(self.gameroot,m)
+			
 			try:
-				one_data={}
-				data.append(one_data)
-				one_move=get_node(self.gameroot,m)
-				
-				
-				player_color,player_move=one_move.get_move()
 				player_move=ij2gtp(player_move)
+				one_data['move']=m #move number
+			except:
+				pass
+			
+			try:
+				player_color,player_move=one_move.get_move()
+				one_data['player_color']=player_color.lower() #which turn it is to play
+			except:
+				pass
+			
+			try:
+				es=one_move.get('ES')
+				if es[0]=="B":	
+					one_data['score_estimation']=float(es[1:])
+				else:
+					one_data['score_estimation']=-float(es[1:])
+			except:
+				pass
+			
+			try:
+				ubs=one_move.get('UBS')
+				if ubs[0]=="B":	
+					one_data['upper_bound_score']=float(ubs[1:])
+				else:
+					one_data['upper_bound_score']=-float(ubs[1:])
+			except:
+				pass
+			
+			try:
+				lbs=one_move.get('LBS')
+				if lbs[0]=="B":	
+					one_data['lower_bound_score']=float(lbs[1:])
+				else:
+					one_data['lower_bound_score']=-float(lbs[1:])
+			except:
+				pass
+			
+			
 
-				#position win rate is the win rate for the position right before the player plays his move
-				#so it is the win rate of the best move by the computer for this position
-				#because we consider the bot plays perfectly
-				
+			#position win rate is the win rate for the position right before the player plays his move
+			#so it is the win rate of the best move by the computer for this position
+			#because we consider the bot plays perfectly
+			try:
 				if player_color in ('w',"W"):
 					current_position_win_rate=float(one_move.get('WWR').replace("%",""))
 				else:
 					current_position_win_rate=float(one_move.get('BWR').replace("%",""))
-				
 				one_data['position_win_rate']=current_position_win_rate
-				one_data['move']=m #move number
-				one_data['player_color']=player_color.lower() #which turn it is to play
-				
-				#delta is the [position win rate of the next move] - [position win rate of the current move]
-				#so it allows to compare how the game would evolve from that position:
-				# 1/ in the case the computer best move is played (current_position_win_rate)
-				# 2/ compared with when the actual game move was played (next_position_win_rate)
-				# positive delta means the game evolves better when the actual game move is played
-				# negative delta means the game evolves better when the computer move is played
-				
+			except:
+				pass
+			
+			
+			#delta is the [position win rate of the next move] - [position win rate of the current move]
+			#so it allows to compare how the game would evolve from that position:
+			# 1/ in the case the computer best move is played (current_position_win_rate)
+			# 2/ compared with when the actual game move was played (next_position_win_rate)
+			# positive delta means the game evolves better when the actual game move is played
+			# negative delta means the game evolves better when the computer move is played
+			try:
 				next_move=get_node(self.gameroot,m+1)
 				if player_color in ('w',"W"):
 					next_position_win_rate=float(next_move.get('WWR').replace("%",""))
 				else:
 					next_position_win_rate=float(next_move.get('BWR').replace("%",""))
-
+			except:
+				pass
+			
+			try:
 				computer_move=one_move.get('CBM')
 				if player_move==computer_move:
 					# in case the computer best move is the actual game move then:
@@ -1016,28 +1168,20 @@ class DualView(Frame):
 					# 2/ let's update current_position_win_rate using next_position_win_rate because it is a better evaluation
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
-								
 				delta=next_position_win_rate-current_position_win_rate
-				
 				one_data['delta']=delta
-
-				
-			except Exception, e:
-				if str(e) in ("'BWR'","'WWR'"):
-					#log("No win rate information for move",m)
-					#log(e)
-					pass
-				elif str(e) in ("'CBM'"):
-					#log("No computer best move information for move",m)
-					#log(e)
-					pass
-				#else:
-				#	log(e)
-				#	data[-1]=None
+			except:
+				pass
+			
+			if len(one_data)<=2:
+				#if move number and color are the only data available for this point
+				#then we don't need that data point
+				data.pop()
+		
 		return data
 	
 	def show_graphs(self,event=None):
-		new_popup=OpenChart(self,self.data_for_chart)
+		new_popup=OpenChart(self,self.data_for_chart,self.nb_moves)
 		new_popup.current_move=self.current_move
 		self.all_popups.append(new_popup)
 		
@@ -1049,8 +1193,7 @@ class DualView(Frame):
 		dim=self.dim
 		goban1=self.goban1
 		goban2=self.goban2
-		
-		self.move_number.config(text=str(move)+'/'+str(get_node_number(self.gameroot)))
+		self.move_number.config(text=str(move)+'/'+str(self.nb_moves))
 		log("========================")
 		log("displaying move",move)
 		grid1=[[0 for row in range(dim)] for col in range(dim)]
@@ -1221,8 +1364,7 @@ class DualView(Frame):
 		self.all_popups.append(new_popup)
 		
 	def initialize(self):
-		
-		
+
 		self.realgamedeepness=5
 		try:
 			self.realgamedeepness=int(Config.get("Review", "RealGameSequenceDeepness"))
@@ -1247,7 +1389,7 @@ class DualView(Frame):
 		
 		#goban.prepare_mesh()
 		self.gameroot=self.sgf.get_root()
-		
+		self.nb_moves=get_node_number(self.gameroot)
 
 		self.parent.title('GoReviewPartner')
 		self.parent.protocol("WM_DELETE_WINDOW", self.close_app)
