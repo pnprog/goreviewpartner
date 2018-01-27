@@ -662,12 +662,30 @@ class RunAnalysisBase(Frame):
 	
 	def run_all_analysis(self):
 		self.current_move=1
-		#try:
 
-			
 		while self.current_move<=self.max_move:
 			self.lock1.acquire()
-			self.run_analysis(self.current_move)
+
+			if self.current_move in self.move_range:
+				self.run_analysis(self.current_move)
+			elif self.move_range:
+				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
+			
+			if self.move_range:
+				linelog("now asking "+self.bot.bot_name+" to play the game move:")
+				one_move=go_to_move(self.move_zero,self.current_move)
+				player_color,player_move=one_move.get_move()
+				if player_color in ('w',"W"):
+					log("white at",ij2gtp(player_move))
+					self.bot.place_white(ij2gtp(player_move))
+				else:
+					log("black at",ij2gtp(player_move))
+					self.bot.place_black(ij2gtp(player_move))
+				log("Analysis for this move is completed")
+			else:
+				#the bot has proposed to resign, and resign_at_first_stop is ON
+				pass
+			
 			self.current_move+=1
 			self.lock1.release()
 			self.lock2.acquire()

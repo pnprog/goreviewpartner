@@ -58,161 +58,181 @@ def get_full_sequence(worker,current_color,deepness):
 class RunAnalysis(RunAnalysisBase):
 
 	def run_analysis(self,current_move):
+		
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color,player_move=one_move.get_move()
 		gnugo=self.gnugo
-		if current_move in self.move_range:
-			max_move=self.max_move
-			log()
-			linelog("move",str(current_move)+'/'+str(max_move))
-			final_score=gnugo.get_gnugo_estimate_score()
-			#linelog(final_score)
-			additional_comments=_("Move %i")%current_move
-			if player_color in ('w',"W"):
-				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-			else:
-				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-			additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
-
-			es=final_score.split()[0]
-			one_move.set("ES",es) #estimated score
-			
-			if es[0]=="B":
-				lbs="B%+d"%(-1*float(final_score.split()[3][:-1]))
-				ubs="B%+d"%(-1*float(final_score.split()[5][:-1]))
-			else:
-				ubs="W%+d"%(float(final_score.split()[3][:-1]))
-				lbs="W%+d"%(float(final_score.split()[5][:-1]))
-			
-			one_move.set("UBS",ubs) #upper bound score
-			one_move.set("LBS",lbs) #lower bound score
-			
-			if player_color in ('w',"W"):
-				log("gnugo plays white")
-				top_moves=gnugo.gnugo_top_moves_white()
-				answer=gnugo.play_white()
-			else:
-				log("gnugo plays black")
-				top_moves=gnugo.gnugo_top_moves_black()
-				answer=gnugo.play_black()
-
-			log("====","Gnugo answer:",answer)
-			
-			log("==== Gnugo top moves")
-			for one_top_move in top_moves:
-				log("\t",one_top_move)
-			print
-			top_moves=top_moves[:min(self.nb_variations,self.maxvariations)]
-			if (answer.lower() not in ["pass","resign"]):
-				gnugo.undo()
-				
-				while len(top_moves)>0:
-					all_threads=[]
-					for worker in self.workers:
-						worker.need_undo=False
-						if len(top_moves)>0:
-							one_top_move=top_moves.pop(0)
-							
-							if player_color in ('w',"W"):
-								worker.place_white(one_top_move)
-								one_thread=threading.Thread(target=get_full_sequence_threaded,args=(worker,'b',self.deepness))
-							else:
-								worker.place_black(one_top_move)
-								one_thread=threading.Thread(target=get_full_sequence_threaded,args=(worker,'w',self.deepness))
-							worker.need_undo=True
-							one_thread.one_top_move=one_top_move
-							one_thread.start()
-							all_threads.append(one_thread)
-							
-					
-					for one_thread in all_threads:
-						one_thread.join()
-					
-					for worker in self.workers:
-						if worker.need_undo:
-							worker.undo()
-						
-					for one_thread in all_threads:
-						if type(one_thread.sequence)!=type("abc"):
-							raise AbortedException(_("GnuGo thread failed:")+"\n"+str(one_thread.sequence))
-						
-						one_sequence=one_thread.one_top_move+" "+one_thread.sequence
-						one_sequence=one_sequence.strip()
-						log(">>>>>>",one_sequence)
-						previous_move=one_move.parent
-						current_color=player_color
-						for one_deep_move in one_sequence.split(' '):
-							
-							if one_deep_move.lower() not in ['resign','pass']:
-							
-								i,j=gtp2ij(one_deep_move)
-								new_child=previous_move.new_child()
-								new_child.set_move(current_color,(i,j))
-
-								previous_move=new_child
-								if current_color in ('w','W'):
-									current_color='b'
-								else:
-									current_color='w'
-
-			else:
-				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\n"+_("For this position, %s would %s"%("GnuGo",answer.lower()))
-				if answer.lower()=="pass":
-					gnugo.undo()
-				elif answer.lower()=="resign":
-					if self.stop_at_first_resign:
-						log("")
-						log("The analysis will stop now")
-						log("")
-						self.move_range=[]
-			
-			
-			one_move.add_comment_text(additional_comments)
-
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			
-			self.total_done+=1
-			
-			log("Creating the influence map")
-			black_influence=gnugo.get_gnugo_initial_influence_black()
-			black_influence_points=[]
-			white_influence=gnugo.get_gnugo_initial_influence_white()
-			white_influence_points=[]
-			for i in range(self.size):
-				for j in range(self.size):
-					if black_influence[i][j]==-3:
-						black_influence_points.append([i,j])
-					if white_influence[i][j]==3:
-						white_influence_points.append([i,j])
-
-			if black_influence_points!=[]:
-				one_move.parent.set("TB",black_influence_points)
-			
-			if white_influence_points!=[]:
-				one_move.parent.set("TW",white_influence_points)			
-			
-			
-		else:
-			if self.move_range:
-				log("Move",current_move,"not in the list of moves to be analysed, skipping")
-			else:
-				return
-			
-		linelog("now asking Gnugo to play the game move:")
-		if player_color in ('w',"W"):
-			log("white at",ij2gtp(player_move))
-			gnugo.place_white(ij2gtp(player_move))
-			for worker in self.workers:
-				worker.place_white(ij2gtp(player_move))
-		else:
-			log("black at",ij2gtp(player_move))
-			gnugo.place_black(ij2gtp(player_move))
-			for worker in self.workers:
-				worker.place_black(ij2gtp(player_move))
 		
-		log("Analysis for this move is completed")
-	
+		max_move=self.max_move
+		log()
+		linelog("move",str(current_move)+'/'+str(max_move))
+		final_score=gnugo.get_gnugo_estimate_score()
+		#linelog(final_score)
+		additional_comments=_("Move %i")%current_move
+		if player_color in ('w',"W"):
+			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
+		else:
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
+		additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
+
+		es=final_score.split()[0]
+		one_move.set("ES",es) #estimated score
+		
+		if es[0]=="B":
+			lbs="B%+d"%(-1*float(final_score.split()[3][:-1]))
+			ubs="B%+d"%(-1*float(final_score.split()[5][:-1]))
+		else:
+			ubs="W%+d"%(float(final_score.split()[3][:-1]))
+			lbs="W%+d"%(float(final_score.split()[5][:-1]))
+		
+		one_move.set("UBS",ubs) #upper bound score
+		one_move.set("LBS",lbs) #lower bound score
+		
+		if player_color in ('w',"W"):
+			log("gnugo plays white")
+			top_moves=gnugo.gnugo_top_moves_white()
+			answer=gnugo.play_white()
+		else:
+			log("gnugo plays black")
+			top_moves=gnugo.gnugo_top_moves_black()
+			answer=gnugo.play_black()
+
+		log("====","Gnugo answer:",answer)
+		
+		log("==== Gnugo top moves")
+		for one_top_move in top_moves:
+			log("\t",one_top_move)
+		print
+		top_moves=top_moves[:min(self.nb_variations,self.maxvariations)]
+		if (answer.lower() not in ["pass","resign"]):
+			gnugo.undo()
+			
+			while len(top_moves)>0:
+				all_threads=[]
+				for worker in self.workers:
+					worker.need_undo=False
+					if len(top_moves)>0:
+						one_top_move=top_moves.pop(0)
+						
+						if player_color in ('w',"W"):
+							worker.place_white(one_top_move)
+							one_thread=threading.Thread(target=get_full_sequence_threaded,args=(worker,'b',self.deepness))
+						else:
+							worker.place_black(one_top_move)
+							one_thread=threading.Thread(target=get_full_sequence_threaded,args=(worker,'w',self.deepness))
+						worker.need_undo=True
+						one_thread.one_top_move=one_top_move
+						one_thread.start()
+						all_threads.append(one_thread)
+						
+				
+				for one_thread in all_threads:
+					one_thread.join()
+				
+				for worker in self.workers:
+					if worker.need_undo:
+						worker.undo()
+					
+				for one_thread in all_threads:
+					if type(one_thread.sequence)!=type("abc"):
+						raise AbortedException(_("GnuGo thread failed:")+"\n"+str(one_thread.sequence))
+					
+					one_sequence=one_thread.one_top_move+" "+one_thread.sequence
+					one_sequence=one_sequence.strip()
+					log(">>>>>>",one_sequence)
+					previous_move=one_move.parent
+					current_color=player_color
+					for one_deep_move in one_sequence.split(' '):
+						
+						if one_deep_move.lower() not in ['resign','pass']:
+						
+							i,j=gtp2ij(one_deep_move)
+							new_child=previous_move.new_child()
+							new_child.set_move(current_color,(i,j))
+
+							previous_move=new_child
+							if current_color in ('w','W'):
+								current_color='b'
+							else:
+								current_color='w'
+
+		else:
+			log('adding "'+answer.lower()+'" to the sgf file')
+			additional_comments+="\n"+_("For this position, %s would %s"%("GnuGo",answer.lower()))
+			if answer.lower()=="pass":
+				gnugo.undo()
+			elif answer.lower()=="resign":
+				if self.stop_at_first_resign:
+					log("")
+					log("The analysis will stop now")
+					log("")
+					self.move_range=[]
+		
+		
+		one_move.add_comment_text(additional_comments)
+
+		write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+		
+		self.total_done+=1
+		
+		log("Creating the influence map")
+		black_influence=gnugo.get_gnugo_initial_influence_black()
+		black_influence_points=[]
+		white_influence=gnugo.get_gnugo_initial_influence_white()
+		white_influence_points=[]
+		for i in range(self.size):
+			for j in range(self.size):
+				if black_influence[i][j]==-3:
+					black_influence_points.append([i,j])
+				if white_influence[i][j]==3:
+					white_influence_points.append([i,j])
+
+		if black_influence_points!=[]:
+			one_move.parent.set("TB",black_influence_points)
+		
+		if white_influence_points!=[]:
+			one_move.parent.set("TW",white_influence_points)			
+
+		
+		
+
+
+	def run_all_analysis(self):
+		self.current_move=1
+
+		while self.current_move<=self.max_move:
+			self.lock1.acquire()
+
+			if self.current_move in self.move_range:
+				self.run_analysis(self.current_move)
+			elif self.move_range:
+				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
+			
+			if self.move_range:
+				linelog("now asking "+self.bot.bot_name+" to play the game move:")
+				one_move=go_to_move(self.move_zero,self.current_move)
+				player_color,player_move=one_move.get_move()
+				if player_color in ('w',"W"):
+					log("white at",ij2gtp(player_move))
+					self.bot.place_white(ij2gtp(player_move))
+					for worker in self.workers:
+						worker.place_white(ij2gtp(player_move))
+				else:
+					log("black at",ij2gtp(player_move))
+					self.bot.place_black(ij2gtp(player_move))
+					for worker in self.workers:
+						worker.place_black(ij2gtp(player_move))
+				
+				log("Analysis for this move is completed")
+			else:
+				#the bot has proposed to resign, and resign_at_first_stop is ON
+				pass
+			
+			self.current_move+=1
+			self.lock1.release()
+			self.lock2.acquire()
+			self.lock2.release()
+		return
 
 	def remove_app(self):
 		log("RunAnalysis beeing closed")

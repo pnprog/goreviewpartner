@@ -34,206 +34,190 @@ class RunAnalysis(RunAnalysisBase):
 		player_color,player_move=one_move.get_move()
 		leela=self.leela
 		
-		if current_move in self.move_range:
-			
-			max_move=self.max_move
-			
-			log()
-			linelog("move",str(current_move)+'/'+str(max_move))
-			
-			additional_comments="Move "+str(current_move)
-			if player_color in ('w',"W"):
-				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-			else:
-				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 
-			if player_color in ('w',"W"):
-				log("leela play white")
-				answer=leela.play_white()
-			else:
-				log("leela play black")
-				answer=leela.play_black()
-
-			
-			all_moves=leela.get_all_leela_moves()
-			if (answer.lower() not in ["pass","resign"]):
-				
-				one_move.set("CBM",answer.lower()) #Computer Best Move
-				
-				if all_moves==[]:
-					bookmove=True
-					all_moves=[[answer,answer,666,666,666,666,666,666,666]]
-				else:
-					bookmove=False
-				all_moves2=all_moves[:]
-				nb_undos=1
-				#log("====move",current_move+1,all_moves[0],'~',answer)
-				
-				#making sure the first line of play is more than one move deep
-
-				while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]) and (nb_undos<=20):
-					log("going deeper for first line of play (",nb_undos,")")
-
-					if player_color in ('w',"W") and nb_undos%2==0:
-						answer=leela.play_white()
-					elif player_color in ('w',"W") and nb_undos%2==1:
-						answer=leela.play_black()
-					elif player_color not in ('w',"W") and nb_undos%2==0:
-						answer=leela.play_black()
-					else:
-						answer=leela.play_white()
-					nb_undos+=1
-					
-
-					
-
-					#linelog(all_moves[0],'+',answer)
-					all_moves2=leela.get_all_leela_moves()
-					if (answer.lower() not in ["pass","resign"]):
-						
-						#log("all_moves2:",all_moves2)
-						if all_moves2==[]:
-							all_moves2=[[answer,answer,666,666,666,666,666,666,666]]
-
-						#log('+',all_moves2)
-						all_moves[0][1]+=" "+all_moves2[0][1]
-						
-						
-						if (player_color.lower()=='b' and nb_undos%2==1) or (player_color.lower()=='w' and nb_undos%2==1):
-							all_moves[0][2]=all_moves2[0][2]
-						else:
-							all_moves[0][2]=100-all_moves2[0][2]
-
-					else:
-						log()
-						log("last play on the fist of play was",answer,"so leaving")
-				
-				for u in range(nb_undos):
-					#log("undo...")
-					leela.undo()
-				
-
-				best_move=True
-				#variation=-1
-				log("Number of alternative sequences:",len(all_moves))
-				#log(all_moves)
-				for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves[:self.maxvariations]:
-					log("Adding sequence starting from",sequence_first_move)
-					previous_move=one_move.parent
-					current_color=player_color
-					
-					if best_move:
-						if player_color=='b':
-							linelog(str(one_score)+'%/'+str(100-one_score)+'%')
-						else:
-							linelog(str(100-one_score)+'%/'+str(one_score)+'%')
-					
-					first_variation_move=True
-					for one_deep_move in one_sequence.split(' '):
-						if one_deep_move.lower() in ["pass","resign"]:
-							log("Leaving the variation when encountering",one_deep_move.lower())
-							break
-						i,j=gtp2ij(one_deep_move)
-						new_child=previous_move.new_child()
-						new_child.set_move(current_color,(i,j))						
-						
-						if player_color=='b':
-							black_win_rate=str(one_score)+'%'
-							white_win_rate=str(100-one_score)+'%'
-							black_mc_win_rate=str(one_monte_carlo)+'%'
-							white_mc_win_rate=str(100-one_monte_carlo)+'%'
-						else:
-							black_win_rate=str(100-one_score)+'%'
-							white_win_rate=str(one_score)+'%'
-							black_mc_win_rate=str(100-one_monte_carlo)+'%'
-							white_mc_win_rate=str(one_monte_carlo)+'%'
-						
-						if first_variation_move:
-							first_variation_move=False
-							if not bookmove:
-								variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
-								new_child.set("BWR",black_win_rate) #Black Win Rate
-								new_child.set("WWR",white_win_rate) #White Win Rate
-								variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+black_mc_win_rate+'/'+white_mc_win_rate
-								if one_value_network!=None:
-									if player_color=='b':
-										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
-									else:
-										variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
-								if one_policy_network!=None:
-									variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
-								if one_evaluation!=None:
-									variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
-								if one_rave!=None:
-									variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
-								variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
-								new_child.add_comment_text(variation_comment)
-							else:
-								new_child.add_comment_text(_("Book move"))
-						if best_move:
-							best_move=False
-							if not bookmove:
-								additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+black_win_rate+'/'+white_win_rate
-								one_move.set("BWR",black_win_rate) #Black Win Rate
-								one_move.set("WWR",white_win_rate) #White Win Rate
-						
-						previous_move=new_child
-						if current_color in ('w','W'):
-							current_color='b'
-						else:
-							current_color='w'
-				log("==== no more sequences =====")
-				
-				log("Creating the influence map")
-				influence=leela.get_leela_influence()
-				black_influence_points=[]
-				white_influence_points=[]
-				for i in range(self.size):
-					for j in range(self.size):
-						if influence[i][j]==1:
-							black_influence_points.append([i,j])
-						elif influence[i][j]==2:
-							white_influence_points.append([i,j])
-
-				if black_influence_points!=[]:
-					one_move.parent.set("TB",black_influence_points)
-				
-				if white_influence_points!=[]:
-					one_move.parent.set("TW",white_influence_points)	
-				
-				
-			else:
-				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\n"+_("For this position, %s would %s"%("Leela",answer.lower()))
-				if answer.lower()=="pass":
-					leela.undo()
-				elif answer.lower()=="resign":
-					if self.stop_at_first_resign:
-						log("")
-						log("The analysis will stop now")
-						log("")
-						self.move_range=[]
-						
-			one_move.add_comment_text(additional_comments)
-			
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-
-			self.total_done+=1
-		else:
-			if self.move_range:
-				log("Move",current_move,"not in the list of moves to be analysed, skipping")
-			else:
-				return
 		
-		linelog("now asking Leela to play the game move:")
+		max_move=self.max_move
+		
+		log()
+		linelog("move",str(current_move)+'/'+str(max_move))
+		
+		additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
-			log("white at",ij2gtp(player_move))
-			leela.place_white(ij2gtp(player_move))
+			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 		else:
-			log("black at",ij2gtp(player_move))
-			leela.place_black(ij2gtp(player_move))
-		log("Analysis for this move is completed")
-	
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
+
+		if player_color in ('w',"W"):
+			log("leela play white")
+			answer=leela.play_white()
+		else:
+			log("leela play black")
+			answer=leela.play_black()
+
+		
+		all_moves=leela.get_all_leela_moves()
+		if (answer.lower() not in ["pass","resign"]):
+			
+			one_move.set("CBM",answer.lower()) #Computer Best Move
+			
+			if all_moves==[]:
+				bookmove=True
+				all_moves=[[answer,answer,666,666,666,666,666,666,666]]
+			else:
+				bookmove=False
+			all_moves2=all_moves[:]
+			nb_undos=1
+			#log("====move",current_move+1,all_moves[0],'~',answer)
+			
+			#making sure the first line of play is more than one move deep
+
+			while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]) and (nb_undos<=20):
+				log("going deeper for first line of play (",nb_undos,")")
+
+				if player_color in ('w',"W") and nb_undos%2==0:
+					answer=leela.play_white()
+				elif player_color in ('w',"W") and nb_undos%2==1:
+					answer=leela.play_black()
+				elif player_color not in ('w',"W") and nb_undos%2==0:
+					answer=leela.play_black()
+				else:
+					answer=leela.play_white()
+				nb_undos+=1
+				
+
+				
+
+				#linelog(all_moves[0],'+',answer)
+				all_moves2=leela.get_all_leela_moves()
+				if (answer.lower() not in ["pass","resign"]):
+					
+					#log("all_moves2:",all_moves2)
+					if all_moves2==[]:
+						all_moves2=[[answer,answer,666,666,666,666,666,666,666]]
+
+					#log('+',all_moves2)
+					all_moves[0][1]+=" "+all_moves2[0][1]
+					
+					
+					if (player_color.lower()=='b' and nb_undos%2==1) or (player_color.lower()=='w' and nb_undos%2==1):
+						all_moves[0][2]=all_moves2[0][2]
+					else:
+						all_moves[0][2]=100-all_moves2[0][2]
+
+				else:
+					log()
+					log("last play on the fist of play was",answer,"so leaving")
+			
+			for u in range(nb_undos):
+				#log("undo...")
+				leela.undo()
+			
+
+			best_move=True
+			#variation=-1
+			log("Number of alternative sequences:",len(all_moves))
+			#log(all_moves)
+			for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves[:self.maxvariations]:
+				log("Adding sequence starting from",sequence_first_move)
+				previous_move=one_move.parent
+				current_color=player_color
+				
+				if best_move:
+					if player_color=='b':
+						linelog(str(one_score)+'%/'+str(100-one_score)+'%')
+					else:
+						linelog(str(100-one_score)+'%/'+str(one_score)+'%')
+				
+				first_variation_move=True
+				for one_deep_move in one_sequence.split(' '):
+					if one_deep_move.lower() in ["pass","resign"]:
+						log("Leaving the variation when encountering",one_deep_move.lower())
+						break
+					i,j=gtp2ij(one_deep_move)
+					new_child=previous_move.new_child()
+					new_child.set_move(current_color,(i,j))						
+					
+					if player_color=='b':
+						black_win_rate=str(one_score)+'%'
+						white_win_rate=str(100-one_score)+'%'
+						black_mc_win_rate=str(one_monte_carlo)+'%'
+						white_mc_win_rate=str(100-one_monte_carlo)+'%'
+					else:
+						black_win_rate=str(100-one_score)+'%'
+						white_win_rate=str(one_score)+'%'
+						black_mc_win_rate=str(100-one_monte_carlo)+'%'
+						white_mc_win_rate=str(one_monte_carlo)+'%'
+					
+					if first_variation_move:
+						first_variation_move=False
+						if not bookmove:
+							variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+							new_child.set("BWR",black_win_rate) #Black Win Rate
+							new_child.set("WWR",white_win_rate) #White Win Rate
+							variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+black_mc_win_rate+'/'+white_mc_win_rate
+							if one_value_network!=None:
+								if player_color=='b':
+									variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
+								else:
+									variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
+							if one_policy_network!=None:
+								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
+							if one_evaluation!=None:
+								variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
+							if one_rave!=None:
+								variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
+							variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
+							new_child.add_comment_text(variation_comment)
+						else:
+							new_child.add_comment_text(_("Book move"))
+					if best_move:
+						best_move=False
+						if not bookmove:
+							additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"Leela")+black_win_rate+'/'+white_win_rate
+							one_move.set("BWR",black_win_rate) #Black Win Rate
+							one_move.set("WWR",white_win_rate) #White Win Rate
+					
+					previous_move=new_child
+					if current_color in ('w','W'):
+						current_color='b'
+					else:
+						current_color='w'
+			log("==== no more sequences =====")
+			
+			log("Creating the influence map")
+			influence=leela.get_leela_influence()
+			black_influence_points=[]
+			white_influence_points=[]
+			for i in range(self.size):
+				for j in range(self.size):
+					if influence[i][j]==1:
+						black_influence_points.append([i,j])
+					elif influence[i][j]==2:
+						white_influence_points.append([i,j])
+
+			if black_influence_points!=[]:
+				one_move.parent.set("TB",black_influence_points)
+			
+			if white_influence_points!=[]:
+				one_move.parent.set("TW",white_influence_points)	
+				
+		else:
+			log('adding "'+answer.lower()+'" to the sgf file')
+			additional_comments+="\n"+_("For this position, %s would %s"%("Leela",answer.lower()))
+			if answer.lower()=="pass":
+				leela.undo()
+			elif answer.lower()=="resign":
+				if self.stop_at_first_resign:
+					log("")
+					log("The analysis will stop now")
+					log("")
+					self.move_range=[]
+					
+		one_move.add_comment_text(additional_comments)
+		
+		write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+		self.total_done+=1
+
 	
 	def remove_app(self):
 		log("RunAnalysis beeing closed")

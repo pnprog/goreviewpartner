@@ -34,137 +34,108 @@ class RunAnalysis(RunAnalysisBase):
 			lmbd=0.8
 		else:
 			lmbd=0.8-min(0.3,max(0.0,(current_move-160)/600))
-			
 		rate=lmbd*value+(1-lmbd)*roll
-		
 		return rate
 	
 	def run_analysis(self,current_move):
-		
-		
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color,player_move=one_move.get_move()
 		aq=self.aq
+		max_move=self.max_move
+		log()
+		log("move",str(current_move)+'/'+str(max_move))
 		
-		if current_move in self.move_range:
-			
-			max_move=self.max_move
-			
-			log()
-			log("move",str(current_move)+'/'+str(max_move))
-			
-			additional_comments="Move "+str(current_move)
-			if player_color in ('w',"W"):
-				additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-			else:
-				additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-
-			if player_color in ('w',"W"):
-				log("AQ plays white")
-				answer=aq.play_white()
-			else:
-				log("AQ plays black")
-				answer=aq.play_black()
-
-			log("AQ preferred move:",answer)
-			all_moves=aq.get_all_aq_moves()
-			
-			if (answer.lower() not in ["pass","resign"]):
-				
-				one_move.set("CBM",answer.lower()) #Computer Best Move
-				
-				#log("====move",current_move+1,all_moves[0],'~',answer)
-				
-				#best_winrate=all_moves[0][2]
-				
-				best_move=True
-
-				log("Number of alternative sequences:",len(all_moves))
-				#log(all_moves)
-				
-				#for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
-				for sequence_first_move,count,value,roll,prob,one_sequence in all_moves[:self.maxvariations]:
-					log("Adding sequence starting from",sequence_first_move)
-					previous_move=one_move.parent
-					current_color=player_color
-					
-					one_score=self.win_rate(current_move,value,roll)
-
-					first_variation_move=True
-					for one_deep_move in one_sequence.split(' '):
-
-						if one_deep_move.lower() in ["pass","resign"]:
-							log("Leaving the variation when encountering",one_deep_move.lower())
-							break
-						i,j=gtp2ij(one_deep_move)
-						new_child=previous_move.new_child()
-						new_child.set_move(current_color,(i,j))
-
-						
-						if player_color=='b':
-							black_win_rate=str(one_score)+'%'
-							white_win_rate=str(100-one_score)+'%'
-						else:
-							black_win_rate=str(100-one_score)+'%'
-							white_win_rate=str(one_score)+'%'
-							
-						if first_variation_move:
-							first_variation_move=False
-							variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
-							new_child.set("BWR",black_win_rate) #Black Win Rate
-							new_child.set("WWR",white_win_rate) #White Win Rate
-							variation_comment+="\nCount: "+str(count)
-							variation_comment+="\nValue: "+str(value)
-							variation_comment+="\nRoll: "+str(roll)
-							variation_comment+="\nProb: "+str(prob)
-							
-							new_child.add_comment_text(variation_comment)
-							
-						if best_move:
-							
-							best_move=False
-							additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
-							one_move.set("BWR",black_win_rate) #Black Win Rate
-							one_move.set("WWR",white_win_rate) #White Win Rate
-						
-						previous_move=new_child
-						if current_color in ('w','W'):
-							current_color='b'
-						else:
-							current_color='w'
-				log("==== no more sequences =====")
-				aq.undo()
-			else:
-				log('adding "'+answer.lower()+'" to the sgf file')
-				additional_comments+="\n"+_("For this position, %s would %s"%("AQ",answer.lower()))
-				if answer.lower()=="pass":
-					aq.undo()
-				elif answer.lower()=="resign":
-					if self.stop_at_first_resign:
-						log("")
-						log("The analysis will stop now")
-						log("")
-						self.move_range=[]
-			
-			one_move.add_comment_text(additional_comments)
-			
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-
-			self.total_done+=1
-		else:
-			if self.move_range:
-				log("Move",current_move,"not in the list of moves to be analysed, skipping")
-			else:
-				return
-
-		log("now asking AQ to play the game move:")
+		additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
-			log("white at",ij2gtp(player_move))
-			aq.place_white(ij2gtp(player_move))
+			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 		else:
-			log("black at",ij2gtp(player_move))
-			aq.place_black(ij2gtp(player_move))
-		log("Analysis for this move is completed")
+			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
+
+		if player_color in ('w',"W"):
+			log("AQ plays white")
+			answer=aq.play_white()
+		else:
+			log("AQ plays black")
+			answer=aq.play_black()
+
+		log("AQ preferred move:",answer)
+		all_moves=aq.get_all_aq_moves()
+		
+		if (answer.lower() not in ["pass","resign"]):
+			one_move.set("CBM",answer.lower()) #Computer Best Move
+			best_move=True
+
+			log("Number of alternative sequences:",len(all_moves))
+			#log(all_moves)
+			
+			#for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
+			for sequence_first_move,count,value,roll,prob,one_sequence in all_moves[:self.maxvariations]:
+				log("Adding sequence starting from",sequence_first_move)
+				previous_move=one_move.parent
+				current_color=player_color
+				
+				one_score=self.win_rate(current_move,value,roll)
+
+				first_variation_move=True
+				for one_deep_move in one_sequence.split(' '):
+
+					if one_deep_move.lower() in ["pass","resign"]:
+						log("Leaving the variation when encountering",one_deep_move.lower())
+						break
+					i,j=gtp2ij(one_deep_move)
+					new_child=previous_move.new_child()
+					new_child.set_move(current_color,(i,j))
+
+					
+					if player_color=='b':
+						black_win_rate=str(one_score)+'%'
+						white_win_rate=str(100-one_score)+'%'
+					else:
+						black_win_rate=str(100-one_score)+'%'
+						white_win_rate=str(one_score)+'%'
+						
+					if first_variation_move:
+						first_variation_move=False
+						variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+						new_child.set("BWR",black_win_rate) #Black Win Rate
+						new_child.set("WWR",white_win_rate) #White Win Rate
+						variation_comment+="\nCount: "+str(count)
+						variation_comment+="\nValue: "+str(value)
+						variation_comment+="\nRoll: "+str(roll)
+						variation_comment+="\nProb: "+str(prob)
+						
+						new_child.add_comment_text(variation_comment)
+						
+					if best_move:
+						
+						best_move=False
+						additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
+						one_move.set("BWR",black_win_rate) #Black Win Rate
+						one_move.set("WWR",white_win_rate) #White Win Rate
+					
+					previous_move=new_child
+					if current_color in ('w','W'):
+						current_color='b'
+					else:
+						current_color='w'
+			log("==== no more sequences =====")
+			aq.undo()
+		else:
+			log('adding "'+answer.lower()+'" to the sgf file')
+			additional_comments+="\n"+_("For this position, %s would %s"%("AQ",answer.lower()))
+			if answer.lower()=="pass":
+				aq.undo()
+			elif answer.lower()=="resign":
+				if self.stop_at_first_resign:
+					log("")
+					log("The analysis will stop now")
+					log("")
+					self.move_range=[]
+		
+		one_move.add_comment_text(additional_comments)
+		write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+		self.total_done+=1
+
 	
 	
 	def remove_app(self):
