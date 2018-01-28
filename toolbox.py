@@ -591,6 +591,7 @@ class RangeSelector(Frame):
 
 
 import threading
+import Queue
 import time
 import ConfigParser
 from Tkinter import *
@@ -602,8 +603,7 @@ class RunAnalysisBase(Frame):
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
-		self.lock1=threading.Lock()
-		self.lock2=threading.Lock()
+		self.update_queue=Queue.Queue(1)
 		self.intervals=intervals
 		self.variation=variation
 		self.komi=komi
@@ -666,7 +666,6 @@ class RunAnalysisBase(Frame):
 		self.current_move=1
 
 		while self.current_move<=self.max_move:
-			self.lock1.acquire()
 
 			if self.current_move in self.move_range:
 				self.run_analysis(self.current_move)
@@ -689,9 +688,7 @@ class RunAnalysisBase(Frame):
 				pass
 			
 			self.current_move+=1
-			self.lock1.release()
-			self.lock2.acquire()
-			self.lock2.release()
+			self.update_queue.put(self.current_move)
 		return
 
 	def abort(self):
@@ -704,11 +701,13 @@ class RunAnalysisBase(Frame):
 		show_error(_("Analysis aborted:")+"\n\n"+self.error)
 
 	def follow_analysis(self):
+
 		if self.error:
 			self.abort()
 			return
-		
-		if self.lock1.acquire(False):
+		msg=None
+		try:
+			msg=self.update_queue.get(False)
 			if self.total_done>0:
 				self.time_per_move=1.0*(time.time()-self.t0)/self.total_done+1
 				#log(self.total_done,"move(s) analysed in",int(10*(time.time()-self.t0))/10.,"secondes =>",int(10*self.time_per_move)/10.,"s/m")
@@ -722,13 +721,15 @@ class RunAnalysisBase(Frame):
 				self.lab2.config(text=_("Remaining time: %ih, %imn, %is")%(remaining_h,remaining_m,remaining_s))
 			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
 			self.pb.step()
-			self.update_idletasks()
-			self.lock2.release()
-			time.sleep(.001)
-			self.lock1.release()
-			self.lock2.acquire()
+
+		except:
+			pass
+		
 		if self.current_move<=self.max_move:
-			self.root.after(1,self.follow_analysis)
+			if msg==None:
+				self.parent.after(250,self.follow_analysis)
+			else:
+				self.parent.after(10,self.follow_analysis)
 		else:
 			self.propose_review()
 
@@ -815,7 +816,6 @@ class RunAnalysisBase(Frame):
 		
 		self.pb = ttk.Progressbar(right_frame, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
-		Button(right_frame,text="test").pack()
 		current_move=1
 		
 		try:
@@ -826,7 +826,6 @@ class RunAnalysisBase(Frame):
 			self.lab2.config(text="")
 			return
 
-		self.lock2.acquire()
 		self.t0=time.time()
 		first_move=go_to_move(self.move_zero,1)
 		first_comment=_("Analysis by GoReviewPartner")

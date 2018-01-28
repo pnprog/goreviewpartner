@@ -199,10 +199,8 @@ class RunAnalysis(RunAnalysisBase):
 	def run_all_analysis(self):
 		#GnuGo needs to rewrite this method because it additionnaly deals with all the workers
 		self.current_move=1
-
+		
 		while self.current_move<=self.max_move:
-			self.lock1.acquire()
-
 			if self.current_move in self.move_range:
 				self.run_analysis(self.current_move)
 			elif self.move_range:
@@ -229,9 +227,7 @@ class RunAnalysis(RunAnalysisBase):
 				pass
 			
 			self.current_move+=1
-			self.lock1.release()
-			self.lock2.acquire()
-			self.lock2.release()
+			self.update_queue.put(self.current_move)
 		return
 
 	def remove_app(self):
