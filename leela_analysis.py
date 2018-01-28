@@ -211,16 +211,6 @@ class RunAnalysis(RunAnalysisBase):
 		write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		self.total_done+=1
 
-	
-	def remove_app(self):
-		log("RunAnalysis beeing closed")
-		self.lab2.config(text=_("Now closing, please wait..."))
-		self.update_idletasks()
-		log("killing leela")
-		self.leela.close()
-		log("destroying")
-		self.destroy()
-	
 
 	def initialize_bot(self):
 		
@@ -481,7 +471,7 @@ if __name__ == "__main__":
 		top.mainloop()
 	else:
 		try:
-			parameters=getopt.getopt(argv[1:], '', ['range=', 'color=', 'komi=',"variation="])
+			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
 		except Exception, e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
@@ -490,16 +480,23 @@ if __name__ == "__main__":
 			show_error("SGF file missing\n"+usage)
 			sys.exit()
 		
+		import gc #garbage collector
+		
 		for filename in parameters[1]:
 			log("File to analyse:",filename)
 			
-			move_selection,intervals,variation,komi=parse_command_line(filename,parameters[0])
+			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			
-			top = Tk()
-			app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
-			app.propose_review=app.close_app
-			app.pack()
-			top.mainloop()
+			if nogui:
+				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app.terminate_bot()
+			else:
+				top = Tk()
+				app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
+				app.propose_review=app.close_app
+				app.pack()
+				top.mainloop()
+				gc.collect() #need to clean up all tkinter previous instances before launching a new Tk()
 	
 
 

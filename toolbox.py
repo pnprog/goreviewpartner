@@ -603,7 +603,7 @@ class RunAnalysisBase(Frame):
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
-		self.update_queue=Queue.Queue(1)
+		self.update_queue=Queue.Queue()
 		self.intervals=intervals
 		self.variation=variation
 		self.komi=komi
@@ -626,12 +626,17 @@ class RunAnalysisBase(Frame):
 		if not self.bot:
 			return
 		
-		try:
-			self.initialize_UI()
-		except Exception,e:
-			self.error=_("Error while initializing the graphical interface:")+"\n"+str(e)
-			self.abort()
-			return
+		self.max_move=get_moves_number(self.move_zero)
+		self.total_done=0
+		
+		if parent!=None:
+			try:
+				self.initialize_UI()
+			except Exception,e:
+				self.error=_("Error while initializing the graphical interface:")+"\n"+str(e)
+				self.abort()
+				return
+			self.root.after(500,self.follow_analysis)
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -648,8 +653,13 @@ class RunAnalysisBase(Frame):
 			self.stop_at_first_resign=False
 			log("Stop_At_First_Resign is OFF")
 		
-		self.root.after(500,self.follow_analysis)
-	
+		if parent!=None:
+			threading.Thread(target=self.run_all_analysis).start()
+		else:
+			self.run_all_analysis()
+		
+		print "LEAVING RUNANALYSISBASE"
+			
 	def initialize_bot(self):
 		pass
 	
@@ -689,6 +699,7 @@ class RunAnalysisBase(Frame):
 			
 			self.current_move+=1
 			self.update_queue.put(self.current_move)
+
 		return
 
 	def abort(self):
@@ -771,26 +782,35 @@ class RunAnalysisBase(Frame):
 		self.remove_app()
 		
 	
+	def terminate_bot(self):
+		log("killing",self.bot.bot_name)
+		self.bot.close()
+	
 	def remove_app(self):
-		################################################
-		##### here is the place to kill the bot(s) #####
-		################################################
-		log("destroying")
+		log("RunAnalysis beeing closed")
+		self.lab2.config(text=_("Now closing, please wait..."))
+		self.update_idletasks()
+		try:
+			self.terminate_bot()
+		except:
+			pass
 		self.destroy()
 	
 	def close_app(self):
 		self.remove_app()
+		self.destroy()
 		self.parent.destroy()
+		self.parent.quit()
 		log("RunAnalysis closed")
 
 		
 	def initialize_UI(self):
 
-		self.max_move=get_moves_number(self.move_zero)
+		
 		if not self.move_range:
 			self.move_range=range(1,self.max_move+1)
 
-		self.total_done=0
+		
 		
 		root = self
 		root.parent.title('GoReviewPartner')
@@ -840,7 +860,7 @@ class RunAnalysisBase(Frame):
 			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
 		
 		first_move.add_comment_text(first_comment)
-		threading.Thread(target=self.run_all_analysis).start()
+		
 		
 		self.root=root
 
@@ -1011,7 +1031,7 @@ import getopt
 
 import __main__
 try:
-	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] <sgf file1> <sgf file2> <sgf file3>"
+	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] [--no-gui] <sgf file1> <sgf file2> <sgf file3>"
 except:
 	log("Command line features are disabled")
 	usage=""
@@ -1121,7 +1141,13 @@ def parse_command_line(filename,argv):
 	
 	log("Komi:",komi)
 	
-	return move_selection,intervals,variation,komi
+	nogui=False
+	for p,v in argv:
+		if p=="--no-gui":
+			nogui=True
+			break
+	
+	return move_selection,intervals,variation,komi,nogui
 
 # from http://www.py2exe.org/index.cgi/WhereAmI
 def we_are_frozen():

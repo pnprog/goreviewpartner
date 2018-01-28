@@ -201,6 +201,7 @@ class RunAnalysis(RunAnalysisBase):
 		self.current_move=1
 		
 		while self.current_move<=self.max_move:
+			print self.current_move,"<=",self.max_move
 			if self.current_move in self.move_range:
 				self.run_analysis(self.current_move)
 			elif self.move_range:
@@ -228,21 +229,17 @@ class RunAnalysis(RunAnalysisBase):
 			
 			self.current_move+=1
 			self.update_queue.put(self.current_move)
+		print "LEAVING RUN ANALYSIS"
 		return
 
-	def remove_app(self):
-		log("RunAnalysis beeing closed")
-		self.lab2.config(text=_("Now closing, please wait..."))
-		self.update_idletasks()
+
+	def terminate_bot(self):
 		log("killing gnugo")
 		self.gnugo.close()
 		log("killing gnugo workers")
 		for w in self.workers:
 			w.close()
-		
-		log("destroying")
-		self.destroy()
-	
+
 	def initialize_bot(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -474,6 +471,7 @@ class GnuGoOpenMove(BotOpenMove):
 			self.okbot=False
 
 
+
 import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
@@ -485,13 +483,13 @@ if __name__ == "__main__":
 		if not filename:
 			sys.exit()
 		log("filename:",filename)
+		
 		top = Tk()
-
 		RangeSelector(top,filename,bots=[("GnuGo",RunAnalysis)]).pack()
 		top.mainloop()
 	else:
 		try:
-			parameters=getopt.getopt(argv[1:], '', ['range=', 'color=', 'komi=',"variation="])
+			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
 		except Exception, e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
@@ -499,17 +497,26 @@ if __name__ == "__main__":
 		if not parameters[1]:
 			show_error("SGF file missing\n"+usage)
 			sys.exit()
+			
+		import gc #garbage collector
 		
 		for filename in parameters[1]:
 			log("File to analyse:",filename)
 			
-			move_selection,intervals,variation,komi=parse_command_line(filename,parameters[0])
+			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			
-			top = Tk()
-			app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
-			app.propose_review=app.close_app
-			app.pack()
-			top.mainloop()
+			if nogui:
+				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app.terminate_bot()
+			else:
+				top = Tk()
+				app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
+				app.propose_review=app.close_app
+				app.pack()
+				top.mainloop()
+				gc.collect() #need to clean up all tkinter previous instances before launching a new Tk()
+
+				
 
 
 
