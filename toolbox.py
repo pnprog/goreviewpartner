@@ -206,18 +206,12 @@ class DownloadFromURL(Frame):
 			filename+=black+'_VS_'+white+'.sgf'
 		
 		log(filename)
-		#text_file = open(filename, "w")
-		#text_file.write(sgf)
-		#text_file.close()
-		
 		write_rsgf(filename,sgf)
-		
-		#self.parent.destroy()
 		self.destroy()
-		#newtop=Tk()
+
 		self.popup=RangeSelector(self.parent,filename,self.bots)
 		self.popup.pack()
-		#newtop.mainloop()
+
 
 	def close_app(self):
 		if self.popup:
@@ -583,10 +577,18 @@ class RangeSelector(Frame):
 		
 		####################################
 		self.parent.destroy()
-		newtop=Tk()
-		self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
-		self.popup.pack()
-		newtop.mainloop()
+		try:
+			newtop=Toplevel(self.parent.parent)
+			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
+			self.popup.pack()
+		except:
+			newtop=Tk()
+			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
+			self.popup.pack()
+			newtop.mainloop()
+		
+		
+
 
 import threading
 import time
@@ -813,7 +815,7 @@ class RunAnalysisBase(Frame):
 		
 		self.pb = ttk.Progressbar(right_frame, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
-
+		Button(right_frame,text="test").pack()
 		current_move=1
 		
 		try:

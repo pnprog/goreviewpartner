@@ -68,7 +68,7 @@ def launch_analysis():
 		return
 	log("filename:",filename)
 	
-	top = Toplevel()
+
 	
 	bots=[]
 	Config = ConfigParser.ConfigParser()
@@ -83,16 +83,19 @@ def launch_analysis():
 			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
 	if Config.get("LeelaZero","Command")!="":
 			bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
+			
+	top = Toplevel(app)
+	top.parent=app
 	new_popup=RangeSelector(top,filename,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
-	top.mainloop()
+	#top.mainloop()
 
 analysis_bouton=Button(app, text=_("Run a SGF file analysis"), command=launch_analysis)
 analysis_bouton.pack(fill=X,padx=5, pady=5)
 
 def download_sgf_for_review():
-	top = Toplevel()
+	
 	
 	bots=[]
 	Config = ConfigParser.ConfigParser()
@@ -107,10 +110,11 @@ def download_sgf_for_review():
 		bots.append(("AQ",aq_analysis.RunAnalysis))
 	if Config.get("LeelaZero","Command")!="":
 		bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
+	
+	top = Toplevel(app)
 	new_popup=DownloadFromURL(top,bots=bots)
 	new_popup.pack()
 	popups.append(new_popup)
-	top.mainloop()
 
 download_bouton=Button(app, text=_("Download a SGF file for analysis"), command=download_sgf_for_review)
 download_bouton.pack(fill=X,padx=5, pady=5)
@@ -121,8 +125,6 @@ def launch_review():
 	if not filename:
 		return
 
-	top = Toplevel()
-	
 	display_factor=.5
 	
 	screen_width = app.winfo_screenwidth()
@@ -130,11 +132,12 @@ def launch_review():
 	
 	width=int(display_factor*screen_width)
 	height=int(display_factor*screen_height)
-
+	
+	top = Toplevel(app)
 	new_popup=dual_view.DualView(top,filename,min(width,height))
 	new_popup.pack(fill=BOTH,expand=1)
 	popups.append(new_popup)
-	top.mainloop()
+
 	
 review_bouton=Button(app, text=_("Open a RSGF file for review"), command=launch_review)
 review_bouton.pack(fill=X,padx=5, pady=5)
