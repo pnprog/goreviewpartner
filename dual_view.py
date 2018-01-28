@@ -1166,7 +1166,7 @@ class DualView(Frame):
 					# 2/ let's update current_position_win_rate using next_position_win_rate because it is a better evaluation
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
-				delta=next_position_win_rate-current_position_win_rate
+				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
 				one_data['delta']=delta
 
 			except:
