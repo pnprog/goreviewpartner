@@ -1088,20 +1088,20 @@ class DualView(Frame):
 	
 	def prepare_data_for_chart(self):
 		data=[]
-		for m in range(0,get_node_number(self.gameroot)+1):
+		for m in range(0,self.nb_moves+1):
 			one_data={}
 			data.append(one_data)
 			one_move=get_node(self.gameroot,m)
-			
+
 			try:
-				player_move=ij2gtp(player_move)
-				one_data['move']=m #move number
+				player_color,player_move=one_move.get_move()
+				one_data['player_color']=player_color.lower() #which turn it is to play
 			except:
 				pass
 			
 			try:
-				player_color,player_move=one_move.get_move()
-				one_data['player_color']=player_color.lower() #which turn it is to play
+				player_move=ij2gtp(player_move)
+				one_data['move']=m #move number
 			except:
 				pass
 			
@@ -1159,10 +1159,6 @@ class DualView(Frame):
 					next_position_win_rate=float(next_move.get('WWR').replace("%",""))
 				else:
 					next_position_win_rate=float(next_move.get('BWR').replace("%",""))
-			except:
-				pass
-			
-			try:
 				computer_move=one_move.get('CBM')
 				if player_move==computer_move:
 					# in case the computer best move is the actual game move then:
@@ -1172,6 +1168,7 @@ class DualView(Frame):
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-current_position_win_rate
 				one_data['delta']=delta
+
 			except:
 				pass
 			
@@ -1179,7 +1176,7 @@ class DualView(Frame):
 				#if move number and color are the only data available for this point
 				#then we don't need that data point
 				data.pop()
-		
+
 		return data
 	
 	def show_graphs(self,event=None):
@@ -1392,6 +1389,15 @@ class DualView(Frame):
 		#goban.prepare_mesh()
 		self.gameroot=self.sgf.get_root()
 		self.nb_moves=get_node_number(self.gameroot)
+		
+		for m in range(0,self.nb_moves+1)[::-1]:
+			one_move=get_node(self.gameroot,m)
+			player_color,player_move=one_move.get_move()
+			if (player_color==None) or (player_move==None):
+				self.nb_moves-=1
+			else:
+				break
+
 
 		self.parent.title('GoReviewPartner')
 		self.parent.protocol("WM_DELETE_WINDOW", self.close_app)
