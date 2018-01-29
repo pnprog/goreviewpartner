@@ -130,8 +130,7 @@ class RunAnalysis(RunAnalysisBase):
 					self.move_range=[]
 		
 		one_move.add_comment_text(additional_comments)
-		write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-		self.total_done+=1
+
 
 	def initialize_bot(self):
 		

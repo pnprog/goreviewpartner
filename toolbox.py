@@ -698,8 +698,10 @@ class RunAnalysisBase(Frame):
 				pass
 			
 			self.current_move+=1
+			print "sending msg"
 			self.update_queue.put(self.current_move)
-
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+			self.total_done+=1
 		return
 
 	def abort(self):
