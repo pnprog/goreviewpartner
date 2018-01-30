@@ -339,25 +339,22 @@ if __name__ == "__main__":
 			show_error("SGF file missing\n"+usage)
 			sys.exit()
 		
-		import gc #garbage collector
+		top=None
+		batch=[]
 		
 		for filename in parameters[1]:
-			log("File to analyse:",filename)
 			
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
-			
 			if nogui:
+				log("File to analyse:",filename)
 				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
 				app.terminate_bot()
 			else:
-				top = Tk()
-				app=RunAnalysis(top,filename,move_selection,intervals,variation-1,komi)
-				app.propose_review=app.close_app
-				app.pack()
-				top.mainloop()
-				gc.collect() #need to clean up all tkinter previous instances before launching a new Tk()
-	
-
-
-
-
+				if not top:
+					top = Tk()
+				one_analysis=[RunAnalysis,filename,move_selection,intervals,variation-1,komi]
+				batch.append(one_analysis)
+		
+		if not nogui:
+			top.after(1,lambda: batch_analysis(top,batch))
+			top.mainloop()

@@ -658,7 +658,7 @@ class RunAnalysisBase(Frame):
 		else:
 			self.run_all_analysis()
 		
-		print "LEAVING RUNANALYSISBASE"
+		self.completed=False
 			
 	def initialize_bot(self):
 		pass
@@ -698,7 +698,6 @@ class RunAnalysisBase(Frame):
 				pass
 			
 			self.current_move+=1
-			print "sending msg"
 			self.update_queue.put(self.current_move)
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 			self.total_done+=1
@@ -801,11 +800,11 @@ class RunAnalysisBase(Frame):
 	def close_app(self):
 		self.remove_app()
 		self.destroy()
-		self.parent.destroy()
-		self.parent.quit()
+		#self.parent.destroy()
+		#self.parent.quit()
 		log("RunAnalysis closed")
+		self.completed=True
 
-		
 	def initialize_UI(self):
 
 		
@@ -1120,8 +1119,6 @@ def parse_command_line(filename,argv):
 		intervals+=" (both colors)"
 		log("Color: both")
 	
-	print move_selection
-	
 	found=False
 	for p,v in argv:
 		if p=="--komi":
@@ -1164,7 +1161,7 @@ def module_path():
 	even if we are frozen using py2exe"""
 
 	if we_are_frozen():
-		print "Apparently running from the executable."
+		log("Apparently running from the executable.")
 		return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding( )))
 
 	return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))
@@ -1256,3 +1253,29 @@ def _(txt=None):
 		return translations[txt]
 	return txt
 
+def batch_analysis(top,batch):
+	#there appears to be a Tk 8.6 regression bug that leads to random "Tcl_AsyncDelete: async handler deleted by the wrong thread Abandon (core dumped)"
+	#this happens when top=Tk() is detroyed after one analysis, and a new one is created for the next analysis
+	#this bug is sidestepped by recycling the same top=Tk() for all analysis
+	#see also: http://learning-python.com/python-changes-2014-plus.html#s35E
+	
+	if len(batch)==0:
+		top.destroy()
+		return
+	
+	one_analysis=batch[0]
+	
+	if len(one_analysis)==1:
+		if one_analysis[0].completed==False:
+			top.after(1000,lambda: batch_analysis(top,batch))
+		else:
+			batch=batch[1:]
+			top.after(1,lambda: batch_analysis(top,batch))
+	else:
+		run,filename,move_selection,intervals,variation,komi=one_analysis
+		log("File to analyse:",filename)
+		app=run(top,filename,move_selection,intervals,variation,komi)
+		app.pack()
+		app.propose_review=app.close_app
+		batch[0]=[app]
+		top.after(1,lambda: batch_analysis(top,batch))
