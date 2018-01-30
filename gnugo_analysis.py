@@ -105,7 +105,7 @@ class RunAnalysis(RunAnalysisBase):
 		log("==== Gnugo top moves")
 		for one_top_move in top_moves:
 			log("\t",one_top_move)
-		print
+		log()
 		top_moves=top_moves[:min(self.nb_variations,self.maxvariations)]
 		if (answer.lower() not in ["pass","resign"]):
 			gnugo.undo()
@@ -197,7 +197,6 @@ class RunAnalysis(RunAnalysisBase):
 		self.current_move=1
 		
 		while self.current_move<=self.max_move:
-			print self.current_move,"<=",self.max_move
 			if self.current_move in self.move_range:
 				self.run_analysis(self.current_move)
 			elif self.move_range:
@@ -225,8 +224,9 @@ class RunAnalysis(RunAnalysisBase):
 			
 			self.current_move+=1
 			self.update_queue.put(self.current_move)
-		print "LEAVING RUN ANALYSIS"
-		return
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+			self.total_done+=1
+			
 
 
 	def terminate_bot(self):
