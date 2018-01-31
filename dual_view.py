@@ -73,7 +73,7 @@ class OpenChart():
 		
 
 		
-		self.popup=Toplevel()
+		self.popup=Toplevel(self.parent)
 		popup=self.popup
 		popup.geometry(str(popup_width)+'x'+str(popup_height))
 		bg=popup.cget("background")
@@ -141,33 +141,7 @@ class OpenChart():
 	def goto_move(self,event=None,move=None):
 		if move:
 			log("goto move",move)
-			#self.parent.parent.lift()
-			#self.popup.after(500,self.parent.parent.deiconify)
-			#self.parent.parent.lift(self.popup)
-
-			"""
-			self.parent.parent.grab_set()
-			self.parent.parent.focus()
-			self.parent.parent.focus_set()
-			self.parent.parent.focus_force()
-			"""
-
-			"""
-			self.parent.parent.call('wm', 'attributes', '.', '-topmost', True)
-			self.parent.parent.after_idle(self.parent.parent.call, 'wm', 'attributes', '.', '-topmost', False)
-			self.parent.parent.focus_force()
-			"""
-
-			"""
-			self.parent.parent.lift()
-			self.parent.parent.focus_force()
-			self.parent.parent.grab_set()
-			self.parent.parent.grab_release()
-			"""
-
-			#none of the above solutions (or mix of them) does work on my Ubuntu :(
-			# :(
-			
+			self.parent.parent.lift()			
 			self.parent.goto_move(move_number=move)
 		
 	
@@ -684,7 +658,7 @@ class OpenMove():
 		komi=self.sgf.get_komi()
 		gameroot=self.sgf.get_root()
 		
-		self.popup=Toplevel()
+		self.popup=Toplevel(self.parent)
 		popup=self.popup
 		
 		dim=self.dim
