@@ -489,6 +489,7 @@ if __name__ == "__main__":
 			else:
 				if not top:
 					top = Tk()
+					top.withdraw()
 				one_analysis=[RunAnalysis,filename,move_selection,intervals,variation-1,komi]
 				batch.append(one_analysis)
 		

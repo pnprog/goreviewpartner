@@ -806,7 +806,7 @@ class RunAnalysisBase(Frame):
 	def close_app(self):
 		self.remove_app()
 		self.destroy()
-		#self.parent.destroy()
+		self.parent.destroy()
 		#self.parent.quit()
 		log("RunAnalysis closed")
 		self.completed=True
@@ -1280,7 +1280,7 @@ def batch_analysis(top,batch):
 	else:
 		run,filename,move_selection,intervals,variation,komi=one_analysis
 		log("File to analyse:",filename)
-		app=run(top,filename,move_selection,intervals,variation,komi)
+		app=run(Toplevel(top),filename,move_selection,intervals,variation,komi)
 		app.pack()
 		app.propose_review=app.close_app
 		batch[0]=[app]
