@@ -356,25 +356,24 @@ class RangeSelector(Frame):
 		self.move_zero=self.g.get_root()
 		nb_moves=get_moves_number(self.move_zero)
 		self.nb_moves=nb_moves
-		s = StringVar()
-		s.set("all")
+
 		row=0
 		Label(self,text="").grid(row=row,column=1)
-		
+
 		row+=1
 		if bots!=None:
 			Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
-			self.bot_selection = Listbox(self,height=len(bots))
-			self.bot_selection.grid(row=row,column=2,sticky=W)
-			for bot,f in bots:
-				self.bot_selection.insert(END, bot)
-			self.bot_selection.selection_set(0)
-			self.bot_selection.configure(exportselection=False)
+			bot_names=[bot for bot,f in bots]
+			self.bot_selection=StringVar()
+			
+			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
+			self.bot_selection.set(bot_names[0])
+			
 			row+=1
 			Label(self,text="").grid(row=row,column=1)
-		
+
 		row+=1
-		Label(self,text=_("Select variation to be analysed")).grid(row=3,column=1,sticky=W)
+		Label(self,text=_("Select variation to be analysed")).grid(row=row,column=1,sticky=W)
 		self.leaves=get_all_sgf_leaves(self.move_zero)
 		self.variation_selection=StringVar()
 		self.variation_selection.trace("w", self.variation_changed)
@@ -395,6 +394,8 @@ class RangeSelector(Frame):
 		Label(self,text=_("Select moves to be analysed")).grid(row=row,column=1,sticky=W)
 		
 		row+=1
+		s = StringVar()
+		s.set("all")
 		self.r1=Radiobutton(self,text=_("Analyse all %i moves")%nb_moves,variable=s, value="all")
 		self.r1.grid(row=row,column=1,sticky=W)
 		self.after(0,self.r1.select)
@@ -536,9 +537,14 @@ class RangeSelector(Frame):
 			return
 		
 		if self.bots!=None:
-			bot_selection=int(self.bot_selection.curselection()[0])
-			log("bot selection:",self.bots[bot_selection][0])
-			RunAnalysis=self.bots[bot_selection][1]
+			bot=self.bot_selection.get()
+			log("bot selection:",bot)
+			RunAnalysis={bot:f for bot,f in self.bots}[bot]
+			
+			
+			#bot_selection=int(self.bot_selection.curselection()[0])
+			#log("bot selection:",self.bots[bot_selection][0])
+			#RunAnalysis=self.bots[bot_selection][1]
 		
 		if self.mode.get()=="all":
 			intervals="all moves"
