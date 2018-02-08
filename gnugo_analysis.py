@@ -55,17 +55,18 @@ def get_full_sequence(worker,current_color,deepness):
 
 
 
-class RunAnalysis(RunAnalysisBase):
+class GnuGoAnalysis():
 
 	def run_analysis(self,current_move):
 		
 		one_move=go_to_move(self.move_zero,current_move)
-		player_color,player_move=one_move.get_move()
-		gnugo=self.gnugo
+		player_color=guess_color_to_play(self.move_zero,current_move)
 		
-		max_move=self.max_move
+		gnugo=self.gnugo
 		log()
-		linelog("move",str(current_move)+'/'+str(max_move))
+		log("==============")
+		log("move",str(current_move))
+		
 		final_score=gnugo.get_gnugo_estimate_score()
 		#linelog(final_score)
 		additional_comments=_("Move %i")%current_move
@@ -84,11 +85,13 @@ class RunAnalysis(RunAnalysisBase):
 		one_move.set("UBS",ubs) #upper bound score
 		one_move.set("LBS",lbs) #lower bound score
 		
+		additional_comments=""
+		"""
 		if player_color in ('w',"W"):
 			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 		else:
 			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-		
+		"""
 		additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
 		
 		if player_color in ('w',"W"):
@@ -190,8 +193,10 @@ class RunAnalysis(RunAnalysisBase):
 			one_move.parent.set("TB",black_influence_points)
 		
 		if white_influence_points!=[]:
-			one_move.parent.set("TW",white_influence_points)			
-
+			one_move.parent.set("TW",white_influence_points)
+		
+		return answer #returning the best move, necessary for live analysis
+		
 	def run_all_analysis(self):
 		#GnuGo needs to rewrite this method because it additionnaly deals with all the workers
 		self.current_move=1
@@ -227,8 +232,6 @@ class RunAnalysis(RunAnalysisBase):
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 			self.total_done+=1
 			
-
-
 	def terminate_bot(self):
 		log("killing gnugo")
 		self.gnugo.close()
@@ -237,8 +240,7 @@ class RunAnalysis(RunAnalysisBase):
 			w.close()
 
 	def initialize_bot(self):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
+		
 		self.nb_variations=4
 		try:
 			self.nb_variations=int(Config.get("GnuGo", "variations"))
@@ -253,35 +255,32 @@ class RunAnalysis(RunAnalysisBase):
 			Config.set("GnuGo", "deepness",self.deepness)
 			Config.write(open(config_file,"w"))
 		
+		gnugo=gnugo_starting_procedure(self.g,"slow")
 		self.nb_workers=self.nb_variations
-		
-		self.g=open_sgf(self.filename)
 
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-		
-		log("Setting new komi")
-		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
-		
-		gnugo=bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,self.g)
-		self.gnugo=gnugo
-		self.time_per_move=0
-				
 		log("Starting all GnuGo workers")
 		self.workers=[]
 		for w in range(self.nb_workers):
 			log("\t Starting worker",w+1)
-			gnugo_worker=bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,self.g)
+			gnugo_worker=gnugo_starting_procedure(self.g,"slow")
 			self.workers.append(gnugo_worker)
 		log("All workers ready")
-
+		
+		self.gnugo=gnugo
+		self.time_per_move=0
 		return gnugo
+
+def gnugo_starting_procedure(sgf_g,profil="slow",silentfail=False):
+	return bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,sgf_g,profil,silentfail)
+
+
+class RunAnalysis(GnuGoAnalysis,RunAnalysisBase):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+
+class LiveAnalysis(GnuGoAnalysis,LiveAnalysisBase):
+	def __init__(self,g,filename):
+		LiveAnalysisBase.__init__(self,g,filename)
 
 class GnuGo_gtp(gtp):
 
@@ -441,32 +440,22 @@ class GnuGoSettings(Frame):
 		Config.write(open(config_file,"w"))
 
 class GnuGoOpenMove(BotOpenMove):
-	def __init__(self,dim,komi):
-		BotOpenMove.__init__(self)
+	def __init__(self,sgf_g):
+		BotOpenMove.__init__(self,sgf_g)
 		self.name='Gnugo'
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		if Config.getboolean('GnuGo', 'NeededForReview'):
-			self.okbot=True
-			try:
-				gnugo_command_line=[Config.get("GnuGo", "ReviewCommand")]+Config.get("GnuGo", "ReviewParameters").split()
-				gnugo=GnuGo_gtp(gnugo_command_line)
-				ok=gnugo.boardsize(dim)
-				gnugo.reset()
-				gnugo.komi(komi)
-				self.bot=gnugo
-				if not ok:
-					raise AbortedException("Boardsize value rejected by %s"%self.name)
-			except Exception, e:
-				log("Could not launch "+self.name)
-				log(e)
-				self.okbot=False
-		else:
-			self.okbot=False
+		self.my_starting_procedure=gnugo_starting_procedure
 
-
+	
+GnuGo={}
+GnuGo['name']="GnuGo"
+GnuGo['gtp_name']="GNU Go"
+GnuGo['analysis']=GnuGoAnalysis
+GnuGo['openmove']=GnuGoOpenMove
+GnuGo['settings']=GnuGoSettings
+GnuGo['gtp']=GnuGo_gtp
+GnuGo['liveanalysis']=LiveAnalysis
+GnuGo['runanalysis']=RunAnalysis
+GnuGo['starting']=gnugo_starting_procedure
 
 import getopt
 if __name__ == "__main__":
@@ -481,7 +470,7 @@ if __name__ == "__main__":
 		log("filename:",filename)
 		
 		top = Tk()
-		RangeSelector(top,filename,bots=[("GnuGo",RunAnalysis)]).pack()
+		RangeSelector(top,filename,bots=[GnuGo]).pack()
 		top.mainloop()
 	else:
 		try:
@@ -502,7 +491,7 @@ if __name__ == "__main__":
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
 				app.terminate_bot()
 			else:
 				if not top:

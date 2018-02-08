@@ -25,25 +25,23 @@ from toolbox import _
 from time import time
 
 
-class RunAnalysis(RunAnalysisBase):
+class RayAnalysis():
 
 	def run_analysis(self,current_move):
 		
 		one_move=go_to_move(self.move_zero,current_move)
-		player_color,player_move=one_move.get_move()
+		player_color=guess_color_to_play(self.move_zero,current_move)
 		ray=self.ray
 		
-		max_move=self.max_move
 		log()
-		linelog("move",str(current_move)+'/'+str(max_move))
+		log("==============")
+		log("move",str(current_move))
 		
-		additional_comments="Move "+str(current_move)
+		additional_comments=""
 		if player_color in ('w',"W"):
-			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			log("ray play white")
 			answer=ray.get_ray_stat("white")
 		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("ray play black")
 			answer=ray.get_ray_stat("black")
 
@@ -53,8 +51,11 @@ class RunAnalysis(RunAnalysisBase):
 			best_move=True
 			for sequence_first_move,count,simulation,policy,value,win,one_sequence in answer[:self.maxvariations]:
 				log("Adding sequence starting from",sequence_first_move)
+				if best_move:
+					best_answer=sequence_first_move
 				previous_move=one_move.parent
 				current_color=player_color
+				
 				one_sequence=player_color+' '+sequence_first_move+' '+one_sequence
 				one_sequence=one_sequence.replace("b ",',b')
 				one_sequence=one_sequence.replace("w ",',w')
@@ -121,34 +122,26 @@ class RunAnalysis(RunAnalysisBase):
 					self.move_range=[]
 		
 		one_move.add_comment_text(additional_comments)
-
+		return best_answer
 
 	
-	def initialize_bot(self):
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		self.g=open_sgf(self.filename)
-		
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-
-		log("Setting new komi")
-		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
-
-		ray=bot_starting_procedure("Ray","Rayon",Ray_gtp,self.g)
+	def initialize_bot(self,profil="slow"):
+		ray=ray_starting_procedure(self.g,"slow") #analysis is always "slow"
 		self.ray=ray
 		self.time_per_move=0
-
-		log("Ray initialization completed")
 		return ray
+
+def ray_starting_procedure(sgf_g,profil="slow",silentfail=False):
+	return bot_starting_procedure("Ray","Rayon",Ray_gtp,sgf_g,profil,silentfail)
+
+
+class RunAnalysis(RayAnalysis,RunAnalysisBase):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+
+class LiveAnalysis(RayAnalysis,LiveAnalysisBase):
+	def __init__(self,g,filename):
+		LiveAnalysisBase.__init__(self,g,filename)
 
 class Ray_gtp(gtp):
 	def __init__(self,command):
@@ -233,8 +226,6 @@ class Ray_gtp(gtp):
 		
 		return sequences
 
-
-
 class RaySettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
@@ -304,40 +295,22 @@ class RaySettings(Frame):
 
 
 class RayOpenMove(BotOpenMove):
-	def __init__(self,dim,komi):
-		BotOpenMove.__init__(self)
+	def __init__(self,sgf_g):
+		BotOpenMove.__init__(self,sgf_g)
 		self.name='Ray'
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-
-		if Config.getboolean('Ray', 'NeededForReview'):
-			self.okbot=True
-			try:
-				ray_command_line=[Config.get("Ray", "ReviewCommand")]+Config.get("Ray", "ReviewParameters").split()
-				ray=Ray_gtp(ray_command_line)
-				ok=ray.boardsize(dim)
-				ray.reset()
-				ray.komi(komi)
-				self.bot=ray
-				if not ok:
-					raise AbortedException("Boardsize value rejected by "+self.name)
-			except Exception, e:
-				log("Could not launch "+self.name)
-				log(e)
-				self.okbot=False
-		else:
-			self.okbot=False
-
-	"""
-	def undo(self):
-		if self.okbot:
-			#ray cannot undo...
-			self.config(state='disabled')
-			#self.bot.undo()
-	"""
+		self.my_starting_procedure=ray_starting_procedure
 
 
+Ray={}
+Ray['name']="Ray"
+Ray['gtp_name']="Rayon"
+Ray['analysis']=RayAnalysis
+Ray['openmove']=RayOpenMove
+Ray['settings']=RaySettings
+Ray['gtp']=Ray_gtp
+Ray['liveanalysis']=LiveAnalysis
+Ray['runanalysis']=RunAnalysis
+Ray['starting']=ray_starting_procedure
 
 if __name__ == "__main__":
 	if len(argv)==1:
@@ -350,7 +323,7 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		RangeSelector(top,filename,bots=[("Ray",RunAnalysis)]).pack()
+		RangeSelector(top,filename,bots=[Ray]).pack()
 		top.mainloop()
 	else:
 		try:
@@ -371,7 +344,7 @@ if __name__ == "__main__":
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
 				app.terminate_bot()
 			else:
 				if not top:

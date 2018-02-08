@@ -10,12 +10,6 @@ from functools import partial
 from toolbox import *
 from toolbox import _
 
-from gnugo_analysis import GnuGoOpenMove
-from leela_analysis import LeelaOpenMove
-from ray_analysis import RayOpenMove
-from aq_analysis import AQOpenMove
-from leela_zero_analysis import LeelaZeroOpenMove
-
 import os
 
 from gtp import gtp
@@ -34,7 +28,10 @@ def get_node_number(node):
 	k=0
 	while node:
 		node=node[0]
-		k+=1
+		if (node.get_move()[0]!=None) and (node.get_move()[1]!=None):
+			k+=1
+		else:
+			break
 	return k
 
 def get_node(root,number=0):
@@ -69,9 +66,6 @@ class OpenChart():
 		
 		popup_width=self.parent.winfo_width()
 		popup_height=self.parent.winfo_height()/2+10
-		
-		
-
 		
 		self.popup=Toplevel(self.parent)
 		popup=self.popup
@@ -219,11 +213,14 @@ class OpenChart():
 
 	def display_comparison_graph(self,border,height,width):
 		moves=[]
-		space=1.0*(width-2*border)/self.nb_moves
+		space=1.0*(width-2*border)/(self.nb_moves+1)
 		if self.graph_mode.get()=="Black comparison":
 			player_color='b'
 		else:
 			player_color='w'
+		
+		
+		
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
@@ -415,8 +412,11 @@ class OpenMove():
 		self.sgf=sgf
 		self.goban_size=goban_size
 		
-		self.available_bots=[RayOpenMove, LeelaOpenMove, GnuGoOpenMove, AQOpenMove, LeelaZeroOpenMove]
-		
+		self.available_bots=[]
+		for bot in fast_profile_bots():
+			if Config.getboolean(bot['name'], 'NeededForReview'):
+				self.available_bots.append(bot)
+	
 		self.initialize()
 		
 	def lock(self):
@@ -682,7 +682,8 @@ class OpenMove():
 		row=10
 		for available_bot in self.available_bots:
 			row+=2
-			one_bot=available_bot(dim,komi)
+			one_bot=available_bot['openmove'](self.sgf)
+			one_bot.start()
 			self.bots.append(one_bot)
 			
 			if one_bot.okbot:
@@ -771,11 +772,8 @@ class OpenMove():
 				color=1
 			else:
 				color=2
-			
 			place(grid3,row,col,color)
-			for bot in self.bots:
-				bot.place(ij2gtp((row,col)),color)
-		
+
 		m=0
 		for m in range(1,move):
 			one_move=get_node(gameroot,m)
@@ -847,7 +845,7 @@ class OpenMove():
 				self.goban.display(self.grid,self.markup,True)
 				self.parent.after(250,self.wait_for_display)
 			else:
-				show_info(msg)
+				show_info(msg,self.popup)
 				self.goban.display(self.grid,self.markup)
 				self.parent.after(0,self.wait_for_display)
 		except:
@@ -1231,9 +1229,25 @@ class DualView(Frame):
 		
 		#indicating last play with delta
 		self.comment_box1.delete(1.0, END)
-		if m>=0:
+		"""if m>=0:
 			if get_node(self.gameroot,m+1).has_property("C"):
 				self.comment_box1.insert(END,get_node(self.gameroot,m+1).get("C"))
+		"""
+		
+		if m>=0:
+			left_comments="Move "+str(move)
+			game_move_color,game_move=get_node(self.gameroot,move).get_move()
+			if game_move_color.lower()=="w":
+				left_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(game_move))
+			elif game_move_color.lower()=="b":
+				left_comments+="\n"+(_("Black to play, in the game, white played %s")%ij2gtp(game_move))
+			if get_node(self.gameroot,m+1).has_property("C"):
+				if m==0:
+					left_comments=get_node(self.gameroot,m+1).get("C")+"\n"+left_comments
+				else:
+					left_comments+="\n"+get_node(self.gameroot,m+1).get("C")
+			self.comment_box1.insert(END,left_comments)
+			
 		if m>0:
 			markup1[i][j]=0
 			markup2[i][j]=0

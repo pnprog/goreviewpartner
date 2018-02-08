@@ -14,13 +14,12 @@ except Exception, e:
 	raw_input()
 	sys.exit()
 
-import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
+
 import dual_view
 import settings
 import tkFileDialog
 from toolbox import *
 from toolbox import _
-
 
 log("Checking availability of config file")
 import ConfigParser
@@ -58,7 +57,7 @@ def close_app():
 	app.destroy()
 	app.quit()
 	exit()
-	
+
 def launch_analysis():
 	global popups
 	filename = tkFileDialog.askopenfilename(parent=app,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
@@ -67,26 +66,10 @@ def launch_analysis():
 	if not filename:
 		return
 	log("filename:",filename)
-	
-
-	
-	bots=[]
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-	if Config.get("Leela","Command")!="":
-		bots.append(("Leela",leela_analysis.RunAnalysis))
-	if Config.get("AQ","Command")!="":
-		bots.append(("AQ",aq_analysis.RunAnalysis))
-	if Config.get("Ray","Command")!="":
-		bots.append(("Ray",ray_analysis.RunAnalysis))
-	if Config.get("GnuGo","Command")!="":
-			bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
-	if Config.get("LeelaZero","Command")!="":
-			bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
-			
+				
 	top = Toplevel(app)
 	top.parent=app
-	new_popup=RangeSelector(top,filename,bots=bots)
+	new_popup=RangeSelector(top,filename,bots=slow_profile_bots())
 	new_popup.pack()
 	popups.append(new_popup)
 	#top.mainloop()
@@ -94,30 +77,27 @@ def launch_analysis():
 analysis_bouton=Button(app, text=_("Run a SGF file analysis"), command=launch_analysis)
 analysis_bouton.pack(fill=X,padx=5, pady=5)
 
-def download_sgf_for_review():
-	
-	
-	bots=[]
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-	if Config.get("Ray","Command")!="":
-		bots.append(("Ray",ray_analysis.RunAnalysis))
-	if Config.get("Leela","Command")!="":
-		bots.append(("Leela",leela_analysis.RunAnalysis))
-	if Config.get("GnuGo","Command")!="":
-		bots.append(("GnuGo",gnugo_analysis.RunAnalysis))
-	if Config.get("AQ","Command")!="":
-		bots.append(("AQ",aq_analysis.RunAnalysis))
-	if Config.get("LeelaZero","Command")!="":
-		bots.append(("Leela Zero",leela_zero_analysis.RunAnalysis))
-	
+def download_sgf_for_review():	
 	top = Toplevel(app)
-	new_popup=DownloadFromURL(top,bots=bots)
+	new_popup=DownloadFromURL(top,bots=slow_profile_bots())
 	new_popup.pack()
 	popups.append(new_popup)
 
 download_bouton=Button(app, text=_("Download a SGF file for analysis"), command=download_sgf_for_review)
 download_bouton.pack(fill=X,padx=5, pady=5)
+
+from live_analysis import LiveAnalysisLauncher
+
+def launch_live_analysis():
+	global popups				
+	top = Toplevel(app)
+	top.parent=app
+	new_popup=LiveAnalysisLauncher(top)
+	popups.append(new_popup)
+	#top.mainloop()
+
+live_bouton=Button(app, text=_("Run a live analysis"), command=launch_live_analysis)
+live_bouton.pack(fill=X,padx=5, pady=5)
 
 def launch_review():
 	filename = tkFileDialog.askopenfilename(parent=app,title=_('Select a file'),filetypes = [(_('SGF file reviewed'), '.rsgf')])
@@ -151,15 +131,14 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	if Config.get("Leela","Command")=="" and Config.get("GnuGo","Command")=="" and Config.get("Ray","Command")=="" and Config.get("AQ","Command")=="" and Config.get("LeelaZero","Command")=="": #j'ai honte :)
-		#review_bouton.config(state='disabled')
+	if len(slow_profile_bots())==0:
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')
+		live_bouton.config(state='disabled')
 	else:
-		#review_bouton.config(state='normal')
 		analysis_bouton.config(state='normal')
 		download_bouton.config(state='normal')
-
+		live_bouton.config(state='normal')
 
 bouton=Button(app, text=_("Settings"), command=launch_settings)
 bouton.pack(fill=X,padx=5, pady=5)

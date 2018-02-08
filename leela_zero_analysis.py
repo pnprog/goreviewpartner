@@ -25,28 +25,26 @@ from toolbox import _
 import tkMessageBox
 
 
-class RunAnalysis(RunAnalysisBase):
+class LeelaZeroAnalysis():
 
 	def run_analysis(self,current_move):
 		one_move=go_to_move(self.move_zero,current_move)
-		player_color,player_move=one_move.get_move()
+		player_color=guess_color_to_play(self.move_zero,current_move)
+		
 		leela_zero=self.leela_zero
-		
-		max_move=self.max_move
-		
 		log()
-		linelog("move",str(current_move)+'/'+str(max_move))
+		log("==============")
+		log("move",str(current_move))
 		
-		additional_comments="Move "+str(current_move)
+		additional_comments=""
 		if player_color in ('w',"W"):
-			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			log("leela Zero play white")
 			answer=leela_zero.play_white()
 		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("leela Zero play black")
 			answer=leela_zero.play_black()
 		
+		best_answer=answer
 		all_moves=leela_zero.get_all_leela_zero_moves()
 		if (answer.lower() not in ["pass","resign"]):
 			
@@ -155,48 +153,52 @@ class RunAnalysis(RunAnalysisBase):
 					self.move_range=[]
 		
 		one_move.add_comment_text(additional_comments)
-		
+		return best_answer
 	
-	def initialize_bot(self):
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		self.g=open_sgf(self.filename)
-		
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-
-		log("Setting new komi")
-		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
-
-		leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,self.g)
+	def initialize_bot(self,profil="slow"):
+		leela_zero=leela_zero_starting_procedure(self.g,"slow") #analysis is always "slow"
 		self.leela_zero=leela_zero
-		
 		self.time_per_move=0
-		try:
-			time_per_move=Config.get("LeelaZero", "TimePerMove")
-			if time_per_move:
-				time_per_move=int(time_per_move)
-				if time_per_move>0:
-					log("Setting time per move")
-					leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-					self.time_per_move=time_per_move
-		except:
-			log("Wrong value for Leela Zero thinking time:",Config.get("LeelaZero", "TimePerMove"))
-			log("Erasing that value in the config file")
-			Config.set("LeelaZero","TimePerMove","")
-			Config.write(open(config_file,"w"))
-		
-		log("Leela Zero initialization completed")
-		
 		return leela_zero
+
+def leela_zero_starting_procedure(sgf_g,profil="slow",silentfail=False):
+	if profil=="slow":
+		timepermove_entry="TimePerMove"
+	elif profil=="fast":
+		timepermove_entry="ReviewTimePerMove"
+
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+
+	leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,sgf_g,profil,silentfail)
+	if not leela_zero:
+		return False
+	try:
+		time_per_move=Config.get("LeelaZero", timepermove_entry)
+		if time_per_move:
+			time_per_move=int(time_per_move)
+			if time_per_move>0:
+				log("Setting time per move")
+				leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				#self.time_per_move=time_per_move #why is that needed???
+	except:
+		log("Wrong value for Leela thinking time:",Config.get("LeelaZero", timepermove_entry))
+		log("Erasing that value in the config file")
+		Config.set("LeelaZero",timepermove_entry,"")
+		Config.write(open(config_file,"w"))
+	
+	return leela_zero
+
+
+
+class RunAnalysis(LeelaZeroAnalysis,RunAnalysisBase):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+
+class LiveAnalysis(LeelaZeroAnalysis,LiveAnalysisBase):
+	def __init__(self,g,filename):
+		LiveAnalysisBase.__init__(self,g,filename)
+
 
 import ntpath
 import subprocess
@@ -279,42 +281,23 @@ class LeelaZeroSettings(LeelaSettings):
 
 
 class LeelaZeroOpenMove(BotOpenMove):
-	def __init__(self,dim,komi):
-		BotOpenMove.__init__(self)
+	def __init__(self,sgf_g):
+		BotOpenMove.__init__(self,sgf_g)
 		self.name='Leela Zero'
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
+		self.my_starting_procedure=leela_zero_starting_procedure
 
-		if Config.getboolean("LeelaZero", 'NeededForReview'):
-			self.okbot=True
-			try:
-				leela_zero_command_line=[Config.get("LeelaZero", "ReviewCommand")]+Config.get("LeelaZero", "ReviewParameters").split()
-				leela_zero=Leela_Zero_gtp(leela_zero_command_line)
-				ok=leela_zero.boardsize(dim)
-				leela_zero.reset()
-				leela_zero.komi(komi)
-				try:
-					time_per_move=Config.get("LeelaZero", "ReviewTimePerMove")
-					if time_per_move:
-						time_per_move=int(time_per_move)
-						if time_per_move>0:
-							leela_zero.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-				except:
-					pass #silent fail...
-				self.bot=leela_zero
-				if not ok:
-					raise AbortedException("Boardsize value rejected by "+self.name)
-			except Exception, e:
-				log("Could not launch "+self.name)
-				log(e)
-				self.okbot=False
-		else:
-			self.okbot=False
+LeelaZero={}
+LeelaZero['name']="LeelaZero"
+LeelaZero['gtp_name']="Leela Zero"
+LeelaZero['analysis']=LeelaZeroAnalysis
+LeelaZero['openmove']=LeelaZeroOpenMove
+LeelaZero['settings']=LeelaZeroSettings
+LeelaZero['gtp']=Leela_Zero_gtp
+LeelaZero['liveanalysis']=LiveAnalysis
+LeelaZero['runanalysis']=RunAnalysis
+LeelaZero['starting']=leela_zero_starting_procedure
 
-
-
-
+import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
@@ -326,7 +309,7 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		RangeSelector(top,filename,bots=[("Leela Zero",RunAnalysis)]).pack()
+		RangeSelector(top,filename,bots=[LeelaZero]).pack()
 		top.mainloop()
 	else:
 		try:
@@ -347,7 +330,7 @@ if __name__ == "__main__":
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
 				app.terminate_bot()
 			else:
 				if not top:

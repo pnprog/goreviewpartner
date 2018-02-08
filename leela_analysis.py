@@ -25,28 +25,29 @@ from toolbox import _
 import tkMessageBox
 
 
-class RunAnalysis(RunAnalysisBase):
+class LeelaAnalysis():
 
 	def run_analysis(self,current_move):
 		one_move=go_to_move(self.move_zero,current_move)
-		player_color,player_move=one_move.get_move()
-		leela=self.leela
+		player_color=guess_color_to_play(self.move_zero,current_move)
 
-		max_move=self.max_move
-		
+		leela=self.leela
 		log()
-		linelog("move",str(current_move)+'/'+str(max_move))
+		log("==============")
+		log("move",str(current_move))
 		
-		additional_comments="Move "+str(current_move)
+		additional_comments=""
+		#additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
-			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
+			#additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			log("leela play white")
 			answer=leela.play_white()
 		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
+			#additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("leela play black")
 			answer=leela.play_black()
-	
+		
+		best_answer=answer
 		all_moves=leela.get_all_leela_moves()
 		if (answer.lower() not in ["pass","resign"]):
 			
@@ -64,7 +65,7 @@ class RunAnalysis(RunAnalysisBase):
 			#making sure the first line of play is more than one move deep
 
 			while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]) and (nb_undos<=20):
-				log("going deeper for first line of play (",nb_undos,")")
+				#log("going deeper for first line of play (",nb_undos,")")
 
 				if player_color in ('w',"W") and nb_undos%2==0:
 					answer=leela.play_white()
@@ -207,48 +208,50 @@ class RunAnalysis(RunAnalysisBase):
 					
 		one_move.add_comment_text(additional_comments)
 		
-
-
+		return best_answer #returning the best move, necessary for live analysis
 
 	def initialize_bot(self):
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		self.g=open_sgf(self.filename)
-		
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-
-		log("Setting new komi")
-		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
-
-		leela=bot_starting_procedure("Leela","Leela",Leela_gtp,self.g)
+		leela=leela_starting_procedure(self.g,"slow") #analysis is always "slow"
 		self.leela=leela
-
 		self.time_per_move=0
-		try:
-			time_per_move=Config.get("Leela", "TimePerMove")
-			if time_per_move:
-				time_per_move=int(time_per_move)
-				if time_per_move>0:
-					log("Setting time per move")
-					leela.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-					self.time_per_move=time_per_move
-		except:
-			log("Wrong value for Leela thinking time:",Config.get("Leela", "TimePerMove"))
-			log("Erasing that value in the config file")
-			Config.set("Leela","TimePerMove","")
-			Config.write(open(config_file,"w"))
-		
 		return leela
 
+def leela_starting_procedure(sgf_g,profil="slow",silentfail=False):
+	if profil=="slow":
+		timepermove_entry="TimePerMove"
+	elif profil=="fast":
+		timepermove_entry="ReviewTimePerMove"
+
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+
+	leela=bot_starting_procedure("Leela","Leela",Leela_gtp,sgf_g,profil,silentfail)
+	if not leela:
+		return False
+
+	try:
+		time_per_move=Config.get("Leela", timepermove_entry)
+		if time_per_move:
+			time_per_move=int(time_per_move)
+			if time_per_move>0:
+				log("Setting time per move")
+				leela.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				#self.time_per_move=time_per_move #why is that needed???
+	except:
+		log("Wrong value for Leela thinking time:",Config.get("Leela", timepermove_entry))
+		log("Erasing that value in the config file")
+		Config.set("Leela",timepermove_entry,"")
+		Config.write(open(config_file,"w"))
+	
+	return leela
+
+class RunAnalysis(LeelaAnalysis,RunAnalysisBase):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+
+class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
+	def __init__(self,g,filename):
+		LiveAnalysisBase.__init__(self,g,filename)
 
 class Leela_gtp(gtp):
 
@@ -285,11 +288,11 @@ class Leela_gtp(gtp):
 		buff_size=18
 		buff=[]
 		
-		sleep(.1)
+		sleep(.01)
 		while not self.stderr_queue.empty():
 			while not self.stderr_queue.empty():
 				buff.append(self.stderr_queue.get())
-			sleep(.1)
+			sleep(.01)
 		
 		buff.reverse()
 		
@@ -415,43 +418,23 @@ class LeelaSettings(Frame):
 
 
 class LeelaOpenMove(BotOpenMove):
-	def __init__(self,dim,komi):
-		BotOpenMove.__init__(self)
+	def __init__(self,sgf_g):
+		BotOpenMove.__init__(self,sgf_g)
 		self.name='Leela'
-		#self.configure(text=self.name)
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
+		self.my_starting_procedure=leela_starting_procedure
 
-		if Config.getboolean('Leela', 'NeededForReview'):
-			self.okbot=True
-			try:
-				leela_command_line=[Config.get("Leela", "ReviewCommand")]+Config.get("Leela", "ReviewParameters").split()
-				leela=Leela_gtp(leela_command_line)
-				ok=leela.boardsize(dim)
-				leela.reset()
-				leela.komi(komi)
-				try:
-					time_per_move=Config.get("Leela", "ReviewTimePerMove")
-					if time_per_move:
-						time_per_move=int(time_per_move)
-						if time_per_move>0:
-							leela.set_time(main_time=time_per_move,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-				except:
-					pass #silent fail...
-				self.bot=leela
-				if not ok:
-					raise AbortedException("Boardsize value rejected by %s"%self.name)
-			except Exception, e:
-				log("Could not launch "+self.name)
-				log(e)
-				#self.config(state='disabled')
-				self.okbot=False
-		else:
-			self.okbot=False
-			#self.config(state='disabled')
+Leela={}
+Leela['name']="Leela"
+Leela['gtp_name']="Leela"
+Leela['analysis']=LeelaAnalysis
+Leela['openmove']=LeelaOpenMove
+Leela['settings']=LeelaSettings
+Leela['gtp']=Leela_gtp
+Leela['liveanalysis']=LiveAnalysis
+Leela['runanalysis']=RunAnalysis
+Leela['starting']=leela_starting_procedure
 
-	
+import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
@@ -463,7 +446,7 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		RangeSelector(top,filename,bots=[("Leela",RunAnalysis)]).pack()
+		RangeSelector(top,filename,bots=[Leela]).pack()
 		top.mainloop()
 	else:
 		try:
@@ -484,7 +467,7 @@ if __name__ == "__main__":
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
 				app.terminate_bot()
 			else:
 				if not top:
@@ -496,3 +479,4 @@ if __name__ == "__main__":
 		if not nogui:
 			top.after(1,lambda: batch_analysis(top,batch))
 			top.mainloop()
+

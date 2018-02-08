@@ -25,7 +25,7 @@ from toolbox import _
 import tkMessageBox
 
 
-class RunAnalysis(RunAnalysisBase):
+class AQAnalysis():
 	
 	def win_rate(self,current_move,value,roll):
 		return roll
@@ -39,19 +39,17 @@ class RunAnalysis(RunAnalysisBase):
 	
 	def run_analysis(self,current_move):
 		one_move=go_to_move(self.move_zero,current_move)
-		player_color,player_move=one_move.get_move()
+		player_color=guess_color_to_play(self.move_zero,current_move)
 		aq=self.aq
-		max_move=self.max_move
 		log()
-		log("move",str(current_move)+'/'+str(max_move))
+		log("==============")
+		log("move",str(current_move))
 		
-		additional_comments="Move "+str(current_move)
+		additional_comments=""
 		if player_color in ('w',"W"):
-			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			log("AQ plays white")
 			answer=aq.play_white()
 		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("AQ plays black")
 			answer=aq.play_black()
 
@@ -130,33 +128,26 @@ class RunAnalysis(RunAnalysisBase):
 					self.move_range=[]
 		
 		one_move.add_comment_text(additional_comments)
-
-
-	def initialize_bot(self):
 		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
+		return answer
 		
-		self.g=open_sgf(self.filename)
-		
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-
-		log("Setting new komi")
-		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
-
-		aq=bot_starting_procedure("AQ","AQ",AQ_gtp,self.g)
+	def initialize_bot(self,profil="slow"):
+		aq=aq_starting_procedure(self.g,"slow") #analysis is always "slow"
 		self.aq=aq
 		self.time_per_move=0
-
-		log("AQ initialization completed")
 		return aq
+
+def aq_starting_procedure(sgf_g,profil="slow",silentfail=False):
+	return bot_starting_procedure("AQ","AQ",AQ_gtp,sgf_g,profil,silentfail)
+
+
+class RunAnalysis(AQAnalysis,RunAnalysisBase):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+
+class LiveAnalysis(AQAnalysis,LiveAnalysisBase):
+	def __init__(self,g,filename):
+		LiveAnalysisBase.__init__(self,g,filename)
 
 import ntpath
 import subprocess
@@ -368,37 +359,21 @@ class AQSettings(Frame):
 
 
 class AQOpenMove(BotOpenMove):
-	def __init__(self,dim,komi):
-		BotOpenMove.__init__(self)
+	def __init__(self,sgf_g):
+		BotOpenMove.__init__(self,sgf_g)
 		self.name='AQ'
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
+		self.my_starting_procedure=leela_zero_starting_procedure
 
-		if Config.getboolean('AQ', 'NeededForReview'):
-			self.okbot=True
-			try:
-				aq_command_line=[Config.get("AQ", "ReviewCommand")]+Config.get("AQ", "ReviewParameters").split()
-				aq=AQ_gtp(aq_command_line)
-				ok=aq.boardsize(dim)
-				aq.reset()
-				aq.komi(komi)
-
-				self.bot=aq
-				if not ok:
-					raise AbortedException("Boardsize value rejected by "+self.name)
-			except Exception, e:
-				log("Could not launch "+self.name)
-				log(e)
-				self.okbot=False
-		else:
-			self.okbot=False
-
-	def close(self):
-		if self.okbot:
-			log("killing",self.name)
-			self.bot.kill()
-
+AQ={}
+AQ['name']="AQ"
+AQ['gtp_name']="AQ"
+AQ['analysis']=AQAnalysis
+AQ['openmove']=AQOpenMove
+AQ['settings']=AQSettings
+AQ['gtp']=AQ_gtp
+AQ['liveanalysis']=LiveAnalysis
+AQ['runanalysis']=RunAnalysis
+AQ['starting']=aq_starting_procedure
 
 if __name__ == "__main__":
 	if len(argv)==1:
@@ -411,7 +386,7 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		RangeSelector(top,filename,bots=[("AQ",RunAnalysis)]).pack()
+		RangeSelector(top,filename,bots=[AQ]).pack()
 		top.mainloop()
 	else:
 		try:
@@ -432,7 +407,7 @@ if __name__ == "__main__":
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				app=RunAnalysis(None,filename,move_selection,intervals,variation-1,komi)
+				app=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
 				app.terminate_bot()
 			else:
 				if not top:

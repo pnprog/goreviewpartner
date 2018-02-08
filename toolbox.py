@@ -43,16 +43,16 @@ def linelog(*args):
 
 import tkMessageBox
 
-def show_error(txt):
+def show_error(txt,parent=None):
 	try:
-		tkMessageBox.showerror(_("Error"),txt)
+		tkMessageBox.showerror(_("Error"),txt,parent=parent)
 		log("ERROR: "+txt)
 	except:
 		log("ERROR: "+txt)
 
-def show_info(txt):
+def show_info(txt,parent=None):
 	try:
-		tkMessageBox.showinfo(_("Information"),txt)
+		tkMessageBox.showinfo(_("Information"),txt,parent=parent)
 		log("INFO: "+txt)
 	except:
 		log("INFO: "+txt)
@@ -66,29 +66,26 @@ def get_moves_number(move_zero):
 	return k
 
 def go_to_move(move_zero,move_number=0):
-	
 	if move_number==0:
 		return move_zero
 	move=move_zero
 	k=0
 	while k!=move_number:
 		if not move:
-			log("return False")
+			log("The end of the sgf tree was reached before getting to move_number =",move_number)
+			log("Returning False")
 			return False
 		move=move[0]
 		k+=1
+	"""
 	color=move.get_move()[0]
 	if not color:
-		log("SGF does not provive color information for move %d",move_number)
-		previous_move=go_to_move(move_zero,move_number-1)
-		previous_move_color=previous_move.get_move()[0]
-		if previous_move_color.lower()=="b":
-			log("=> it should be white to play")
-			color="w"
+		if move is move_zero:
+			color=move_zero.get('PL')
 		else:
-			log("=> it should be black to play")
-			color="b"
+			color=guess_color_to_play(move_zero,move_number)
 		move.set(color.upper(), move.get_move()[1])
+	"""
 	return move
 
 def gtp2ij(move):
@@ -97,7 +94,7 @@ def gtp2ij(move):
 		letters="abcdefghjklmnopqrstuvwxyz"
 		return int(move[1:])-1,letters.index(move[0].lower())
 	except:
-		raise AbortedException("Cannot convert GTP coordinates "+move+" to grid coordinates!")
+		raise AbortedException("Cannot convert GTP coordinates "+str(move)+" to grid coordinates!")
 
 		
 
@@ -242,6 +239,17 @@ def write_rsgf(filename,sgf_content):
 		log(e)
 		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
 
+def write_sgf(filename,sgf_content):
+	try:
+		log("Saving SGF file",filename)
+		new_file=open(filename,'w')
+		new_file.write(sgf_content)
+		new_file.close()
+	except Exception,e:
+		log("Could not save the SGF file",filename)
+		log(e)
+		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
+
 def open_sgf(filename):
 	try:
 		log("Opening SGF file",filename)
@@ -346,13 +354,9 @@ class RangeSelector(Frame):
 		root.parent.title('GoReviewPartner')
 		self.bots=bots
 		
-		#txt = open(self.filename)
-		#content=txt.read()
-		#txt.close()
-		
 		self.g=open_sgf(self.filename)
 		content=self.g.serialise()
-		#self.g = sgf.Sgf_game.from_string(clean_sgf(content))
+
 		self.move_zero=self.g.get_root()
 		nb_moves=get_moves_number(self.move_zero)
 		self.nb_moves=nb_moves
@@ -363,7 +367,7 @@ class RangeSelector(Frame):
 		row+=1
 		if bots!=None:
 			Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
-			bot_names=[bot for bot,f in bots]
+			bot_names=[bot['name'] for bot in bots]
 			self.bot_selection=StringVar()
 			
 			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
@@ -512,9 +516,6 @@ class RangeSelector(Frame):
 		except:
 			pass
 		
-		
-	
-	
 	def close_app(self):
 		if self.popup:
 			try:
@@ -539,7 +540,7 @@ class RangeSelector(Frame):
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
-			RunAnalysis={bot:f for bot,f in self.bots}[bot]
+			RunAnalysis={bot['name']:bot['runanalysis'] for bot in self.bots}[bot]
 			
 			
 			#bot_selection=int(self.bot_selection.curselection()[0])
@@ -603,6 +604,116 @@ import ConfigParser
 from Tkinter import *
 import ttk
 
+
+def guess_color_to_play(move_zero,move_number):
+	
+	one_move=go_to_move(move_zero,move_number)
+	
+	
+	
+	player_color,player_move=one_move.get_move()
+	if player_color != None:
+		return player_color
+	
+	if one_move is move_zero:
+		print 'move_zero.get("PL")=',move_zero.get("PL")
+		if move_zero.get("PL").lower()=="b":
+			return "w"
+		if move_zero.get("PL").lower()=="w":
+			return "b"
+	
+	previous_move_color=guess_color_to_play(move_zero,move_number-1)
+	
+	if previous_move_color.lower()=='b':
+		print "guess_color_to_play(%i)=%s"%(move_number,"w")
+		return "w"
+	else:
+		print "guess_color_to_play(%i)=%s"%(move_number,"b")
+		return "b"
+
+class LiveAnalysisBase():
+	def __init__(self,g,filename):
+		self.g=g
+		
+		self.filename=filename
+		self.bot=self.initialize_bot()
+		self.update_queue=Queue.Queue()
+		self.label_queue=Queue.Queue()
+		self.best_moves_queue=Queue.Queue()
+		
+		self.move_zero=self.g.get_root()
+
+		size=self.g.get_size()
+		log("size of the tree:", size)
+		self.size=size
+
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
+		
+		self.stop_at_first_resign=False
+		
+		self.cpu_lock=threading.Lock()
+		
+	def start(self):
+		threading.Thread(target=self.run_live_analysis).start()
+			
+
+	def run_live_analysis(self):
+		self.current_move=1
+		
+		while 1:
+			if not self.cpu_lock.acquire(False):
+				time.sleep(2) #let's wait just enough time in case human player alreay has a move to play
+				continue
+			
+			try:
+				msg=self.update_queue.get(False)
+			except:
+				self.cpu_lock.release()
+				time.sleep(.5)
+				continue
+			
+			if msg==None:
+				log("Leaving the analysis")
+				self.cpu_lock.release()
+				return
+			
+			
+			
+			log("Analyser received msg to analyse move",msg)
+			while msg>self.current_move:
+				log("Analyser currently at move",self.current_move)
+				log("So asking "+self.bot.bot_name+" to play the game move",self.current_move)
+				one_move=go_to_move(self.move_zero,self.current_move)
+				player_color,player_move=one_move.get_move()
+				log("game move",self.current_move,"is",player_color,"at",player_move)
+				if player_color in ('w',"W"):
+					log("white at",ij2gtp(player_move))
+					self.bot.place_white(ij2gtp(player_move))
+				else:
+					log("black at",ij2gtp(player_move))
+					self.bot.place_black(ij2gtp(player_move))
+				self.current_move+=1
+			
+			log("Analyser is currently at move",self.current_move)
+			self.label_queue.put(self.current_move)
+			log("starting analysis of move",self.current_move)
+			answer=self.run_analysis(self.current_move)
+			log("Analyser best move: move %i at %s"%(self.current_move,answer))
+			self.best_moves_queue.put([self.current_move,answer])
+			if self.update_queue.empty():
+				self.label_queue.put("")
+			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+			self.cpu_lock.release()
+			#self.current_move+=1
+			
+
+
+
+
+		
+
 class RunAnalysisBase(Frame):
 	def __init__(self,parent,filename,move_range,intervals,variation,komi):
 		Frame.__init__(self,parent)
@@ -614,7 +725,6 @@ class RunAnalysisBase(Frame):
 		self.variation=variation
 		self.komi=komi
 		
-		self.move_zero=None
 		self.g=None
 		self.move_zero=None
 		
@@ -622,6 +732,22 @@ class RunAnalysisBase(Frame):
 		self.time_per_move=None
 		
 		self.error=None
+		
+		self.g=open_sgf(self.filename)
+		sgf_moves.indicate_first_player(self.g)
+		
+		leaves=get_all_sgf_leaves(self.g.get_root())
+		log("keeping only variation",self.variation)
+		keep_only_one_leaf(leaves[self.variation][0])
+		
+		size=self.g.get_size()
+		log("size of the tree:", size)
+		self.size=size
+
+		log("Setting new komi")
+		self.move_zero=self.g.get_root()
+		self.g.get_root().set("KM", self.komi)
+		
 		try:
 			self.bot=self.initialize_bot()
 		except Exception,e:
@@ -659,12 +785,14 @@ class RunAnalysisBase(Frame):
 			self.stop_at_first_resign=False
 			log("Stop_At_First_Resign is OFF")
 		
-		if parent!=None:
-			threading.Thread(target=self.run_all_analysis).start()
-		else:
-			self.run_all_analysis()
-		
 		self.completed=False
+		
+		if parent==None:
+			self.run_all_analysis()
+		else:
+			threading.Thread(target=self.run_all_analysis).start()
+			
+		
 			
 	def initialize_bot(self):
 		pass
@@ -676,7 +804,6 @@ class RunAnalysisBase(Frame):
 		#################################################
 		
 		log("Analysis for this move is completed")
-	
 	
 	def run_all_analysis(self):
 		self.current_move=1
@@ -872,12 +999,28 @@ class RunAnalysisBase(Frame):
 		self.root=root
 
 
+
+
 class BotOpenMove():
-	def __init__(self):
+	def __init__(self,sgf_g):
 		self.name='Bot'
 		self.bot=None
 		self.okbot=False
-		#Button.__init__(self,parent)
+		self.sgf_g=sgf_g
+		
+	def start(self):
+		try:		
+			result=self.my_starting_procedure(self.sgf_g,profil="fast",silentfail=True)
+			if result:
+				self.bot=result
+				self.okbot=True
+			else:
+				self.okbot=False
+		except Exception, e:
+			log("Could not launch "+self.name)
+			log(e)
+			self.okbot=False
+		return
 		
 	def undo(self):
 		if self.okbot:
@@ -905,86 +1048,103 @@ class BotOpenMove():
 			log("killing",self.name)
 			self.bot.close()
 
-		
 
-def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g):
+class LaunchingException(Exception):
+	pass		
+
+def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profil="slow",silentfail=False):
+	log("Bot starting procedure started with profil =",profil)
+	log("\tbot name:",bot_name)
+	log("\tbot gtp name",bot_gtp_name)
+	
+	if profil=="slow":
+		command_entry="Command"
+		parameters_entry="Parameters"
+	elif profil=="fast":
+		command_entry="ReviewCommand"
+		parameters_entry="ReviewParameters"
 	
 	size=sgf_g.get_size()
 	
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
 	
-	
 	try:
-		bot_command_line=Config.get(bot_name, "Command")
-	except:
-		show_error(_("The config.ini file does not contain entry for %s command line!")%bot_name)
+		try:
+			bot_command_line=Config.get(bot_name, command_entry)
+		except:
+			raise LaunchingException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
+			
+		
+		if not bot_command_line:
+			raise LaunchingException(_("The config.ini file %s entry for %s is empty!")%(command_entry, bot_name))
+			
+		log("Starting "+bot_name+"...")
+		try:
+			bot_command_line=[Config.get(bot_name, command_entry)]+Config.get(bot_name, parameters_entry).split()
+			bot=bot_gtp(bot_command_line)
+		except Exception,e:
+			raise LaunchingException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+Config.get(bot_name, command_entry)+" "+Config.get(bot_name, parameters_entry)+"\n"+str(e))
+			
+		log(bot_name+" started")
+		log(bot_name+" identification through GTP...")
+		try:
+			answer=bot.name()
+		except Exception, e:
+			raise LaunchingException((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+str(e))
+			
+		
+		if answer!=bot_gtp_name:
+			raise LaunchingException((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
+			
+		
+		log(bot_name+" identified itself properly")
+		log("Checking version through GTP...")
+		try:
+			bot_version=bot.version()
+		except Exception, e:
+			raise LaunchingException((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+str(e))
+			
+		log("Version: "+bot_version)
+		log("Setting goban size as "+str(size)+"x"+str(size))
+		try:
+			ok=bot.boardsize(size)
+		except:
+			raise LaunchingException((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%bot_name))
+			
+		if not ok:
+			raise LaunchingException(_("%s rejected this board size (%ix%i)")%(bot_name,size,size))
+			
+		
+		log("Clearing the board")
+		bot.reset()
+		
+		log("Setting komi")
+		bot.komi(sgf_g.get_komi())
+		
+		board, plays = sgf_moves.get_setup_and_moves(sgf_g)
+		handicap_stones=""
+		log("Adding handicap stones, if any")
+		for colour, move0 in board.list_occupied_points():
+			if move0 != None:
+				row, col = move0
+				move=ij2gtp((row,col))
+				if colour in ('w',"W"):
+					log("Adding initial white stone at",move)
+					bot.place_white(move)
+				else:
+					log("Adding initial black stone at",move)
+					bot.place_black(move)
+		log(bot_name+" initialization completed")
+		
+		bot.bot_name=bot_gtp_name
+		bot.bot_version=bot_version
+	except LaunchingException,e:
+		if silentfail:
+			log(e)
+		else:
+			show_error(e)
 		return False
-	
-	if not bot_command_line:
-		show_error(_("The config.ini file does not contain command line for %s!")%bot_name)
-		return False
-	log("Starting "+bot_name+"...")
-	try:
-		bot_command_line=[Config.get(bot_name, "Command")]+Config.get(bot_name, "Parameters").split()
-		bot=bot_gtp(bot_command_line)
-	except Exception,e:
-		show_error((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+Config.get(bot_name, "Command")+" "+Config.get(bot_name, "Parameters")+"\n"+str(e))
-		return False
-	log(bot_name+" started")
-	log(bot_name+" identification through GTP...")
-	try:
-		answer=bot.name()
-	except Exception, e:
-		show_error((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+str(e))
-		return False
-	
-	if answer!=bot_gtp_name:
-		show_error((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
-		return False
-	
-	log(bot_name+" identified itself properly")
-	log("Checking version through GTP...")
-	try:
-		bot_version=bot.version()
-	except Exception, e:
-		show_error((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+str(e))
-		return False
-	log("Version: "+bot_version)
-	log("Setting goban size as "+str(size)+"x"+str(size))
-	try:
-		ok=bot.boardsize(size)
-	except:
-		show_error((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%bot_name))
-		return False
-	if not ok:
-		show_error(_("%s rejected this board size (%ix%i)")%(bot_name,size,size))
-		return False
-	
-	log("Clearing the board")
-	bot.reset()
-	
-	log("Setting komi")
-	bot.komi(sgf_g.get_komi())
-	
-	board, plays = sgf_moves.get_setup_and_moves(sgf_g)
-	handicap_stones=""
-	log("Adding handicap stones, if any")
-	for colour, move0 in board.list_occupied_points():
-		if move0 != None:
-			row, col = move0
-			move=ij2gtp((row,col))
-			if colour in ('w',"W"):
-				log("Adding initial white stone at",move)
-				bot.place_white(move)
-			else:
-				log("Adding initial black stone at",move)
-				bot.place_black(move)
-	log(bot_name+" initialization completed")
-	
-	bot.bot_name=bot_gtp_name
-	bot.bot_version=bot_version
-	
 	return bot
 
 
@@ -1285,3 +1445,41 @@ def batch_analysis(top,batch):
 		app.propose_review=app.close_app
 		batch[0]=[app]
 		top.after(1,lambda: batch_analysis(top,batch))
+
+def slow_profile_bots():
+	from leela_analysis import Leela
+	from gnugo_analysis import GnuGo
+	from ray_analysis import Ray
+	from aq_analysis import AQ
+	from leela_zero_analysis import LeelaZero
+	
+	import ConfigParser
+	
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+	
+	bots=[]
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:	
+		if Config.get(bot['name'],"Command")!="":
+			bots.append(bot)
+	return bots
+
+def fast_profile_bots():
+	from leela_analysis import Leela
+	from gnugo_analysis import GnuGo
+	from ray_analysis import Ray
+	from aq_analysis import AQ
+	from leela_zero_analysis import LeelaZero
+	
+	import ConfigParser
+	
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+	
+	bots=[]
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:	
+		if Config.get(bot['name'],"ReviewCommand")!="":
+			bots.append(bot)
+	return bots
+
+
