@@ -4,9 +4,7 @@ from Tkinter import *
 from ScrolledText import *
 import tkFont
 import sys,time
-import tkFileDialog
 from functools import partial
-
 from toolbox import *
 from toolbox import _
 
@@ -400,9 +398,10 @@ class OpenChart():
 	def save_as_png(self,e=None):
 		top=Tk()
 		top.withdraw()
-		filename = tkFileDialog.asksaveasfilename(parent=top,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile=self.graph_mode.get()+' graph.png')
+		filename=save_png_file(filename=self.graph_mode.get()+' graph.png',parent=top)
 		top.destroy()
 		canvas2png(self.chart,filename)
+
 
 class OpenMove():
 	def __init__(self,parent,move,dim,sgf,goban_size=200):
@@ -870,9 +869,8 @@ class OpenMove():
 	def save_as_png(self,e=None):
 		top=Tk()
 		top.withdraw()
-		filename = tkFileDialog.asksaveasfilename(parent=top,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile='variation_move'+str(self.move)+'.png')
+		filename = save_png_file(parent=top,filename='variation_move'+str(self.move)+'.png')
 		top.destroy()
-		#self.goban.postscript(file=filename, colormode='color')
 		canvas2png(self.goban,filename)
 		
 class DualView(Frame):
@@ -1143,7 +1141,7 @@ class DualView(Frame):
 
 			except:
 				pass
-			
+			print one_data
 			if len(one_data)<=2:
 				#if move number and color are the only data available for this point
 				#then we don't need that data point
@@ -1543,12 +1541,12 @@ class DualView(Frame):
 		self.status_bar.config(text="")
 
 	def save_left_as_png(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile='move'+str(self.current_move)+'.png')
+		filename = save_png_file(parent=self.parent,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban1,filename)
 
 		
 	def save_right_as_png(self,e=None):
-		filename = tkFileDialog.asksaveasfilename(parent=self.parent,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile='move'+str(self.current_move)+'.png')
+		filename = save_png_file(parent=self.parent,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban2,filename)
 	
 def canvas2png(goban,filename):
@@ -1571,7 +1569,7 @@ if __name__ == "__main__":
 	
 	if len(sys.argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('SGF file reviewed', '.rsgf')])
+		filename = open_rsgf_file(parent=temp_root)
 		temp_root.destroy()
 		log(filename)
 

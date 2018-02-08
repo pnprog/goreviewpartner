@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 
-
 from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
-
 from sys import exit,argv
-
 from Tkinter import *
-import tkFileDialog
 import sys
 import os
 
@@ -438,7 +434,7 @@ import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()
-		filename = tkFileDialog.askopenfilename(parent=temp_root,title=_('Select a file'),filetypes = [('sgf', '.sgf')])
+		filename = open_sgf_file(parent=temp_root)
 		temp_root.destroy()
 		log(filename)
 		log("gamename:",filename[:-4])

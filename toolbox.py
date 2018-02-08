@@ -125,7 +125,6 @@ def ij2sgf(m):
 
 from gomill import sgf, sgf_moves
 from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu
-import tkFileDialog
 import sys
 import os
 import urllib2
@@ -1482,4 +1481,12 @@ def fast_profile_bots():
 			bots.append(bot)
 	return bots
 
+import tkFileDialog
+def open_sgf_file(parent=None):
+	return tkFileDialog.askopenfilename(parent=parent,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
 
+def open_rsgf_file(parent=None):
+	return tkFileDialog.askopenfilename(parent=parent,title=_('Select a file'),filetypes = [(_('SGF file reviewed'), '.rsgf')])
+
+def save_png_file(filename, parent=None):
+	return tkFileDialog.asksaveasfilename(parent=parent,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile=filename)

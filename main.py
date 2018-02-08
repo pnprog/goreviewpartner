@@ -17,7 +17,6 @@ except Exception, e:
 
 import dual_view
 import settings
-import tkFileDialog
 from toolbox import *
 from toolbox import _
 
@@ -60,7 +59,7 @@ def close_app():
 
 def launch_analysis():
 	global popups
-	filename = tkFileDialog.askopenfilename(parent=app,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
+	filename = open_sgf_file(parent=app)
 	log(filename)
 	log("gamename:",filename[:-4])
 	if not filename:
@@ -100,7 +99,7 @@ live_bouton=Button(app, text=_("Run a live analysis"), command=launch_live_analy
 live_bouton.pack(fill=X,padx=5, pady=5)
 
 def launch_review():
-	filename = tkFileDialog.askopenfilename(parent=app,title=_('Select a file'),filetypes = [(_('SGF file reviewed'), '.rsgf')])
+	filename = open_rsgf_file(parent=app)
 	log(filename)
 	if not filename:
 		return
