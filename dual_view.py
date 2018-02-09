@@ -1141,7 +1141,6 @@ class DualView(Frame):
 
 			except:
 				pass
-			print one_data
 			if len(one_data)<=2:
 				#if move number and color are the only data available for this point
 				#then we don't need that data point

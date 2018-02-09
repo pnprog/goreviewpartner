@@ -1,0 +1,452 @@
+
+#########################
+### popups and errors ###
+#########################
+
+# file selector
+msgid "Select a file"
+msgstr "Datei auswählen"
+
+# file type selector
+msgid "SGF file"
+msgstr "SGF-Datei"
+
+# file type selector
+msgid "SGF file reviewed"
+msgstr "Analysierte SGF-Datei"
+
+#popup
+msgid "Error"
+msgstr "Fehler"
+
+#popup
+msgid "Information"
+msgstr "Information"
+
+#error
+msgid "Could not open the config file of Go Review Partner"
+msgstr "Konnte die Konfigurationsdatei von Go Review Partner nicht laden"
+
+#error
+msgid "Could not save the RSGF file: "
+msgstr "Konnte die RSGF-Datei nicht speichern: "
+
+#error
+msgid "Could not save the SGF file: "
+msgstr "Konnte die SGF-Datei nicht speichern: "
+
+#error
+msgid "Error while initializing the GTP bot:"
+msgstr "Fehler beim Starten des GTP-Programms:"
+
+#error
+msgid "Error while initializing the graphical interface:"
+msgstr "Fehler beim Starten der Benutzeroberfläche:"
+
+#error
+msgid "Aborted"
+msgstr "Abgebrochen"
+
+#error
+msgid "Analysis aborted:"
+msgstr "Analyse abgebrochen:"
+
+#########################
+###### main panel #######
+#########################
+
+msgid "Open a RSGF file for review"
+msgstr "Eine RSGF-Datei öffnen"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "This is GoReviewPartner"
+msgstr "Das ist Go Review Partner"
+
+msgid "Run a SGF file analysis"
+msgstr "Eine SGF-Datei analysieren"
+
+msgid "Download a SGF file for analysis"
+msgstr "Einen SGF-Link analysieren"
+
+#########################
+### SGF download panel ##
+#########################
+
+msgid "Paste the URL to the SGF file (http or https):"
+msgstr "Einen Link zu der SGF-Datei einfügen (http oder https):"
+
+msgid "Get"
+msgstr "Herunterladen"
+
+msgid "Could not download the URL"
+msgstr "Konnte die URL nicht öffnen"
+
+msgid "Not a SGF file!"
+msgstr "Keine gültige SGF-Datei!"
+
+#############################
+### Analysis setting panel ##
+#############################
+
+msgid "Bot to use for analysis:"
+msgstr "Analyse-Programm:"
+
+msgid "Select variation to be analysed"
+msgstr "Zu analysierende Variation auswählen"
+
+msgid "Variation %i (%i moves)"
+msgstr "Variation %i (%i Züge)"
+
+msgid "Select moves to be analysed"
+msgstr "Zu analysierende Züge auswählen"
+
+msgid "Analyse all %i moves"
+msgstr "Alle %i Züge analysieren"
+
+msgid "Analyse only those moves:"
+msgstr "Nur diese Züge analysieren:"
+
+msgid "Select colors to be analysed"
+msgstr "Zu analysierende Farben auswählen"
+
+msgid "Black & white"
+msgstr "Schwarz & Weiß "
+
+msgid "Black only"
+msgstr "Nur Schwarz"
+
+msgid "White only"
+msgstr "Nur Weiß"
+
+msgid "Confirm the value of komi"
+msgstr "Komi bestätigen"
+
+msgid "Error while reading komi value, please check:"
+msgstr "Komi konnte nicht bestimmt werden, bitte überprüfen:"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "This variation is empty (0 move), the analysis cannot be performed!"
+msgstr "Diese Variation ist leer (0 Züge), es kann keine Analyse durchgeführt werden!"
+
+msgid "Incorrect value for komi (%s), please double check."
+msgstr "Falsches Komi (%s), bitte überprüfen."
+
+msgid "Could not make sense of the moves range."
+msgstr "Unzulässiger Zug-Bereich."
+
+msgid "Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"
+msgstr "Bitte einen oder mehrere Zug-Bereiche angeben (z.B.: \"10-20, 40,50-51,63,67\")"
+
+########################
+### Analysis running ###
+########################
+
+msgid "Remaining time: %ih, %imn, %is"
+msgstr "Verbleibende Zeit: %ih, %im, %is"
+
+msgid "Currently at move %i/%i"
+msgstr "Zug %i/%i"
+
+msgid "Completed"
+msgstr "Analyse abgeschlossen"
+
+msgid "Start review"
+msgstr "Besprechung starten"
+
+#####################################
+### Comments inside the RSGF file ###
+#####################################
+
+msgid "Analysis of: %s"
+msgstr "Analyse von: %s"
+
+msgid "Analysis by GoReviewPartner"
+msgstr "Analysiert von Go Review Partner"
+
+############################
+####### RSGF review ########
+############################
+msgid "Win rate"
+msgstr "Gewinnwahrscheinlichkeit"
+
+msgid "Black comparison"
+msgstr "Schwarze Züge"
+
+msgid "White comparison"
+msgstr "Weiße Züge"
+
+msgid "<Ctrl+Q> to save the goban as an image."
+msgstr "<Ctrl+Q>, um das Goban als Bild zu speichern."
+
+msgid "<Ctrl+Q> to save the graph as an image."
+msgstr "<Ctrl+Q>, um den Graphen als Bild zu speichern."
+
+msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
+msgstr "Zug %i: Gewinnwsl. schwarzer Zug: %s, Gewinnwsl. Computer-Zug: %s"
+
+msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
+msgstr "Zug %i: Gewinnwsl. weißer Zug: %s, Gewinnwsl. Computer-Zug: %s"
+
+msgid "The computer believes it's own move win rate would be %.2fpp higher."
+msgstr "Das Programm schätzt seinen eigenen Zug als %.2f\% besser ein."
+
+msgid "The computer believes the actual move is %.2fpp better than it's best move."
+msgstr "Das Programm schätzt den gespielten Zug um %.2f\% besser als den selber gefundenen ein."
+
+msgid "Black win rate"
+msgstr "Gewinnwahrscheinlichkeit für Schwarz"
+
+msgid "White"
+msgstr "Weiß"
+
+msgid "Black"
+msgstr "Schwarz"
+
+msgid "Move %i (%s), black/white win rate: "
+msgstr "Zug %i (%s), Gewinnwsl. für Schwarz/Weiß: "
+
+msgid "Choose a filename"
+msgstr "Dateinamen auswählen"
+
+msgid "Undo last move. Shortcut: mouse middle button."
+msgstr "Zug rückgängig machen. Kürzel: Mittlere Maustaste."
+
+#msgid "Ask %s to play the next move."
+#msgstr "%s nach dem nächsten Zug fragen"
+
+msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
+msgstr "Mit dem Mausrad oder Pfeiltasten oben/unten Schrittweise durch die Variation gehen."
+
+msgid "Open position"
+msgstr "Position öffnen"
+
+msgid "Show territories"
+msgstr "Gebiete anzeigen"
+
+msgid "Graphs"
+msgstr "Grafen"
+
+msgid "<Ctrl+W> to save the goban as an image."
+msgstr "<Ctrl+W>, um das Goban als Bild zu speichern"
+
+msgid "Go to first move."
+msgstr "Zum Anfang der Partie gehen."
+
+msgid "Go back 10 moves."
+msgstr "10 Züge zurück."
+
+msgid "Go back one move. Shortcut: keyboard left key."
+msgstr "1 Zug züruck. Kürzel: Pfeiltaste links."
+
+msgid "Open this position onto a third goban to play out variations."
+msgstr "Diese Position auf einem dritten Goban öffnen, um Variationen durchzuspielen."
+
+msgid "Go forward one move. Shortcut: keyboard right key."
+msgstr "1 Zug vorwärts. Kürzel: Pfeiltaste rechts."
+
+msgid "Go forward 10 moves."
+msgstr "10 Züge vorwärts."
+
+msgid "Go to final move."
+msgstr "Ans Ende der Partie gehen."
+
+msgid "Keep pressed to show territories."
+msgstr "Gedrückt halten, um Gebiete anzuzeigen."
+
+msgid "Undo"
+msgstr "Rückgängig"
+
+msgid "Select a bot."
+msgstr "Ein Programm auswählen"
+
+msgid "Play one move"
+msgstr "Einen Zug spielen"
+
+msgid "Ask the bot to play one move."
+msgstr "Das Programm einen Zug spielen lassen."
+
+msgid "Play as white"
+msgstr "Als Weiß spielen"
+
+msgid "Ask the bot to play as White."
+msgstr "Das Programm als Weiß spielen lassen."
+
+msgid "Play as black"
+msgstr "Als Schwarz spielen"
+
+msgid "Ask the bot to play as Black."
+msgstr "Das Programm als Schwarz spielen lassen."
+
+msgid "Self play"
+msgstr "Autom. Spiel"
+
+msgid "Ask the bot to play alone."
+msgstr "Das Programm die Partie gegen sich selber ausspielen lassen."
+
+msgid "Abort"
+msgstr "Abbrechen"
+
+
+########################
+#### Settings panel ####
+########################
+
+msgid "Save settings"
+msgstr "Einstellungen speichern"
+
+msgid "%s settings"
+msgstr "Einstellungen von %s"
+
+msgid "Fuzzy Stone"
+msgstr "Natürliche Platzierung der Steine"
+
+msgid "Real game sequence deepness"
+msgstr "Variationstiefe"
+
+msgid "Goban/screen ratio"
+msgstr "Verhältnis Größe Goban zu Bildschirm"
+
+msgid "Maximum number of variations to record during analysis"
+msgstr "Maximale Anzahl Variationen, die aufgezeichnet werden"
+
+msgid "Save bot command line into RSGF file"
+msgstr "Kommandozeilenbefehl des Programms in RSGF-Datei speichern"
+
+msgid "Maximum number of variations to display during review"
+msgstr "Maximale Anzahl Variationen, die bei der Besprechung angezeigt werden"
+
+msgid "Command"
+msgstr "Befehl"
+
+msgid "Needed for review"
+msgstr "Während der Besprechung benötigt"
+
+msgid "Parameters"
+msgstr "Einstellungen"
+
+msgid "Stop the analysis if the bot resigns"
+msgstr "Die Analyse abbrechen, wenn das Programm aufgeben würde"
+
+msgid "Parameters for the analysis"
+msgstr "Einstellungen für die Analyse"
+
+msgid "Parameters for the review"
+msgstr "Einstellungen für die Besprechung"
+
+msgid "General parameters"
+msgstr "Allgemeine Einstellungen"
+
+msgid "Language"
+msgstr "Sprache"
+
+
+############################
+###### GnuGo specific ######
+############################
+
+msgid "Gnugo score estimation before the move was played: "
+msgstr "Punktestand laut GnuGo, vor dem Zug: "
+
+msgid "GnuGo thread failed:"
+msgstr "Der GnuGo-Prozess wurde beendet:"
+
+msgid "Maximum number of variations"
+msgstr "Maximale Anzahl Variationen"
+
+msgid "Deepness for each variation"
+msgstr "Tiefe der Variationen"
+
+
+################################
+###### bot initialization ######
+################################
+
+msgid "The config.ini file does not contain entry for %s command line!"
+msgstr "Die config.ini-Datei enthält keinen Eintrag für %s!"
+
+msgid "The config.ini file does not contain command line for %s!"
+msgstr "Die config.ini-Datei enthält keinen Befehl für %s!"
+
+msgid "Could not run %s using the command from config.ini file:"
+msgstr "Konnte %s mit dem in config.ini angegeben Befehl nicht ausführen:"
+
+msgid "%s did not replied as expected to the GTP name command:"
+msgstr "%s hat nicht wie erwartet auf \"GTP name\"-Befehl reagiert:"
+
+msgid "%s did not identified itself as expected:"
+msgstr "%s hat sich nicht wie erwartet identifiziert:"
+
+msgid "%s did not replied as expected to the GTP version command:"
+msgstr "%s hat nicht wie erwartet auf \"GTP version\"-Befehl reagiert:"
+
+msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
+msgstr "Konnte die Brettgröße nicht über GTP einstellen. Bitte sicherstellen, dass %s im GTP-Modus läuft."
+
+msgid "%s rejected this board size (%ix%i)"
+msgstr "%s hat diese Brettgröße zurückgewiesen (%ix%i)"
+
+##############################
+###### Running analysis ######
+##############################
+
+msgid "For this position, %s would %s"
+msgstr "In dieser Position würde %s %s spielen"
+
+msgid "White to play, in the game, white played %s"
+msgstr "Weiß am Zug. Im Spiel wurde %s gespielt"
+
+msgid "Black to play, in the game, black played %s"
+msgstr "Schwarz am Zug. Im Spiel wurde %s gespielt"
+
+msgid "Move %i"
+msgstr "Zug %i"
+
+msgid "Now closing, please wait..."
+msgstr "Wird geschlossen, bitte warten..."
+
+###############################
+####### Leela specific ########
+###############################
+
+msgid "black/white win probability for this variation: "
+msgstr "Gewinnwsl. Schwarz/Weiß für diese Variation: "
+
+msgid "Monte Carlo win probalbility for this move: "
+msgstr "Monte-Carlo-Gewinnwsl. für diesen Zug: "
+
+msgid "Value network black/white win probability for this move: "
+msgstr "Gewinnwsl. laut \"value network\" für diesen Zug: "
+
+msgid "Policy network value for this move: "
+msgstr "Gewinnwsl. laut \"policy network\" für diesen Zug: "
+
+msgid "Evaluation for this move: "
+msgstr "Evaluation für diesen Zug: "
+
+msgid "RAVE(x%: y) for this move: "
+msgstr "RAVE(x%: y) für diesen Zug: "
+
+msgid "Number of playouts used to estimate this variation: "
+msgstr "Anzahl Simulationen für diese Variation: "
+
+msgid "Book move"
+msgstr "Spielzug aus der Eröffnungsdatenbank"
+
+msgid "%s black/white win probability for this position: "
+msgstr "Gewinnwsl. Schwarz/Weiß in dieser Position laut %s: "
+
+msgid "Time per move (s)"
+msgstr "Zeit pro Zug (s)"
+
+############################
+####### AQ specific ########
+############################
+
+msgid "See AQ parameters in aq_config.txt"
+msgstr "Einstellungen von AQ sind in \"aq_config.txt\""
+
+

@@ -811,6 +811,7 @@ class RunAnalysisBase(Frame):
 
 			if self.current_move in self.move_range:
 				self.run_analysis(self.current_move)
+				self.total_done+=1
 			elif self.move_range:
 				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
 			
@@ -825,6 +826,7 @@ class RunAnalysisBase(Frame):
 					log("black at",ij2gtp(player_move))
 					self.bot.place_black(ij2gtp(player_move))
 				log("Analysis for this move is completed")
+				
 			else:
 				#the bot has proposed to resign, and resign_at_first_stop is ON
 				pass
@@ -832,7 +834,7 @@ class RunAnalysisBase(Frame):
 			self.current_move+=1
 			self.update_queue.put(self.current_move)
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			self.total_done+=1
+			
 		return
 
 	def abort(self):
@@ -1118,7 +1120,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profil="slow",sil
 		log("Clearing the board")
 		bot.reset()
 		
-		log("Setting komi")
+		log("Setting komi at",sgf_g.get_komi())
 		bot.komi(sgf_g.get_komi())
 		
 		board, plays = sgf_moves.get_setup_and_moves(sgf_g)
@@ -1348,7 +1350,7 @@ Config.read(config_file)
 lang=Config.get("General","Language")
 
 
-available_translations={"en": u"English", "fr" : u"Français"}
+available_translations={"en": u"English", "fr" : u"Français", "de" : u"Deutsch"}
 if not lang:
 	log("No language setting in the config file")
 	log("System language detection:")
