@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
 
-try:
-	import wx
-	wxApp = wx.App(None)
-except Exception, e:
-	print "Could not import the WX GUI library, please double check it is installed:"
-	print str(e)
-	raw_input()
-	sys.exit()
-
 class AbortedException(Exception):
 	pass
 
@@ -1490,31 +1481,43 @@ def fast_profile_bots():
 			bots.append(bot)
 	return bots
 
-# TODO: decide if we want to keep tkinter at all.
-#import tkFileDialog
-def open_sgf_file(parent=None):
-	# return tkFileDialog.askopenfilename(parent=parent,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
-	dialog = wx.FileDialog(None, 'Select a file', "~", wildcard="SGF files (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-	filename = None
-	if dialog.ShowModal() == wx.ID_OK:
-		filename = dialog.GetPath()
-	dialog.Destroy()
-	return filename
 
-def open_rsgf_file(parent=None):
-	# return tkFileDialog.askopenfilename(parent=parent,title=_('Select a file'),filetypes = [(_('SGF file reviewed'), '.rsgf')])
-	dialog = wx.FileDialog(None, 'Select a file', "~", wildcard="Reviewed SGF files (*.rsgf;*.RSGF)|*.rsgf;*.RSGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-	filename = None
-	if dialog.ShowModal() == wx.ID_OK:
-		filename = dialog.GetPath()
-	dialog.Destroy()
-	return filename
+try:
+	import wx
+	wxApp = wx.App(None)
+	def open_sgf_file(parent=None):
+		dialog = wx.FileDialog(None,_('Select a file'), "~", wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+		filename = None
+		if dialog.ShowModal() == wx.ID_OK:
+			filename = dialog.GetPath()
+		dialog.Destroy()
+		return filename
 
-def save_png_file(filename, parent=None):
-	# return tkFileDialog.asksaveasfilename(parent=parent,title=_('Choose a filename'),filetypes = [('PNG', '.png')],initialfile=filename)
-	dialog = wx.FileDialog(None, 'Choose a filename', "~", filename, "PNG images (*.png;*.PNG)|*.png;*.PNG", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
-	filename = None
-	if dialog.ShowModal() == wx.ID_OK:
-		filename = dialog.GetPath()
-	dialog.Destroy()
-	return filename
+	def open_rsgf_file(parent=None):
+		dialog = wx.FileDialog(None, _('Select a file'), "~", wildcard=_("Reviewed SGF file")+" (*.rsgf;*.RSGF)|*.rsgf;*.RSGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+		filename = None
+		if dialog.ShowModal() == wx.ID_OK:
+			filename = dialog.GetPath()
+		dialog.Destroy()
+		return filename
+
+	def save_png_file(filename, parent=None):
+		dialog = wx.FileDialog(None,_('Choose a filename'), "~", filename, _("PNG image")+" (*.png;*.PNG)|*.png;*.PNG", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+		filename = None
+		if dialog.ShowModal() == wx.ID_OK:
+			filename = dialog.GetPath()
+		dialog.Destroy()
+		return filename
+	
+except Exception, e:
+	print "Could not import the WX GUI library, please double check it is installed:"
+	log(e)
+	log("=> Falling back to tkFileDialog")
+	import tkFileDialog
+	def open_sgf_file(parent=None):
+		return tkFileDialog.askopenfilename(parent=parent,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
+	def open_rsgf_file(parent=None):
+		return tkFileDialog.askopenfilename(parent=parent,title=_('Select a file'),filetypes = [(_('Reviewed SGF file'), '.rsgf')])
+	def save_png_file(filename, parent=None):
+		return tkFileDialog.asksaveasfilename(parent=parent,title=_('Choose a filename'),filetypes = [(_('PNG image'), '.png')],initialfile=filename)
+	
