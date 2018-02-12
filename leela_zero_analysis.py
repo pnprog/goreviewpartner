@@ -260,14 +260,15 @@ class Leela_Zero_gtp(gtp):
 		answers=[]
 		for err_line in buff:
 			if " ->" in err_line:
-				#log(err_line)
-				one_answer=err_line.strip().split(" ")[0]
-				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
-				value_network=float(err_line.split("(V:")[1].split('%')[0].strip())
-				policy_network=float(err_line.split("(N:")[1].split('%)')[0].strip())
-				sequence=err_line.split("PV: ")[1].strip()
-				
-				answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
+				if err_line[0]==" ":
+					#log(err_line)
+					one_answer=err_line.strip().split(" ")[0]
+					nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
+					value_network=float(err_line.split("(V:")[1].split('%')[0].strip())
+					policy_network=float(err_line.split("(N:")[1].split('%)')[0].strip())
+					sequence=err_line.split("PV: ")[1].strip()
+					
+					answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
 
 		return answers
 
