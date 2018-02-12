@@ -43,6 +43,10 @@ class LeelaAnalysis():
 			log("leela play black")
 			answer=leela.play_black()
 		
+		if current_move>1:
+			es=leela.get_leela_final_score()
+			one_move.set("ES",es)
+		
 		best_answer=answer
 		all_moves=leela.get_all_leela_moves()
 		if (answer.lower() not in ["pass","resign"]):
@@ -250,12 +254,12 @@ class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
 		LiveAnalysisBase.__init__(self,g,filename)
 
 class Leela_gtp(gtp):
-
+	
 	def get_leela_final_score(self):
-		self.write("final_score")
-		answer=self.readline()
+		self.write("mc_score")
+		answer=self.readline().strip()
 		try:
-			return " ".join(answer.split(" ")[1:])
+			return answer.split(" ")[1]
 		except:
 			raise GtpException("GtpException in Get_leela_final_score()")
 

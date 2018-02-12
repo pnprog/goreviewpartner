@@ -40,6 +40,10 @@ class LeelaZeroAnalysis():
 			log("leela Zero play black")
 			answer=leela_zero.play_black()
 		
+		if current_move>1:
+			es=leela_zero.get_leela_zero_final_score()
+			one_move.set("ES",es)
+		
 		best_answer=answer
 		all_moves=leela_zero.get_all_leela_zero_moves()
 		if (answer.lower() not in ["pass","resign"]):
@@ -214,9 +218,9 @@ class Leela_Zero_gtp(gtp):
 		threading.Thread(target=self.consume_stderr).start()
 	def get_leela_zero_final_score(self):
 		self.write("final_score")
-		answer=self.readline()
+		answer=self.readline().strip()
 		try:
-			return " ".join(answer.split(" ")[1:])
+			return answer.split(" ")[1]
 		except:
 			raise GtpException("GtpException in Get_leela_zero_final_score()")
 

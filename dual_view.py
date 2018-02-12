@@ -276,34 +276,35 @@ class OpenChart():
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
-			move=one_data["move"]
-			moves.append(move)
-			x0=border+(move-1)*space
-			x1=x0+space
-			
-			position_win_rate=one_data["position_win_rate"]
-			if one_data["player_color"]=="w":
-				position_win_rate=100.-position_win_rate
-				color=_("White")
-			else:
-				color=_("Black")
-			player_win_rate=float(int(position_win_rate*100)/100.)
-			y0=height-border
-			y1=height-border-position_win_rate*(height-2*border)/100.
-			
-			grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
-			
-			#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
-			msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(position_win_rate)+"%/"+str(100-player_win_rate)+"%"
-			
-			self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-			self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
-			self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
-			
-			self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
-			self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
-			x00=x1
-			y00=y1
+			if "position_win_rate" in one_data:
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space
+				
+				position_win_rate=one_data["position_win_rate"]
+				if one_data["player_color"]=="w":
+					position_win_rate=100.-position_win_rate
+					color=_("White")
+				else:
+					color=_("Black")
+				player_win_rate=float(int(position_win_rate*100)/100.)
+				y0=height-border
+				y1=height-border-position_win_rate*(height-2*border)/100.
+				
+				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+				msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(position_win_rate)+"%/"+str(100-player_win_rate)+"%"
+				
+				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y1
 		#drawing vertical graduation
 		self.display_vertical_winrate_graduation(border,height,width)
 		return moves
@@ -315,56 +316,64 @@ class OpenChart():
 		#checking graph limits
 		maximum=-1000
 		for one_data in self.data:
-			maximum=max(maximum,max([abs(x) for x in (one_data["upper_bound_score"],one_data["lower_bound_score"],one_data["score_estimation"])]))
+			if "score_estimation" in one_data:
+				maximum=max(maximum,max([abs(x) for x in (one_data["upper_bound_score"],one_data["lower_bound_score"],one_data["score_estimation"])]))
 		maximum+=5
 		space=1.0*(width-2*border)/self.nb_moves
 		middle=height-border-(height-2*border)/2
 		x00=border
 		y00=middle
 		for one_data in self.data:
-			move=one_data["move"]
-			moves.append(move)
-			x0=border+(move-1)*space
-			x1=x0+space
-			estimated_score=one_data["score_estimation"]
-			upper_bound_score=one_data["upper_bound_score"]
-			lower_bound_score=one_data["lower_bound_score"]
+			if "score_estimation" in one_data:
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space
+				estimated_score=one_data["score_estimation"]
+				upper_bound_score=one_data["upper_bound_score"]
+				lower_bound_score=one_data["lower_bound_score"]
 
-			y0=middle-lower_bound_score*(height-2*border)/2./maximum
-			y1=middle-upper_bound_score*(height-2*border)/2./maximum
-			y2=middle-estimated_score*(height-2*border)/2./maximum
-			y3=min(middle,y0,y1,y2)
-			y4=max(middle,y0,y1,y2)
-			
-			white_bar=self.chart.create_rectangle(x0, y3, x1, y4, fill='',outline='')
-			grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
-			
-			self.chart.create_line(x0, y2, x1, y2, fill='#0000ff',width=2)
-			self.chart.create_line(x0, y2, x00, y00, fill='#0000ff')
+				y0=middle-lower_bound_score*(height-2*border)/2./maximum
+				y1=middle-upper_bound_score*(height-2*border)/2./maximum
+				y2=middle-estimated_score*(height-2*border)/2./maximum
+				y3=min(middle,y0,y1,y2)
+				y4=max(middle,y0,y1,y2)
+				
+				white_bar=self.chart.create_rectangle(x0, y3, x1, y4, fill='#eeeeee',outline='')
+				if y0!=y1:
+					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 
-			x00=x1
-			y00=y2					
-			
-			if one_data["player_color"]=="w":
-				color=_("White")
-			else:
-				color=_("Black")
-			
-			if estimated_score>=0:
-				msg=(_("Move %i (%s), estimated score: ")%(move,color))
-				msg+="B+"+str(estimated_score)
-				msg+=" [B%+.1f, B%+.1f]"%(lower_bound_score,upper_bound_score)
-			else:
-				msg=(_("Move %i (%s), estimated score: ")%(move,color))
-				msg+="W+"+str(abs(estimated_score))
-				msg+=" [W%+.1f, W%+.1f]"%(-lower_bound_score,-upper_bound_score)
-			
-			self.chart.tag_bind(white_bar, "<Enter>", partial(self.set_status,msg=msg))
-			self.chart.tag_bind(white_bar, "<Leave>", self.clear_status)
-			self.chart.tag_bind(white_bar, "<Button-1>",partial(self.goto_move,move=move))
-			self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-			self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
-			self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				self.chart.create_line(x0, y2, x1, y2, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y2, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y2					
+				
+				if one_data["player_color"]=="w":
+					color=_("White")
+				else:
+					color=_("Black")
+				
+				if estimated_score>=0:
+					msg=(_("Move %i (%s), estimated score: ")%(move,color))
+					msg+="B+"+str(estimated_score)
+					if (lower_bound_score!=upper_bound_score):
+						msg+=" [B%+.1f, B%+.1f]"%(lower_bound_score,upper_bound_score)
+				else:
+					msg=(_("Move %i (%s), estimated score: ")%(move,color))
+					msg+="W+"+str(abs(estimated_score))
+					if (lower_bound_score!=upper_bound_score):
+						msg+=" [W%+.1f, W%+.1f]"%(-lower_bound_score,-upper_bound_score)
+				
+				self.chart.tag_bind(white_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(white_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(white_bar, "<Button-1>",partial(self.goto_move,move=move))
+				if y0!=y1:
+					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 			
 		self.display_vertical_score_graduation(border,height,width,maximum)
 		return moves
@@ -1081,6 +1090,10 @@ class DualView(Frame):
 					one_data['score_estimation']=float(es[1:])
 				else:
 					one_data['score_estimation']=-float(es[1:])
+				
+				one_data['lower_bound_score']=one_data['score_estimation']
+				one_data['upper_bound_score']=one_data['score_estimation']
+				
 			except:
 				pass
 			
@@ -1145,7 +1158,6 @@ class DualView(Frame):
 				#if move number and color are the only data available for this point
 				#then we don't need that data point
 				data.pop()
-
 		return data
 	
 	def show_graphs(self,event=None):
