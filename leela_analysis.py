@@ -256,7 +256,7 @@ class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
 class Leela_gtp(gtp):
 	
 	def get_leela_final_score(self):
-		self.write("mc_score")
+		self.write("final_score")
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
