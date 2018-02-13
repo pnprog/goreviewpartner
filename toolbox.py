@@ -1484,7 +1484,12 @@ def fast_profile_bots():
 	return bots
 
 
+class DarwinException(Exception):
+	pass
+
 try:
+	if sys.platform=="darwin":
+		raise Exception("wx and Tkinter do not work well together on MacOS")
 	import wx
 	wxApp = wx.App(None)
 	def open_sgf_file(parent=None):
