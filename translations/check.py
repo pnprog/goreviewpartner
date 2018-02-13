@@ -30,9 +30,6 @@ def get_sentences(lang,check_for_double=False):
 			sentences.append(entry)
 	return sentences
 
-
-print
-print
 print
 print "================================================================"
 print "================================================================"
@@ -42,6 +39,13 @@ print
 english_sentences=get_sentences("en",True)
 
 available_translations=["fr","de"]
+
+from sys import argv
+if len(argv)==2:
+	if argv[1] in available_translations:
+		print "Selection of lang=",argv[1]
+		available_translations=[argv[1]]
+
 for lang in available_translations:
 	print
 	print "============= Checking language="+lang,"============="
