@@ -1483,10 +1483,6 @@ def fast_profile_bots():
 			bots.append(bot)
 	return bots
 
-
-class DarwinException(Exception):
-	pass
-
 try:
 	if sys.platform=="darwin":
 		raise Exception("wx and Tkinter do not work well together on MacOS")
