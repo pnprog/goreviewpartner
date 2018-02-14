@@ -139,6 +139,9 @@ class LiveAnalysisLauncher(Frame):
 		elif b==1:
 			black="analyser"
 		else:
+			print "=========="
+			print bots.keys()
+			print "=========="
 			black=bots[self.black_selection.get()]
 		
 		w=self.selected_white_index()
@@ -160,14 +163,14 @@ class LiveAnalysisLauncher(Frame):
 	def selected_black_index(self):
 		i=0
 		for bo in self.black_options:
-			if bo==self.black_selection.get():
+			if bo.decode("utf")==self.black_selection.get():
 				return i
 			i+=1
 
 	def selected_white_index(self):
 		i=0
 		for wo in self.white_options:
-			if wo==self.white_selection.get():
+			if wo.decode("utf")==self.white_selection.get():
 				return i
 			i+=1
 
@@ -630,7 +633,7 @@ class LiveAnalysis():
 			self.current_move+=1
 			self.history.append([copy(self.grid),copy(self.markup)])
 			self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
-			self.goban.display(self.grid,self.markup)
+			self.goban.display(self.grid,self.markup,freeze=True)
 			if color==1:
 				self.g.lock.acquire()
 				self.latest_node.set_move('b',None)
@@ -662,7 +665,7 @@ class LiveAnalysis():
 			self.grid[i][j]=color
 			self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
 			self.markup[i][j]=0
-			self.goban.display(self.grid,self.markup)
+			self.goban.display(self.grid,self.markup,freeze=True)
 			
 			if color==1:
 				#black juste played
@@ -708,8 +711,10 @@ class LiveAnalysis():
 		if self.black=="human":
 			self.goban.bind("<Button-1>",self.click)
 			self.pass_button.config(state='normal')
+			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.black=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
+			self.goban.display(self.grid,self.markup,freeze=True)
 			self.analyser_to_play()
 		else:
 			#black is a bot
@@ -717,6 +722,7 @@ class LiveAnalysis():
 			log("Starting black gtp thread")
 			self.gtp_thread=threading.Thread(target=self.gtp_thread_wrapper,args=(self.black,"black"))
 			self.gtp_thread.start()
+			self.goban.display(self.grid,self.markup,freeze=True)
 			self.bot_to_play()
 	
 	def white_to_play(self):
@@ -738,8 +744,10 @@ class LiveAnalysis():
 		if self.white=="human":
 			self.goban.bind("<Button-1>",self.click)
 			self.pass_button.config(state='normal')
+			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.white=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
+			self.goban.display(self.grid,self.markup,freeze=True)
 			self.analyser_to_play()
 		elif self.white=="black":
 			self.goban.bind("<Button-1>",self.do_nothing)
@@ -753,6 +761,7 @@ class LiveAnalysis():
 			log("Starting white gtp thread")
 			self.gtp_thread=threading.Thread(target=self.gtp_thread_wrapper,args=(self.white,"white"))
 			self.gtp_thread.start()
+			self.goban.display(self.grid,self.markup,freeze=True)
 			self.bot_to_play()
 	
 	def analyser_to_play(self):
@@ -789,7 +798,7 @@ class LiveAnalysis():
 				self.current_move+=1
 				self.history.append([copy(self.grid),copy(self.markup)])
 				self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
-				self.goban.display(self.grid,self.markup)
+				self.goban.display(self.grid,self.markup,freeze=True)
 				if color==1:
 					self.g.lock.acquire()
 					self.latest_node.set_move('b',None)
@@ -821,7 +830,7 @@ class LiveAnalysis():
 				self.grid[i][j]=color
 				self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
 				self.markup[i][j]=0
-				self.goban.display(self.grid,self.markup)
+				self.goban.display(self.grid,self.markup,freeze=True)
 				
 				if color==1:
 					self.g.lock.acquire()
