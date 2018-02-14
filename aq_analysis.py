@@ -104,7 +104,7 @@ class AQAnalysis():
 					if best_move:
 						
 						best_move=False
-						additional_comments+="\n"+(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
+						additional_comments+=(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
 						one_move.set("BWR",black_win_rate) #Black Win Rate
 						one_move.set("WWR",white_win_rate) #White Win Rate
 					

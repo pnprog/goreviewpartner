@@ -64,8 +64,6 @@ class GnuGoAnalysis():
 		
 		final_score=gnugo.get_gnugo_estimate_score()
 		#linelog(final_score)
-		additional_comments=_("Move %i")%current_move
-
 
 		es=final_score.split()[0]
 		one_move.set("ES",es) #estimated score
@@ -80,8 +78,7 @@ class GnuGoAnalysis():
 		one_move.set("UBS",ubs) #upper bound score
 		one_move.set("LBS",lbs) #lower bound score
 		
-		additional_comments=""
-		additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
+		additional_comments=_("Gnugo score estimation before the move was played: ")+final_score
 		
 		if player_color in ('w',"W"):
 			log("gnugo plays white")

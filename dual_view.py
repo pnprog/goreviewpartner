@@ -1251,17 +1251,12 @@ class DualView(Frame):
 			elif game_move_color.lower()=="b":
 				left_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(game_move))
 			if get_node(self.gameroot,m+1).has_property("C"):
-				if m==0:
-					left_comments=get_node(self.gameroot,m+1).get("C")+"\n"+left_comments
-				else:
-					left_comments+="\n"+get_node(self.gameroot,m+1).get("C")
+				left_comments+="\n"+get_node(self.gameroot,m+1).get("C")
 			self.comment_box1.insert(END,left_comments)
 			
 		if m>0:
 			markup1[i][j]=0
 			markup2[i][j]=0
-
-
 
 		self.comment_box2.delete(1.0, END)
 		#next sequence in current game ############################################################################

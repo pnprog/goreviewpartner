@@ -107,7 +107,7 @@ class RayAnalysis():
 			
 		else:
 			log('adding "'+answer.lower()+'" to the sgf file')
-			additional_comments+="\n"+_("For this position, %s would %s"%("Ray",answer.lower()))
+			additional_comments+=_("For this position, %s would %s"%("Ray",answer.lower()))
 			if answer.lower()=="pass":
 				ray.undo()
 			elif answer.lower()=="resign":

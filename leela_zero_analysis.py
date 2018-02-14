@@ -128,7 +128,7 @@ class LeelaZeroAnalysis():
 						new_child.add_comment_text(variation_comment)
 					if best_move:
 						best_move=False
-						additional_comments+="\n"+_("Value network black/white win probability for this move: ")+black_win_rate+'/'+white_win_rate
+						additional_comments+=_("Value network black/white win probability for this move: ")+black_win_rate+'/'+white_win_rate
 						one_move.set("BWR",black_win_rate) #Black value network
 						one_move.set("WWR",white_win_rate) #White value network
 						
