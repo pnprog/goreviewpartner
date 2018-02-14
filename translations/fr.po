@@ -519,7 +519,7 @@ msgid "White to play, in the game, white played %s"
 msgstr "A blanc de jouer, dans la partie, blanc a joué %s"
 
 msgid "Black to play, in the game, black played %s"
-msgstr "A noir de jouer, dans la partie, blanc a joué %s"
+msgstr "A noir de jouer, dans la partie, noir a joué %s"
 
 msgid "Move %i"
 msgstr "Coup numéro %i"
