@@ -407,7 +407,7 @@ class GnuGoSettings(Frame):
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("%s availabilty")%bot).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("%s availability")%bot).grid(row=row,column=1,sticky=W)
 		row+=1
 		
 		value={"slow":_("Slow profile"),"fast":_("Fast profile"),"both":_("Both profiles"),"none":_("None")}

@@ -1249,7 +1249,7 @@ class DualView(Frame):
 			if game_move_color.lower()=="w":
 				left_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(game_move))
 			elif game_move_color.lower()=="b":
-				left_comments+="\n"+(_("Black to play, in the game, white played %s")%ij2gtp(game_move))
+				left_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(game_move))
 			if get_node(self.gameroot,m+1).has_property("C"):
 				if m==0:
 					left_comments=get_node(self.gameroot,m+1).get("C")+"\n"+left_comments

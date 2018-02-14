@@ -12,8 +12,11 @@ msgid "SGF file"
 msgstr "Fichier SGF"
 
 # file type selector
-msgid "SGF file reviewed"
+msgid "Reviewed SGF file"
 msgstr "Fichier SGF analysé"
+
+msgid "PNG image"
+msgstr "Image PNG"
 
 #popup
 msgid "Error"
@@ -290,8 +293,92 @@ msgstr "Demander au programme de jouer contre lui même."
 msgid "Abort"
 msgstr "Interrompre"
 
+msgid "Score estimation"
+msgstr "Estimation du score"
 
-########################
+msgid "Black win"
+msgstr "Victoire de noir"
+
+msgid "White win"
+msgstr "Victoire de black"
+
+msgid "Move %i (%s), estimated score: "
+msgstr "Coup %i (%s), estimation du score: "
+
+#################################
+######### Live analysis #########
+#################################
+
+msgid "Black player"
+msgstr "Joueur noire"
+
+msgid "Bot used for analysis"
+msgstr "Programme utilisé pour l'analyse"
+
+msgid "Human"
+msgstr "Humain"
+
+msgid "White player"
+msgstr "Joueur blanc"
+
+msgid "Board size"
+msgstr "Taille du goban"
+
+msgid "Komi"
+msgstr "Komi"
+
+msgid "Handicap stones"
+msgstr "Pierres de handicap"
+
+msgid "SGF file name"
+msgstr "Nom du fichier SGF"
+
+msgid "No overlap thinking time"
+msgstr ""
+
+msgid "Game"
+msgstr "Partie"
+
+msgid "Currently at move %i"
+msgstr "Actuellement au coup %i"
+
+msgid "Pass"
+msgstr "Passer"
+
+msgid "Pause"
+msgstr "Pause"
+
+msgid "Analysis"
+msgstr "Analyse"
+
+msgid "Analysis by %s"
+msgstr "Analyse par %s"
+
+msgid "Analysis status:"
+msgstr "Status de l'analyse:"
+
+msgid "Ready to start"
+msgstr "Prêt à commencer"
+
+msgid "Waiting for next move"
+msgstr "En attente du prochain coup"
+
+msgid "Place %i handicap stones on the board"
+msgstr "Placez %i pierres de handicap sur la goban"
+
+msgid "Now closing, please wait"
+msgstr "Fermeture en cours, veuillez patienter"
+
+msgid "Resume"
+msgstr "Reprendre"
+
+msgid "The game is now starting"
+msgstr "La partie va maintenant commencer"
+
+msgid "Run a live analysis"
+msgstr "Lancer une analyse live"
+
+
 #### Settings panel ####
 ########################
 
@@ -322,8 +409,8 @@ msgstr "Nombre maximum de variations à afficher durant la revue"
 msgid "Command"
 msgstr "Commande"
 
-msgid "Needed for review"
-msgstr "Utiliser durant la revue"
+#msgid "Needed for review"
+#msgstr "Utiliser durant la revue"
 
 msgid "Parameters"
 msgstr "Paramètres"
@@ -343,6 +430,38 @@ msgstr "Réglages généraux"
 msgid "Language"
 msgstr "Langue"
 
+msgid "Slow profile parameters"
+msgstr "Paramètres du profil lent"
+
+msgid "Fast profile parameters"
+msgstr "Paramètres du profil rapide"
+
+msgid "%s availability"
+msgstr "Disponibilité pour %s"
+
+msgid "Both profiles"
+msgstr "Les deux profils"
+
+msgid "Fast profile"
+msgstr "Profil rapide"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Slow profile"
+msgstr "Profil lent"
+
+msgid "Static analysis"
+msgstr "Analyse statique"
+
+msgid "Live analysis"
+msgstr "Analyse live"
+
+msgid "Live analysis as black or white"
+msgstr "Pour jouer noir ou blanc pendant durant l'analyse live"
+
+msgid "When opening a position for manual play"
+msgstr "A l'ouverture d'une position"
 
 ############################
 ###### GnuGo specific ######
@@ -365,11 +484,11 @@ msgstr "Profondeur pour chaque variation"
 ###### bot initialization ######
 ################################
 
-msgid "The config.ini file does not contain entry for %s command line!"
-msgstr "Le fichier config.ini ne contient pas d'entrée pour la ligne de commande de %s!"
+msgid "The config.ini file does not contain %s entry for %s !"
+msgstr "Le fichier config.ini ne contient pas d'entrée %s pour %s !"
 
-msgid "The config.ini file does not contain command line for %s!"
-msgstr "Le fichier config.ini n'indique pas de ligne de commande pour %s!"
+msgid "The config.ini file %s entry for %s is empty!"
+msgstr "L'entrée %s du fichier config.ini pour %s est vide!"
 
 msgid "Could not run %s using the command from config.ini file:"
 msgstr "Impossible de lancer %s en utilisant la commande indiquée dans le fichier config.ini :"

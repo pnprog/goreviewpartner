@@ -240,12 +240,12 @@ class RaySettings(Frame):
 		row+=1
 		Label(self,text=_("Slow profile parameters")).grid(row=row,column=1,sticky=W)
 		row+=1
-		Label(self,text=_("SlowCommand")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		SlowCommand = StringVar() 
 		SlowCommand.set(Config.get(bot,"SlowCommand"))
 		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
 		row+=1
-		Label(self,text=_("SlowParameters")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		SlowParameters = StringVar() 
 		SlowParameters.set(Config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
@@ -270,7 +270,7 @@ class RaySettings(Frame):
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("%s availabilty")%bot).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("%s availability")%bot).grid(row=row,column=1,sticky=W)
 		row+=1
 		
 		value={"slow":_("Slow profile"),"fast":_("Fast profile"),"both":_("Both profiles"),"none":_("None")}
