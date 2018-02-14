@@ -9,27 +9,27 @@ from Tkinter import *
 from threading import Lock
 import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
 
-bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
+#bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 bots_for_playing=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 
 class LiveAnalysisLauncher(Frame):
-	def __init__(self,parent,bots=None):
+	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.popup=None
 		root = self
 		root.parent.title('GoReviewPartner')
-		self.bots=bots
+
 		self.pack(padx=10, pady=10)
 
 		row=1
-		#bots=get_all_bots_for_analysis()
-		self.analysis_bots_names=[bot['name'] for bot in bots_for_analysis]
+		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		self.analysis_bots_names=[bot['name']+value[bot['profile']] for bot in get_available("LiveAnalysisBot")]
 		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=W)
 		self.bot_selection=StringVar()	
 		apply(OptionMenu,(self,self.bot_selection)+tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
 		
-		self.bots_names=[bot['name'] for bot in bots_for_playing]
+		self.bots_names=[bot['name']+value[bot['profile']] for bot in get_available("LivePlayerBot")]
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -125,10 +125,13 @@ class LiveAnalysisLauncher(Frame):
 				pass
 
 	def start(self):
-		bots={bot['name']:bot for bot in bots_for_analysis}
+		#bots={bot['name']:bot for bot in bots_for_analysis}
+		#analyser=bots[self.bot_selection.get()]
+		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		bots={bot['name']+value[bot['profile']]:bot for bot in get_available("LiveAnalysisBot")}
 		analyser=bots[self.bot_selection.get()]
 		
-		bots={bot['name']:bot for bot in bots_for_playing}
+		bots={bot['name']+value[bot['profile']]:bot for bot in get_available("LivePlayerBot")}
 		
 		b=self.selected_black_index()
 		if b==0:
@@ -151,7 +154,6 @@ class LiveAnalysisLauncher(Frame):
 		komi=float(self.komi.get())
 		dim=int(self.dim.get())
 		handicap=int(self.handicap.get())
-		
 		self.popup=LiveAnalysis(self.parent.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=self.filename.get(),overlap_thinking=not self.no_overlap_thinking.get())
 		self.parent.destroy()
 
@@ -171,14 +173,14 @@ class LiveAnalysisLauncher(Frame):
 
 	def update_black_white_options(self):
 		i=self.selected_black_index()
-		self.black_options=[_("Human"),_("Bot used for analysis")+" ("+self.bot_selection.get()+")"]+self.bots_names
+		self.black_options=[_("Human"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
 		self.black_menu.pack_forget()
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
 		self.black_selection.set(self.black_options[i])
 
 		j=self.selected_white_index()
-		self.white_options=[_("Human"),_("Bot used for analysis")+" ("+self.bot_selection.get()+")"]+self.bots_names
+		self.white_options=[_("Human"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
 		self.white_menu.pack_forget()
 		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
 		self.white_menu.pack()
@@ -307,7 +309,7 @@ class LiveAnalysis():
 		self.g.lock=self.g_lock
 		
 		#self.analyser=self.analyser[0](self.g,self.filename)
-		self.analyser=self.analyser["liveanalysis"](self.g,self.filename)
+		self.analyser=self.analyser["liveanalysis"](self.g,self.filename,self.analyser["profile"])
 		
 		self.cpu_lock=Lock()
 		if not self.overlap_thinking:
@@ -320,7 +322,7 @@ class LiveAnalysis():
 			#so it's a bot
 			log("Starting bot for black")
 			#self.black=bot_starting_procedure(self.black[2],self.black[3],self.black[1],self.g,profil="fast")
-			self.black=self.black["starting"](self.g,profil="fast")
+			self.black=self.black["starting"](self.g,profile=self.black["profile"])
 			log("Black bot started")
 		
 		if type(self.white)!=type("abc"):
@@ -328,7 +330,7 @@ class LiveAnalysis():
 			#so it's a bot
 			log("Starting bot for white")
 			#self.white=bot_starting_procedure(self.white[2],self.white[3],self.white[1],self.g,profil="fast")
-			self.white=self.white["starting"](self.g,profil="fast")
+			self.white=self.white["starting"](self.g,profile=self.white["profile"])
 			log("White bot started")
 			
 		goban.display(grid,markup)
@@ -935,5 +937,7 @@ class LiveAnalysis():
 
 if __name__ == "__main__":
 	top = Tk()
-	LiveAnalysisLauncher(top)
+	popup = Toplevel(top)
+	popup.parent=top
+	LiveAnalysisLauncher(popup)
 	top.mainloop()

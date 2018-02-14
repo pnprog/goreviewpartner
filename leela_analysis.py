@@ -211,21 +211,21 @@ class LeelaAnalysis():
 		return best_answer #returning the best move, necessary for live analysis
 
 	def initialize_bot(self):
-		leela=leela_starting_procedure(self.g,"slow") #analysis is always "slow"
+		leela=leela_starting_procedure(self.g,self.profile)
 		self.leela=leela
 		self.time_per_move=0
 		return leela
 
-def leela_starting_procedure(sgf_g,profil="slow",silentfail=False):
-	if profil=="slow":
-		timepermove_entry="TimePerMove"
-	elif profil=="fast":
-		timepermove_entry="ReviewTimePerMove"
+def leela_starting_procedure(sgf_g,profile="slow",silentfail=False):
+	if profile=="slow":
+		timepermove_entry="SlowTimePerMove"
+	elif profile=="fast":
+		timepermove_entry="FastTimePerMove"
 
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
 
-	leela=bot_starting_procedure("Leela","Leela",Leela_gtp,sgf_g,profil,silentfail)
+	leela=bot_starting_procedure("Leela","Leela",Leela_gtp,sgf_g,profile,silentfail)
 	if not leela:
 		return False
 
@@ -246,12 +246,12 @@ def leela_starting_procedure(sgf_g,profil="slow",silentfail=False):
 	return leela
 
 class RunAnalysis(LeelaAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi):
-		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile)
 
 class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
-	def __init__(self,g,filename):
-		LiveAnalysisBase.__init__(self,g,filename)
+	def __init__(self,g,filename,profile="slow"):
+		LiveAnalysisBase.__init__(self,g,filename,profile)
 
 class Leela_gtp(gtp):
 	
@@ -336,67 +336,97 @@ class LeelaSettings(Frame):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
+		bot=self.name
+		
 		row=0
-		title=Label(self,text=_("%s settings")%bot, font="-weight bold").grid(row=row,column=1,sticky=W)
-
+		Label(self,text=_("%s settings")%bot, font="-weight bold").grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		
+		row+=1
+		Label(self,text=_("Slow profile parameters")).grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(self,text=_("SlowCommand")).grid(row=row,column=1,sticky=W)
+		SlowCommand = StringVar() 
+		SlowCommand.set(Config.get(bot,"SlowCommand"))
+		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("SlowParameters")).grid(row=row,column=1,sticky=W)
+		SlowParameters = StringVar()
+		SlowParameters.set(Config.get(bot,"SlowParameters"))
+		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
+		SlowTimePerMove = StringVar()
+		SlowTimePerMove.set(Config.get(bot,"SlowTimePerMove"))
+		Entry(self, textvariable=SlowTimePerMove, width=30).grid(row=row,column=2)
+		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Fast profile parameters")).grid(row=row,column=1,sticky=W)
+		row+=1
 		
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
-		Command = StringVar() 
-		Command.set(Config.get(bot,"Command"))
-		Entry(self, textvariable=Command, width=30).grid(row=row,column=2)
+		FastCommand = StringVar()
+		FastCommand.set(Config.get(bot,"FastCommand"))
+		Entry(self, textvariable=FastCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
-		Parameters = StringVar() 
-		Parameters.set(Config.get(bot,"Parameters"))
-		Entry(self, textvariable=Parameters, width=30).grid(row=row,column=2)
+		FastParameters = StringVar() 
+		FastParameters.set(Config.get(bot,"FastParameters"))
+		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
+		
 		row+=1
 		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
-		TimePerMove = StringVar() 
-		TimePerMove.set(Config.get(bot,"TimePerMove"))
-		Entry(self, textvariable=TimePerMove, width=30).grid(row=row,column=2)
+		FastTimePerMove = StringVar() 
+		FastTimePerMove.set(Config.get(bot,"FastTimePerMove"))
+		Entry(self, textvariable=FastTimePerMove, width=30).grid(row=row,column=2)
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("%s availabilty")%bot).grid(row=row,column=1,sticky=W)
+		row+=1
+		
+		value={"slow":_("Slow profile"),"fast":_("Fast profile"),"both":_("Both profiles"),"none":_("None")}
+
+		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
+		analysis_bot = StringVar()
+		analysis_bot.set(value[Config.get(bot,"AnalysisBot")])
+		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
-		NeededForReview = BooleanVar(value=Config.getboolean(bot, 'NeededForReview'))
-		Cbutton=Checkbutton(self, text=_("Needed for review"), variable=NeededForReview,onvalue=True,offvalue=False)
-		Cbutton.grid(row=row,column=1,sticky=W)
-		Cbutton.var=NeededForReview
+		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
+		liveanalysis_bot = StringVar()
+		liveanalysis_bot.set(value[Config.get(bot,"LiveAnalysisBot")])
+		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
-		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
-		ReviewCommand = StringVar() 
-		ReviewCommand.set(Config.get(bot,"ReviewCommand"))
-		Entry(self, textvariable=ReviewCommand, width=30).grid(row=row,column=2)
+		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
+		liveplayer_bot = StringVar()
+		liveplayer_bot.set(value[Config.get(bot,"LivePlayerBot")])
+		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		
 		row+=1
-		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
-		ReviewParameters = StringVar() 
-		ReviewParameters.set(Config.get(bot,"ReviewParameters"))
-		Entry(self, textvariable=ReviewParameters, width=30).grid(row=row,column=2)
-		row+=1
-		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
-		ReviewTimePerMove = StringVar() 
-		ReviewTimePerMove.set(Config.get(bot,"ReviewTimePerMove"))
-		Entry(self, textvariable=ReviewTimePerMove, width=30).grid(row=row,column=2)
+		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
+		review_bot = StringVar()
+		review_bot.set(value[Config.get(bot,"ReviewBot")])
+		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 
-
-		self.Command=Command
-		self.Parameters=Parameters
-		self.TimePerMove=TimePerMove
-		self.NeededForReview=NeededForReview
-		self.ReviewCommand=ReviewCommand
-		self.ReviewParameters=ReviewParameters
-		self.ReviewTimePerMove=ReviewTimePerMove
+		self.SlowCommand=SlowCommand
+		self.SlowParameters=SlowParameters
+		self.SlowTimePerMove=SlowTimePerMove
+		self.FastCommand=FastCommand
+		self.FastParameters=FastParameters
+		self.FastTimePerMove=FastTimePerMove
 		
+		self.analysis_bot=analysis_bot
+		self.liveanalysis_bot=liveanalysis_bot
+		self.liveplayer_bot=liveplayer_bot
+		self.review_bot=review_bot
 
 	def save(self):
 		bot=self.name
@@ -404,21 +434,28 @@ class LeelaSettings(Frame):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-		Config.set(bot,"Command",self.Command.get())
-		Config.set(bot,"Parameters",self.Parameters.get())
-		Config.set(bot,"TimePerMove",self.TimePerMove.get())
-		Config.set(bot,"NeededForReview",self.NeededForReview.get())
-		Config.set(bot,"ReviewCommand",self.ReviewCommand.get())
-		Config.set(bot,"ReviewParameters",self.ReviewParameters.get())
-		Config.set(bot,"ReviewTimePerMove",self.ReviewTimePerMove.get())
+		Config.set(bot,"SlowCommand",self.SlowCommand.get())
+		Config.set(bot,"SlowParameters",self.SlowParameters.get())
+		Config.set(bot,"SlowTimePerMove",self.SlowTimePerMove.get())
+		Config.set(bot,"FastCommand",self.FastCommand.get())
+		Config.set(bot,"FastParameters",self.FastParameters.get())
+		Config.set(bot,"FastTimePerMove",self.FastTimePerMove.get())
+
+		value={_("Slow profile"):"slow",_("Fast profile"):"fast",_("Both profiles"):"both",_("None"):"none"}
 		
+		Config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
+		Config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
+		Config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
+		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
+		
+
 		Config.write(open(config_file,"w"))
 
 
 
 
 class LeelaOpenMove(BotOpenMove):
-	def __init__(self,sgf_g):
+	def __init__(self,sgf_g,profile="slow"):
 		BotOpenMove.__init__(self,sgf_g)
 		self.name='Leela'
 		self.my_starting_procedure=leela_starting_procedure
@@ -446,7 +483,13 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		RangeSelector(top,filename,bots=[Leela]).pack()
+		bot=Leela
+		
+		slowbot=bot
+		slowbot['profile']="slow"
+		fastbot=dict(bot)
+		fastbot['profile']="fast"
+		RangeSelector(top,filename,bots=[slowbot, fastbot]).pack()
 		top.mainloop()
 	else:
 		try:

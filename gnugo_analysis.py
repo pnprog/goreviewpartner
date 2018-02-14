@@ -81,12 +81,6 @@ class GnuGoAnalysis():
 		one_move.set("LBS",lbs) #lower bound score
 		
 		additional_comments=""
-		"""
-		if player_color in ('w',"W"):
-			additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
-		else:
-			additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
-		"""
 		additional_comments+="\n"+_("Gnugo score estimation before the move was played: ")+final_score
 		
 		if player_color in ('w',"W"):
@@ -250,14 +244,14 @@ class GnuGoAnalysis():
 			Config.set("GnuGo", "deepness",self.deepness)
 			Config.write(open(config_file,"w"))
 		
-		gnugo=gnugo_starting_procedure(self.g,"slow")
+		gnugo=gnugo_starting_procedure(self.g,self.profile)
 		self.nb_workers=self.nb_variations
 
 		log("Starting all GnuGo workers")
 		self.workers=[]
 		for w in range(self.nb_workers):
 			log("\t Starting worker",w+1)
-			gnugo_worker=gnugo_starting_procedure(self.g,"slow")
+			gnugo_worker=gnugo_starting_procedure(self.g,self.profile)
 			self.workers.append(gnugo_worker)
 		log("All workers ready")
 		
@@ -265,17 +259,17 @@ class GnuGoAnalysis():
 		self.time_per_move=0
 		return gnugo
 
-def gnugo_starting_procedure(sgf_g,profil="slow",silentfail=False):
-	return bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,sgf_g,profil,silentfail)
+def gnugo_starting_procedure(sgf_g,profile="slow",silentfail=False):
+	return bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,sgf_g,profile,silentfail)
 
 
 class RunAnalysis(GnuGoAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi):
-		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile)
 
 class LiveAnalysis(GnuGoAnalysis,LiveAnalysisBase):
-	def __init__(self,g,filename):
-		LiveAnalysisBase.__init__(self,g,filename)
+	def __init__(self,g,filename,profile="slow"):
+		LiveAnalysisBase.__init__(self,g,filename,profile)
 
 class GnuGo_gtp(gtp):
 
@@ -358,85 +352,129 @@ class GnuGoSettings(Frame):
 		log("Initializing GnuGo setting interface")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
+		bot="GnuGo"
 		row=0
-		Label(self,text=_("%s settings")%"GnuGo", font="-weight bold").grid(row=row,column=1,sticky=W)
+		Label(self,text=_("%s settings")%bot, font="-weight bold").grid(row=row,column=1,sticky=W)
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
 		Label(self,text=_("Parameters for the analysis")).grid(row=row,column=1,sticky=W)
-		
-		row+=1
-		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
-		Command = StringVar() 
-		Command.set(Config.get("GnuGo","Command"))
-		Entry(self, textvariable=Command, width=30).grid(row=row,column=2)
-		row+=1
-		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
-		Parameters = StringVar() 
-		Parameters.set(Config.get("GnuGo","Parameters"))
-		Entry(self, textvariable=Parameters, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Maximum number of variations")).grid(row=row,column=1,sticky=W)
 		Variations = StringVar()
-		Variations.set(Config.get("GnuGo","Variations"))
+		Variations.set(Config.get(bot,"Variations"))
 		Entry(self, textvariable=Variations, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Deepness for each variation")).grid(row=row,column=1,sticky=W)
 		Deepness = StringVar() 
-		Deepness.set(Config.get("GnuGo","Deepness"))
+		Deepness.set(Config.get(bot,"Deepness"))
 		Entry(self, textvariable=Deepness, width=30).grid(row=row,column=2)
+		
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Slow profile parameters")).grid(row=row,column=1,sticky=W)
+		row+=1
+		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
+		SlowCommand = StringVar() 
+		SlowCommand.set(Config.get(bot,"SlowCommand"))
+		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
+		row+=1
+		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
+		SlowParameters = StringVar() 
+		SlowParameters.set(Config.get(bot,"SlowParameters"))
+		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
+
 		
 		row+=1
-		NeededForReview = BooleanVar(value=Config.getboolean('GnuGo', 'NeededForReview'))
-		Cbutton=Checkbutton(self, text=_("Needed for review"), variable=NeededForReview,onvalue=True,offvalue=False)
-		Cbutton.grid(row=row,column=1,sticky=W)
-		Cbutton.var=NeededForReview
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("Fast profile parameters")).grid(row=row,column=1,sticky=W)
 
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
-		ReviewCommand = StringVar() 
-		ReviewCommand.set(Config.get("GnuGo","ReviewCommand"))
-		Entry(self, textvariable=ReviewCommand, width=30).grid(row=row,column=2)
+		FastCommand = StringVar() 
+		FastCommand.set(Config.get(bot,"FastCommand"))
+		Entry(self, textvariable=FastCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
-		ReviewParameters = StringVar() 
-		ReviewParameters.set(Config.get("GnuGo","ReviewParameters"))
-		Entry(self, textvariable=ReviewParameters, width=30).grid(row=row,column=2)
+		FastParameters = StringVar() 
+		FastParameters.set(Config.get(bot,"FastParameters"))
+		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
 
-		self.Command=Command
-		self.Parameters=Parameters
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		row+=1
+		Label(self,text=_("%s availabilty")%bot).grid(row=row,column=1,sticky=W)
+		row+=1
+		
+		value={"slow":_("Slow profile"),"fast":_("Fast profile"),"both":_("Both profiles"),"none":_("None")}
+		
+		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
+		analysis_bot = StringVar()
+		analysis_bot.set(value[Config.get(bot,"AnalysisBot")])
+		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		
+		row+=1
+		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
+		liveanalysis_bot = StringVar()
+		liveanalysis_bot.set(value[Config.get(bot,"LiveAnalysisBot")])
+		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		
+		row+=1
+		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
+		liveplayer_bot = StringVar()
+		liveplayer_bot.set(value[Config.get(bot,"LivePlayerBot")])
+		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		
+		row+=1
+		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
+		review_bot = StringVar()
+		review_bot.set(value[Config.get(bot,"ReviewBot")])
+		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		
+
+		self.SlowCommand=SlowCommand
+		self.SlowParameters=SlowParameters
 		self.Variations=Variations
 		self.Deepness=Deepness
-		self.NeededForReview=NeededForReview
-		self.ReviewCommand=ReviewCommand
-		self.ReviewParameters=ReviewParameters
-
+		self.FastCommand=FastCommand
+		self.FastParameters=FastParameters
+		
+		self.analysis_bot=analysis_bot
+		self.liveanalysis_bot=liveanalysis_bot
+		self.liveplayer_bot=liveplayer_bot
+		self.review_bot=review_bot
+		
+		
 	def save(self):
 		log("Saving GnuGo settings")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-		Config.set("GnuGo","Command",self.Command.get())
-		Config.set("GnuGo","Parameters",self.Parameters.get())
-		Config.set("GnuGo","Variations",self.Variations.get())
-		Config.set("GnuGo","Deepness",self.Deepness.get())
-		Config.set("GnuGo","NeededForReview",self.NeededForReview.get())
-		Config.set("GnuGo","ReviewCommand",self.ReviewCommand.get())
-		Config.set("GnuGo","ReviewParameters",self.ReviewParameters.get())
+		bot="GnuGo"
 		
+		Config.set(bot,"SlowCommand",self.SlowCommand.get())
+		Config.set(bot,"SlowParameters",self.SlowParameters.get())
+		Config.set(bot,"Variations",self.Variations.get())
+		Config.set(bot,"Deepness",self.Deepness.get())
+		Config.set(bot,"FastCommand",self.FastCommand.get())
+		Config.set(bot,"FastParameters",self.FastParameters.get())
 		
+		value={_("Slow profile"):"slow",_("Fast profile"):"fast",_("Both profiles"):"both",_("None"):"none"}
+		
+		Config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
+		Config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
+		Config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
+		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
+				
 		Config.write(open(config_file,"w"))
 
 class GnuGoOpenMove(BotOpenMove):
-	def __init__(self,sgf_g):
-		BotOpenMove.__init__(self,sgf_g)
+	def __init__(self,sgf_g,profile="slow"):
+		BotOpenMove.__init__(self,sgf_g,profile)
 		self.name='Gnugo'
 		self.my_starting_procedure=gnugo_starting_procedure
 
@@ -465,7 +503,13 @@ if __name__ == "__main__":
 		log("filename:",filename)
 		
 		top = Tk()
-		RangeSelector(top,filename,bots=[GnuGo]).pack()
+		bot=GnuGo
+		
+		slowbot=bot
+		slowbot['profile']="slow"
+		fastbot=dict(bot)
+		fastbot['profile']="fast"
+		RangeSelector(top,filename,bots=[slowbot, fastbot]).pack()
 		top.mainloop()
 	else:
 		try:

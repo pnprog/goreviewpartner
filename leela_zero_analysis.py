@@ -155,22 +155,22 @@ class LeelaZeroAnalysis():
 		one_move.add_comment_text(additional_comments)
 		return best_answer
 	
-	def initialize_bot(self,profil="slow"):
-		leela_zero=leela_zero_starting_procedure(self.g,"slow") #analysis is always "slow"
+	def initialize_bot(self):
+		leela_zero=leela_zero_starting_procedure(self.g,self.profile)
 		self.leela_zero=leela_zero
 		self.time_per_move=0
 		return leela_zero
 
-def leela_zero_starting_procedure(sgf_g,profil="slow",silentfail=False):
-	if profil=="slow":
-		timepermove_entry="TimePerMove"
-	elif profil=="fast":
-		timepermove_entry="ReviewTimePerMove"
+def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
+	if profile=="slow":
+		timepermove_entry="SlowTimePerMove"
+	elif profile=="fast":
+		timepermove_entry="FastTimePerMove"
 
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
 
-	leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,sgf_g,profil,silentfail)
+	leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,sgf_g,profile,silentfail)
 	if not leela_zero:
 		return False
 	try:
@@ -192,12 +192,12 @@ def leela_zero_starting_procedure(sgf_g,profil="slow",silentfail=False):
 
 
 class RunAnalysis(LeelaZeroAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi):
-		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi)
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile)
 
 class LiveAnalysis(LeelaZeroAnalysis,LiveAnalysisBase):
-	def __init__(self,g,filename):
-		LiveAnalysisBase.__init__(self,g,filename)
+	def __init__(self,g,filename,profile="slow"):
+		LiveAnalysisBase.__init__(self,g,filename,profile)
 
 
 import ntpath
@@ -282,8 +282,8 @@ class LeelaZeroSettings(LeelaSettings):
 
 
 class LeelaZeroOpenMove(BotOpenMove):
-	def __init__(self,sgf_g):
-		BotOpenMove.__init__(self,sgf_g)
+	def __init__(self,sgf_g,profile="slow"):
+		BotOpenMove.__init__(self,sgf_g,profile)
 		self.name='Leela Zero'
 		self.my_starting_procedure=leela_zero_starting_procedure
 
@@ -310,7 +310,13 @@ if __name__ == "__main__":
 			sys.exit()
 		log("filename:",filename)
 		top = Tk()
-		RangeSelector(top,filename,bots=[LeelaZero]).pack()
+		bot=LeelaZero
+		
+		slowbot=bot
+		slowbot['profile']="slow"
+		fastbot=dict(bot)
+		fastbot['profile']="fast"
+		RangeSelector(top,filename,bots=[slowbot, fastbot]).pack()
 		top.mainloop()
 	else:
 		try:

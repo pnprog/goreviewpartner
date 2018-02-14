@@ -421,10 +421,9 @@ class OpenMove():
 		self.goban_size=goban_size
 		
 		self.available_bots=[]
-		for bot in fast_profile_bots():
-			if Config.getboolean(bot['name'], 'NeededForReview'):
-				self.available_bots.append(bot)
-	
+		for bot in get_available("ReviewBot"):
+			print bot["name"],bot["profile"]
+			self.available_bots.append(bot)
 		self.initialize()
 		
 	def lock(self):
@@ -688,14 +687,15 @@ class OpenMove():
 		self.bots=[]
 		self.menu_bots={}
 		row=10
+		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 		for available_bot in self.available_bots:
 			row+=2
-			one_bot=available_bot['openmove'](self.sgf)
+			one_bot=available_bot['openmove'](self.sgf,available_bot['profile'])
 			one_bot.start()
 			self.bots.append(one_bot)
 			
 			if one_bot.okbot:
-				self.menu_bots[one_bot.name]=one_bot
+				self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
 
 		if len(self.menu_bots)>0:
 			

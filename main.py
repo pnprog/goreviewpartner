@@ -68,7 +68,7 @@ def launch_analysis():
 				
 	top = Toplevel(app)
 	top.parent=app
-	new_popup=RangeSelector(top,filename,bots=slow_profile_bots())
+	new_popup=RangeSelector(top,filename,bots=get_available("AnalysisBot"))
 	new_popup.pack()
 	popups.append(new_popup)
 	#top.mainloop()
@@ -78,7 +78,7 @@ analysis_bouton.pack(fill=X,padx=5, pady=5)
 
 def download_sgf_for_review():	
 	top = Toplevel(app)
-	new_popup=DownloadFromURL(top,bots=slow_profile_bots())
+	new_popup=DownloadFromURL(top,bots=get_available("AnalysisBot"))
 	new_popup.pack()
 	popups.append(new_popup)
 
@@ -130,7 +130,7 @@ def refresh():
 	global review_bouton, analysis_bouton
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	if len(slow_profile_bots())==0:
+	if len(get_available("AnalysisBot"))==0:
 		analysis_bouton.config(state='disabled')
 		download_bouton.config(state='disabled')
 		live_bouton.config(state='disabled')
@@ -138,11 +138,14 @@ def refresh():
 		analysis_bouton.config(state='normal')
 		download_bouton.config(state='normal')
 		live_bouton.config(state='normal')
+	
+	if len(get_available("LiveAnalysisBot"))==0:
+		live_bouton.config(state='disabled')
+	else:
+		live_bouton.config(state='normal')
 
 bouton=Button(app, text=_("Settings"), command=launch_settings)
 bouton.pack(fill=X,padx=5, pady=5)
-
-
 
 app.protocol("WM_DELETE_WINDOW", close_app)
 #app.wm_iconphoto(True, PhotoImage(file='../logo.png'))

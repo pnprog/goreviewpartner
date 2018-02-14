@@ -366,7 +366,8 @@ class RangeSelector(Frame):
 		row+=1
 		if bots!=None:
 			Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
-			bot_names=[bot['name'] for bot in bots]
+			value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+			bot_names=[bot['name']+value[bot['profile']] for bot in bots]
 			self.bot_selection=StringVar()
 			
 			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
@@ -539,8 +540,13 @@ class RangeSelector(Frame):
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
-			RunAnalysis={bot['name']:bot['runanalysis'] for bot in self.bots}[bot]
+			value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+			bot={bot['name']+value[bot['profile']]:bot for bot in self.bots}[bot]
 			
+			#RunAnalysis={bot_label:bot['runanalysis'] for bot in self.bots}[bot]
+			#profile={bot_label:bot['profile'] for bot in self.bots}[bot]
+			RunAnalysis=bot['runanalysis']
+			profile=bot['profile']
 			
 			#bot_selection=int(self.bot_selection.curselection()[0])
 			#log("bot selection:",self.bots[bot_selection][0])
@@ -585,11 +591,11 @@ class RangeSelector(Frame):
 		self.parent.destroy()
 		try:
 			newtop=Toplevel(self.parent.parent)
-			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
+			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi,profile)
 			self.popup.pack()
 		except:
 			newtop=Tk()
-			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi)
+			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi,profile)
 			self.popup.pack()
 			newtop.mainloop()
 		
@@ -631,10 +637,10 @@ def guess_color_to_play(move_zero,move_number):
 		return "b"
 
 class LiveAnalysisBase():
-	def __init__(self,g,filename):
+	def __init__(self,g,filename,profile="slow"):
 		self.g=g
-		
 		self.filename=filename
+		self.profile=profile
 		self.bot=self.initialize_bot()
 		self.update_queue=Queue.Queue()
 		self.label_queue=Queue.Queue()
@@ -714,7 +720,7 @@ class LiveAnalysisBase():
 		
 
 class RunAnalysisBase(Frame):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
@@ -723,7 +729,7 @@ class RunAnalysisBase(Frame):
 		self.intervals=intervals
 		self.variation=variation
 		self.komi=komi
-		
+		self.profile=profile
 		self.g=None
 		self.move_zero=None
 		
@@ -1003,15 +1009,16 @@ class RunAnalysisBase(Frame):
 
 
 class BotOpenMove():
-	def __init__(self,sgf_g):
+	def __init__(self,sgf_g,profile="slow"):
 		self.name='Bot'
 		self.bot=None
 		self.okbot=False
 		self.sgf_g=sgf_g
+		self.profile=profile
 		
 	def start(self):
 		try:		
-			result=self.my_starting_procedure(self.sgf_g,profil="fast",silentfail=True)
+			result=self.my_starting_procedure(self.sgf_g,profile=self.profile,silentfail=True)
 			if result:
 				self.bot=result
 				self.okbot=True
@@ -1053,17 +1060,16 @@ class BotOpenMove():
 class LaunchingException(Exception):
 	pass		
 
-def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profil="slow",silentfail=False):
-	log("Bot starting procedure started with profil =",profil)
+def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",silentfail=False):
+	log("Bot starting procedure started with profile =",profile)
 	log("\tbot name:",bot_name)
 	log("\tbot gtp name",bot_gtp_name)
-	
-	if profil=="slow":
-		command_entry="Command"
-		parameters_entry="Parameters"
-	elif profil=="fast":
-		command_entry="ReviewCommand"
-		parameters_entry="ReviewParameters"
+	if profile=="slow":
+		command_entry="SlowCommand"
+		parameters_entry="SlowParameters"
+	elif profile=="fast":
+		command_entry="FastCommand"
+		parameters_entry="FastParameters"
 	
 	size=sgf_g.get_size()
 	
@@ -1461,8 +1467,9 @@ def slow_profile_bots():
 	
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:	
-		if Config.get(bot['name'],"Command")!="":
+		if Config.get(bot['name'],"SlowCommand")!="":
 			bots.append(bot)
+			bot['profile']="slow"
 	return bots
 
 def fast_profile_bots():
@@ -1479,8 +1486,45 @@ def fast_profile_bots():
 	
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:	
-		if Config.get(bot['name'],"ReviewCommand")!="":
+		if Config.get(bot['name'],"FastReviewCommand")!="":
 			bots.append(bot)
+			bot['profile']="fast"
+	return bots
+
+
+def get_available(use):
+	from leela_analysis import Leela
+	from gnugo_analysis import GnuGo
+	from ray_analysis import Ray
+	from aq_analysis import AQ
+	from leela_zero_analysis import LeelaZero
+	
+	import ConfigParser
+	
+	Config = ConfigParser.ConfigParser()
+	Config.read(config_file)
+	
+	bots=[]
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
+		slow=False
+		fast=False
+		if Config.get(bot['name'],use)=="slow":
+			slow=True
+		elif Config.get(bot['name'],use)=="fast":
+			fast=True
+		elif Config.get(bot['name'],use)=="both":
+			slow=True
+			fast=True
+		if slow:
+			if Config.get(bot['name'],"SlowCommand")!="":
+				bot2=dict(bot)
+				bots.append(bot2)
+				bot2['profile']="slow"
+		if fast:
+			if Config.get(bot['name'],"FastCommand")!="":
+				bot2=dict(bot)
+				bots.append(bot2)
+				bot2['profile']="fast"
 	return bots
 
 try:
