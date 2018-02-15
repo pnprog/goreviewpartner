@@ -383,16 +383,18 @@ class LiveAnalysis():
 		row+=1
 		self.pass_button=Button(panel,text=_("Pass"),state="disabled",command=self.player_pass)
 		
+		
+		self.undo_button=Button(panel,text=_("Undo"),state="disabled")
+		
 		if (self.black=="human") or (self.white=="human"):
 			self.pass_button.grid(column=1,row=row,sticky=W+E)
-		
+			self.undo_button.grid(column=1,row=row+1,sticky=W+E)
+		row+=1
 		if (self.black!="human") and (self.white!="human"):
 			row+=1
 			self.pause_button=Button(panel,text=_("Pause"),command=self.pause)
 			self.pause_button.grid(column=1,row=row,sticky=W+E)
 		self.pause_lock=Lock()
-		
-
 		
 		row+=1
 		Label(panel,text="").grid(column=1,row=row,sticky=W)
@@ -441,7 +443,8 @@ class LiveAnalysis():
 		log("Closing analyser bot")
 		self.game_label.config(text=_("Now closing, please wait"))
 		self.analysis_label.config(text=_("Now closing, please wait"))
-		self.analyser.update_queue.put(None)
+		log("Sending None msg to analyser")
+		self.analyser.update_queue.put((0,None))
 		if type(self.black)!=type("abc"):
 			log("Closing black bot")
 			self.black.close()
@@ -559,17 +562,102 @@ class LiveAnalysis():
 		threading.current_thread().answer=answer
 		threading.current_thread().bot=bot
 	
+	def undo_as_black(self):
+		log("Black undo from move",self.current_move,"back to move",self.current_move-2)
+		self.undo_button.config(state='disabled')
+		self.pass_button.config(state='disabled')
+		self.goban.display(self.grid,self.markup,freeze=True)
+		self.parent.after(100,self.undo)
+		#self.undo()
+
+	def undo_as_white(self):
+		log("White undo from move",self.current_move,"back to move",self.current_move-2)
+		self.undo_button.config(state='disabled')
+		self.pass_button.config(state='disabled')
+		self.goban.display(self.grid,self.markup,freeze=True)
+		self.parent.after(100,self.undo)
+		#self.undo()
+		
+	def undo(self):
+		log("Let's wait for the analyser to stop")
+		self.analyser.cpu_lock.acquire()
+		log("Analyser is now stopped")
+		log("Adding a new branch to the SGF tree")
+		self.g.lock.acquire()
+		new_branch=self.latest_node.parent.parent.parent.new_child(0)
+		new_branch.add_comment_text("new branch")
+		self.g.lock.release()
+		
+		move2undo=self.current_move-2
+		
+		log("Let's clean the analyser update_queue from requests for moves following move",move2undo)
+		nb_request=self.analyser.update_queue.qsize()
+		requests=[]
+		for r in range(nb_request):
+			priority,msg=self.analyser.update_queue.get()
+			if type(msg)==type(123):
+				if msg<move2undo:
+					log("keeping",(priority,msg))
+					requests.append((priority,msg))
+					#self.analyser.update_queue.put((priority,msg))
+				else:
+					log("discarding",(priority,msg))
+			else:
+				log("keeping",(priority,msg))
+				requests.append((priority,msg))
+				#self.analyser.update_queue.put((priority,msg))
+		for r in requests:
+			self.analyser.update_queue.put(r)
+		
+		log("Sending a priority request to undo move",move2undo,"and beyong to analyser")
+		self.analyser.update_queue.put((1./move2undo,"undo "+str(move2undo)))
+		log("Releasing the analyser")
+		self.analyser.cpu_lock.release()
+		#log("Sending request to undo move",self.current_move,"to analyser")
+		#self.analyser.update_queue.put((self.current_move-.5,"undo"))
+
+		self.latest_node=new_branch
+		if type(self.black)!=type("abc"):
+			#black is a bot
+			self.black.undo()
+			self.black.undo()
+		if type(self.white)!=type("abc"):
+			#white is a bot
+			self.white.undo()
+			self.white.undo()
+		self.history.pop()
+		self.grid,self.markup=self.history.pop()
+		self.goban.display(self.grid,self.markup)
+		self.current_move-=2
+		self.game_label.config(text=_("Currently at move %i")%self.current_move)
+		#self.black_to_play()
+		
+		self.parent.after(100,lambda: self.goban.display(self.grid,self.markup,freeze=False))
+		self.parent.after(100,lambda: self.pass_button.config(state='normal'))
+		self.parent.after(100,lambda: self.undo_button.config(state='normal'))
+
+		
+
+		
 	def player_pass(self):
-		log("The himan is passing")
+		log("The human is passing")
 		color=self.next_color
 		
 		if color==1:
 			if self.white_just_passed:
 				log("End of the game")
+				if type(self.white)!=type("abc"):
+					#white is a bot
+					result=self.white.final_score()
+					show_info(self.white.bot_name+": "+result,parent=self.popup)
 				return
 		elif color==2:
 			if self.black_just_passed:
 				log("End of the game")
+				if type(self.black)!=type("abc"):
+					#black is a bot
+					result=self.black.final_score()
+					show_info(self.black.bot_name+": "+result,parent=self.popup)
 				return
 
 		
@@ -615,19 +703,27 @@ class LiveAnalysis():
 			log("The bot is resigning")
 			if color==1:
 				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self.popup)
+				self.goban.display(self.grid,self.markup)
 				return
 			elif color==2:
 				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self.popup)
+				self.goban.display(self.grid,self.markup)
 				return
 		elif move.lower()=="pass":
 			log("The bot is passing")
 			if color==1:
 				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self.popup)
 				if self.white_just_passed:
+					self.goban.display(self.grid,self.markup)
+					result=self.gtp_thread.bot.final_score()
+					show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+result,parent=self.popup)
 					return
 			elif color==2:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self.popup)
+				show_info(self.gtp_thread.bot.bot_name+": "+move.lower(),parent=self.popup)
 				if self.black_just_passed:
+					self.goban.display(self.grid,self.markup)
+					result=self.gtp_thread.bot.final_score()
+					show_info(self.gtp_thread.bot.bot_name+": "+result,parent=self.popup)
 					return
 			self.next_color=3-color
 			self.current_move+=1
@@ -705,12 +801,15 @@ class LiveAnalysis():
 		self.g.lock.acquire()
 		self.latest_node = self.g.extend_main_sequence()
 		self.g.lock.release()
-		
-		self.analyser.update_queue.put(self.current_move)
+		log("Sending request to analyse move",self.current_move,"to analyser")
+		self.analyser.update_queue.put((self.current_move,self.current_move))
 		self.pass_button.config(state='disabled')
+		self.undo_button.config(state='disabled')
 		if self.black=="human":
 			self.goban.bind("<Button-1>",self.click)
 			self.pass_button.config(state='normal')
+			if self.current_move>=3:
+				self.undo_button.config(state='normal',command=self.undo_as_black)
 			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.black=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
@@ -738,12 +837,15 @@ class LiveAnalysis():
 		self.g.lock.acquire()
 		self.latest_node = self.g.extend_main_sequence()
 		self.g.lock.release()
-		
-		self.analyser.update_queue.put(self.current_move)
+		log("Sending request to analyse move",self.current_move,"to analyser")
+		self.analyser.update_queue.put((self.current_move,self.current_move))
 		self.pass_button.config(state='disabled')
+		self.undo_button.config(state='disabled')
 		if self.white=="human":
 			self.goban.bind("<Button-1>",self.click)
 			self.pass_button.config(state='normal')
+			if self.current_move>=3:
+				self.undo_button.config(state='normal',command=self.undo_as_white)
 			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.white=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
@@ -770,11 +872,19 @@ class LiveAnalysis():
 		except:
 			self.parent.after(250,self.analyser_to_play)
 			return
-		
+		log("received msg from analyser:",msg)
 		number,move=msg
 		if number<self.current_move:
+			log("msg received by analyser is for previous move")
+			log("analyser needs to wait for a new message")
+			self.parent.after(1,self.analyser_to_play)
+		elif number>self.current_move:
+			log("msg received by analyser is for next move")
+			log("probably a canceled move")
+			log("analyser needs to wait for a new message")
 			self.parent.after(1,self.analyser_to_play)
 		elif number==self.current_move:
+			log("this is the message analyser is waiting for")
 			color=self.next_color
 			if move.lower()=="resign":
 				log("The analyser is resigning")

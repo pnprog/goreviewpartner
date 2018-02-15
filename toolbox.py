@@ -642,7 +642,7 @@ class LiveAnalysisBase():
 		self.filename=filename
 		self.profile=profile
 		self.bot=self.initialize_bot()
-		self.update_queue=Queue.Queue()
+		self.update_queue=Queue.PriorityQueue()
 		self.label_queue=Queue.Queue()
 		self.best_moves_queue=Queue.Queue()
 		
@@ -669,11 +669,11 @@ class LiveAnalysisBase():
 		
 		while 1:
 			if not self.cpu_lock.acquire(False):
-				time.sleep(2) #let's wait just enough time in case human player alreay has a move to play
+				time.sleep(2) #let's wait just enough time in case human player already has a move to play
 				continue
 			
 			try:
-				msg=self.update_queue.get(False)
+				priority,msg=self.update_queue.get(False)
 			except:
 				self.cpu_lock.release()
 				time.sleep(.5)
@@ -684,7 +684,38 @@ class LiveAnalysisBase():
 				self.cpu_lock.release()
 				return
 			
-			
+			if type(msg)==type("undo xxx"):
+				print "msg=",msg
+				move_to_undo=int(msg.split()[1])
+				#move_to_undo=int(priority+1)
+				log("received undo msg for move",move_to_undo,"and beyong")
+				if move_to_undo>self.current_move:
+					log("Analysis of move",move_to_undo,"has not started yet, so let's forget about it")
+				else:
+					log("Analysis of move",move_to_undo,"was completed already, let's remove that branch")
+					while self.current_move>=move_to_undo:
+						log("Undoing move",self.current_move,"through GTP")
+						self.bot.undo()
+						self.current_move-=1
+					
+				log("Deleting the SGF branch")
+				parent=go_to_move(self.move_zero,move_to_undo-1)
+				branch=parent[1] #first child should be the new game variation
+				branch.delete()
+				"""
+				if parent:
+					branch=parent[1] #first child should be the new game variation
+					branch.delete()
+					#self.g.get_last_node().delete()
+				else:
+					log("Cannot find the branch to remove")
+					log("This could be than another undo in ongoing")
+					log("In this case the first undo branch will (hopefully) be deleted as part of the second undo branch")
+					"""
+
+				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+				self.cpu_lock.release()
+				continue
 			
 			log("Analyser received msg to analyse move",msg)
 			while msg>self.current_move:
@@ -712,7 +743,7 @@ class LiveAnalysisBase():
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 			self.cpu_lock.release()
 			#self.current_move+=1
-			
+			time.sleep(.1)
 
 
 
