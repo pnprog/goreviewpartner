@@ -45,7 +45,7 @@ class LiveAnalysisLauncher(Frame):
 		self.black_options=[_("Human"),_("Bot used for analysis")]+self.bots_names
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
-		self.black_selection.set(_("Human"))
+
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -58,7 +58,6 @@ class LiveAnalysisLauncher(Frame):
 		self.white_options=[_("Human"),_("Bot used for analysis")]+self.bots_names
 		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
 		self.white_menu.pack()
-		self.white_selection.set(_("Human"))
 		
 		row+=1
 		self.overlap_thinking_wrapper=Frame(self)
@@ -134,11 +133,28 @@ class LiveAnalysisLauncher(Frame):
 		row+=1		
 		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
 
+		self.bot_selection.set(self.analysis_bots_names[0])
+		self.black_selection.set(_("Human"))
+		self.white_selection.set(_("Human"))
+		
+		analyser=Config.get("Live","Analyser")
+		if analyser in self.analysis_bots_names:
+			self.bot_selection.set(analyser)
+		
+		self.change_parameters()
+		
+		black=Config.get("Live","black")
+		if black in self.black_options:
+			self.black_selection.set(black)
+			
+		white=Config.get("Live","white")
+		if white in self.white_options:
+			self.white_selection.set(white)
+		
 		self.bot_selection.trace("w", lambda a,b,c: self.change_parameters())
 		self.black_selection.trace("w", lambda a,b,c: self.change_parameters())
 		self.white_selection.trace("w", lambda a,b,c: self.change_parameters())
-		self.bot_selection.set(self.analysis_bots_names[0])
-
+		
 	def close_app(self):
 		if self.popup:
 			try:
@@ -188,6 +204,10 @@ class LiveAnalysisLauncher(Frame):
 		Config.set("Live","komi",komi)
 		Config.set("Live","size",dim)
 		Config.set("Live","handicap",handicap)
+		
+		Config.set("Live","analyser",self.bot_selection.get().encode("utf"))
+		Config.set("Live","black",self.black_selection.get().encode("utf"))
+		Config.set("Live","white",self.white_selection.get().encode("utf"))
 		
 		Config.write(open(config_file,"w"))
 		
