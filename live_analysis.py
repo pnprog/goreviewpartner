@@ -19,7 +19,10 @@ class LiveAnalysisLauncher(Frame):
 		self.popup=None
 		root = self
 		root.parent.title('GoReviewPartner')
-
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
 		self.pack(padx=10, pady=10)
 
 		row=1
@@ -61,7 +64,13 @@ class LiveAnalysisLauncher(Frame):
 		self.overlap_thinking_wrapper=Frame(self)
 		self.overlap_thinking_wrapper.grid(row=row,column=1,columnspan=2,sticky=W)
 		self.overlap_thinking_widgets=[]
-		self.no_overlap_thinking = BooleanVar(value=True)
+		
+		nooverlap=True
+		try:
+			nooverlap=Config.get("Live","NoOverlap")
+		except:
+			pass
+		self.no_overlap_thinking = BooleanVar(value=nooverlap)
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -71,7 +80,12 @@ class LiveAnalysisLauncher(Frame):
 		self.dim=Entry(self)
 		self.dim.grid(row=row,column=2,sticky=W)
 		self.dim.delete(0, END)
-		self.dim.insert(0, "19")
+		size="19"
+		try:
+			size=Config.get("Live", "size")
+		except:
+			Config.set("Live", size)
+		self.dim.insert(0, size)
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -81,7 +95,12 @@ class LiveAnalysisLauncher(Frame):
 		self.komi=Entry(self)
 		self.komi.grid(row=row,column=2,sticky=W)
 		self.komi.delete(0, END)
-		self.komi.insert(0, "7.5")
+		komi="7.5"
+		try:
+			komi=Config.get("Live", "komi")
+		except:
+			Config.set("Live", komi)
+		self.komi.insert(0, komi)	
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -91,7 +110,12 @@ class LiveAnalysisLauncher(Frame):
 		self.handicap=Entry(self)
 		self.handicap.grid(row=row,column=2,sticky=W)
 		self.handicap.delete(0, END)
-		self.handicap.insert(0, "0")
+		handicap="0"
+		try:
+			handicap=Config.get("Live", "handicap")
+		except:
+			Config.set("Live", handicap)
+		self.handicap.insert(0, handicap)
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -154,9 +178,19 @@ class LiveAnalysisLauncher(Frame):
 		else:
 			white=bots[self.white_selection.get()]
 		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
 		komi=float(self.komi.get())
 		dim=int(self.dim.get())
 		handicap=int(self.handicap.get())
+		
+		Config.set("Live","komi",komi)
+		Config.set("Live","size",dim)
+		Config.set("Live","handicap",handicap)
+		
+		Config.write(open(config_file,"w"))
+		
 		self.popup=LiveAnalysis(self.parent.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=self.filename.get(),overlap_thinking=not self.no_overlap_thinking.get())
 		self.parent.destroy()
 
@@ -632,10 +666,10 @@ class LiveAnalysis():
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
 		#self.black_to_play()
 		
-		self.parent.after(100,lambda: self.goban.display(self.grid,self.markup,freeze=False))
-		self.parent.after(100,lambda: self.pass_button.config(state='normal'))
-		self.parent.after(100,lambda: self.undo_button.config(state='normal'))
-
+		
+		self.parent.after(500,lambda: self.pass_button.config(state='normal'))
+		self.parent.after(500,lambda: self.undo_button.config(state='normal'))
+		self.parent.after(500,lambda: self.goban.display(self.grid,self.markup,freeze=False))
 		
 
 		
