@@ -588,16 +588,22 @@ class LiveAnalysis():
 				self.markup[i][j]=0
 				self.goban.display(self.grid,self.markup)
 				self.handicap_stones.append([i,j])
-				if type(self.black)!=type("abc"):
-					self.black.place_black(ij2gtp((i,j)))
-				if type(self.white)!=type("abc"):
-					self.white.place_black(ij2gtp((i,j)))
+				#if type(self.black)!=type("abc"):
+				#	self.black.place_black(ij2gtp((i,j)))
+				#if type(self.white)!=type("abc"):
+				#	self.white.place_black(ij2gtp((i,j)))
 					
 				if handicap>1:
 					self.goban.bind("<Button-1>",lambda e: self.place_handicap(e,handicap-1))
 				else:
 					self.g.get_root().set("AB",self.handicap_stones)
 					#write_sgf(self.filename,self.g.serialise())
+					print self.handicap_stones
+					if type(self.black)!=type("abc"):
+						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
+					if type(self.white)!=type("abc"):
+						self.white.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
+						
 					show_info(_("The game is now starting"),self.popup)
 					self.next_color=2
 					#self.goban.bind("<Button-1>",self.click)

@@ -456,6 +456,14 @@ class RangeSelector(Frame):
 		
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
+		
+		board, plays = sgf_moves.get_setup_and_moves(self.g)
+		if len(board.list_occupied_points())>0:
+			row+=1
+			Label(self,text=_("This is a %i stones handicap game.")%len(board.list_occupied_points())).grid(row=row,column=1,columnspan=2,sticky=W)
+			row+=1
+			Label(self,text=_("You may want to increase the value of komi based on the rule set.")).grid(row=row,column=1,columnspan=2,sticky=W)
+		
 		row+=1
 		Label(self,text=_("Confirm the value of komi")).grid(row=row,column=1,sticky=W)
 		
@@ -1157,22 +1165,33 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		log("Clearing the board")
 		bot.reset()
 		
-		log("Setting komi at",sgf_g.get_komi())
-		bot.komi(sgf_g.get_komi())
-		
 		board, plays = sgf_moves.get_setup_and_moves(sgf_g)
 		handicap_stones=""
 		log("Adding handicap stones, if any")
+		positions=[]
 		for colour, move0 in board.list_occupied_points():
 			if move0 != None:
 				row, col = move0
 				move=ij2gtp((row,col))
+				if colour in ('w',"W"):
+					raise LaunchingException(_("The SGF file contains white handicap stones! %s cannot deal with that!")%bot_name)
+				positions.append(move)
+				"""
 				if colour in ('w',"W"):
 					log("Adding initial white stone at",move)
 					bot.place_white(move)
 				else:
 					log("Adding initial black stone at",move)
 					bot.place_black(move)
+				"""
+		if len(positions)>0:
+			bot.set_free_handicap(positions)
+			#log("Setting bot komi at",sgf_g.get_komi(),"+",len(positions))
+			#bot.komi(sgf_g.get_komi()+len(positions))
+		
+		log("Setting komi at",sgf_g.get_komi())
+		bot.komi(sgf_g.get_komi())
+		
 		log(bot_name+" initialization completed")
 		
 		bot.bot_name=bot_gtp_name

@@ -137,11 +137,18 @@ class gtp():
 		except Exception, e:
 			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
-	def set_free_handicap(self,stones):
-		self.write("set_free_handicap "+stones)
+	def set_free_handicap(self,positions):
+		stones=""
+		for p in positions:
+			stones+=p+" "
+		log("Setting handicap stones at",stones.strip())
+		self.write("set_free_handicap "+stones.strip())
 		answer=self.readline().strip()
 		try:
-			return answer.split("= ")[1]
+			if answer[0]=="=":
+				return True
+			else:
+				return False	
 		except Exception, e:
 			raise GtpException("GtpException in set_free_handicap()\nanswer='"+answer+"'\n"+str(e))
 		
