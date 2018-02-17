@@ -101,6 +101,16 @@ class OpenSettings(Toplevel):
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
 
+		row+=1
+		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
+		VariationsColoring = StringVar()
+		coloring=(_("Winning variations (>50%) only in blue"),_("The best variation in blue"),_("Variations better than actual game move in blue"))
+		VariationsColoring.set(coloring[0])
+		OptionMenu(setting_frame,VariationsColoring,*coloring).grid(row=row,column=2,sticky=W)
+
+
+
+
 		self.Language=Language
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
@@ -109,6 +119,7 @@ class OpenSettings(Toplevel):
 		self.SaveCommandLine=SaveCommandLine
 		self.StopAtFirstResign=StopAtFirstResign
 		self.MaxVariationsToDisplay=MaxVariationsToDisplay
+		self.VariationsColoring=VariationsColoring
 		
 		setting_frame.save=self.save
 		
@@ -157,6 +168,9 @@ class OpenSettings(Toplevel):
 		Config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
 		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
+		coloring={_("Winning variations (>50%) only in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
+		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
+		
 		
 		Config.write(open(config_file,"w"))
 		

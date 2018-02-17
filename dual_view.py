@@ -891,6 +891,8 @@ class DualView(Frame):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
+		
+		self.variation_color_mode=Config.get("Review", "VariationsColoring")
 
 		self.initialize()
 		
@@ -1166,6 +1168,7 @@ class DualView(Frame):
 	def hide_territories(self,event=None):
 		self.goban1.display(self.current_grid,self.current_markup)
 	
+	
 	def display_move(self,move=1):
 		dim=self.dim
 		goban1=self.goban1
@@ -1224,6 +1227,7 @@ class DualView(Frame):
 		
 		self.territories=[[],[]]
 		if m>0:
+			the_move=one_move
 			if one_move.has_property("TB"):
 				self.territories[0]=one_move.get("TB")
 			if one_move.has_property("TW"):
@@ -1307,22 +1311,55 @@ class DualView(Frame):
 				black_prob=float(one_alternative.get("BWR")[:-1])
 				white_prob=100-black_prob
 				if c==1:
-					if black_prob>=50:
-						displaycolor="blue"
-					else:
-						displaycolor="red"
+					if self.variation_color_mode=="blue_for_winning":
+						if black_prob>=50:
+							displaycolor="blue"
+						else:
+							displaycolor="red"
+					elif self.variation_color_mode=="blue_for_best":
+						if a==1:
+							displaycolor="blue"
+						else:
+							displaycolor="red"
+					elif self.variation_color_mode=="blue_for_better":
+						try:
+							real_game_prob=float(the_move[0][0].get("BWR")[:-1])
+							if real_game_prob<black_prob:
+								displaycolor="blue"
+							elif real_game_prob>black_prob:
+								displaycolor="red"
+						except:
+							pass							
 				else:
-					if black_prob>50:
-						displaycolor="red"
-					else:
-						displaycolor="blue"
-				
+					if self.variation_color_mode=="blue_for_winning":
+						if black_prob>50:
+							displaycolor="red"
+						else:
+							displaycolor="blue"
+					elif self.variation_color_mode=="blue_for_best":
+						if a==1:
+							displaycolor="blue"
+						else:
+							displaycolor="red"
+					elif self.variation_color_mode=="blue_for_better":
+						try:
+							real_game_prob=float(the_move[0][0].get("WWR")[:-1])
+							if real_game_prob<white_prob:
+								displaycolor="blue"
+							elif real_game_prob>white_prob:
+								displaycolor="red"
+						except:
+							pass	
+								
 			if one_alternative.has_property("C"):
 				comment=one_alternative.get("C")
-			else: comment=''
+			else:
+				comment=''
 			
-			if ij==real_game_ij: letter_color="black"
-			else: letter_color=displaycolor
+			if ij==real_game_ij:
+				letter_color="black"
+			else:
+				letter_color=displaycolor
 			
 			alternative_sequence=[[c,ij,chr(64+a),comment,displaycolor,letter_color]]
 			while len(one_alternative)>0:
