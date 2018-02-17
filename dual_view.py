@@ -1277,12 +1277,15 @@ class DualView(Frame):
 			if m==0:
 				real_game_ij=ij
 		try:
-			#i,j=one_move=get_node(self.gameroot,move).get_move()[1]
 			i,j=list(get_node(self.gameroot,move).get_move()[1])
 		except:
 			self.prev_move()
 			return
-		markup1[i][j]=main_sequence
+		if main_sequence:
+			markup1[i][j]=main_sequence
+		else:
+			real_game_ij=(-1,-1)
+			#real_game_ij=get_node(self.gameroot,move).get_move()[1]
 		
 		#alternative sequences ####################################################################################
 		parent=get_node(self.gameroot,move-1)
