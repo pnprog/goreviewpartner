@@ -452,8 +452,6 @@ class OpenMove():
 			self.selfplay_button.config(state='normal')
 	
 	def close(self):
-		if self.locked:
-			return
 		log("closing popup")
 		self.display_queue.put(0)
 		self.popup.destroy()
@@ -462,7 +460,6 @@ class OpenMove():
 			bot.close()
 
 		self.parent.all_popups.remove(self)
-		
 		log("done")
 	
 	def undo(self,event=None):

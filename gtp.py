@@ -42,7 +42,6 @@ class gtp():
 			self.process.stdin.write(txt+"\n")
 		except Exception, e:
 			log("Error while writting to stdin\n"+str(e))
-			self.kill()
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
 		self.c+=1
 
@@ -60,20 +59,6 @@ class gtp():
 		if answer[0]=="=":return True
 		else:return False
 		
-	def close(self):
-		try:
-			self.gtp_exit()
-			sleep(0.5)
-		except: pass
-		
-		try: self.process.kill()
-		except: pass
-		
-		try: self.process.stdin.close()
-		except: pass
-		
-		
-	
 	def reset(self):
 		self.write("clear_board")
 		answer=self.readline()
@@ -190,22 +175,37 @@ class gtp():
 		except Exception, e:
 			raise GtpException("GtpException in set_time()\nanswer='"+answer+"'\n"+str(e))
 
-	def gtp_exit(self):
+	def quit(self):
 		self.write("quit")
 		answer=self.readline()
-		answer
-		if answer[0]=="=":
-			return True
-		else:
-			return False
-	
-	def kill(self):
-		log("process.terminate()")
-		self.process.terminate()
-		sleep(0.5)
-		log("process.kill()")
-		self.process.kill()
-		sleep(0.5)
+		if answer[0]=="=":return True
+		else:return False	
+
+	def terminate(self):
+		t=10
+		while 1:
+			self.quitting_thread.join(0.0)	
+			if not self.quitting_thread.is_alive():
+				log("The bot has quitted properly")
+				break
+			elif t==0:
+				log("The bot is still running...")
+				log("Forcefully closing it now!")
+				break
+			t-=1
+			log("Waiting for the bot to close",t,"s")
+			sleep(1)
+		
+		try: self.process.kill()
+		except: pass
+		try: self.process.stdin.close()
+		except: pass
+		
+	def close(self):
+		log("Now closing")
+		self.quitting_thread=threading.Thread(target=self.quit)
+		self.quitting_thread.start()
+		threading.Thread(target=self.terminate).start()
 
 
 
