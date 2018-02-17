@@ -9,7 +9,7 @@ fuzzy=0.0
 from random import random,seed,choice
 
 from Tkinter import Canvas
-
+from toolbox import log
 
 class Goban(Canvas):
 	def __init__(self,dim,**kwargs):
@@ -150,16 +150,17 @@ class Goban(Canvas):
 		
 		
 		if len(self.no_redraw)==0:
-			#self.no_redraw.append(self.draw_rectangle(-0.1-.5,-0.1-.5,dim-1+.5+0.1,dim-1+.5+0.1,black))
-			#self.no_redraw.append(self.draw_rectangle(0-.5,0-.5,dim-1+.5,dim-1+.5,bg))
+			#let estimate the ratio fontsize/pixel
+			idt=self.create_text(-1000,-1000, text="0",font=("Arial", 1000))
+			x1,y1,x2,y2=self.bbox(idt) 
+			ratio=max(x2-x1,y2-y1)/1000.
+			fontsize=str(int(round(0.70*space/ratio)))
+			self.font=("Arial",fontsize)
 			self.no_redraw.append(self.draw_rectangle(0-1.5,0-1.5,dim-1+1.5,dim-1+1.5,bg))
 			
 			for x1,y1,x2,y2,c,w in self.wood:
 				self.no_redraw.append(self.draw_line(x1,y1,x2,y2,c,width=w*space))
-				
-				#self.no_redraw.append(self.draw_line((x1+x2)/2,y1,(x1+x2)/2+0.3,y2,'#%02x%02x%02x' % (r0, g0, b0),width=(k1-k0)*dim*space+1))
 
-			
 			bg0=self.cget("background")
 			
 			self.no_redraw.append(self.draw_rectangle(-1.5  ,  -1.5  ,   -.5,    dim-1+1.5,bg0))
@@ -178,13 +179,13 @@ class Goban(Canvas):
 				self.no_redraw.append(self.draw_line(0,i,dim-1,i,color=black,width=space/22.))
 				
 				x,y=self.ij2xy(-1-0.1,i)
-				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRSTUVWXYZ"[i],font=("Arial", str(int(space/2.5)))))
+				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRSTUVWXYZ"[i],font=self.font))
 				x,y=self.ij2xy(dim,i)
-				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRSTUVWXYZ"[i],font=("Arial", str(int(space/2.5)))))
+				self.no_redraw.append(self.create_text(x,y, text="ABCDEFGHJKLMNOPQRSTUVWXYZ"[i],font=self.font))
 				x,y=self.ij2xy(i,-1-0.1)
-				self.no_redraw.append(self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5)))))
+				self.no_redraw.append(self.create_text(x,y, text=str(i+1),font=self.font))
 				x,y=self.ij2xy(i,dim+0.1)
-				self.no_redraw.append(self.create_text(x,y, text=str(i+1),font=("Arial", str(int(space/2.5)))))
+				self.no_redraw.append(self.create_text(x,y, text=str(i+1),font=self.font))
 
 			if dim==19:
 				for i,j in [[3,3],[3,9],[9,9],[3,15],[15,15],[15,9],[9,15],[15,3],[9,3]]:
@@ -210,14 +211,9 @@ class Goban(Canvas):
 					if grid[i][j]==0:
 						self.draw_point(u,v,0.6,color=bg,outline=bg)
 					if markup[i][j]==0:
-						
 						k=0.8
 						self.draw_point(u,v,.4,color="",outline=markup_color,width=space/11.)
-						
-						#k=0.6
-						#self.draw_line(u+0.5*k,v-0*k,u-0.255*k,v+0.435*k,markup_color,width=2)
-						#self.draw_line(u-0.255*k,v+0.435*k,u-0.255*k,v-0.435*k,markup_color,width=2)
-						#self.draw_line(u-0.255*k,v-0.435*k,u+0.5*k,v-0*k,markup_color,width=2)
+
 					elif markup[i][j]==-1:
 						if grid[i][j]==0:
 							self.draw_point(i,j,.4,"black")
@@ -230,8 +226,7 @@ class Goban(Canvas):
 							self.draw_point(u,v,.4,"white")
 					else:
 						x,y=self.ij2xy(u,v)
-						self.create_text(x,y, text=str(markup[i][j]),font=("Arial", str(int(space/2))),fill=markup_color)
-						
+						self.create_text(x,y, text=str(markup[i][j]),font=self.font,fill=markup_color)
 						
 				elif markup[i][j]=="":
 					#do nothing
@@ -242,7 +237,7 @@ class Goban(Canvas):
 					letter_color=sequence[0][5]
 					x,y=self.ij2xy(u,v)
 					self.draw_point(u,v,0.8,color=bg,outline=markup_color)
-					self.create_text(x,y, text=sequence[0][2],font=("Arial", str(int(space/2))),fill=letter_color)
+					self.create_text(x,y, text=sequence[0][2],font=self.font,fill=letter_color)
 					local_area=self.draw_point(u,v,1,color="",outline="")
 					self.tag_bind(local_area, "<Enter>", partial(show_variation,goban=self,grid=grid,markup=markup,i=i,j=j))
 
