@@ -394,7 +394,6 @@ class LiveAnalysis():
 		self.goban.bind("<Configure>",self.redraw)
 		popup.focus()
 		self.display_queue=Queue.Queue(1)
-		self.parent.after(100,self.wait_for_display)
 		self.locked=False
 		
 		row=1
@@ -694,7 +693,8 @@ class LiveAnalysis():
 		
 		
 		self.parent.after(500,lambda: self.pass_button.config(state='normal'))
-		self.parent.after(500,lambda: self.undo_button.config(state='normal'))
+		if self.current_move>=3:
+			self.parent.after(500,lambda: self.undo_button.config(state='normal'))
 		self.parent.after(500,lambda: self.goban.display(self.grid,self.markup,freeze=False))
 		
 
@@ -1080,26 +1080,6 @@ class LiveAnalysis():
 						log("Asking white (%s) to play the game move"%self.white.bot_name)
 						self.white.place_black(ij2gtp((i,j)))
 					self.white_to_play()
-				
-	def wait_for_display(self):
-		try:
-			msg=self.display_queue.get(False)
-			
-			if msg==0:
-				pass
-			elif msg==1:
-				self.goban.display(self.grid,self.markup)
-				self.parent.after(250,self.wait_for_display)
-			elif msg==2:
-				self.goban.display(self.grid,self.markup,True)
-				self.parent.after(250,self.wait_for_display)
-			else:
-				show_info(msg,self.popup)
-				self.goban.display(self.grid,self.markup)
-				self.parent.after(0,self.wait_for_display)
-		except:
-			self.parent.after(250,self.wait_for_display)
-		
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
