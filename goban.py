@@ -212,7 +212,7 @@ class Goban(Canvas):
 						self.draw_point(u,v,0.6,color=bg,outline=bg)
 					if markup[i][j]==0:
 						k=0.8
-						self.draw_point(u,v,.4,color="",outline=markup_color,width=space/11.)
+						self.draw_point(u,v,.4,color="",outline=markup_color,width=space/22.)
 
 					elif markup[i][j]==-1:
 						if grid[i][j]==0:
@@ -236,7 +236,7 @@ class Goban(Canvas):
 					markup_color=sequence[0][4]
 					letter_color=sequence[0][5]
 					x,y=self.ij2xy(u,v)
-					self.draw_point(u,v,0.8,color=bg,outline=markup_color)
+					self.draw_point(u,v,0.8,color=bg,outline=markup_color,width=space/22.)
 					self.create_text(x,y, text=sequence[0][2],font=self.font,fill=letter_color)
 					local_area=self.draw_point(u,v,1,color="",outline="")
 					self.tag_bind(local_area, "<Enter>", partial(show_variation,goban=self,grid=grid,markup=markup,i=i,j=j))
