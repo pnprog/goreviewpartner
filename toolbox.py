@@ -708,18 +708,8 @@ class LiveAnalysisBase():
 					
 				log("Deleting the SGF branch")
 				parent=go_to_move(self.move_zero,move_to_undo-1)
-				branch=parent[1] #first child should be the new game variation
+				branch=parent[1] #first child (parent[0]) should be the new game variation
 				branch.delete()
-				"""
-				if parent:
-					branch=parent[1] #first child should be the new game variation
-					branch.delete()
-					#self.g.get_last_node().delete()
-				else:
-					log("Cannot find the branch to remove")
-					log("This could be than another undo in ongoing")
-					log("In this case the first undo branch will (hopefully) be deleted as part of the second undo branch")
-					"""
 
 				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 				self.cpu_lock.release()

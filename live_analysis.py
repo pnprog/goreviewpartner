@@ -662,6 +662,17 @@ class LiveAnalysis():
 				else:
 					log("discarding",(priority,msg))
 			else:
+				if priority<1:
+					log("WARNING: There is already undo msg in the queue waiting to be processed:",(priority,msg))
+					log("\a")
+					log("WARNIG: This should normally not happen!")
+					log("\a")
+					log("Let's give the analyser time to process the former undo msg")
+					log("\a")
+					self.analyser.update_queue.put((priority,msg))
+					self.analyser.cpu_lock.release()
+					self.parent.after(500,self.undo)
+					return
 				log("keeping",(priority,msg))
 				requests.append((priority,msg))
 				#self.analyser.update_queue.put((priority,msg))
@@ -672,8 +683,6 @@ class LiveAnalysis():
 		self.analyser.update_queue.put((1./move2undo,"undo "+str(move2undo)))
 		log("Releasing the analyser")
 		self.analyser.cpu_lock.release()
-		#log("Sending request to undo move",self.current_move,"to analyser")
-		#self.analyser.update_queue.put((self.current_move-.5,"undo"))
 
 		self.latest_node=new_branch
 		if type(self.black)!=type("abc"):
@@ -686,16 +695,17 @@ class LiveAnalysis():
 			self.white.undo()
 		self.history.pop()
 		self.grid,self.markup=self.history.pop()
-		self.goban.display(self.grid,self.markup)
 		self.current_move-=2
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
-		#self.black_to_play()
+
+		self.parent.after(500,self.after_undo)
 		
+	def after_undo(self):
 		
-		self.parent.after(500,lambda: self.pass_button.config(state='normal'))
+		self.pass_button.config(state='normal')
 		if self.current_move>=3:
-			self.parent.after(500,lambda: self.undo_button.config(state='normal'))
-		self.parent.after(500,lambda: self.goban.display(self.grid,self.markup,freeze=False))
+			self.undo_button.config(state='normal')
+		self.goban.display(self.grid,self.markup,freeze=False)
 		
 
 		
