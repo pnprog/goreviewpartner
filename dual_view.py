@@ -653,7 +653,7 @@ class OpenMove():
 			self.black_autoplay=False
 			self.white_autoplay=False
 			self.selfplay_button.config(text=_('Self play'))
-		
+	
 	def initialize(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -685,14 +685,21 @@ class OpenMove():
 		self.menu_bots={}
 		row=10
 		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		threads=[]
 		for available_bot in self.available_bots:
 			row+=2
 			one_bot=available_bot['openmove'](self.sgf,available_bot['profile'])
-			one_bot.start()
+			#one_bot.start()
+			one_thread=threading.Thread(target=one_bot.start)
+			one_thread.start()
+			one_thread.one_bot=one_bot
+			threads.append(one_thread)
 			self.bots.append(one_bot)
 			
-			if one_bot.okbot:
-				self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
+		for one_thread in threads:
+			one_thread.join()
+			if one_thread.one_bot.okbot:
+				self.menu_bots[one_thread.one_bot.name+value[available_bot['profile']]]=one_thread.one_bot
 
 		if len(self.menu_bots)>0:
 			
