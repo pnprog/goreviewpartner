@@ -298,6 +298,9 @@ class GnuGo_gtp(gtp):
 			influence=[[int(s) for s in lines[i].split(" ")]]+influence
 		return influence
 	
+	def quick_evaluation(self,color):
+		return self.get_gnugo_estimate_score()
+	
 	def get_gnugo_estimate_score(self):
 		self.write("estimate_score")
 		answer=self.readline().strip()

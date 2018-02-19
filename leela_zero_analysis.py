@@ -208,6 +208,33 @@ import threading, Queue
 
 class Leela_Zero_gtp(gtp):
 
+	def quick_evaluation(self,color):
+		if color==2:
+			answer=self.play_white()
+		else:
+			answer=self.play_black()
+		
+		all_moves=self.get_all_leela_zero_moves()
+		print all_moves[0]
+		for e in all_moves[0]:
+			print "\t",e
+		if answer.lower()=="pass":
+			self.undo()
+			return _("That game is won")
+		elif answer.lower()=="resign":
+			self.undo_resign()
+			return _("That game is lost")
+		else:
+			self.undo()
+			sequence_first_move,one_sequence,one_value_network,one_policy_network,one_nodes = all_moves[0]
+			if color==1:
+				black_win_rate=str(one_value_network)+'%'
+				white_win_rate=str(100-one_value_network)+'%'
+			else:
+				black_win_rate=str(100-one_value_network)+'%'
+				white_win_rate=str(one_value_network)+'%'
+			return _("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+
 	def undo_resign(self):
 		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
 		self.undo()

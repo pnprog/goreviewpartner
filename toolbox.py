@@ -1083,6 +1083,9 @@ class BotOpenMove():
 				#self.config(state='disabled')
 				return False
 			return True
+			
+	def quick_evaluation(self,color):
+		return self.bot.quick_evaluation(color)
 
 	def click(self,color):
 		log(self.name,"play")

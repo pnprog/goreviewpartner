@@ -37,6 +37,9 @@ class gtp():
 				log("leaving consume_stderr thread due to exception")
 				return
 	
+	def quick_evaluation(self,color):
+		return "Feature not implemented"
+	
 	def write(self,txt):
 		try:
 			self.process.stdin.write(txt+"\n")

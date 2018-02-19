@@ -426,31 +426,36 @@ class OpenMove():
 			self.available_bots.append(bot)
 		self.initialize()
 		
-	def lock(self):
-		self.locked=True
-		
+	def lock(self):	
 		self.undo_button.config(state='disabled')
 		self.menu.config(state='disabled')
 		self.play_button.config(state='disabled')
 		self.white_button.config(state='disabled')
 		self.black_button.config(state='disabled')
+		self.evaluation_button.config(state='disabled')
+		
 		if (not self.white_autoplay) or (not self.black_autoplay):
 			self.selfplay_button.config(state='disabled')
 
-	def unlock(self,after=False):
-		if after:
-			log("unlocking 2/2")
-			self.locked=False
-		else:
-			log("unlocking 1/2")
-			self.popup.after(100,lambda: self.unlock(True))
-			self.undo_button.config(state='normal')
-			self.menu.config(state='normal')
-			self.play_button.config(state='normal')
-			self.white_button.config(state='normal')
-			self.black_button.config(state='normal')
-			self.selfplay_button.config(state='normal')
-	
+		self.goban.bind("<Button-1>",self.do_nothing)
+		self.goban.bind("<Button-2>",self.do_nothing)
+		self.locked=True
+
+	def do_nothing(self):
+		pass
+
+	def unlock(self):
+		self.undo_button.config(state='normal')
+		self.menu.config(state='normal')
+		self.play_button.config(state='normal')
+		self.white_button.config(state='normal')
+		self.black_button.config(state='normal')
+		self.selfplay_button.config(state='normal')
+		self.evaluation_button.config(state='normal')
+		self.goban.bind("<Button-1>",self.click)
+		self.goban.bind("<Button-2>",self.undo)
+		self.locked=False
+		
 	def close(self):
 		log("closing popup")
 		self.display_queue.put(0)
@@ -464,9 +469,6 @@ class OpenMove():
 	
 	def undo(self,event=None):
 		log("UNDO")
-		#if self.locked:
-		#	log("failed!")
-		#	return
 
 		if len(self.history)<1:
 			return
@@ -483,10 +485,8 @@ class OpenMove():
 
 	def click_button(self,bot):
 		dim=self.dim
-		if not self.locked:
-			self.lock()
-			self.display_queue.put(2)
-		
+		self.lock()
+		self.display_queue.put(2)
 		color=self.next_color
 		move=bot.click(color)
 		
@@ -540,8 +540,6 @@ class OpenMove():
 		
 		
 	def click(self,event):
-		if self.locked:
-			return
 		dim=self.dim
 		#add/remove black stone
 		#check pointer location
@@ -598,8 +596,6 @@ class OpenMove():
 		self.status_bar.config(text="")
 	
 	def click_play_one_move(self):
-		#if self.locked:
-		#	return
 		log("Asking",self.selected_bot.get(),"to play one move")
 		self.white_button.config(relief=RAISED)
 		self.black_button.config(relief=RAISED)
@@ -658,6 +654,21 @@ class OpenMove():
 			self.white_autoplay=False
 			self.selfplay_button.config(text=_('Self play'))
 	
+	def click_evaluation(self):
+		log("Asking",self.selected_bot.get(),"for quick estimation")
+		self.lock()
+		self.display_queue.put(2)
+		threading.Thread(target=self.evaluation,args=(self.menu_bots[self.selected_bot.get()],)).start()
+	
+	def evaluation(self,bot):
+		color=self.next_color
+		result=bot.quick_evaluation(color)
+		if color==1:
+			self.display_queue.put(result)
+		else:
+			self.display_queue.put(result)
+		self.unlock()
+	
 	def initialize(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -689,21 +700,13 @@ class OpenMove():
 		self.menu_bots={}
 		row=10
 		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		threads=[]
 		for available_bot in self.available_bots:
 			row+=2
 			one_bot=available_bot['openmove'](self.sgf,available_bot['profile'])
-			#one_bot.start()
-			one_thread=threading.Thread(target=one_bot.start)
-			one_thread.start()
-			one_thread.one_bot=one_bot
-			threads.append(one_thread)
+			one_bot.start()
 			self.bots.append(one_bot)
-			
-		for one_thread in threads:
-			one_thread.join()
-			if one_thread.one_bot.okbot:
-				self.menu_bots[one_thread.one_bot.name+value[available_bot['profile']]]=one_thread.one_bot
+			if one_bot.okbot:
+				self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
 
 		if len(self.menu_bots)>0:
 			
@@ -750,6 +753,15 @@ class OpenMove():
 			self.selfplay_button.grid(column=0,row=row,sticky=E+W)
 			self.selfplay_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play alone.")))
 			self.selfplay_button.bind("<Leave>",lambda e: self.clear_status())
+		
+			row+=1
+			Label(panel,text=" ").grid(column=0,row=row,sticky=E+W)
+			row+=1
+			self.evaluation_button=Button(panel, text=_('Quick evaluation'),command=self.click_evaluation)
+			self.evaluation_button.grid(column=0,row=row,sticky=E+W)
+			self.evaluation_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot for a quick evaluation")))
+			self.evaluation_button.bind("<Leave>",lambda e: self.clear_status())
+			
 		
 		self.black_autoplay=False
 		self.white_autoplay=False
