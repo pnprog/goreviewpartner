@@ -914,8 +914,8 @@ class DualView(Frame):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
-		
 		self.variation_color_mode=Config.get("Review", "VariationsColoring")
+		self.inverted_mouse_wheel=Config.getboolean('Review', 'InvertedMouseWheel')
 
 		self.initialize()
 		
@@ -1045,14 +1045,20 @@ class DualView(Frame):
 		self.parent.bind("<Up>", self.show_variation_next)
 		self.parent.bind("<Down>", self.show_variation_prev)
 		self.parent.bind("<MouseWheel>", self.mouse_wheel)
-		goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
-		goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
+		if not self.inverted_mouse_wheel:
+			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
+			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
+		else:
+			goban.tag_bind(local_area,"<Button-5>", self.show_variation_next)
+			goban.tag_bind(local_area,"<Button-4>", self.show_variation_prev)
 		self.set_status(_("Use mouse wheel or keyboard up/down keys to display the sequence move by move."))
 	
 	def mouse_wheel(self,event):
 		if self.current_variation_sequence==None:
 			return
 		d = event.delta
+		if self.inverted_mouse_wheel:
+			d*=-1
 		if d>0:
 			self.show_variation_next()
 		elif d<0:

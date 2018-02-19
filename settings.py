@@ -93,21 +93,23 @@ class OpenSettings(Toplevel):
 		GobanScreenRatio = StringVar() 
 		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
 		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row,column=2)
-		
-
 		row+=1
 		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
-
 		row+=1
 		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
 		VariationsColoring = StringVar()
 		coloring=(_("Winning variations (>50%) only in blue"),_("The best variation in blue"),_("Variations better than actual game move in blue"))
 		VariationsColoring.set(coloring[0])
 		OptionMenu(setting_frame,VariationsColoring,*coloring).grid(row=row,column=2,sticky=W)
-
+		row+=1
+		Label(setting_frame,text=_("Inverted mouse wheel")).grid(row=row,column=1,sticky=W)
+		InvertedMouseWheel = BooleanVar(value=Config.getboolean('Review', 'InvertedMouseWheel'))
+		InvertedMouseWheelCheckbutton=Checkbutton(setting_frame, text="", variable=InvertedMouseWheel,onvalue=True,offvalue=False)
+		InvertedMouseWheelCheckbutton.grid(row=row,column=2,sticky=W)
+		InvertedMouseWheelCheckbutton.var=InvertedMouseWheel
 
 
 
@@ -120,6 +122,7 @@ class OpenSettings(Toplevel):
 		self.StopAtFirstResign=StopAtFirstResign
 		self.MaxVariationsToDisplay=MaxVariationsToDisplay
 		self.VariationsColoring=VariationsColoring
+		self.InvertedMouseWheel=InvertedMouseWheel
 		
 		setting_frame.save=self.save
 		
@@ -170,7 +173,7 @@ class OpenSettings(Toplevel):
 		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		coloring={_("Winning variations (>50%) only in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
 		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
-		
+		Config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
 		
 		Config.write(open(config_file,"w"))
 		
