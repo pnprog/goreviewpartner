@@ -509,11 +509,15 @@ class OpenMove():
 			self.markup[i][j]=0
 			self.next_color=3-color
 		else:
-			bot.undo()
+			if move.lower() == "resign":
+				bot.undo_resign()
+			else:
+				bot.undo()
 			if color==1:
 				self.display_queue.put(bot.name+" ("+_("Black")+"): "+move.lower())
 			else:
 				self.display_queue.put(bot.name+" ("+_("White")+"): "+move.lower())
+		
 		if self.white_autoplay and self.black_autoplay:
 			if move.lower() not in ["pass","resign"]:
 				log("SELF PLAY")

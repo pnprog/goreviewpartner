@@ -136,7 +136,11 @@ class gtp():
 				return False	
 		except Exception, e:
 			raise GtpException("GtpException in set_free_handicap()\nanswer='"+answer+"'\n"+str(e))
-		
+	
+	def undo_resign(self):
+		#just do nothing
+		pass
+	
 	def undo(self):
 		self.write("undo")
 		answer=self.readline()

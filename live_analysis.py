@@ -644,7 +644,6 @@ class LiveAnalysis():
 		log("Adding a new branch to the SGF tree")
 		self.g.lock.acquire()
 		new_branch=self.latest_node.parent.parent.parent.new_child(0)
-		new_branch.add_comment_text("new branch")
 		self.g.lock.release()
 		
 		move2undo=self.current_move-2
@@ -655,27 +654,15 @@ class LiveAnalysis():
 		for r in range(nb_request):
 			priority,msg=self.analyser.update_queue.get()
 			if type(msg)==type(123):
-				if msg<move2undo:
+				if msg<=move2undo:
 					log("keeping",(priority,msg))
 					requests.append((priority,msg))
 					#self.analyser.update_queue.put((priority,msg))
 				else:
 					log("discarding",(priority,msg))
 			else:
-				if priority<1:
-					log("WARNING: There is already undo msg in the queue waiting to be processed:",(priority,msg))
-					log("\a")
-					log("WARNIG: This should normally not happen!")
-					log("\a")
-					log("Let's give the analyser time to process the former undo msg")
-					log("\a")
-					self.analyser.update_queue.put((priority,msg))
-					self.analyser.cpu_lock.release()
-					self.parent.after(500,self.undo)
-					return
 				log("keeping",(priority,msg))
 				requests.append((priority,msg))
-				#self.analyser.update_queue.put((priority,msg))
 		for r in requests:
 			self.analyser.update_queue.put(r)
 		
@@ -697,18 +684,15 @@ class LiveAnalysis():
 		self.grid,self.markup=self.history.pop()
 		self.current_move-=2
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
+		self.parent.after(100,self.after_undo) #enough time for analyser to grab the process lock and process the queue
 
-		self.parent.after(500,self.after_undo)
-		
 	def after_undo(self):
-		
 		self.pass_button.config(state='normal')
 		if self.current_move>=3:
-			self.undo_button.config(state='normal')
+			self.undo_button.config(state='normal')	
 		self.goban.display(self.grid,self.markup,freeze=False)
-		
 
-		
+
 	def player_pass(self):
 		log("The human is passing")
 		color=self.next_color

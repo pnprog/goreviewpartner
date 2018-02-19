@@ -691,6 +691,13 @@ class LiveAnalysisBase():
 				log("Leaving the analysis")
 				self.cpu_lock.release()
 				return
+				
+			if msg=="wait":
+				log("Analyser iddle for one second")
+				time.sleep(1) #enought time for user to press "undo" one more time
+				self.cpu_lock.release()
+				time.sleep(0.1) #in case the user pressed "undo", then enought time for Live analysis to grab the lock
+				continue
 			
 			if type(msg)==type("undo xxx"):
 				print "msg=",msg
@@ -705,14 +712,21 @@ class LiveAnalysisBase():
 						log("Undoing move",self.current_move,"through GTP")
 						self.bot.undo()
 						self.current_move-=1
-					
+				
 				log("Deleting the SGF branch")
 				parent=go_to_move(self.move_zero,move_to_undo-1)
-				branch=parent[1] #first child (parent[0]) should be the new game variation
-				branch.delete()
+				new_branch=parent[0]
+				old_branch=parent[1]
+				
+				for p in ["ES","CBM","BWR","WWR","UBS","LBS","C"]:
+					if old_branch.has_property(p):
+						new_branch.set(p,old_branch.get(p))
+				
+				old_branch.delete()
 
 				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 				self.cpu_lock.release()
+				self.update_queue.put((0,"wait"))
 				continue
 			
 			log("Analyser received msg to analyse move",msg)
@@ -741,7 +755,7 @@ class LiveAnalysisBase():
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 			self.cpu_lock.release()
 			#self.current_move+=1
-			time.sleep(.1)
+			time.sleep(.1) #enought time for Live analysis to grap the lock
 
 
 

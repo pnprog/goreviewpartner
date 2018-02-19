@@ -113,14 +113,7 @@ class LeelaAnalysis():
 			for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves[:self.maxvariations]:
 				log("Adding sequence starting from",sequence_first_move)
 				previous_move=one_move.parent
-				current_color=player_color
-				
-				if best_move:
-					if player_color=='b':
-						linelog(str(one_score)+'%/'+str(100-one_score)+'%')
-					else:
-						linelog(str(100-one_score)+'%/'+str(one_score)+'%')
-				
+				current_color=player_color	
 				first_variation_move=True
 				for one_deep_move in one_sequence.split(' '):
 					if one_deep_move.lower() in ["pass","resign"]:
@@ -205,6 +198,8 @@ class LeelaAnalysis():
 					log("The analysis will stop now")
 					log("")
 					self.move_range=[]
+				else:
+					leela.undo_resign()
 					
 		one_move.add_comment_text(additional_comments)
 		
@@ -255,6 +250,10 @@ class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
 
 class Leela_gtp(gtp):
 	
+	def undo_resign(self):
+		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
+		self.undo()
+		
 	def get_leela_final_score(self):
 		self.write("final_score")
 		answer=self.readline().strip()
