@@ -33,40 +33,42 @@ class LeelaAnalysis():
 		log("move",str(current_move))
 		
 		additional_comments=""
-		#additional_comments="Move "+str(current_move)
 		if player_color in ('w',"W"):
-			#additional_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(player_move))
 			log("leela play white")
 			answer=leela.play_white()
 		else:
-			#additional_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(player_move))
 			log("leela play black")
 			answer=leela.play_black()
-		
-		if current_move>1:
-			es=leela.get_leela_final_score()
-			one_move.set("ES",es)
+		nb_undos=1 #let's remember to undo that move from Leela
 		
 		best_answer=answer
-		all_moves=leela.get_all_leela_moves()
+		
+		#all_moves=leela.get_all_leela_moves()
+		position_evaluation=leela.get_all_leela_moves()
+
+		if "estimated score" in position_evaluation:
+			one_move.set("ES",position_evaluation["estimated score"])
+			
 		if (answer.lower() not in ["pass","resign"]):
 			
 			one_move.set("CBM",answer.lower()) #Computer Best Move
-			
-			if all_moves==[]:
+			if 'book move' in position_evaluation:
 				bookmove=True
-				all_moves=[[answer,answer,666,666,666,666,666,666,666]]
 			else:
 				bookmove=False
-			all_moves2=all_moves[:]
-			nb_undos=1
-			#log("====move",current_move+1,all_moves[0],'~',answer)
 			
-			#making sure the first line of play is more than one move deep
+			#let's make sure there is at least one variation available
+			if len(position_evaluation['variations'])==0:
+				position_evaluation['variations'].append({'sequence':answer})
 
-			while (len(all_moves2[0][1].split(' '))==1) and (answer.lower() not in ["pass","resign"]) and (nb_undos<=20):
-				#log("going deeper for first line of play (",nb_undos,")")
-
+				
+			#let's make sure that there is more than one move for the first line of play
+			#only one move could be a bookmove, or a very very forcing move
+			first_sequence=position_evaluation['variations'][0]['sequence']
+			print "===== len(first_sequence) =",len(first_sequence.split()),"=====",first_sequence
+			new_sequence=first_sequence
+			while len(new_sequence.split())<=1 and nb_undos<=5:
+				log("first, let's ask leela for the next move")
 				if player_color in ('w',"W") and nb_undos%2==0:
 					answer=leela.play_white()
 				elif player_color in ('w',"W") and nb_undos%2==1:
@@ -75,94 +77,119 @@ class LeelaAnalysis():
 					answer=leela.play_black()
 				else:
 					answer=leela.play_white()
-				nb_undos+=1
+				nb_undos+=1 #one have to remember to undo that move later
 				
-
+				new_position_evaluation=leela.get_all_leela_moves() #let's get stats for this new move
 				
-
-				#linelog(all_moves[0],'+',answer)
-				all_moves2=leela.get_all_leela_moves()
+				#let's make sure there is at least one variation available
+				if len(new_position_evaluation['variations'])==0:
+					new_position_evaluation['variations'].append({'sequence':answer})
+				
 				if (answer.lower() not in ["pass","resign"]):
+					#let's check the lenght of the new sequence
+					new_sequence=new_position_evaluation["variations"][0]["sequence"]
+					#adding this new sequence to the old sequence
+					position_evaluation['variations'][0]['sequence']+=" "+new_sequence
 					
-					#log("all_moves2:",all_moves2)
-					if all_moves2==[]:
-						all_moves2=[[answer,answer,666,666,666,666,666,666,666]]
-
-					#log('+',all_moves2)
-					all_moves[0][1]+=" "+all_moves2[0][1]
-					
-					
-					if (player_color.lower()=='b' and nb_undos%2==1) or (player_color.lower()=='w' and nb_undos%2==1):
-						all_moves[0][2]=all_moves2[0][2]
-					else:
-						all_moves[0][2]=100-all_moves2[0][2]
+					#we continue only if this is still a book move
+					if "book move" not in new_position_evaluation:
+						break
 
 				else:
-					log()
-					log("last play on the fist of play was",answer,"so leaving")
-			
-			for u in range(nb_undos):
-				#log("undo...")
-				leela.undo()
-			
+					#leela does not want to play further on this line of play
+					#so let's stop there
+					break
 
+				
+			first_sequence=position_evaluation['variations'][0]['sequence']
+			print "===== len(first_sequence) =",len(first_sequence.split()),"=====",first_sequence
+			
 			best_move=True
-			#variation=-1
-			log("Number of alternative sequences:",len(all_moves))
-			#log(all_moves)
-			for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves[:self.maxvariations]:
-				log("Adding sequence starting from",sequence_first_move)
+			log("Number of alternative sequences:",len(position_evaluation['variations']))
+			for variation in position_evaluation['variations']:
+				#exemple: variation={'first move': 'M10', 'value network win rate': '21.11%', 'monte carlo win rate': '36.11%', 'sequence': 'M10 M9', 'playouts': '22', 'win rate': '27.46%', 'policy network value': '3.6%'}
 				previous_move=one_move.parent
 				current_color=player_color	
 				first_variation_move=True
-				for one_deep_move in one_sequence.split(' '):
+				for one_deep_move in variation['sequence'].split(' '):
 					if one_deep_move.lower() in ["pass","resign"]:
 						log("Leaving the variation when encountering",one_deep_move.lower())
 						break
+
 					i,j=gtp2ij(one_deep_move)
 					new_child=previous_move.new_child()
-					new_child.set_move(current_color,(i,j))						
+					new_child.set_move(current_color,(i,j))
 					
-					if player_color=='b':
-						black_win_rate=str(one_score)+'%'
-						white_win_rate=str(100-one_score)+'%'
-						black_mc_win_rate=str(one_monte_carlo)+'%'
-						white_mc_win_rate=str(100-one_monte_carlo)+'%'
-					else:
-						black_win_rate=str(100-one_score)+'%'
-						white_win_rate=str(one_score)+'%'
-						black_mc_win_rate=str(100-one_monte_carlo)+'%'
-						white_mc_win_rate=str(one_monte_carlo)+'%'
-					
-					if first_variation_move:
+					if first_variation_move==True:
 						first_variation_move=False
-						if not bookmove:
-							variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
-							new_child.set("BWR",black_win_rate) #Black Win Rate
-							new_child.set("WWR",white_win_rate) #White Win Rate
-							variation_comment+="\n"+_("Monte Carlo win probalbility for this move: ")+black_mc_win_rate+'/'+white_mc_win_rate
-							if one_value_network!=None:
-								if player_color=='b':
-									variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(one_value_network)+'%/'+str(100-one_value_network)+'%'
-								else:
-									variation_comment+="\n"+_("Value network black/white win probability for this move: ")+str(100-one_value_network)+'%/'+str(one_value_network)+'%'
-							if one_policy_network!=None:
-								variation_comment+="\n"+_("Policy network value for this move: ")+str(one_policy_network)+'%'
-							if one_evaluation!=None:
-								variation_comment+="\n"+_("Evaluation for this move: ")+str(one_evaluation)+'%'
-							if one_rave!=None:
-								variation_comment+="\n"+_("RAVE(x%: y) for this move: ")+str(one_rave)+'%'
-							variation_comment+="\n"+_("Number of playouts used to estimate this variation: ")+str(one_nodes)
-							new_child.add_comment_text(variation_comment)
-						else:
-							new_child.add_comment_text(_("Book move"))
-					if best_move:
-						best_move=False
-						if not bookmove:
-							additional_comments+=(_("%s black/white win probability for this position: ")%"Leela")+black_win_rate+'/'+white_win_rate
-							one_move.set("BWR",black_win_rate) #Black Win Rate
-							one_move.set("WWR",white_win_rate) #White Win Rate
-					
+						variation_comment=""
+			
+						if 'win rate' in variation:
+							print "player color=",player_color
+							if player_color=='b':
+								black_value=variation['win rate']
+								white_value=opposite_rate(black_value)
+							else:
+								white_value=variation['win rate']
+								black_value=opposite_rate(white_value)
+							new_child.set("BWR",black_value)
+							new_child.set("WWR",white_value)
+							new_child.set("BWWR",black_value+'/'+white_value)
+							variation_comment=_("black/white win probability for this variation: ")+black_value+'/'+white_value+"\n"
+							
+							if best_move:
+								best_move=False
+								one_move.set("BWR",black_value)
+								one_move.set("WWR",white_value)
+								one_move.set("BWWR",black_value+'/'+white_value)
+								additional_comments+=(_("%s black/white win probability for this position: ")%"Leela")+black_value+'/'+white_value+"\n"
+								
+						if 'monte carlo win rate' in variation:
+							if player_color=='b':
+								black_value=variation['monte carlo win rate']
+								white_value=opposite_rate(black_value)
+							else:
+								white_value=variation['monte carlo win rate']
+								black_value=opposite_rate(white_value)
+							new_child.set("BMCWR",black_value)
+							new_child.set("WMCWR",white_value)
+							new_child.set("MCWR",black_value+'/'+white_value)
+							variation_comment+=_("Monte Carlo win probalbility for this move: ")+black_value+'/'+white_value+"\n"
+
+						if 'value network win rate' in variation:
+							if player_color=='b':
+								black_value=variation['value network win rate']
+								white_value=opposite_rate(black_value)
+							else:
+								white_value=variation['value network win rate']
+								black_value=opposite_rate(white_value)
+							new_child.set("BVNWR",black_value)
+							new_child.set("WVNWR",white_value)
+							new_child.set("VNWR",black_value+'/'+white_value)
+							variation_comment+=_("Value network black/white win probability for this move: ")+black_value+'/'+white_value+"\n"
+
+						if 'move evaluation' in variation:
+							new_child.set("EVAL",variation['move evaluation'])
+							variation_comment+=_("Evaluation for this move: ")+variation['move evaluation']+"\n"
+							
+						if 'rapid action value estimation' in variation:
+							new_child.set("RAVE",variation['rapid action value estimation'])
+							variation_comment+=_("RAVE(x%: y) for this move: ")+variation['rapid action value estimation']+"\n"
+
+						if 'policy network value' in variation:
+							new_child.set("PNV",variation['policy network value'])
+							variation_comment+=_("Policy network value for this move: ")+variation['policy network value']+"\n"
+
+						if 'playouts' in variation:
+							new_child.set("PLYO",variation['playouts'])
+							variation_comment+=_("Number of playouts used to estimate this variation: ")+variation['playouts']
+						
+						if bookmove:
+							bookmove=False
+							variation_comment+=_("Book move")+"\n"
+						
+						new_child.add_comment_text(variation_comment)
+
 					previous_move=new_child
 					if current_color in ('w','W'):
 						current_color='b'
@@ -186,7 +213,9 @@ class LeelaAnalysis():
 			
 			if white_influence_points!=[]:
 				one_move.parent.set("TW",white_influence_points)	
-				
+			
+			for u in range(nb_undos):
+				leela.undo()
 		else:
 			log('adding "'+answer.lower()+'" to the sgf file')
 			additional_comments+="\n"+_("For this position, %s would %s"%("Leela",answer.lower()))
@@ -248,8 +277,28 @@ class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
 	def __init__(self,g,filename,profile="slow"):
 		LiveAnalysisBase.__init__(self,g,filename,profile)
 
+class Position(dict):
+	def __init__(self):
+		self['variations']=[]
+
+class Variation(dict):
+	pass
+
 class Leela_gtp(gtp):
 	
+	def showboard(self):
+		self.write("showboard")
+		one_line=self.readline() #empty line
+		buff=[]
+		while self.stderr_queue.empty():
+			sleep(.1)
+		while not self.stderr_queue.empty():
+			while not self.stderr_queue.empty():
+				buff.append(self.stderr_queue.get())
+			sleep(.1)
+		for line in buff:
+			log(line.strip())
+		
 	def quick_evaluation(self,color):
 		if color==2:
 			answer=self.play_white()
@@ -311,7 +360,6 @@ class Leela_gtp(gtp):
 		return influence
 
 	def get_all_leela_moves(self):
-		buff_size=18
 		buff=[]
 		
 		sleep(.01)
@@ -323,32 +371,53 @@ class Leela_gtp(gtp):
 		buff.reverse()
 		
 		answers=[]
+		position_evaluation=Position()
+		
 		for err_line in buff:
 			#log(err_line)
+			
+			if "score=" in err_line:
+				position_evaluation["estimated score"]=err_line.split("score=")[1].strip()
+			
+			if "book moves" in err_line:
+				log("book move")
+				position_evaluation["book move"]=True
+			
 			if " ->" in err_line:
+				variation=Variation()
 				#log(err_line)
 				one_answer=err_line.strip().split(" ")[0]
-				one_score= ' '.join(err_line.split()).split(' ')[4]
-				nodes=int(err_line.strip().split("(")[0].split("->")[1].replace(" ",""))
-				monte_carlo=float(err_line.split("(U:")[1].split('%)')[0].strip())
-				
+				variation["first move"]=one_answer
+				one_score=err_line.split()[4][:-1]
+				nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
+				variation["playouts"]=nodes
+				monte_carlo=err_line.split("(U:")[1].split('%)')[0].strip()+"%"
+				variation["monte carlo win rate"]=monte_carlo
 				if self.size==19:
-					value_network=float(err_line.split("(V:")[1].split('%')[0].strip())
-					policy_network=float(err_line.split("(N:")[1].split('%)')[0].strip())
+					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
+					variation["value network win rate"]=value_network
+					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
+					variation["policy network value"]=policy_network
 					evaluation=None
 					rave=None
 				else:
 					value_network=None
 					policy_network=None
-					evaluation=float(err_line.split("(N:")[1].split('%)')[0].strip())
-					rave=err_line.split("(R:")[1].split(')')[0].strip()
+					evaluation=err_line.split("(N:")[1].split('%)')[0].strip()
+					variation["move evaluation"]=evaluation
+					rave=err_line.split("(R:")[1].split(')')[0].strip().replace(":","")
+					rave1=rave.split()[0]
+					rave2=rave.split()[1]
+					variation["rapid action value estimation"]=rave1+' '+rave2
 				
-				
-				if one_score!="0.00%)":
+				if one_score!="0.00%":
+					variation["win rate"]=one_score
 					sequence=err_line.split("PV: ")[1].strip()
-					answers=[[one_answer,sequence,float(one_score[:-2]),monte_carlo,value_network,policy_network,evaluation,rave,nodes]]+answers
+					variation["sequence"]=sequence
+					position_evaluation['variations']=[variation]+position_evaluation['variations']
+		
+		return position_evaluation
 
-		return answers
 
 
 class LeelaSettings(Frame):

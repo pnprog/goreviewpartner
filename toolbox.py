@@ -1625,3 +1625,5 @@ except Exception, e:
 	def save_png_file(filename, parent=None):
 		return tkFileDialog.asksaveasfilename(parent=parent,title=_('Choose a filename'),filetypes = [(_('PNG image'), '.png')],initialfile=filename)
 	
+def opposite_rate(value):
+	return str(100-float(value[:-1]))+"%"

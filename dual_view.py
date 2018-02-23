@@ -1143,8 +1143,6 @@ class DualView(Frame):
 			except:
 				pass
 			
-			
-
 			#position win rate is the win rate for the position right before the player plays his move
 			#so it is the win rate of the best move by the computer for this position
 			#because we consider the bot plays perfectly
@@ -1178,6 +1176,7 @@ class DualView(Frame):
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
+				print "delta=",next_position_win_rate,"-",one_data['position_win_rate'],"=",delta
 				one_data['delta']=delta
 
 			except:
