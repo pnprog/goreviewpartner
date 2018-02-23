@@ -105,6 +105,12 @@ class OpenChart():
 						Radiobutton(top_frame, text=_("White comparison"),command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
 						break
 		
+		for data in self.data:
+			if data:
+				if "monte_carlo_win_rate" in data:
+					Radiobutton(top_frame, text=_("Monte Carlo win rate"),command=self.display,variable=self.graph_mode, value="Monte carlo win rate",indicatoron=0).pack(side=LEFT, padx=5)
+					break
+		
 		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
 		#self.chart.grid(sticky=N+S+W+E)
 		
@@ -205,7 +211,9 @@ class OpenChart():
 			moves=self.display_winrate_graph(border,height,width,lpix)
 		elif self.graph_mode.get()=="Score estimation":
 			moves=self.display_score_graph(border,height,width,lpix)
-		
+		elif self.graph_mode.get()=="Monte carlo win rate":
+			moves=self.display_montecarlo_winrate_graph(border,height,width,lpix)
+			
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
 		self.display_axis(moves,height,width,border,lpix)
 
@@ -267,7 +275,50 @@ class OpenChart():
 		#drawing vertical graduation
 		self.display_vertical_winrate_graduation(border,height,width)
 		return moves
+
 		
+	def display_montecarlo_winrate_graph(self,border,height,width,lpix):
+		moves=[]
+		space=1.0*(width-2*border)/self.nb_moves
+		
+		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
+		x00=border
+		y00=height-border-(height-2*border)/2.
+		for one_data in self.data:
+			if "monte_carlo_win_rate" in one_data:
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space
+				
+				win_rate=one_data["monte_carlo_win_rate"]
+				if one_data["player_color"]=="w":
+					win_rate=100.-win_rate
+					color=_("White")
+				else:
+					color=_("Black")
+				player_win_rate=float(int(win_rate*100)/100.)
+				y0=height-border
+				y1=height-border-win_rate*(height-2*border)/100.
+				
+				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+				msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(win_rate)+"%/"+str(100-player_win_rate)+"%"
+				
+				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y1
+		#drawing vertical graduation
+		self.display_vertical_winrate_graduation(border,height,width)
+		return moves
+
+
 	def display_winrate_graph(self,border,height,width,lpix):
 		moves=[]
 		space=1.0*(width-2*border)/self.nb_moves
@@ -1143,6 +1194,15 @@ class DualView(Frame):
 			except:
 				pass
 			
+			try:
+				print one_move
+				if player_color in ('b',"B"):
+					one_data['monte_carlo_win_rate']=float(one_move.get('BMCWR').replace("%",""))
+				else:
+					one_data['monte_carlo_win_rate']=float(one_move.get('WMCWR').replace("%",""))
+			except:
+				pass
+			
 			#position win rate is the win rate for the position right before the player plays his move
 			#so it is the win rate of the best move by the computer for this position
 			#because we consider the bot plays perfectly
@@ -1154,7 +1214,6 @@ class DualView(Frame):
 				one_data['position_win_rate']=current_position_win_rate
 			except:
 				pass
-			
 			
 			#delta is the [position win rate of the next move] - [position win rate of the current move]
 			#so it allows to compare how the game would evolve from that position:
@@ -1176,7 +1235,6 @@ class DualView(Frame):
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
-				print "delta=",next_position_win_rate,"-",one_data['position_win_rate'],"=",delta
 				one_data['delta']=delta
 
 			except:
@@ -1185,6 +1243,7 @@ class DualView(Frame):
 				#if move number and color are the only data available for this point
 				#then we don't need that data point
 				data.pop()
+			print one_data
 		return data
 	
 	def show_graphs(self,event=None):

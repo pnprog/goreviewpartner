@@ -65,7 +65,6 @@ class LeelaAnalysis():
 			#let's make sure that there is more than one move for the first line of play
 			#only one move could be a bookmove, or a very very forcing move
 			first_sequence=position_evaluation['variations'][0]['sequence']
-			print "===== len(first_sequence) =",len(first_sequence.split()),"=====",first_sequence
 			new_sequence=first_sequence
 			while len(new_sequence.split())<=1 and nb_undos<=5:
 				log("first, let's ask leela for the next move")
@@ -100,9 +99,6 @@ class LeelaAnalysis():
 					#so let's stop there
 					break
 
-				
-			first_sequence=position_evaluation['variations'][0]['sequence']
-			print "===== len(first_sequence) =",len(first_sequence.split()),"=====",first_sequence
 			
 			best_move=True
 			log("Number of alternative sequences:",len(position_evaluation['variations']))
@@ -125,7 +121,6 @@ class LeelaAnalysis():
 						variation_comment=""
 			
 						if 'win rate' in variation:
-							print "player color=",player_color
 							if player_color=='b':
 								black_value=variation['win rate']
 								white_value=opposite_rate(black_value)
@@ -138,7 +133,6 @@ class LeelaAnalysis():
 							variation_comment=_("black/white win probability for this variation: ")+black_value+'/'+white_value+"\n"
 							
 							if best_move:
-								best_move=False
 								one_move.set("BWR",black_value)
 								one_move.set("WWR",white_value)
 								one_move.set("BWWR",black_value+'/'+white_value)
@@ -155,7 +149,11 @@ class LeelaAnalysis():
 							new_child.set("WMCWR",white_value)
 							new_child.set("MCWR",black_value+'/'+white_value)
 							variation_comment+=_("Monte Carlo win probalbility for this move: ")+black_value+'/'+white_value+"\n"
-
+							if best_move:
+								one_move.set("BMCWR",black_value)
+								one_move.set("WMCWR",white_value)
+								one_move.set("MCWR",black_value+'/'+white_value)
+							
 						if 'value network win rate' in variation:
 							if player_color=='b':
 								black_value=variation['value network win rate']
@@ -189,7 +187,10 @@ class LeelaAnalysis():
 							variation_comment+=_("Book move")+"\n"
 						
 						new_child.add_comment_text(variation_comment)
-
+						
+						if best_move:
+							best_move=False
+						
 					previous_move=new_child
 					if current_color in ('w','W'):
 						current_color='b'
