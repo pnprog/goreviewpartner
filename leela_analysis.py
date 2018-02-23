@@ -306,26 +306,22 @@ class Leela_gtp(gtp):
 		else:
 			answer=self.play_black()
 		
-		all_moves=self.get_all_leela_moves()
-		print all_moves[0]
-		for e in all_moves[0]:
-			print "\t",e
+		position_evaluation=self.get_all_leela_moves()
+
 		if answer.lower()=="pass":
 			self.undo()
-			return _("That game is won")
 		elif answer.lower()=="resign":
 			self.undo_resign()
-			return _("That game is lost")
 		else:
 			self.undo()
-			sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes = all_moves[0]
-			if color==1:
-				black_win_rate=str(one_score)+'%'
-				white_win_rate=str(100-one_score)+'%'
-			else:
-				black_win_rate=str(100-one_score)+'%'
-				white_win_rate=str(one_score)+'%'
-			return _("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+			
+		if color==1:
+			black_win_rate=position_evaluation["variations"][0]["win rate"]
+			white_win_rate=opposite_rate(black_win_rate)
+		else:
+			white_win_rate=position_evaluation["variations"][0]["win rate"]
+			black_win_rate=opposite_rate(white_win_rate)
+		return _("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
 			
 	def undo_resign(self):
 		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
@@ -375,7 +371,7 @@ class Leela_gtp(gtp):
 		position_evaluation=Position()
 		
 		for err_line in buff:
-			#log(err_line)
+			log(err_line)
 			
 			if "score=" in err_line:
 				position_evaluation["estimated score"]=err_line.split("score=")[1].strip()
