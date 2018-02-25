@@ -1195,7 +1195,6 @@ class DualView(Frame):
 				pass
 			
 			try:
-				print one_move
 				if player_color in ('b',"B"):
 					one_data['monte_carlo_win_rate']=float(one_move.get('BMCWR').replace("%",""))
 				else:
@@ -1243,7 +1242,6 @@ class DualView(Frame):
 				#if move number and color are the only data available for this point
 				#then we don't need that data point
 				data.pop()
-			print one_data
 		return data
 	
 	def show_graphs(self,event=None):
@@ -1332,7 +1330,16 @@ class DualView(Frame):
 		"""
 		
 		if m>=0:
-			left_comments="Move "+str(move)
+			left_comments=""
+			if m==0:
+				if self.gameroot.has_property("RSGF"):
+					left_comments+=self.gameroot.get("RSGF")
+				if self.gameroot.has_property("PB"):
+					left_comments+=_("Black")+": "+self.gameroot.get("PB")+"\n"
+				if self.gameroot.has_property("PW"):
+					left_comments+=_("White")+": "+self.gameroot.get("PW")+"\n"
+				
+			left_comments+="\n"+_("Move %i")%move
 			game_move_color,game_move=get_node(self.gameroot,move).get_move()
 			if game_move_color.lower()=="w":
 				left_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(game_move))

@@ -1043,7 +1043,7 @@ class RunAnalysisBase(Frame):
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
 		
-		first_move.add_comment_text(first_comment)
+		self.move_zero.set("RSGF",first_comment+"\n")
 		
 		
 		self.root=root
