@@ -1388,13 +1388,13 @@ class DualView(Frame):
 			return
 		if len(parent)<=1:
 			log("no alternative move")
-			#display(goban1,grid1,markup1)
-			#display(goban2,grid2,markup2)
 			goban1.display(grid1,markup1)
 			goban2.display(grid2,markup2)
-			
-			return
-		
+			self.table_button.config(state='disabled')
+			return	
+		else:
+			self.table_button.config(state='normal')
+
 		for a in range(1,min(len(parent),self.maxvariations+1)):
 			one_alternative=parent[a]
 			ij=one_alternative.get_move()[1]
@@ -1484,6 +1484,127 @@ class DualView(Frame):
 		new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
 		self.all_popups.append(new_popup)
+	
+	def open_table(self):
+		log("opening table")
+		
+		new_popup=Toplevel(self.parent)
+		Label(new_popup,text=" ").grid(row=0,column=0)
+		Label(new_popup,text=" ").grid(row=1000,column=1000)
+		
+		
+		
+		comments=""
+		if self.current_move==0:
+			if self.gameroot.has_property("RSGF"):
+				comments+=self.gameroot.get("RSGF")
+			if self.gameroot.has_property("PB"):
+				comments+=_("Black")+": "+self.gameroot.get("PB")+"\n"
+			if self.gameroot.has_property("PW"):
+				comments+=_("White")+": "+self.gameroot.get("PW")+"\n"
+			
+		comments+="\n"+_("Move %i")%self.current_move
+		game_move_color,game_move=get_node(self.gameroot,self.current_move).get_move()
+		
+		
+		if game_move_color.lower()=="w":
+			comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(game_move))
+		elif game_move_color.lower()=="b":
+			comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(game_move))
+		
+		try:
+			node=get_node(self.gameroot,self.current_move)
+			if node.has_property("BWWR"):
+				if node[0].has_property("BWWR"):
+					if node.get_move()[0].lower()=="b":
+						comments+="\n"+_("Black win probability:")
+						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
+						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
+						comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
+					else:
+						comments+="\n"+_("White win probability:")
+						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
+						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
+						comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
+		except:
+			pass
+		row=0
+		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=0,columnspan=100)
+		
+		Label(new_popup,text=" ").grid(row=row+1,column=0)
+		
+		columns_header=[_("Move"),'nothing here',_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score estimation")]
+		columns_sgf_properties=["nothing here","nothing here","BWWR","BWMCWR","BWVNWR","PNV","PLYO","EVAL","RAVE","ES"]
+		parent=get_node(self.gameroot,self.current_move-1)
+		nb_variations=min(len(parent)-1,self.maxvariations+1)
+		log(nb_variations,"variations")
+		
+		columns=[[None for i in range(nb_variations+1)] for j in range(len(columns_header))]
+
+		for a in range(1,min(len(parent),self.maxvariations+1)):
+			one_alternative=parent[a]
+			c=0
+			for key in columns_sgf_properties:
+				if one_alternative.has_property(key):
+					value=one_alternative.get(key)
+					if "%/" in value:
+						if parent[0].get_move()[0].lower()=="b":
+							value=value.split("/")[0]
+						else:
+							value=value.split("/")[1]
+					columns[c][a]=value
+				c+=1
+			columns[0][a]="ABCDEFGHIJKLMNOPQRSTUVWXYZ"[a-1]
+			columns[1][a]=ij2gtp(one_alternative.get_move()[1])
+		
+		try:
+			columns[0][0]="A"
+			columns[1][0]=ij2gtp(parent[0].get_move()[1])
+			one_alternative=parent[0][1]
+			c=0
+			for key in columns_sgf_properties:
+				if one_alternative.has_property(key):
+					value=one_alternative.get(key)
+					if "%/" in value:
+						if parent[0].get_move()[0].lower()=="b":
+							value=value.split("/")[0]
+						else:
+							value=value.split("/")[1]
+					columns[c][0]=value
+				c+=1
+		except:
+			pass
+		c=0
+		for column in columns:
+			empty=True
+			for row in column:
+				if row!=None:
+					empty=False
+					break
+			if empty:
+				columns_header[c]=None
+			c+=1
+		
+
+		
+		row=10
+		c=0
+		for header in columns_header:
+			if header:
+				if c==0:
+					Label(new_popup,text=header,relief=SUNKEN).grid(row=row,column=10+c,columnspan=2,sticky=W+E)
+				elif c==1:
+					pass
+				else:
+					Label(new_popup,text=header,relief=SUNKEN).grid(row=row,column=10+c,sticky=W+E)
+			c+=1
+		row+=1
+		
+		for c in range(len(columns)):
+			for r in range(nb_variations):
+				if columns_header[c]:
+					Label(new_popup,text=columns[c][r],relief=SUNKEN).grid(row=row+r,column=10+c,sticky=W+E)
+			
 		
 	def initialize(self):
 
@@ -1622,6 +1743,9 @@ class DualView(Frame):
 		self.lpix=lpix
 		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 		self.comment_box1.grid(column=1,row=row+4)
+		
+		self.table_button=Button(self,text=_("Table"),command=self.open_table)
+		self.table_button.grid(column=2,row=row+4)
 		
 		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 		self.comment_box2.grid(column=3,row=row+4)
