@@ -1078,6 +1078,10 @@ class BotOpenMove():
 		if self.okbot:
 			self.bot.undo()
 	
+	def undo_resign(self):
+		if self.okbot:
+			self.bot.undo_resign()
+	
 	def place(self,move,color):
 		if self.okbot:
 			if not self.bot.place(move,color):
