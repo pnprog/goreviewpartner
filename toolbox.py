@@ -764,7 +764,8 @@ class LiveAnalysisBase():
 
 class RunAnalysisBase(Frame):
 	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
-		Frame.__init__(self,parent)
+		if parent!="no-gui":
+			Frame.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
@@ -809,7 +810,7 @@ class RunAnalysisBase(Frame):
 		self.max_move=get_moves_number(self.move_zero)
 		self.total_done=0
 		
-		if parent!=None:
+		if parent!="no-gui":
 			try:
 				self.initialize_UI()
 			except Exception,e:
@@ -835,7 +836,7 @@ class RunAnalysisBase(Frame):
 		
 		self.completed=False
 		
-		if parent==None:
+		if parent=="no-gui":
 			self.run_all_analysis()
 		else:
 			threading.Thread(target=self.run_all_analysis).start()
