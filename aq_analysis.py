@@ -52,7 +52,11 @@ class AQAnalysis():
 		else:
 			log("AQ plays black")
 			answer=aq.play_black()
-
+		
+		if current_move>1:
+			es=aq.final_score()
+			one_move.set("ES",es)
+		
 		log("AQ preferred move:",answer)
 		all_moves=aq.get_all_aq_moves()
 		
@@ -94,10 +98,15 @@ class AQAnalysis():
 						variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
 						new_child.set("BWR",black_win_rate) #Black Win Rate
 						new_child.set("WWR",white_win_rate) #White Win Rate
+						new_child.set("BWWR",black_win_rate+"/"+white_win_rate)
+						
 						variation_comment+="\nCount: "+str(count)
+						new_child.set("PLYO",str(count))
+						
 						variation_comment+="\nValue: "+str(value)
 						variation_comment+="\nRoll: "+str(roll)
-						variation_comment+="\nProb: "+str(prob)
+						variation_comment+="\nProb: "+str(prob)+"%"
+						#new_child.set("PNV",str(prob)+"%")
 						
 						new_child.add_comment_text(variation_comment)
 						
@@ -154,6 +163,10 @@ import subprocess
 import threading, Queue
 
 class AQ_gtp(gtp):
+	
+	def quit(self):
+		self.write('\x03')
+	
 	def __init__(self,command):
 		self.c=1
 		
@@ -230,7 +243,8 @@ class AQ_gtp(gtp):
 		except Exception, e:
 			raise GtpException("GtpException in undo()\n"+str(e))
 
-	def get_all_aq_moves(self):
+
+	def get_all_aq_moves_old(self):
 		buff=[]
 		
 		sleep(.1)
@@ -279,6 +293,60 @@ class AQ_gtp(gtp):
 				if sequence:
 					answers=[[one_answer,int(count),value,float(roll),float(prob),sequence]]+answers
 
+		return answers
+
+
+
+	def get_all_aq_moves(self):
+		buff=[]
+		
+		sleep(.1)
+		while not self.stderr_queue.empty():
+			while not self.stderr_queue.empty():
+				buff.append(self.stderr_queue.get())
+			sleep(.1)
+		
+		buff.reverse()
+
+		answers=[]
+		for err_line in buff:
+			#log(err_line)
+			if "total games=" in err_line:
+				v1,v2=[int(v) for v in err_line.split("=")[-1].replace(")","").split("(")]
+				if v2!=0:
+					log("Computing requirement margin: "+str(int(100.*v1/v2)-100)+"%")
+				if v1<v2:
+					log("=======================================================")
+					log("=== WARNING: AQ thinking time seems to be too low ! ===")
+					log("=======================================================")
+				elif v1==0 and v2==0:
+					log("===============================================================================")
+					log("=== WARNING: AQ thinking time IS too low for the analysis to be performed ! ===")
+					log("===============================================================================")
+					log("\a") #let's make this annoying enough :)
+			if ("->" in err_line) and ('|' in err_line):
+				log(err_line)
+				sequence=err_line.split("|")[-1].strip()
+				sequence=sequence.replace(" ","")
+				sequence=sequence.replace("\t","")
+				sequence=sequence.replace("->"," ")
+				
+				err_line=err_line.replace("|"," ")
+				err_line=err_line.strip().split()
+				#print err_line.strip().split()
+				one_answer=err_line[0]
+				count=err_line[1]
+				try:
+					value=float(err_line[2])
+				except:
+					value=0.0
+				roll=err_line[3]
+				prob=err_line[4]
+				depth=err_line[5]
+
+				if sequence:
+					answers=[[one_answer,int(count),value,float(roll),float(prob),sequence]]+answers
+		
 		return answers
 
 
