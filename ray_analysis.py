@@ -41,6 +41,10 @@ class RayAnalysis():
 			log("ray play black")
 			answer=ray.get_ray_stat("black")
 
+		if current_move>2:
+			es=ray.final_score()
+			one_move.set("ES",es)
+
 		log(len(answer),"sequences")
 
 		if len(answer)>0:
@@ -69,36 +73,84 @@ class RayAnalysis():
 						new_child=previous_move.new_child()
 						new_child.set_move(current_color,(i,j))
 						if first_variation_move:
+							first_variation_move=False
 							variation_comment=''
 							if win:
 								if current_color=='b':
 									variation_comment+=_("black/white win probability for this variation: ")+str(win)+'%/'+str(100-float(win))+'%'
 									new_child.set("BWR",str(win)+'%') #Black Win Rate
 									new_child.set("WWR",str(100-float(win))+'%') #White Win Rate
+									new_child.set("BVWR",str(float(win))+'%/'+str(100-float(win))+'%') #Black Win Rate
 								else:
 									variation_comment+=_("black/white win probability for this variation: ")+str(100-float(win))+'%/'+str(win)+'%'
 									new_child.set("WWR",str(win)+'%') #White Win Rate
 									new_child.set("BWR",str(100-float(win))+'%') #Black Win Rate
+									new_child.set("BVWR",str(100-float(win))+'%/'+str(win)+'%') #Black Win Rate
+							
+							
 							if count:
 								variation_comment+="\nCount: "+count
+								new_child.set("PLYO",count)
+								
 							if simulation:
+								simulation+="%"
+								print "=======",simulation,"========"
 								variation_comment+="\nSimulation: "+simulation
+								if current_color=='b':
+									black_value=simulation
+									white_value=opposite_rate(black_value)
+								else:
+									white_value=simulation
+									black_value=opposite_rate(white_value)
+								
+								new_child.set("BMCWR",black_value)
+								new_child.set("WMCWR",white_value)
+								new_child.set("MCWR",black_value+'/'+white_value)
+
+								if best_move:
+									one_move.set("BMCWR",black_value)
+									one_move.set("WMCWR",white_value)
+									one_move.set("MCWR",black_value+'/'+white_value)
+									
+								
 							if policy:
-								variation_comment+="\nPolicy: "+policy
+								variation_comment+="\nPolicy: "+policy+"%"
+								new_child.set("PNV",policy+"%")
+								
 							if value:
 								variation_comment+="\nValue: "+value
-							if best_move and win:
-								#log("===BWR/WWR",win)
-								best_move=False
-								one_move.set("CBM",one_deep_move.lower())
-								if current_color=='b':
-									one_move.set("BWR",str(win)+'%') #Black Win Rate
-									one_move.set("WWR",str(100-float(win))+'%') #White Win Rate
+								
+								if player_color=='b':
+									black_value=value+"%"
+									white_value=opposite_rate(black_value)
 								else:
-									one_move.set("WWR",str(win)+'%') #White Win Rate
-									one_move.set("BWR",str(100-float(win))+'%') #Black Win Rate
-								#log("===BWR/WWR")
+									white_value=value+"%"
+									black_value=opposite_rate(white_value)
+								new_child.set("BVNWR",black_value)
+								new_child.set("WVNWR",white_value)
+								new_child.set("VNWR",black_value+'/'+white_value)
+								#variation_comment+=_("Value network black/white win probability for this move: ")+black_value+'/'+white_value+"\n"
+								
+								
+							if best_move and win:
+								
+								one_move.set("CBM",one_deep_move.lower())
+								if player_color=='b':
+									black_value=str(win)+'%'
+									white_value=opposite_rate(black_value)
+								else:
+									white_value=str(win)+'%'
+									black_value=opposite_rate(white_value)
+								one_move.set("BWR",black_value)
+								one_move.set("WWR",white_value)
+								one_move.set("BWWR",black_value+'/'+white_value)
+								additional_comments+=(_("%s black/white win probability for this position: ")%"Ray")+black_value+'/'+white_value+"\n"
+								
 							new_child.add_comment_text(variation_comment.strip())
+							
+							if best_move:
+								best_move=False
+							
 						previous_move=new_child
 					else:
 						break
@@ -217,9 +269,15 @@ class Ray_gtp(gtp):
 			one_line=answer=self.process.stdout.readline().strip()
 			if one_line.strip()=="":
 				break
-			log("\t",[s.strip() for s in one_line.split("|")[1:]])
+			log(one_line)
+			#log("\t",[s.strip() for s in one_line.split("|")[1:]])
 			sequences.append([s.strip() for s in one_line.split("|")[1:]])
 		
+		if sequences[0][5]=="":
+			log("===================================================================")
+			log("=== WARNING: Ray thinking time is too short for proper analysis ===")
+			log("===================================================================")
+			log("\a") #let's make this annoying enough :)
 		return sequences
 
 class RaySettings(Frame):
