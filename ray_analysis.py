@@ -80,12 +80,12 @@ class RayAnalysis():
 									variation_comment+=_("black/white win probability for this variation: ")+str(win)+'%/'+str(100-float(win))+'%'
 									new_child.set("BWR",str(win)+'%') #Black Win Rate
 									new_child.set("WWR",str(100-float(win))+'%') #White Win Rate
-									new_child.set("BVWR",str(float(win))+'%/'+str(100-float(win))+'%') #Black Win Rate
+									new_child.set("BWWR",str(float(win))+'%/'+str(100-float(win))+'%') #Black Win Rate
 								else:
 									variation_comment+=_("black/white win probability for this variation: ")+str(100-float(win))+'%/'+str(win)+'%'
 									new_child.set("WWR",str(win)+'%') #White Win Rate
 									new_child.set("BWR",str(100-float(win))+'%') #Black Win Rate
-									new_child.set("BVWR",str(100-float(win))+'%/'+str(win)+'%') #Black Win Rate
+									new_child.set("BWWR",str(100-float(win))+'%/'+str(win)+'%') #Black Win Rate
 							
 							
 							if count:

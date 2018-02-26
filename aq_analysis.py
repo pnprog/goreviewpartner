@@ -116,7 +116,8 @@ class AQAnalysis():
 						additional_comments+=(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
 						one_move.set("BWR",black_win_rate) #Black Win Rate
 						one_move.set("WWR",white_win_rate) #White Win Rate
-					
+						one_move.set("BWWR",black_win_rate+"/"+white_win_rate)
+						
 					previous_move=new_child
 					if current_color in ('w','W'):
 						current_color='b'
