@@ -41,10 +41,10 @@ def get_full_sequence(worker,current_color,deepness):
 				undos+=1
 				break
 			undos+=1
-		
+		es=worker.get_gnugo_estimate_score()
 		for u in range(undos):
 			worker.undo()
-		return sequence.strip()
+		return [sequence.strip(),es]
 	except Exception, e:
 		return e
 
@@ -126,22 +126,25 @@ class GnuGoAnalysis():
 						worker.undo()
 					
 				for one_thread in all_threads:
-					if type(one_thread.sequence)!=type("abc"):
+					if type(one_thread.sequence)!=type(["list"]):
 						raise AbortedException(_("GnuGo thread failed:")+"\n"+str(one_thread.sequence))
 					
-					one_sequence=one_thread.one_top_move+" "+one_thread.sequence
+					one_sequence=one_thread.one_top_move+" "+one_thread.sequence[0]
+					es=one_thread.sequence[1]
 					one_sequence=one_sequence.strip()
 					log(">>>>>>",one_sequence)
 					previous_move=one_move.parent
 					current_color=player_color
+					first_move=True
 					for one_deep_move in one_sequence.split(' '):
-						
 						if one_deep_move.lower() not in ['resign','pass']:
-						
 							i,j=gtp2ij(one_deep_move)
 							new_child=previous_move.new_child()
 							new_child.set_move(current_color,(i,j))
-
+							if first_move:
+								first_move=False
+								new_child.set("ES",es)
+								new_child.add_comment_text(("%s score estimation for this variation"%"GnuGo")+": "+es+"\n")
 							previous_move=new_child
 							if current_color in ('w','W'):
 								current_color='b'
