@@ -96,7 +96,7 @@ def gtp2ij(move):
 	except:
 		raise AbortedException("Cannot convert GTP coordinates "+str(move)+" to grid coordinates!")
 
-		
+
 
 
 def ij2gtp(m):
@@ -136,32 +136,32 @@ class DownloadFromURL(Frame):
 		self.bots=bots
 		self.parent=parent
 		self.parent.title('GoReviewPartner')
-		
+
 		Label(self,text='   ').grid(column=0,row=0)
 		Label(self,text='   ').grid(column=2,row=4)
-		
+
 		Label(self,text=_("Paste the URL to the SGF file (http or https):")).grid(row=1,column=1,sticky=W)
 		self.url_entry=Entry(self)
 		self.url_entry.grid(row=2,column=1,sticky=W)
-		
+
 		Button(self,text=_("Get"),command=self.get).grid(row=3,column=1,sticky=E)
 		self.popup=None
 		self.focus()
-		
+
 	def get(self):
 		user_agent = 'GoReviewPartner (https://github.com/pnprog/goreviewpartner/)'
 		headers = { 'User-Agent' : user_agent }
-		
-		
+
+
 		url=self.url_entry.get()
 		if not url:
 			return
-		
+
 		if url[:4]!="http":
 			url="http://"+url
-		
+
 		log("Downloading",url)
-		
+
 		r=urllib2.Request(url,headers=headers)
 		try:
 			h=urllib2.urlopen(r)
@@ -169,15 +169,15 @@ class DownloadFromURL(Frame):
 			show_error(_("Could not download the URL"))
 			return
 		filename=""
-		
+
 		sgf=h.read()
-		
+
 		if sgf[:7]!="(;FF[4]":
 			log("not a sgf file")
 			show_error(_("Not a SGF file!"))
 			log(sgf[:7])
 			return
-		
+
 		try:
 			filename=h.info()['Content-Disposition']
 			if 'filename="' in filename:
@@ -200,7 +200,7 @@ class DownloadFromURL(Frame):
 			if date:
 				filename=date+'_'
 			filename+=black+'_VS_'+white+'.sgf'
-		
+
 		log(filename)
 		write_rsgf(filename,sgf)
 		self.destroy()
@@ -217,7 +217,7 @@ class DownloadFromURL(Frame):
 			except:
 				log("RangeSelector could not close its RunAlanlysis popup")
 				pass
-		
+
 		try:
 			self.parent.destroy()
 		except:
@@ -267,7 +267,7 @@ def clean_sgf(txt):
 	for private_property in ["MULTIGOGM","MULTIGOBM"]:
 		if private_property in txt:
 			log("removing private property",private_property,"from sgf content")
-			txt1,txt2=txt.split(private_property+'[')				
+			txt1,txt2=txt.split(private_property+'[')
 			txt=txt1+"]".join(txt2.split(']')[1:])
 	return txt
 
@@ -275,20 +275,20 @@ def clean_sgf(txt):
 
 
 def get_all_sgf_leaves(root,deep=0):
-	
+
 	if len(root)==0:
 		#this is a leave
 		return [(root,deep)]
-	
+
 	leaves=[]
 	deep+=1
 	for leaf in root:
 		leaves.extend(get_all_sgf_leaves(leaf,deep))
-	
+
 	return leaves
 
 def keep_only_one_leaf(leaf):
-	
+
 	while 1:
 		try:
 			parent=leaf.parent
@@ -324,7 +324,7 @@ def check_selection(selection,nb_moves):
 	return move_selection
 
 def check_selection_for_color(move_zero,move_selection,color):
-	
+
 	if color=="black":
 		new_move_selection=[]
 		for m in move_selection:
@@ -352,7 +352,7 @@ class RangeSelector(Frame):
 		root = self
 		root.parent.title('GoReviewPartner')
 		self.bots=bots
-		
+
 		self.g=open_sgf(self.filename)
 		content=self.g.serialise()
 
@@ -369,10 +369,10 @@ class RangeSelector(Frame):
 			value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 			bot_names=[bot['name']+value[bot['profile']] for bot in bots]
 			self.bot_selection=StringVar()
-			
+
 			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
 			self.bot_selection.set(bot_names[0])
-			
+
 			row+=1
 			Label(self,text="").grid(row=row,column=1)
 
@@ -381,53 +381,53 @@ class RangeSelector(Frame):
 		self.leaves=get_all_sgf_leaves(self.move_zero)
 		self.variation_selection=StringVar()
 		self.variation_selection.trace("w", self.variation_changed)
-		
+
 		options=[]
 		v=1
 		for leaf,deep in self.leaves:
 			options.append(_("Variation %i (%i moves)")%(v,deep))
 			v+=1
 		self.variation_selection.set(options[0])
-		
+
 		apply(OptionMenu,(self,self.variation_selection)+tuple(options)).grid(row=row,column=2,sticky=W)
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
-		
+
 		row+=1
 		Label(self,text=_("Select moves to be analysed")).grid(row=row,column=1,sticky=W)
-		
+
 		row+=1
 		s = StringVar()
 		s.set("all")
 		self.r1=Radiobutton(self,text=_("Analyse all %i moves")%nb_moves,variable=s, value="all")
 		self.r1.grid(row=row,column=1,sticky=W)
 		self.after(0,self.r1.select)
-		
+
 		row+=1
 		r2=Radiobutton(self,text=_("Analyse only those moves:"),variable=s, value="only")
 		r2.grid(row=row,column=1,sticky=W)
-		
+
 		only_entry=Entry(self)
 		only_entry.bind("<Button-1>", lambda e: r2.select())
 		only_entry.grid(row=row,column=2,sticky=W)
 		only_entry.delete(0, END)
 		if nb_moves>0:
 			only_entry.insert(0, "1-"+str(nb_moves))
-		
+
 		row+=3
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
 		Label(self,text=_("Select colors to be analysed")).grid(row=row,column=1,sticky=W)
-		
+
 		c = StringVar()
 		c.set("both")
-		
+
 		row+=1
 		c0=Radiobutton(self,text=_("Black & white"),variable=c, value="both")
 		c0.grid(row=row,column=1,sticky=W)
 		self.after(0,c0.select)
-		
+
 		if 'PB[' in content:
 			black_player=content.split('PB[')[1].split(']')[0]
 			if black_player.lower().strip() in ['black','']:
@@ -436,7 +436,7 @@ class RangeSelector(Frame):
 				black_player=' ('+black_player+')'
 		else:
 			black_player=''
-		
+
 		if 'PW[' in content:
 			white_player=content.split('PW[')[1].split(']')[0]
 			if white_player.lower().strip() in ['white','']:
@@ -445,32 +445,32 @@ class RangeSelector(Frame):
 				white_player=' ('+white_player+')'
 		else:
 			white_player=''
-		
+
 		row+=1
 		c1=Radiobutton(self,text=_("Black only")+black_player,variable=c, value="black")
 		c1.grid(row=row,column=1,sticky=W)
-		
+
 		row+=1
 		c2=Radiobutton(self,text=_("White only")+white_player,variable=c, value="white")
 		c2.grid(row=row,column=1,sticky=W)
-		
+
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
-		
+
 		board, plays = sgf_moves.get_setup_and_moves(self.g)
 		if len(board.list_occupied_points())>0:
 			row+=1
 			Label(self,text=_("This is a %i stones handicap game.")%len(board.list_occupied_points())).grid(row=row,column=1,columnspan=2,sticky=W)
 			row+=1
 			Label(self,text=_("You may want to increase the value of komi based on the rule set.")).grid(row=row,column=1,columnspan=2,sticky=W)
-		
+
 		row+=1
 		Label(self,text=_("Confirm the value of komi")).grid(row=row,column=1,sticky=W)
-		
+
 		komi_entry=Entry(self)
 		komi_entry.grid(row=row,column=2,sticky=W)
 		komi_entry.delete(0, END)
-		
+
 		try:
 			komi=self.g.get_komi()
 			komi_entry.insert(0, str(komi))
@@ -478,21 +478,21 @@ class RangeSelector(Frame):
 			log("Error while reading komi value, please check:\n"+str(e))
 			show_error(_("Error while reading komi value, please check:")+"\n"+str(e))
 			komi_entry.insert(0, "0")
-		
+
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		
+
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
+
 		Label(self,text=_("Stop the analysis if the bot resigns")).grid(row=row,column=1,sticky=W)
 		StopAtFirstResign = BooleanVar(value=Config.getboolean('Analysis', 'StopAtFirstResign'))
 		StopAtFirstResignCheckbutton=Checkbutton(self, text="", variable=StopAtFirstResign,onvalue=True,offvalue=False)
 		StopAtFirstResignCheckbutton.grid(row=row,column=2,sticky=W)
 		StopAtFirstResignCheckbutton.var=StopAtFirstResign
 		self.StopAtFirstResign=StopAtFirstResign
-		
+
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
@@ -503,10 +503,10 @@ class RangeSelector(Frame):
 		self.only_entry=only_entry
 		self.popup=None
 		self.komi_entry=komi_entry
-		
+
 		self.focus()
 		self.parent.focus()
-		
+
 	def variation_changed(self,*args):
 		log("variation changed!",self.variation_selection.get())
 		try:
@@ -516,14 +516,14 @@ class RangeSelector(Frame):
 			self.only_entry.delete(0, END)
 			if deep>0:
 				self.only_entry.insert(0, "1-"+str(deep))
-			
+
 			self.r1.config(text=_("Analyse all %i moves")%deep)
-			
+
 			self.nb_moves=deep
-			
+
 		except:
 			pass
-		
+
 	def close_app(self):
 		if self.popup:
 			try:
@@ -532,34 +532,34 @@ class RangeSelector(Frame):
 			except:
 				log("RangeSelector could not close its RunAlanlysis popup")
 				pass
-	
+
 	def start(self):
-		
+
 		if self.nb_moves==0:
 			show_error(_("This variation is empty (0 move), the analysis cannot be performed!"))
 			return
-		
+
 		try:
 			komi=float(self.komi_entry.get())
 		except:
 			show_error(_("Incorrect value for komi (%s), please double check.")%self.komi_entry.get())
 			return
-		
+
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
 			value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 			bot={bot['name']+value[bot['profile']]:bot for bot in self.bots}[bot]
-			
+
 			#RunAnalysis={bot_label:bot['runanalysis'] for bot in self.bots}[bot]
 			#profile={bot_label:bot['profile'] for bot in self.bots}[bot]
 			RunAnalysis=bot['runanalysis']
 			profile=bot['profile']
-			
+
 			#bot_selection=int(self.bot_selection.curselection()[0])
 			#log("bot selection:",self.bots[bot_selection][0])
 			#RunAnalysis=self.bots[bot_selection][1]
-		
+
 		if self.mode.get()=="all":
 			intervals="all moves"
 			move_selection=range(1,self.nb_moves+1)
@@ -581,20 +581,20 @@ class RangeSelector(Frame):
 			intervals+=" (both colors)"
 
 		move_selection=check_selection_for_color(self.move_zero,move_selection,self.color.get())
-			
+
 		log("========= move selection")
 		log(move_selection)
-		
+
 		log("========= variation")
 		variation=int(self.variation_selection.get().split(" ")[1])-1
 		log(variation)
-		
+
 		####################################
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 		Config.write(open(config_file,"w"))
-		
+
 		####################################
 		self.parent.destroy()
 		try:
@@ -606,8 +606,8 @@ class RangeSelector(Frame):
 			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi,profile)
 			self.popup.pack()
 			newtop.mainloop()
-		
-		
+
+
 
 
 import threading
@@ -619,24 +619,24 @@ import ttk
 
 
 def guess_color_to_play(move_zero,move_number):
-	
+
 	one_move=go_to_move(move_zero,move_number)
-	
-	
-	
+
+
+
 	player_color,player_move=one_move.get_move()
 	if player_color != None:
 		return player_color
-	
+
 	if one_move is move_zero:
 		print 'move_zero.get("PL")=',move_zero.get("PL")
 		if move_zero.get("PL").lower()=="b":
 			return "w"
 		if move_zero.get("PL").lower()=="w":
 			return "b"
-	
+
 	previous_move_color=guess_color_to_play(move_zero,move_number-1)
-	
+
 	if previous_move_color.lower()=='b':
 		print "guess_color_to_play(%i)=%s"%(move_number,"w")
 		return "w"
@@ -653,8 +653,10 @@ class LiveAnalysisBase():
 		self.update_queue=Queue.PriorityQueue()
 		self.label_queue=Queue.Queue()
 		self.best_moves_queue=Queue.Queue()
-		
+
 		self.move_zero=self.g.get_root()
+
+		self.data_in_comments=False
 
 		size=self.g.get_size()
 		log("size of the tree:", size)
@@ -663,42 +665,42 @@ class LiveAnalysisBase():
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
-		
+
 		self.stop_at_first_resign=False
-		
+
 		self.cpu_lock=threading.Lock()
-		
+
 	def start(self):
 		threading.Thread(target=self.run_live_analysis).start()
-			
+
 
 	def run_live_analysis(self):
 		self.current_move=1
-		
+
 		while 1:
 			if not self.cpu_lock.acquire(False):
 				time.sleep(2) #let's wait just enough time in case human player already has a move to play
 				continue
-			
+
 			try:
 				priority,msg=self.update_queue.get(False)
 			except:
 				self.cpu_lock.release()
 				time.sleep(.5)
 				continue
-			
+
 			if msg==None:
 				log("Leaving the analysis")
 				self.cpu_lock.release()
 				return
-				
+
 			if msg=="wait":
 				log("Analyser iddle for one second")
 				time.sleep(1) #enought time for user to press "undo" one more time
 				self.cpu_lock.release()
 				time.sleep(0.1) #in case the user pressed "undo", then enought time for Live analysis to grab the lock
 				continue
-			
+
 			if type(msg)==type("undo xxx"):
 				print "msg=",msg
 				move_to_undo=int(msg.split()[1])
@@ -712,23 +714,23 @@ class LiveAnalysisBase():
 						log("Undoing move",self.current_move,"through GTP")
 						self.bot.undo()
 						self.current_move-=1
-				
+
 				log("Deleting the SGF branch")
 				parent=go_to_move(self.move_zero,move_to_undo-1)
 				new_branch=parent[0]
 				old_branch=parent[1]
-				
+
 				for p in ["ES","CBM","BWR","WWR","UBS","LBS","C"]:
 					if old_branch.has_property(p):
 						new_branch.set(p,old_branch.get(p))
-				
+
 				old_branch.delete()
 
 				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 				self.cpu_lock.release()
 				self.update_queue.put((0,"wait"))
 				continue
-			
+
 			log("Analyser received msg to analyse move",msg)
 			while msg>self.current_move:
 				log("Analyser currently at move",self.current_move)
@@ -743,7 +745,7 @@ class LiveAnalysisBase():
 					log("black at",ij2gtp(player_move))
 					self.bot.place_black(ij2gtp(player_move))
 				self.current_move+=1
-			
+
 			log("Analyser is currently at move",self.current_move)
 			self.label_queue.put(self.current_move)
 			log("starting analysis of move",self.current_move)
@@ -760,7 +762,7 @@ class LiveAnalysisBase():
 
 
 
-		
+
 
 class RunAnalysisBase(Frame):
 	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
@@ -776,21 +778,21 @@ class RunAnalysisBase(Frame):
 		self.profile=profile
 		self.g=None
 		self.move_zero=None
-		
+
 		self.current_move=None
 		self.time_per_move=None
-		
+
 		self.data_in_comments=False
-		
+
 		self.error=None
-		
+
 		self.g=open_sgf(self.filename)
 		sgf_moves.indicate_first_player(self.g)
-		
+
 		leaves=get_all_sgf_leaves(self.g.get_root())
 		log("keeping only variation",self.variation)
 		keep_only_one_leaf(leaves[self.variation][0])
-		
+
 		size=self.g.get_size()
 		log("size of the tree:", size)
 		self.size=size
@@ -798,20 +800,20 @@ class RunAnalysisBase(Frame):
 		log("Setting new komi")
 		self.move_zero=self.g.get_root()
 		self.g.get_root().set("KM", self.komi)
-		
+
 		try:
 			self.bot=self.initialize_bot()
 		except Exception,e:
 			self.error=_("Error while initializing the GTP bot:")+"\n"+str(e)
 			self.abort()
 			return
-		
+
 		if not self.bot:
 			return
-		
+
 		self.max_move=get_moves_number(self.move_zero)
 		self.total_done=0
-		
+
 		if parent!="no-gui":
 			try:
 				self.initialize_UI()
@@ -820,11 +822,11 @@ class RunAnalysisBase(Frame):
 				self.abort()
 				return
 			self.root.after(500,self.follow_analysis)
-		
+
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
-		
+
 		try:
 			if Config.getboolean('Analysis', 'StopAtFirstResign'):
 				log("Stop_At_First_Resign is ON")
@@ -835,29 +837,29 @@ class RunAnalysisBase(Frame):
 		except:
 			self.stop_at_first_resign=False
 			log("Stop_At_First_Resign is OFF")
-		
-		
-		
+
+
+
 		self.completed=False
-		
+
 		if parent=="no-gui":
 			self.run_all_analysis()
 		else:
 			threading.Thread(target=self.run_all_analysis).start()
-			
-		
-			
+
+
+
 	def initialize_bot(self):
 		pass
-	
+
 	def run_analysis(self,current_move):
-		
+
 		#################################################
 		##### here is the place to perform analysis #####
 		#################################################
-		
+
 		log("Analysis for this move is completed")
-	
+
 	def run_all_analysis(self):
 		self.current_move=1
 
@@ -868,7 +870,7 @@ class RunAnalysisBase(Frame):
 				self.total_done+=1
 			elif self.move_range:
 				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
-			
+
 			if self.move_range:
 				linelog("now asking "+self.bot.bot_name+" to play the game move:")
 				one_move=go_to_move(self.move_zero,self.current_move)
@@ -880,15 +882,15 @@ class RunAnalysisBase(Frame):
 					log("black at",ij2gtp(player_move))
 					self.bot.place_black(ij2gtp(player_move))
 				log("Analysis for this move is completed")
-				
+
 			else:
 				#the bot has proposed to resign, and resign_at_first_stop is ON
 				pass
-			
+
 			self.current_move+=1
 			self.update_queue.put(self.current_move)
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			
+
 		return
 
 	def abort(self):
@@ -924,7 +926,7 @@ class RunAnalysisBase(Frame):
 
 		except:
 			pass
-		
+
 		if self.current_move<=self.max_move:
 			if msg==None:
 				self.parent.after(250,self.follow_analysis)
@@ -938,7 +940,7 @@ class RunAnalysisBase(Frame):
 		self.lab2.config(text="")
 		self.pb["maximum"] = 100
 		self.pb["value"] = 100
-		
+
 		try:
 			#import dual_view
 			Button(self.right_frame,text=_("Start review"),command=self.start_review).pack(side=TOP)
@@ -947,34 +949,34 @@ class RunAnalysisBase(Frame):
 
 	def start_review(self):
 		import dual_view
-		
+
 		app=self.parent
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
-		
+
 		Config = ConfigParser.ConfigParser()
 		Config.read("config.ini")
-		
+
 		display_factor=.5
 		try:
 			display_factor=float(Config.get("Review", "GobanScreenRatio"))
 		except:
 			Config.set("Review", "GobanScreenRatio",display_factor)
 			Config.write(open("config.ini","w"))
-		
+
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
 		#Toplevel()
-		
+
 		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
 		new_popup.pack(fill=BOTH,expand=1)
 		self.remove_app()
-		
-	
+
+
 	def terminate_bot(self):
 		log("killing",self.bot.bot_name)
 		self.bot.close()
-	
+
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
 		self.lab2.config(text=_("Now closing, please wait..."))
@@ -984,7 +986,7 @@ class RunAnalysisBase(Frame):
 		except:
 			pass
 		self.destroy()
-	
+
 	def close_app(self):
 		self.remove_app()
 		self.destroy()
@@ -995,38 +997,38 @@ class RunAnalysisBase(Frame):
 
 	def initialize_UI(self):
 
-		
+
 		if not self.move_range:
 			self.move_range=range(1,self.max_move+1)
 
-		
-		
+
+
 		root = self
 		root.parent.title('GoReviewPartner')
 		root.parent.protocol("WM_DELETE_WINDOW", self.close_app)
-		
+
 		bg=root.cget("background")
 		logo = Canvas(root,bg=bg,width=5,height=5)
 		logo.pack(fill=BOTH,expand=1,side=LEFT)
 		logo.bind("<Configure>",lambda e: draw_logo(logo,e,"vertical"))
-		
+
 		right_frame=Frame(root)
 		right_frame.pack(side=LEFT,padx=5, pady=5)
 		self.right_frame=right_frame
 		Label(right_frame,text=_("Analysis of: %s")%os.path.basename(self.filename)).pack()
-		
+
 		self.lab1=Label(right_frame)
 		self.lab1.pack()
-		
+
 		self.lab2=Label(right_frame)
 		self.lab2.pack()
-		
+
 		self.lab1.config(text=_("Currently at move %i/%i")%(1,self.max_move))
-		
+
 		self.pb = ttk.Progressbar(right_frame, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
 		current_move=1
-		
+
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		except Exception,e:
@@ -1041,19 +1043,19 @@ class RunAnalysisBase(Frame):
 		first_comment+="\n"+("Bot: %s/%s"%(self.bot.bot_name,self.bot.bot_version))
 		first_comment+="\n"+("Komi: %0.1f"%self.komi)
 		first_comment+="\n"+("Intervals: %s"%self.intervals)
-		
+
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
+
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
-		
+
 		if self.data_in_comments:
 			self.move_zero.add_comment_text(first_comment+"\n")
 		else:
 			self.move_zero.set("RSGF",first_comment+"\n")
-		
-		
+
+
 		self.root=root
 
 
@@ -1066,9 +1068,9 @@ class BotOpenMove():
 		self.okbot=False
 		self.sgf_g=sgf_g
 		self.profile=profile
-		
+
 	def start(self):
-		try:		
+		try:
 			result=self.my_starting_procedure(self.sgf_g,profile=self.profile,silentfail=True)
 			if result:
 				self.bot=result
@@ -1080,22 +1082,22 @@ class BotOpenMove():
 			log(e)
 			self.okbot=False
 		return
-		
+
 	def undo(self):
 		if self.okbot:
 			self.bot.undo()
-	
+
 	def undo_resign(self):
 		if self.okbot:
 			self.bot.undo_resign()
-	
+
 	def place(self,move,color):
 		if self.okbot:
 			if not self.bot.place(move,color):
 				#self.config(state='disabled')
 				return False
 			return True
-			
+
 	def quick_evaluation(self,color):
 		return self.bot.quick_evaluation(color)
 
@@ -1116,7 +1118,7 @@ class BotOpenMove():
 
 
 class LaunchingException(Exception):
-	pass		
+	pass
 
 def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",silentfail=False):
 	log("Bot starting procedure started with profile =",profile)
@@ -1128,62 +1130,62 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 	elif profile=="fast":
 		command_entry="FastCommand"
 		parameters_entry="FastParameters"
-	
+
 	size=sgf_g.get_size()
-	
+
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	
+
 	try:
 		try:
 			bot_command_line=Config.get(bot_name, command_entry)
 		except:
 			raise LaunchingException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
-			
-		
+
+
 		if not bot_command_line:
 			raise LaunchingException(_("The config.ini file %s entry for %s is empty!")%(command_entry, bot_name))
-			
+
 		log("Starting "+bot_name+"...")
 		try:
 			bot_command_line=[Config.get(bot_name, command_entry)]+Config.get(bot_name, parameters_entry).split()
 			bot=bot_gtp(bot_command_line)
 		except Exception,e:
 			raise LaunchingException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+Config.get(bot_name, command_entry)+" "+Config.get(bot_name, parameters_entry)+"\n"+str(e))
-			
+
 		log(bot_name+" started")
 		log(bot_name+" identification through GTP...")
 		try:
 			answer=bot.name()
 		except Exception, e:
 			raise LaunchingException((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+str(e))
-			
-		
+
+
 		if answer!=bot_gtp_name:
 			raise LaunchingException((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
-			
-		
+
+
 		log(bot_name+" identified itself properly")
 		log("Checking version through GTP...")
 		try:
 			bot_version=bot.version()
 		except Exception, e:
 			raise LaunchingException((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+str(e))
-			
+
 		log("Version: "+bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
 		try:
 			ok=bot.boardsize(size)
 		except:
 			raise LaunchingException((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%bot_name))
-			
+
 		if not ok:
 			raise LaunchingException(_("%s rejected this board size (%ix%i)")%(bot_name,size,size))
-			
-		
+
+
 		log("Clearing the board")
 		bot.reset()
-		
+
 		board, plays = sgf_moves.get_setup_and_moves(sgf_g)
 		handicap_stones=""
 		log("Adding handicap stones, if any")
@@ -1207,12 +1209,12 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 			bot.set_free_handicap(positions)
 			#log("Setting bot komi at",sgf_g.get_komi(),"+",len(positions))
 			#bot.komi(sgf_g.get_komi()+len(positions))
-		
+
 		log("Setting komi at",sgf_g.get_komi())
 		bot.komi(sgf_g.get_komi())
-		
+
 		log(bot_name+" initialization completed")
-		
+
 		bot.bot_name=bot_gtp_name
 		bot.bot_version=bot_version
 	except LaunchingException,e:
@@ -1226,31 +1228,31 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 
 def draw_logo(logo,event=None,stretch="horizontal"):
-	
+
 	for item in logo.find_all():
 		logo.delete(item)
-	
+
 	width=event.width
 	height=event.height
-	
+
 	if stretch=="horizontal":
 		logo.config(height=width)
 	else:
 		logo.config(width=height)
-		
+
 	border=0.1
 	w=width*(1-2*border)
 	b=width*border
-	
+
 	for u in [1/4.,2/4.,3/4.]:
 		for v in [1/4.,2/4.,3/4.]:
 			x1=b+w*(u-1/8.)
 			y1=b+w*(v-1/8.)
 			x2=b+w*(u+1/8.)
 			y2=b+w*(v+1/8.)
-			
+
 			logo.create_oval(x1, y1, x2, y2, fill="#ADC5E7", outline="")
-	
+
 	for k in [1/4.,2/4.,3/4.]:
 		x1=b+k*w
 		y1=b
@@ -1258,15 +1260,15 @@ def draw_logo(logo,event=None,stretch="horizontal"):
 		y2=b+w
 		logo.create_line(x1, y1, x2, y2, width=w*7/318., fill="#21409A")
 		logo.create_line(y1, x1, y2, x2, width=w*7/318., fill="#21409A")
-	
+
 	for u,v in [(2/4.,1/4.),(3/4.,2/4.),(1/4.,3/4.),(2/4.,3/4.),(3/4.,3/4.)]:
 		x1=b+w*(u-1/8.)
 		y1=b+w*(v-1/8.)
 		x2=b+w*(u+1/8.)
 		y2=b+w*(v+1/8.)
-		
+
 		logo.create_oval(x1, y1, x2, y2, fill="black", outline="")
-	
+
 
 
 
@@ -1280,14 +1282,14 @@ except:
 	usage=""
 
 def parse_command_line(filename,argv):
-	
+
 	g=open_sgf(filename)
 	content=g.serialise()
-	
+
 	move_zero=g.get_root()
-	
+
 	leaves=get_all_sgf_leaves(move_zero)
-	
+
 	found=False
 	for p,v in argv:
 		if p=="--variation":
@@ -1299,26 +1301,26 @@ def parse_command_line(filename,argv):
 				sys.exit()
 	if not found:
 		variation=1
-	
+
 	log("Variation:",variation)
-	
+
 	if variation<1:
 		show_error("Wrong variation parameter, it must be a positive integer")
 		sys.exit()
-	
+
 	if variation>len(leaves):
 		show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)")
 		sys.exit()
-	
+
 	nb_moves=leaves[variation-1][1]
 	log("Moves for this variation:",nb_moves)
-	
+
 	if nb_moves==0:
 		show_error("This variation is empty (0 move), the analysis cannot be performed!")
 		sys.exit()
-	
+
 	#nb_moves=get_moves_number(move_zero)
-	
+
 	found=False
 	for p,v in argv:
 		if p=="--range":
@@ -1336,16 +1338,16 @@ def parse_command_line(filename,argv):
 					sys.exit()
 				found=True
 				break
-		
+
 	if not found:
 		move_selection=range(1,nb_moves+1)
 		intervals="all moves"
 		log("Range: all")
-			
+
 	found=False
 	for p,v in argv:
 		if p=="--color":
-			
+
 			if v in ["black","white"]:
 				log("Color:",v)
 				move_selection=check_selection_for_color(move_zero,move_selection,v)
@@ -1360,7 +1362,7 @@ def parse_command_line(filename,argv):
 	if not found:
 		intervals+=" (both colors)"
 		log("Color: both")
-	
+
 	found=False
 	for p,v in argv:
 		if p=="--komi":
@@ -1379,15 +1381,15 @@ def parse_command_line(filename,argv):
 			log(msg)
 			show_error(msg)
 			sys.exit()
-	
+
 	log("Komi:",komi)
-	
+
 	nogui=False
 	for p,v in argv:
 		if p=="--no-gui":
 			nogui=True
 			break
-	
+
 	return move_selection,intervals,variation,komi,nogui
 
 # from http://www.py2exe.org/index.cgi/WhereAmI
@@ -1451,31 +1453,31 @@ else:
 		log("Saving the lang parameter in config.ini")
 		Config.set("General","Language",lang)
 		Config.write(open(config_file,"w"))
-		
+
 translations={}
 def prepare_translations():
 	global translations
-	
+
 	if lang=='en':
 		return
 
 	data_file_url=os.path.join(os.path.abspath(pathname),"translations",lang+".po")
 	log("Loading translation file:",data_file_url)
-	
+
 	data_file = open(data_file_url,"r")
 	translation_data=data_file.read()
 	data_file.close()
-	
+
 	entry=""
 	translation=""
-	
+
 	for line in translation_data.split('\n'):
 
 		key="msgid"
 		if line[:len(key)+2]==key+' "':
 			entry=line[len(key)+2:-1]
 			translation=""
-		
+
 		key="msgstr"
 		if line[:len(key)+2]==key+' "':
 			translation=line[len(key)+2:-1]
@@ -1500,13 +1502,13 @@ def batch_analysis(top,batch):
 	#this happens when top=Tk() is detroyed after one analysis, and a new one is created for the next analysis
 	#this bug is sidestepped by recycling the same top=Tk() for all analysis
 	#see also: http://learning-python.com/python-changes-2014-plus.html#s35E
-	
+
 	if len(batch)==0:
 		top.destroy()
 		return
-	
+
 	one_analysis=batch[0]
-	
+
 	if len(one_analysis)==1:
 		if one_analysis[0].completed==False:
 			top.after(1000,lambda: batch_analysis(top,batch))
@@ -1528,14 +1530,14 @@ def slow_profile_bots():
 	from ray_analysis import Ray
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
-	
+
 	import ConfigParser
-	
+
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	
+
 	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:	
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
 		if Config.get(bot['name'],"SlowCommand")!="":
 			bots.append(bot)
 			bot['profile']="slow"
@@ -1547,14 +1549,14 @@ def fast_profile_bots():
 	from ray_analysis import Ray
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
-	
+
 	import ConfigParser
-	
+
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	
+
 	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:	
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
 		if Config.get(bot['name'],"FastReviewCommand")!="":
 			bots.append(bot)
 			bot['profile']="fast"
@@ -1567,12 +1569,12 @@ def get_available(use):
 	from ray_analysis import Ray
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
-	
+
 	import ConfigParser
-	
+
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	
+
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
 		slow=False
@@ -1624,7 +1626,7 @@ try:
 			filename = dialog.GetPath()
 		dialog.Destroy()
 		return filename
-	
+
 except Exception, e:
 	print "Could not import the WX GUI library, please double check it is installed:"
 	log(e)
@@ -1636,7 +1638,7 @@ except Exception, e:
 		return tkFileDialog.askopenfilename(parent=parent,title=_('Select a file'),filetypes = [(_('Reviewed SGF file'), '.rsgf')])
 	def save_png_file(filename, parent=None):
 		return tkFileDialog.asksaveasfilename(parent=parent,title=_('Choose a filename'),filetypes = [(_('PNG image'), '.png')],initialfile=filename)
-	
+
 def opposite_rate(value):
 	return str(100-float(value[:-1]))+"%"
 
@@ -1684,7 +1686,7 @@ def save_position_data(node,data_in_comments,sgf_property,value,bot="Bot"):
 			comment=""
 		node.set("C",comment+txt+"\n")
 		#node.add_comment_text(txt)
-	
+
 variation_data_formating={}
 variation_data_formating["ES"]=_("Score estimation for this variation: %s")
 variation_data_formating["BWWR"]=_("black/white win probability for this variation: %s")
