@@ -254,7 +254,7 @@ class LiveAnalysisLauncher(Frame):
 			white=self.white_selection.get()
 			
 		self.filename.delete(0, END)
-		filename=datetime.now().strftime('%Y-%m-%d_%H:%M_'+black+'_vs_'+white+'.sgf')
+		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_'+black+'_vs_'+white+'.sgf')
 		self.filename.insert(0, filename)
 
 	def change_parameters(self):
