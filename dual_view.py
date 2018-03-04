@@ -473,7 +473,6 @@ class OpenMove():
 		
 		self.available_bots=[]
 		for bot in get_available("ReviewBot"):
-			print bot["name"],bot["profile"]
 			self.available_bots.append(bot)
 		self.initialize()
 		
@@ -1195,10 +1194,11 @@ class DualView(Frame):
 				pass
 			
 			try:
+				winrate=one_move.get('MCWR')
 				if player_color in ('b',"B"):
-					one_data['monte_carlo_win_rate']=float(one_move.get('BMCWR').replace("%",""))
+					one_data['monte_carlo_win_rate']=float(winrate.split("/")[1][:-1])
 				else:
-					one_data['monte_carlo_win_rate']=float(one_move.get('WMCWR').replace("%",""))
+					one_data['monte_carlo_win_rate']=float(winrate.split("%")[0])
 			except:
 				pass
 			
@@ -1206,10 +1206,11 @@ class DualView(Frame):
 			#so it is the win rate of the best move by the computer for this position
 			#because we consider the bot plays perfectly
 			try:
+				winrate=one_move.get('BWWR')
 				if player_color in ('w',"W"):
-					current_position_win_rate=float(one_move.get('WWR').replace("%",""))
+					current_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
-					current_position_win_rate=float(one_move.get('BWR').replace("%",""))
+					current_position_win_rate=float(winrate.split("%")[0])
 				one_data['position_win_rate']=current_position_win_rate
 			except:
 				pass
@@ -1222,10 +1223,11 @@ class DualView(Frame):
 			# negative delta means the game evolves better when the computer move is played
 			try:
 				next_move=get_node(self.gameroot,m+1)
+				winrate=next_move.get('BWWR')
 				if player_color in ('w',"W"):
-					next_position_win_rate=float(next_move.get('WWR').replace("%",""))
+					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
-					next_position_win_rate=float(next_move.get('BWR').replace("%",""))
+					next_position_win_rate=float(winrate.split("%")[0])
 				computer_move=one_move.get('CBM')
 				if player_move==computer_move:
 					# in case the computer best move is the actual game move then:
@@ -1330,21 +1332,7 @@ class DualView(Frame):
 		"""
 		
 		if m>=0:
-			left_comments=""
-			if m==0:
-				if self.gameroot.has_property("RSGF"):
-					left_comments+=self.gameroot.get("RSGF")
-				if self.gameroot.has_property("PB"):
-					left_comments+=_("Black")+": "+self.gameroot.get("PB")+"\n"
-				if self.gameroot.has_property("PW"):
-					left_comments+=_("White")+": "+self.gameroot.get("PW")+"\n"
-				
-			left_comments+="\n"+_("Move %i")%move
-			game_move_color,game_move=get_node(self.gameroot,move).get_move()
-			if game_move_color.lower()=="w":
-				left_comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(game_move))
-			elif game_move_color.lower()=="b":
-				left_comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(game_move))
+			left_comments=self.get_node_comments()
 			if get_node(self.gameroot,m+1).has_property("C"):
 				left_comments+="\n"+get_node(self.gameroot,m+1).get("C")
 			self.comment_box1.insert(END,left_comments)
@@ -1391,7 +1379,7 @@ class DualView(Frame):
 			goban1.display(grid1,markup1)
 			goban2.display(grid2,markup2)
 			self.table_button.config(state='disabled')
-			return	
+			return
 		else:
 			self.table_button.config(state='normal')
 
@@ -1447,11 +1435,16 @@ class DualView(Frame):
 								displaycolor="red"
 						except:
 							pass	
-								
+			
+			
+			comment=''
+			for sgf_property in ("BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","ES"):
+				if one_alternative.has_property(sgf_property):
+					comment+=format_data(sgf_property,variation_data_formating,one_alternative.get(sgf_property))+"\n"
+			
 			if one_alternative.has_property("C"):
-				comment=one_alternative.get("C")
-			else:
-				comment=''
+				comment+=one_alternative.get("C")
+
 			
 			if ij==real_game_ij:
 				letter_color="black"
@@ -1485,17 +1478,9 @@ class DualView(Frame):
 		
 		self.all_popups.append(new_popup)
 	
-	def open_table(self):
-		log("opening table")
-		
-		new_popup=Toplevel(self.parent)
-		Label(new_popup,text=" ").grid(row=0,column=0)
-		Label(new_popup,text=" ").grid(row=1000,column=1000)
-		
-		
-		
+	def get_node_comments(self):
 		comments=""
-		if self.current_move==0:
+		if self.current_move==1:
 			if self.gameroot.has_property("RSGF"):
 				comments+=self.gameroot.get("RSGF")
 			if self.gameroot.has_property("PB"):
@@ -1506,29 +1491,58 @@ class DualView(Frame):
 		comments+="\n"+_("Move %i")%self.current_move
 		game_move_color,game_move=get_node(self.gameroot,self.current_move).get_move()
 		
-		
 		if game_move_color.lower()=="w":
-			comments+="\n"+(_("White to play, in the game, white played %s")%ij2gtp(game_move))
+			comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move)
 		elif game_move_color.lower()=="b":
-			comments+="\n"+(_("Black to play, in the game, black played %s")%ij2gtp(game_move))
+			comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move)
 		
+		node=get_node(self.gameroot,self.current_move)
+		if node.has_property("CBM"):
+			comments+="\n"+(position_data_formating["CBM"])%("the computer",node.get("CBM"))
+
 		try:
-			node=get_node(self.gameroot,self.current_move)
 			if node.has_property("BWWR"):
 				if node[0].has_property("BWWR"):
 					if node.get_move()[0].lower()=="b":
-						comments+="\n"+_("Black win probability:")
+						comments+="\n\n"+_("Black win probability:")
 						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
 						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
 						comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
 					else:
-						comments+="\n"+_("White win probability:")
+						comments+="\n\n"+_("White win probability:")
 						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
 						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
 						comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
 		except:
 			pass
+		
+		try:
+			if node.has_property("MCWR"):
+				if node[0].has_property("MCWR"):
+					if node.get_move()[0].lower()=="b":
+						comments+="\n\n"+_("Black Monte Carlo win probability:")
+						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[0]
+						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[0]
+						comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[0])-float(node.get("MCWR").split("%/")[0]))
+					else:
+						comments+="\n\n"+_("White Monte Carlo win probability:")
+						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[1]
+						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[1]
+						comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[1][:-1])-float(node.get("MCWR").split("%/")[1][:-1]))
+		except:
+			pass
+		
+		return comments
+	
+	def open_table(self):
+		log("opening table")
+		
+		new_popup=Toplevel(self.parent)
+		Label(new_popup,text=" ").grid(row=0,column=0)
+		Label(new_popup,text=" ").grid(row=1000,column=1000)
+
 		row=0
+		comments=self.get_node_comments()
 		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=0,columnspan=100)
 		
 		Label(new_popup,text=" ").grid(row=row+1,column=0)
@@ -1540,7 +1554,7 @@ class DualView(Frame):
 		log(nb_variations,"variations")
 		
 		columns=[[None for i in range(nb_variations+1)] for j in range(len(columns_header))]
-
+		
 		for a in range(1,min(len(parent),self.maxvariations+1)):
 			one_alternative=parent[a]
 			c=0

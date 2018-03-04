@@ -32,7 +32,7 @@ class LeelaAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-		additional_comments=""
+		#additional_comments=""
 		if player_color in ('w',"W"):
 			log("leela play white")
 			answer=leela.play_white()
@@ -42,16 +42,18 @@ class LeelaAnalysis():
 		nb_undos=1 #let's remember to undo that move from Leela
 		
 		best_answer=answer
+		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="Leela") #Computer Best Move
 		
 		#all_moves=leela.get_all_leela_moves()
 		position_evaluation=leela.get_all_leela_moves()
 
 		if "estimated score" in position_evaluation:
-			one_move.set("ES",position_evaluation["estimated score"])
+			#one_move.set("ES",position_evaluation["estimated score"])
+			save_position_data(one_move,self.data_in_comments,"ES",position_evaluation["estimated score"],bot="Leela")
 			
 		if (answer.lower() not in ["pass","resign"]):
 			
-			one_move.set("CBM",answer.lower()) #Computer Best Move
+			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			if 'book move' in position_evaluation:
 				bookmove=True
 			else:
@@ -118,7 +120,7 @@ class LeelaAnalysis():
 					
 					if first_variation_move==True:
 						first_variation_move=False
-						variation_comment=""
+						#variation_comment=""
 			
 						if 'win rate' in variation:
 							if player_color=='b':
@@ -127,17 +129,10 @@ class LeelaAnalysis():
 							else:
 								white_value=variation['win rate']
 								black_value=opposite_rate(white_value)
-							new_child.set("BWR",black_value)
-							new_child.set("WWR",white_value)
-							new_child.set("BWWR",black_value+'/'+white_value)
-							variation_comment=_("black/white win probability for this variation: ")+black_value+'/'+white_value+"\n"
-							
+							save_variation_data(new_child,self.data_in_comments,"BWWR",black_value+'/'+white_value)
 							if best_move:
-								one_move.set("BWR",black_value)
-								one_move.set("WWR",white_value)
-								one_move.set("BWWR",black_value+'/'+white_value)
-								additional_comments+=(_("%s black/white win probability for this position: ")%"Leela")+black_value+'/'+white_value+"\n"
-								
+								save_position_data(one_move,self.data_in_comments,"BWWR",black_value+'/'+white_value,bot="Leela")
+						
 						if 'monte carlo win rate' in variation:
 							if player_color=='b':
 								black_value=variation['monte carlo win rate']
@@ -145,15 +140,10 @@ class LeelaAnalysis():
 							else:
 								white_value=variation['monte carlo win rate']
 								black_value=opposite_rate(white_value)
-							new_child.set("BMCWR",black_value)
-							new_child.set("WMCWR",white_value)
-							new_child.set("MCWR",black_value+'/'+white_value)
-							variation_comment+=_("Monte Carlo win probalbility for this move: ")+black_value+'/'+white_value+"\n"
+							save_variation_data(new_child,self.data_in_comments,"MCWR",black_value+'/'+white_value)
 							if best_move:
-								one_move.set("BMCWR",black_value)
-								one_move.set("WMCWR",white_value)
-								one_move.set("MCWR",black_value+'/'+white_value)
-							
+								save_position_data(one_move,self.data_in_comments,"MCWR",black_value+'/'+white_value,bot="Leela")
+						
 						if 'value network win rate' in variation:
 							if player_color=='b':
 								black_value=variation['value network win rate']
@@ -161,32 +151,25 @@ class LeelaAnalysis():
 							else:
 								white_value=variation['value network win rate']
 								black_value=opposite_rate(white_value)
-							new_child.set("BVNWR",black_value)
-							new_child.set("WVNWR",white_value)
-							new_child.set("VNWR",black_value+'/'+white_value)
-							variation_comment+=_("Value network black/white win probability for this move: ")+black_value+'/'+white_value+"\n"
-
+							save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
+							
 						if 'move evaluation' in variation:
-							new_child.set("EVAL",variation['move evaluation'])
-							variation_comment+=_("Evaluation for this move: ")+variation['move evaluation']+"\n"
+							save_variation_data(new_child,self.data_in_comments,"EVAL",variation['move evaluation'])
 							
 						if 'rapid action value estimation' in variation:
-							new_child.set("RAVE",variation['rapid action value estimation'])
-							variation_comment+=_("RAVE(x%: y) for this move: ")+variation['rapid action value estimation']+"\n"
-
+							save_variation_data(new_child,self.data_in_comments,"RAVE",variation['rapid action value estimation'])
+							
 						if 'policy network value' in variation:
-							new_child.set("PNV",variation['policy network value'])
-							variation_comment+=_("Policy network value for this move: ")+variation['policy network value']+"\n"
-
-						if 'playouts' in variation:
-							new_child.set("PLYO",variation['playouts'])
-							variation_comment+=_("Number of playouts used to estimate this variation: ")+variation['playouts']
+							save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
 						
+						if 'playouts' in variation:
+							save_variation_data(new_child,self.data_in_comments,"PLYO",variation['playouts'])
+							
 						if bookmove:
 							bookmove=False
-							variation_comment+=_("Book move")+"\n"
+							save_variation_data(new_child,self.data_in_comments,"BKMV","yes")
 						
-						new_child.add_comment_text(variation_comment)
+						#new_child.add_comment_text(variation_comment)
 						
 						if best_move:
 							best_move=False
@@ -218,8 +201,6 @@ class LeelaAnalysis():
 			for u in range(nb_undos):
 				leela.undo()
 		else:
-			log('adding "'+answer.lower()+'" to the sgf file')
-			additional_comments+="\n"+_("For this position, %s would %s"%("Leela",answer.lower()))
 			if answer.lower()=="pass":
 				leela.undo()
 			elif answer.lower()=="resign":
@@ -231,7 +212,7 @@ class LeelaAnalysis():
 				else:
 					leela.undo_resign()
 					
-		one_move.add_comment_text(additional_comments)
+		#one_move.add_comment_text(additional_comments)
 		
 		return best_answer #returning the best move, necessary for live analysis
 
@@ -388,9 +369,9 @@ class Leela_gtp(gtp):
 				one_score=err_line.split()[4][:-1]
 				nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
 				variation["playouts"]=nodes
-				monte_carlo=err_line.split("(U:")[1].split('%)')[0].strip()+"%"
-				variation["monte carlo win rate"]=monte_carlo
 				if self.size==19:
+					monte_carlo=err_line.split("(U:")[1].split('%)')[0].strip()+"%"
+					variation["monte carlo win rate"]=monte_carlo
 					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
 					variation["value network win rate"]=value_network
 					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"

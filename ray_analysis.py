@@ -33,7 +33,7 @@ class RayAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-		additional_comments=""
+		#additional_comments=""
 		if player_color in ('w',"W"):
 			log("ray play white")
 			answer=ray.get_ray_stat("white")
@@ -43,8 +43,9 @@ class RayAnalysis():
 
 		if current_move>2:
 			es=ray.final_score()
-			one_move.set("ES",es)
-
+			#one_move.set("ES",es)
+			save_position_data(one_move,self.data_in_comments,"ES",es,bot="Ray")
+			
 		log(len(answer),"sequences")
 
 		if len(answer)>0:
@@ -53,6 +54,8 @@ class RayAnalysis():
 				log("Adding sequence starting from",sequence_first_move)
 				if best_move:
 					best_answer=sequence_first_move
+					save_position_data(one_move,self.data_in_comments,"CBM",best_answer,bot="Ray")
+					
 				previous_move=one_move.parent
 				current_color=player_color
 				
@@ -74,79 +77,50 @@ class RayAnalysis():
 						new_child.set_move(current_color,(i,j))
 						if first_variation_move:
 							first_variation_move=False
-							variation_comment=''
 							if win:
 								if current_color=='b':
-									variation_comment+=_("black/white win probability for this variation: ")+str(win)+'%/'+str(100-float(win))+'%'
-									new_child.set("BWR",str(win)+'%') #Black Win Rate
-									new_child.set("WWR",str(100-float(win))+'%') #White Win Rate
-									new_child.set("BWWR",str(float(win))+'%/'+str(100-float(win))+'%') #Black Win Rate
+									winrate=str(float(win))+'%/'+str(100-float(win))+'%'
 								else:
-									variation_comment+=_("black/white win probability for this variation: ")+str(100-float(win))+'%/'+str(win)+'%'
-									new_child.set("WWR",str(win)+'%') #White Win Rate
-									new_child.set("BWR",str(100-float(win))+'%') #Black Win Rate
-									new_child.set("BWWR",str(100-float(win))+'%/'+str(win)+'%') #Black Win Rate
-							
-							
+									winrate=str(100-float(win))+'%/'+str(win)+'%'
+								save_variation_data(new_child,self.data_in_comments,"BWWR",winrate)
+
 							if count:
-								variation_comment+="\nCount: "+count
-								new_child.set("PLYO",count)
+								save_variation_data(new_child,self.data_in_comments,"PLYO",count)
 								
 							if simulation:
 								simulation+="%"
-								print "=======",simulation,"========"
-								variation_comment+="\nSimulation: "+simulation
 								if current_color=='b':
 									black_value=simulation
 									white_value=opposite_rate(black_value)
 								else:
 									white_value=simulation
 									black_value=opposite_rate(white_value)
-								
-								new_child.set("BMCWR",black_value)
-								new_child.set("WMCWR",white_value)
-								new_child.set("MCWR",black_value+'/'+white_value)
 
+								save_variation_data(new_child,self.data_in_comments,"MCWR",black_value+'/'+white_value)
 								if best_move:
-									one_move.set("BMCWR",black_value)
-									one_move.set("WMCWR",white_value)
-									one_move.set("MCWR",black_value+'/'+white_value)
+									save_position_data(one_move,self.data_in_comments,"MCWR",black_value+'/'+white_value,bot="Leela")
 									
 								
 							if policy:
-								variation_comment+="\nPolicy: "+policy+"%"
-								new_child.set("PNV",policy+"%")
+								save_variation_data(new_child,self.data_in_comments,"PNV",policy+"%")
 								
 							if value:
-								variation_comment+="\nValue: "+value
-								
 								if player_color=='b':
 									black_value=value+"%"
 									white_value=opposite_rate(black_value)
 								else:
 									white_value=value+"%"
 									black_value=opposite_rate(white_value)
-								new_child.set("BVNWR",black_value)
-								new_child.set("WVNWR",white_value)
-								new_child.set("VNWR",black_value+'/'+white_value)
-								#variation_comment+=_("Value network black/white win probability for this move: ")+black_value+'/'+white_value+"\n"
-								
+								save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
 								
 							if best_move and win:
-								
-								one_move.set("CBM",one_deep_move.lower())
 								if player_color=='b':
 									black_value=str(win)+'%'
 									white_value=opposite_rate(black_value)
 								else:
 									white_value=str(win)+'%'
 									black_value=opposite_rate(white_value)
-								one_move.set("BWR",black_value)
-								one_move.set("WWR",white_value)
-								one_move.set("BWWR",black_value+'/'+white_value)
-								additional_comments+=(_("%s black/white win probability for this position: ")%"Ray")+black_value+'/'+white_value+"\n"
-								
-							new_child.add_comment_text(variation_comment.strip())
+								save_position_data(one_move,self.data_in_comments,"BWWR",black_value+'/'+white_value,bot="Ray")
 							
 							if best_move:
 								best_move=False
@@ -156,7 +130,7 @@ class RayAnalysis():
 						break
 
 			log("==== no more sequences =====")
-			
+		"""
 		else:
 			log('adding "'+answer.lower()+'" to the sgf file')
 			additional_comments+=_("For this position, %s would %s"%("Ray",answer.lower()))
@@ -168,8 +142,16 @@ class RayAnalysis():
 					log("The analysis will stop now")
 					log("")
 					self.move_range=[]
+		"""
 		
-		one_move.add_comment_text(additional_comments)
+		if best_answer.lower()=="resign":
+			if self.stop_at_first_resign:
+				log("")
+				log("The analysis will stop now")
+				log("")
+				self.move_range=[]
+		
+		#one_move.add_comment_text(additional_comments)
 		return best_answer
 
 	

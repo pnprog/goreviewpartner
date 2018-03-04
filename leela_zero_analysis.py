@@ -32,7 +32,7 @@ class LeelaZeroAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-		additional_comments=""
+		#additional_comments=""
 		if player_color in ('w',"W"):
 			log("leela Zero play white")
 			answer=leela_zero.play_white()
@@ -42,15 +42,18 @@ class LeelaZeroAnalysis():
 		
 		if current_move>1:
 			es=leela_zero.get_leela_zero_final_score()
-			one_move.set("ES",es)
-		
+			#one_move.set("ES",es)
+			save_position_data(one_move,self.data_in_comments,"ES",es,bot="Leela Zero")
+			
 		best_answer=answer
+		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="Leela Zero") #Computer Best Move
+		#additional_comments+="\n"+_("For this position, %s would %s"%("Leela Zero",answer.lower()))
 		
 		position_evaluation=leela_zero.get_all_leela_zero_moves()
 		
 		if (answer.lower() not in ["pass","resign"]):
 			
-			one_move.set("CBM",answer.lower()) #Computer Best Move
+			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			
 			#let's make sure there is at least one variation available
 			if len(position_evaluation['variations'])==0:
@@ -113,7 +116,7 @@ class LeelaZeroAnalysis():
 					
 					if first_variation_move==True:
 						first_variation_move=False
-						variation_comment=""
+						#variation_comment=""
 			
 						if 'win rate' in variation:
 							if player_color=='b':
@@ -121,27 +124,18 @@ class LeelaZeroAnalysis():
 								white_value=opposite_rate(black_value)
 							else:
 								white_value=variation['win rate']
-								black_value=opposite_rate(white_value)
-							new_child.set("BWR",black_value)
-							new_child.set("WWR",white_value)
-							new_child.set("BWWR",black_value+'/'+white_value)
-							variation_comment=_("black/white win probability for this variation: ")+black_value+'/'+white_value+"\n"
-							
+								black_value=opposite_rate(white_value)	
+							save_variation_data(new_child,self.data_in_comments,"BWWR",black_value+'/'+white_value)
 							if best_move:
-								one_move.set("BWR",black_value)
-								one_move.set("WWR",white_value)
-								one_move.set("BWWR",black_value+'/'+white_value)
-								additional_comments+=(_("%s black/white win probability for this position: ")%"Leela")+black_value+'/'+white_value+"\n"
+								save_position_data(one_move,self.data_in_comments,"BWWR",black_value+'/'+white_value,bot="Leela")
 
 						if 'policy network value' in variation:
-							new_child.set("PNV",variation['policy network value'])
-							variation_comment+=_("Policy network value for this move: ")+variation['policy network value']+"\n"
+							save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
 
 						if 'playouts' in variation:
-							new_child.set("PLYO",variation['playouts'])
-							variation_comment+=_("Number of playouts used to estimate this variation: ")+variation['playouts']
+							save_variation_data(new_child,self.data_in_comments,"PLYO",variation['playouts'])
 						
-						new_child.add_comment_text(variation_comment)
+						#new_child.add_comment_text(variation_comment)
 						
 						if best_move:
 							best_move=False
@@ -154,8 +148,8 @@ class LeelaZeroAnalysis():
 			log("==== no more sequences =====")
 			
 		else:
-			log('adding "'+answer.lower()+'" to the sgf file')
-			additional_comments+="\n"+_("For this position, %s would %s"%("Leela Zero",answer.lower()))
+			#log('adding "'+answer.lower()+'" to the sgf file')
+			
 			if answer.lower()=="pass":
 				leela_zero.undo()
 			elif answer.lower()=="resign":
@@ -167,7 +161,7 @@ class LeelaZeroAnalysis():
 				else:
 					leela_zero.undo_resign()
 		
-		one_move.add_comment_text(additional_comments)
+		#one_move.add_comment_text(additional_comments)
 		return best_answer
 	
 	def initialize_bot(self):

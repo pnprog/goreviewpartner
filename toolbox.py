@@ -780,6 +780,8 @@ class RunAnalysisBase(Frame):
 		self.current_move=None
 		self.time_per_move=None
 		
+		self.data_in_comments=False
+		
 		self.error=None
 		
 		self.g=open_sgf(self.filename)
@@ -833,6 +835,8 @@ class RunAnalysisBase(Frame):
 		except:
 			self.stop_at_first_resign=False
 			log("Stop_At_First_Resign is OFF")
+		
+		
 		
 		self.completed=False
 		
@@ -1044,7 +1048,10 @@ class RunAnalysisBase(Frame):
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
 		
-		self.move_zero.set("RSGF",first_comment+"\n")
+		if self.data_in_comments:
+			self.move_zero.add_comment_text(first_comment+"\n")
+		else:
+			self.move_zero.set("RSGF",first_comment+"\n")
 		
 		
 		self.root=root
@@ -1632,3 +1639,71 @@ except Exception, e:
 	
 def opposite_rate(value):
 	return str(100-float(value[:-1]))+"%"
+
+position_data_formating={}
+position_data_formating["ES"]=_("%s score estimation before the move was played: %s")
+position_data_formating["UBS"]=" • "+_("Upper bound: %s")
+position_data_formating["LBS"]=" • "+_("Lower bound: %s")
+position_data_formating["CBM"]=_("For this position, %s would play: %s")
+position_data_formating["BWWR"]=_("%s black/white win probability for this position: %s")
+position_data_formating["MCWR"]=_("%S Monte Carlo win probalbility for this move: %s")
+position_data_formating["B"]=_("Black to play, in the game, black played %s")
+position_data_formating["W"]=_("White to play, in the game, white played %s")
+
+def format_data(sgf_property,formating,value="",bot="Bot"):
+	txt=formating[sgf_property]
+	#print "formating["+sgf_property+"]",txt
+	try:
+		if sgf_property in ("ES","CBM","BWWR"):
+			txt=txt%(bot,value)
+	except:
+		pass
+
+	try:
+		if sgf_property in ("B","W","BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","UBS","LBS"):
+			txt=txt%(value)
+	except:
+		pass
+
+	try:
+		if sgf_property in ("BKMV",):
+			txt=txt
+	except:
+		pass
+
+	return txt
+
+def save_position_data(node,data_in_comments,sgf_property,value,bot="Bot"):
+	txt=format_data(sgf_property,position_data_formating,value,bot)
+	if not data_in_comments:
+		node.set(sgf_property,value)
+	else:
+		if node.has_property("C"):
+			comment=node.get("C")
+		else:
+			comment=""
+		node.set("C",comment+txt+"\n")
+		#node.add_comment_text(txt)
+	
+variation_data_formating={}
+variation_data_formating["ES"]=_("Score estimation for this variation: %s")
+variation_data_formating["BWWR"]=_("black/white win probability for this variation: %s")
+variation_data_formating["BKMV"]=_("Book move")
+variation_data_formating["PNV"]=_("Policy network value for this move: %s")
+variation_data_formating["MCWR"]=_("Monte Carlo win probalbility for this move: %s")
+variation_data_formating["VNWR"]=_("Value network black/white win probability for this move: %s")
+variation_data_formating["PLYO"]=_("Number of playouts used to estimate this variation: %s")
+variation_data_formating["EVAL"]=_("Evaluation for this move: %s")
+variation_data_formating["RAVE"]=_("RAVE(x%%: y) for this move: %s")
+
+def save_variation_data(node,data_in_comments,sgf_property,value):
+	txt=format_data(sgf_property,variation_data_formating,value)
+	if not data_in_comments:
+		node.set(sgf_property,value)
+	else:
+		if node.has_property("C"):
+			comment=node.get("C")
+		else:
+			comment=""
+		node.set("C",comment+txt+"\n")
+		#node.add_comment_text(txt)

@@ -28,13 +28,13 @@ import tkMessageBox
 class AQAnalysis():
 	
 	def win_rate(self,current_move,value,roll):
-		return roll
 		#see discussion at https://github.com/ymgaq/AQ/issues/20
 		if current_move<=160:
 			lmbd=0.8
 		else:
 			lmbd=0.8-min(0.3,max(0.0,(current_move-160)/600))
 		rate=lmbd*value+(1-lmbd)*roll
+		#print "winrate(m=",current_move,",v=",value,",r=",roll,")=",rate
 		return rate
 	
 	def run_analysis(self,current_move):
@@ -45,7 +45,6 @@ class AQAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-		additional_comments=""
 		if player_color in ('w',"W"):
 			log("AQ plays white")
 			answer=aq.play_white()
@@ -55,13 +54,16 @@ class AQAnalysis():
 		
 		if current_move>1:
 			es=aq.final_score()
-			one_move.set("ES",es)
-		
+			#one_move.set("ES",es)
+			save_position_data(one_move,self.data_in_comments,"ES",es,bot="AQ")
+			
 		log("AQ preferred move:",answer)
+		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="AQ") #Computer Best Move
+		
 		all_moves=aq.get_all_aq_moves()
 		
 		if (answer.lower() not in ["pass","resign"]):
-			one_move.set("CBM",answer.lower()) #Computer Best Move
+			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			best_move=True
 
 			log("Number of alternative sequences:",len(all_moves))
@@ -72,9 +74,7 @@ class AQAnalysis():
 				log("Adding sequence starting from",sequence_first_move)
 				previous_move=one_move.parent
 				current_color=player_color
-				
 				one_score=self.win_rate(current_move,value,roll)
-
 				first_variation_move=True
 				for one_deep_move in one_sequence.split(' '):
 
@@ -87,36 +87,39 @@ class AQAnalysis():
 
 					
 					if player_color=='b':
-						black_win_rate=str(one_score)+'%'
-						white_win_rate=str(100-one_score)+'%'
+						bwwr=str(one_score)+'%/'+str(100-one_score)+'%'
+						mcwr=str(roll)+'%/'+str(100-roll)+'%'
+						vnwr=str(value)+'%/'+str(100-value)+'%'
 					else:
-						black_win_rate=str(100-one_score)+'%'
-						white_win_rate=str(one_score)+'%'
+						bwwr=str(100-one_score)+'%/'+str(one_score)+'%'
+						mcwr=str(100-roll)+'%/'+str(roll)+'%'
+						vnwr=str(100-value)+'%/'+str(value)+'%'
 						
 					if first_variation_move:
 						first_variation_move=False
-						variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
-						new_child.set("BWR",black_win_rate) #Black Win Rate
-						new_child.set("WWR",white_win_rate) #White Win Rate
-						new_child.set("BWWR",black_win_rate+"/"+white_win_rate)
+						#variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+						save_variation_data(new_child,self.data_in_comments,"BWWR",bwwr)
 						
-						variation_comment+="\nCount: "+str(count)
-						new_child.set("PLYO",str(count))
+						#variation_comment+="\nCount: "+str(count)
+						#new_child.set("PLYO",str(count))
+						save_variation_data(new_child,self.data_in_comments,"PLYO",str(count))
 						
-						variation_comment+="\nValue: "+str(value)
-						variation_comment+="\nRoll: "+str(roll)
-						variation_comment+="\nProb: "+str(prob)+"%"
-						#new_child.set("PNV",str(prob)+"%")
+						#variation_comment+="\nValue: "+str(value)
+						save_variation_data(new_child,self.data_in_comments,"VNWR",vnwr)
 						
-						new_child.add_comment_text(variation_comment)
+						#variation_comment+="\nRoll: "+str(roll)
+						save_variation_data(new_child,self.data_in_comments,"MCWR",mcwr)
+						
+						#variation_comment+="\nProb: "+str(prob)+"%"
+						save_variation_data(new_child,self.data_in_comments,"PNV",str(prob)+"%")
+						
+						#new_child.add_comment_text(variation_comment)
 						
 					if best_move:
-						
 						best_move=False
-						additional_comments+=(_("%s black/white win probability for this position: ")%"AQ")+black_win_rate+'/'+white_win_rate
-						one_move.set("BWR",black_win_rate) #Black Win Rate
-						one_move.set("WWR",white_win_rate) #White Win Rate
-						one_move.set("BWWR",black_win_rate+"/"+white_win_rate)
+						
+						save_position_data(one_move,self.data_in_comments,"BWWR",bwwr,bot="AQ")
+						save_position_data(one_move,self.data_in_comments,"MCWR",mcwr,bot="AQ")
 						
 					previous_move=new_child
 					if current_color in ('w','W'):
@@ -136,8 +139,6 @@ class AQAnalysis():
 					log("The analysis will stop now")
 					log("")
 					self.move_range=[]
-		
-		one_move.add_comment_text(additional_comments)
 		
 		return answer
 		

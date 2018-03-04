@@ -66,7 +66,7 @@ class GnuGoAnalysis():
 		#linelog(final_score)
 
 		es=final_score.split()[0]
-		one_move.set("ES",es) #estimated score
+		
 		
 		if es[0]=="B":
 			lbs="B%+d"%(-1*float(final_score.split()[3][:-1]))
@@ -75,10 +75,17 @@ class GnuGoAnalysis():
 			ubs="W%+d"%(float(final_score.split()[3][:-1]))
 			lbs="W%+d"%(float(final_score.split()[5][:-1]))
 		
-		one_move.set("UBS",ubs) #upper bound score
-		one_move.set("LBS",lbs) #lower bound score
+		#one_move.set("ES",es) #estimated score
+		save_position_data(one_move,self.data_in_comments,"ES",es,bot="GnuGo")
 		
-		additional_comments=_("Gnugo score estimation before the move was played: ")+final_score
+		#one_move.set("UBS",ubs) #upper bound score
+		save_position_data(one_move,self.data_in_comments,"UBS",ubs,bot="GnuGo")
+		
+		#one_move.set("LBS",lbs) #lower bound score
+		save_position_data(one_move,self.data_in_comments,"LBS",lbs,bot="GnuGo")
+		
+		#additional_comments=_("Gnugo score estimation before the move was played: ")+final_score
+		
 		
 		if player_color in ('w',"W"):
 			log("gnugo plays white")
@@ -90,6 +97,8 @@ class GnuGoAnalysis():
 			answer=gnugo.play_black()
 
 		log("====","Gnugo answer:",answer)
+		#additional_comments+="\n"+_("For this position, %s would %s"%("GnuGo",answer.lower()))
+		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="GnuGo")
 		
 		log("==== Gnugo top moves")
 		for one_top_move in top_moves:
@@ -143,8 +152,9 @@ class GnuGoAnalysis():
 							new_child.set_move(current_color,(i,j))
 							if first_move:
 								first_move=False
-								new_child.set("ES",es)
-								new_child.add_comment_text(("%s score estimation for this variation"%"GnuGo")+": "+es+"\n")
+								save_variation_data(new_child,self.data_in_comments,"ES",es)
+								#new_child.set("ES",es)
+								#new_child.add_comment_text((_("%s score estimation for this variation")%"GnuGo")+": "+es+"\n")
 							previous_move=new_child
 							if current_color in ('w','W'):
 								current_color='b'
@@ -152,8 +162,6 @@ class GnuGoAnalysis():
 								current_color='w'
 
 		else:
-			log('adding "'+answer.lower()+'" to the sgf file')
-			additional_comments+="\n"+_("For this position, %s would %s"%("GnuGo",answer.lower()))
 			if answer.lower()=="pass":
 				gnugo.undo()
 			elif answer.lower()=="resign":
@@ -164,7 +172,7 @@ class GnuGoAnalysis():
 					self.move_range=[]
 		
 		
-		one_move.add_comment_text(additional_comments)
+		#one_move.add_comment_text(additional_comments)
 		
 		log("Creating the influence map")
 		black_influence=gnugo.get_gnugo_initial_influence_black()
