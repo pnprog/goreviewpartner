@@ -192,10 +192,10 @@ msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
 msgstr "Zug %i: Gewinnwsl. weißer Zug: %s, Gewinnwsl. Computer-Zug: %s"
 
 msgid "The computer believes it's own move win rate would be %.2fpp higher."
-msgstr "Das Programm schätzt seinen eigenen Zug als %.2f\% besser ein."
+msgstr "Das Programm schätzt seinen eigenen Zug als %.2f%% besser ein."
 
 msgid "The computer believes the actual move is %.2fpp better than it's best move."
-msgstr "Das Programm schätzt den gespielten Zug um %.2f\% besser als den selber gefundenen ein."
+msgstr "Das Programm schätzt den gespielten Zug um %.2f%% besser als den selber gefundenen ein."
 
 msgid "Black win rate"
 msgstr "Gewinnwahrscheinlichkeit für Schwarz"
