@@ -26,7 +26,7 @@ import tkMessageBox
 
 
 class AQAnalysis():
-	
+
 	def win_rate(self,current_move,value,roll):
 		#see discussion at https://github.com/ymgaq/AQ/issues/20
 		if current_move<=160:
@@ -36,7 +36,7 @@ class AQAnalysis():
 		rate=lmbd*value+(1-lmbd)*roll
 		#print "winrate(m=",current_move,",v=",value,",r=",roll,")=",rate
 		return rate
-	
+
 	def run_analysis(self,current_move):
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color=guess_color_to_play(self.move_zero,current_move)
@@ -44,31 +44,31 @@ class AQAnalysis():
 		log()
 		log("==============")
 		log("move",str(current_move))
-		
+
 		if player_color in ('w',"W"):
 			log("AQ plays white")
 			answer=aq.play_white()
 		else:
 			log("AQ plays black")
 			answer=aq.play_black()
-		
+
 		if current_move>1:
 			es=aq.final_score()
 			#one_move.set("ES",es)
 			save_position_data(one_move,self.data_in_comments,"ES",es,bot="AQ")
-			
+
 		log("AQ preferred move:",answer)
 		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="AQ") #Computer Best Move
-		
+
 		all_moves=aq.get_all_aq_moves()
-		
+
 		if (answer.lower() not in ["pass","resign"]):
 			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			best_move=True
 
 			log("Number of alternative sequences:",len(all_moves))
 			#log(all_moves)
-			
+
 			#for sequence_first_move,one_sequence,one_score,one_monte_carlo,one_value_network,one_policy_network,one_evaluation,one_rave,one_nodes in all_moves:
 			for sequence_first_move,count,value,roll,prob,one_sequence in all_moves[:self.maxvariations]:
 				log("Adding sequence starting from",sequence_first_move)
@@ -85,7 +85,7 @@ class AQAnalysis():
 					new_child=previous_move.new_child()
 					new_child.set_move(current_color,(i,j))
 
-					
+
 					if player_color=='b':
 						bwwr=str(one_score)+'%/'+str(100-one_score)+'%'
 						mcwr=str(roll)+'%/'+str(100-roll)+'%'
@@ -94,33 +94,33 @@ class AQAnalysis():
 						bwwr=str(100-one_score)+'%/'+str(one_score)+'%'
 						mcwr=str(100-roll)+'%/'+str(roll)+'%'
 						vnwr=str(100-value)+'%/'+str(value)+'%'
-						
+
 					if first_variation_move:
 						first_variation_move=False
 						#variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
 						save_variation_data(new_child,self.data_in_comments,"BWWR",bwwr)
-						
+
 						#variation_comment+="\nCount: "+str(count)
 						#new_child.set("PLYO",str(count))
 						save_variation_data(new_child,self.data_in_comments,"PLYO",str(count))
-						
+
 						#variation_comment+="\nValue: "+str(value)
 						save_variation_data(new_child,self.data_in_comments,"VNWR",vnwr)
-						
+
 						#variation_comment+="\nRoll: "+str(roll)
 						save_variation_data(new_child,self.data_in_comments,"MCWR",mcwr)
-						
+
 						#variation_comment+="\nProb: "+str(prob)+"%"
 						save_variation_data(new_child,self.data_in_comments,"PNV",str(prob)+"%")
-						
+
 						#new_child.add_comment_text(variation_comment)
-						
+
 					if best_move:
 						best_move=False
-						
+
 						save_position_data(one_move,self.data_in_comments,"BWWR",bwwr,bot="AQ")
 						save_position_data(one_move,self.data_in_comments,"MCWR",mcwr,bot="AQ")
-						
+
 					previous_move=new_child
 					if current_color in ('w','W'):
 						current_color='b'
@@ -130,7 +130,7 @@ class AQAnalysis():
 			aq.undo()
 		else:
 			log('adding "'+answer.lower()+'" to the sgf file')
-			additional_comments+="\n"+_("For this position, %s would %s"%("AQ",answer.lower()))
+			# additional_comments+="\n"+_("For this position, %s would %s"%("AQ",answer.lower()))
 			if answer.lower()=="pass":
 				aq.undo()
 			elif answer.lower()=="resign":
@@ -139,9 +139,9 @@ class AQAnalysis():
 					log("The analysis will stop now")
 					log("")
 					self.move_range=[]
-		
+
 		return answer
-		
+
 	def initialize_bot(self):
 		aq=aq_starting_procedure(self.g,self.profile)
 		self.aq=aq
@@ -165,33 +165,33 @@ import subprocess
 import threading, Queue
 
 class AQ_gtp(gtp):
-	
+
 	def quit(self):
 		self.write('\x03')
-	
+
 	def __init__(self,command):
 		self.c=1
-		
+
 		aq_working_directory=command[0][:-len(ntpath.basename(command[0]))]
 		log("AQ working directory:",aq_working_directory)
 
 		self.process=subprocess.Popen(command,cwd=aq_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
-		
+
 		self.stderr_queue=Queue.Queue()
-		
+
 		threading.Thread(target=self.consume_stderr).start()
 
 		self.history=[]
-	
+
 	def place_black(self,move):
 		self.write("play black "+move)
 		answer=self.readline()
 		if answer[0]=="=":
 			self.history.append(["b",move])
 			return True
-		else:return False	
-	
+		else:return False
+
 	def place_white(self,move):
 		self.write("play white "+move)
 		answer=self.readline()
@@ -212,7 +212,7 @@ class AQ_gtp(gtp):
 		except Exception, e:
 			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
 
-		
+
 	def play_white(self):
 		self.write("genmove white")
 		answer=self.readline().strip()
@@ -241,20 +241,20 @@ class AQ_gtp(gtp):
 				else:
 					if not self.place_white(move):
 						return False
-			return True			
+			return True
 		except Exception, e:
 			raise GtpException("GtpException in undo()\n"+str(e))
 
 
 	def get_all_aq_moves_old(self):
 		buff=[]
-		
+
 		sleep(.1)
 		while not self.stderr_queue.empty():
 			while not self.stderr_queue.empty():
 				buff.append(self.stderr_queue.get())
 			sleep(.1)
-		
+
 		buff.reverse()
 
 		answers=[]
@@ -278,7 +278,7 @@ class AQ_gtp(gtp):
 				sequence=sequence.replace(" ","")
 				sequence=sequence.replace("\t","")
 				sequence=sequence.replace("->"," ")
-				
+
 				err_line=err_line.replace("|"," ")
 				err_line=err_line.strip().split()
 				#print err_line.strip().split()
@@ -301,13 +301,13 @@ class AQ_gtp(gtp):
 
 	def get_all_aq_moves(self):
 		buff=[]
-		
+
 		sleep(.1)
 		while not self.stderr_queue.empty():
 			while not self.stderr_queue.empty():
 				buff.append(self.stderr_queue.get())
 			sleep(.1)
-		
+
 		buff.reverse()
 
 		answers=[]
@@ -332,7 +332,7 @@ class AQ_gtp(gtp):
 				sequence=sequence.replace(" ","")
 				sequence=sequence.replace("\t","")
 				sequence=sequence.replace("->"," ")
-				
+
 				err_line=err_line.replace("|"," ")
 				err_line=err_line.strip().split()
 				#print err_line.strip().split()
@@ -348,7 +348,7 @@ class AQ_gtp(gtp):
 
 				if sequence:
 					answers=[[one_answer,int(count),value,float(roll),float(prob),sequence]]+answers
-		
+
 		return answers
 
 
@@ -358,33 +358,33 @@ class AQSettings(Frame):
 		log("Initializing AQ setting interface")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
+
 		bot="AQ"
-		
+
 		row=0
 		Label(self,text=_("%s settings")%bot, font="-weight bold").grid(row=row,column=1,sticky=W)
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
-		
+
 		row+=1
 		Label(self,text=_("Slow profile parameters")).grid(row=row,column=1,sticky=W)
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
-		SlowCommand = StringVar() 
+		SlowCommand = StringVar()
 		SlowCommand.set(Config.get(bot,"SlowCommand"))
 		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
-		SlowParameters = StringVar() 
+		SlowParameters = StringVar()
 		SlowParameters.set(Config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
-		
+
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
 		Label(self,text=_("Fast profile parameters")).grid(row=row,column=1,sticky=W)
 		row+=1
-		
+
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		FastCommand = StringVar()
@@ -392,7 +392,7 @@ class AQSettings(Frame):
 		Entry(self, textvariable=FastCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
-		FastParameters = StringVar() 
+		FastParameters = StringVar()
 		FastParameters.set(Config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
 
@@ -401,66 +401,66 @@ class AQSettings(Frame):
 		row+=1
 		Label(self,text=_("%s availability")%bot).grid(row=row,column=1,sticky=W)
 		row+=1
-		
+
 		value={"slow":_("Slow profile"),"fast":_("Fast profile"),"both":_("Both profiles"),"none":_("None")}
-		
+
 		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
 		analysis_bot = StringVar()
 		analysis_bot.set(value[Config.get(bot,"AnalysisBot")])
 		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
-		
+
 		row+=1
 		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
 		liveanalysis_bot = StringVar()
 		liveanalysis_bot.set(value[Config.get(bot,"LiveAnalysisBot")])
 		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
-		
+
 		row+=1
 		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
 		liveplayer_bot = StringVar()
 		liveplayer_bot.set(value[Config.get(bot,"LivePlayerBot")])
 		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
-		
+
 		row+=1
 		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
 		review_bot = StringVar()
 		review_bot.set(value[Config.get(bot,"ReviewBot")])
 		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
-		
+
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
 		Label(self,text=_("See AQ parameters in aq_config.txt")).grid(row=row,column=1,columnspan=2,sticky=W)
-		
+
 		self.SlowCommand=SlowCommand
 		self.SlowParameters=SlowParameters
 		self.FastCommand=FastCommand
 		self.FastParameters=FastParameters
-		
+
 		self.analysis_bot=analysis_bot
 		self.liveanalysis_bot=liveanalysis_bot
 		self.liveplayer_bot=liveplayer_bot
 		self.review_bot=review_bot
-		
+
 	def save(self):
 		log("Saving AQ settings")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
+
 		bot="AQ"
-		
+
 		Config.set(bot,"SlowCommand",self.SlowCommand.get())
 		Config.set(bot,"SlowParameters",self.SlowParameters.get())
 		Config.set(bot,"FastCommand",self.FastCommand.get())
 		Config.set(bot,"FastParameters",self.FastParameters.get())
-		
+
 		value={_("Slow profile"):"slow",_("Fast profile"):"fast",_("Both profiles"):"both",_("None"):"none"}
-		
+
 		Config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
 		Config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
 		Config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
 		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
-		
+
 		Config.write(open(config_file,"w"))
 
 
@@ -495,7 +495,7 @@ if __name__ == "__main__":
 		log("filename:",filename)
 		top = Tk()
 		bot=AQ
-		
+
 		slowbot=bot
 		slowbot['profile']="slow"
 		fastbot=dict(bot)
@@ -508,16 +508,16 @@ if __name__ == "__main__":
 		except Exception, e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
-		
+
 		if not parameters[1]:
 			show_error("SGF file missing\n"+usage)
 			sys.exit()
-		
+
 		top=None
 		batch=[]
-		
+
 		for filename in parameters[1]:
-			
+
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
@@ -529,7 +529,7 @@ if __name__ == "__main__":
 					top.withdraw()
 				one_analysis=[RunAnalysis,filename,move_selection,intervals,variation-1,komi]
 				batch.append(one_analysis)
-		
+
 		if not nogui:
 			top.after(1,lambda: batch_analysis(top,batch))
 			top.mainloop()
