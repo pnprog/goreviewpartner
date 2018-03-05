@@ -462,7 +462,7 @@ class RangeSelector(Frame):
 			row+=1
 			Label(self,text=_("This is a %i stones handicap game.")%len(board.list_occupied_points())).grid(row=row,column=1,columnspan=2,sticky=W)
 			row+=1
-			Label(self,text=_("You may want to increase the value of komi based on the rule set.")).grid(row=row,column=1,columnspan=2,sticky=W)
+			Label(self,text=_("You may want to adjust the value of komi based on the rule set and the bot used.")).grid(row=row,column=1,columnspan=2,sticky=W)
 
 		row+=1
 		Label(self,text=_("Confirm the value of komi")).grid(row=row,column=1,sticky=W)
