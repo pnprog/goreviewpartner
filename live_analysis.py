@@ -124,9 +124,9 @@ class LiveAnalysisLauncher(Frame):
 		self.filename=Entry(self)
 		self.filename.grid(row=row,column=2,sticky=W)
 		self.filename.delete(0, END)
-		filename=datetime.now().strftime('%Y-%m-%d_%H:%M_'+_('Human')+'_vs_'+_('Human')+'.sgf')
+		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_'+_('Human')+'_vs_'+_('Human')+'.sgf')
 		self.filename.insert(0, filename)
-
+		self.filename.bind("<Button-1>",self.change_filename)
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 
@@ -154,6 +154,13 @@ class LiveAnalysisLauncher(Frame):
 		self.bot_selection.trace("w", lambda a,b,c: self.change_parameters())
 		self.black_selection.trace("w", lambda a,b,c: self.change_parameters())
 		self.white_selection.trace("w", lambda a,b,c: self.change_parameters())
+	
+	def change_filename(self,event=None):
+		filename=save_live_game(self.filename.get(), parent=self)
+		if filename:
+			filename=os.path.basename(filename)
+			self.filename.delete(0, END)
+			self.filename.insert(0, filename)
 		
 	def close_app(self):
 		if self.popup:
@@ -210,8 +217,10 @@ class LiveAnalysisLauncher(Frame):
 		Config.set("Live","white",self.white_selection.get().encode("utf"))
 		
 		Config.write(open(config_file,"w"))
+		 
+		filename=os.path.join(Config.get("General","livefolder"),self.filename.get())
 		
-		self.popup=LiveAnalysis(self.parent.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=self.filename.get(),overlap_thinking=not self.no_overlap_thinking.get())
+		self.popup=LiveAnalysis(self.parent.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get())
 		self.parent.destroy()
 
 	def selected_black_index(self):

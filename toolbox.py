@@ -1638,7 +1638,7 @@ try:
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","pngfolder")
-		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename,  wildcard=_("PNG image")+" (*.png;*.PNG)|*.png;*.PNG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=_("PNG image")+" (*.png;*.PNG)|*.png;*.PNG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
 		filename = None
 		if dialog.ShowModal() == wx.ID_OK:
 			filename = dialog.GetPath()
@@ -1646,6 +1646,21 @@ try:
 		if filename:
 			initialdir=os.path.dirname(filename)
 			Config.set("General","pngfolder",initialdir.encode("utf"))
+			Config.write(open(config_file,"w"))
+		return filename
+
+	def save_live_game(filename, parent=None):
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		initialdir = Config.get("General","livefolder")
+		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+		filename = None
+		if dialog.ShowModal() == wx.ID_OK:
+			filename = dialog.GetPath()
+		dialog.Destroy()
+		if filename:
+			initialdir=os.path.dirname(filename)
+			Config.set("General","livefolder",initialdir.encode("utf"))
 			Config.write(open(config_file,"w"))
 		return filename
 
@@ -1674,9 +1689,7 @@ except Exception, e:
 			Config.set("General","rsgffolder",initialdir.encode("utf"))
 			Config.write(open(config_file,"w"))
 		return filename
-		
-		
-		
+
 	def save_png_file(filename, parent=None):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -1685,6 +1698,17 @@ except Exception, e:
 		if filename:
 			initialdir=os.path.dirname(filename)
 			Config.set("General","pngfolder",initialdir.encode("utf"))
+			Config.write(open(config_file,"w"))
+		return filename
+
+	def save_live_game(filename, parent=None):
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		initialdir = Config.get("General","livefolder")
+		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(_('SGF file'), '.sgf')],initialfile=filename)
+		if filename:
+			initialdir=os.path.dirname(filename)
+			Config.set("General","livefolder",initialdir.encode("utf"))
 			Config.write(open(config_file,"w"))
 		return filename
 		
