@@ -1,4 +1,6 @@
 # git shortlog -sn | cut -c8- with manually removed duplicates
 
 pnprog
+chermes
+Adam Bender
 Isaac Deutsch
