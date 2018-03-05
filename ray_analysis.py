@@ -83,7 +83,9 @@ class RayAnalysis():
 								else:
 									winrate=str(100-float(win))+'%/'+str(win)+'%'
 								save_variation_data(new_child,self.data_in_comments,"BWWR",winrate)
-
+								if best_move:
+									save_position_data(one_move,self.data_in_comments,"BWWR",winrate,bot="Ray")
+							
 							if count:
 								save_variation_data(new_child,self.data_in_comments,"PLYO",count)
 								
@@ -112,15 +114,8 @@ class RayAnalysis():
 									white_value=value+"%"
 									black_value=opposite_rate(white_value)
 								save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
-								
-							if best_move and win:
-								if player_color=='b':
-									black_value=str(win)+'%'
-									white_value=opposite_rate(black_value)
-								else:
-									white_value=str(win)+'%'
-									black_value=opposite_rate(white_value)
-								save_position_data(one_move,self.data_in_comments,"BWWR",black_value+'/'+white_value,bot="Ray")
+								if best_move:
+									save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value)
 							
 							if best_move:
 								best_move=False
@@ -130,19 +125,6 @@ class RayAnalysis():
 						break
 
 			log("==== no more sequences =====")
-		"""
-		else:
-			log('adding "'+answer.lower()+'" to the sgf file')
-			additional_comments+=_("For this position, %s would %s"%("Ray",answer.lower()))
-			if answer.lower()=="pass":
-				ray.undo()
-			elif answer.lower()=="resign":
-				if self.stop_at_first_resign:
-					log("")
-					log("The analysis will stop now")
-					log("")
-					self.move_range=[]
-		"""
 		
 		if best_answer.lower()=="resign":
 			if self.stop_at_first_resign:
