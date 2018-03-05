@@ -76,41 +76,46 @@ class OpenChart():
 		top_frame.pack()
 		
 		self.graph_mode=StringVar()
-		
+		available_graphs=[]
 		for data in self.data:
 			if data:
 				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
-					Radiobutton(top_frame, text=_("Score estimation"),command=self.display,variable=self.graph_mode, value="Score estimation",indicatoron=0).pack(side=LEFT, padx=5)
 					self.graph_mode.set("Score estimation") # initialize
+					available_graphs.append(_("Score estimation"))
 					break
 		
 		
 		for data in self.data:
 			if data:
 				if "position_win_rate" in data:
-					Radiobutton(top_frame, text=_("Win rate"),command=self.display,variable=self.graph_mode, value="Win rate",indicatoron=0).pack(side=LEFT, padx=5)
 					self.graph_mode.set("Win rate") # initialize
+					available_graphs.append(_("Win rate"))
 					break
 		
 		for data in self.data:
 			if data:
 				if "delta" in data:
 					if data["player_color"]=="b":
-						Radiobutton(top_frame, text=_("Black comparison"),command=self.display,variable=self.graph_mode, value="Black comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+						available_graphs.append(_("Black comparison"))
 						break
 		for data in self.data:
 			if data:
 				if "delta" in data:
 					if data["player_color"]=="w":
-						Radiobutton(top_frame, text=_("White comparison"),command=self.display,variable=self.graph_mode, value="White comparison",indicatoron=0).pack(side=LEFT, padx=5, pady=5)
+						available_graphs.append(_("White comparison"))
 						break
 		
 		for data in self.data:
 			if data:
 				if "monte_carlo_win_rate" in data:
-					Radiobutton(top_frame, text=_("Monte Carlo win rate"),command=self.display,variable=self.graph_mode, value="Monte carlo win rate",indicatoron=0).pack(side=LEFT, padx=5)
+					available_graphs.append(_("Monte Carlo win rate"))
 					break
 		
+		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
+		self.graph_selection.pack(side=LEFT, padx=5)
+		self.graph_mode.trace("w", lambda a,b,c: self.display())
+		if not self.graph_mode.get():
+			self.graph_mode.set(available_graphs[0])
 		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
 		#self.chart.grid(sticky=N+S+W+E)
 		
@@ -205,15 +210,15 @@ class OpenChart():
 		y1=border
 		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
 		
-		if self.graph_mode.get() in ("Black comparison","White comparison"):
+		if self.graph_mode.get() in (_("Black comparison"),_("White comparison")):
 			moves=self.display_comparison_graph(border,height,width)
-		elif self.graph_mode.get()=="Win rate":
+		elif self.graph_mode.get()==_("Win rate"):
 			moves=self.display_winrate_graph(border,height,width,lpix)
-		elif self.graph_mode.get()=="Score estimation":
+		elif self.graph_mode.get()==_("Score estimation"):
 			moves=self.display_score_graph(border,height,width,lpix)
-		elif self.graph_mode.get()=="Monte carlo win rate":
+		elif self.graph_mode.get()==_("Monte Carlo win rate"):
 			moves=self.display_montecarlo_winrate_graph(border,height,width,lpix)
-			
+		print self.graph_mode.get()
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
 		self.display_axis(moves,height,width,border,lpix)
 
