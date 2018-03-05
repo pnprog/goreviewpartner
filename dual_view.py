@@ -94,13 +94,13 @@ class OpenChart():
 		
 		for data in self.data:
 			if data:
-				if "delta" in data:
+				if "winrate_delta" in data:
 					if data["player_color"]=="b":
 						available_graphs.append(_("Black comparison"))
 						break
 		for data in self.data:
 			if data:
-				if "delta" in data:
+				if "winrate_delta" in data:
 					if data["player_color"]=="w":
 						available_graphs.append(_("White comparison"))
 						break
@@ -235,7 +235,7 @@ class OpenChart():
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
-			if (one_data["player_color"]==player_color) and ("delta" in one_data):
+			if (one_data["player_color"]==player_color) and ("winrate_delta" in one_data):
 				position_win_rate=one_data["position_win_rate"]
 				move=one_data["move"]
 				moves.append(move)
@@ -247,7 +247,7 @@ class OpenChart():
 				
 				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
 				
-				delta=one_data["delta"]
+				delta=one_data["winrate_delta"]
 				
 				if player_color.lower()=="b":
 					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
@@ -1241,7 +1241,7 @@ class DualView(Frame):
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
-				one_data['delta']=delta
+				one_data['winrate_delta']=delta
 
 			except:
 				pass
@@ -1553,7 +1553,7 @@ class DualView(Frame):
 		Label(new_popup,text=" ").grid(row=row+1,column=0)
 		
 		columns_header=[_("Move"),'nothing here',_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score estimation")]
-		columns_sgf_properties=["nothing here","nothing here","BWWR","BWMCWR","BWVNWR","PNV","PLYO","EVAL","RAVE","ES"]
+		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
 		nb_variations=min(len(parent)-1,self.maxvariations+1)
 		log(nb_variations,"variations")
