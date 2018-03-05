@@ -1054,7 +1054,8 @@ class RunAnalysisBase(Frame):
 			self.move_zero.add_comment_text(first_comment+"\n")
 		else:
 			self.move_zero.set("RSGF",first_comment+"\n")
-
+			self.move_zero.set("BOT",self.bot.bot_name)
+			self.move_zero.set("BOTV",self.bot.bot_version)
 
 		self.root=root
 

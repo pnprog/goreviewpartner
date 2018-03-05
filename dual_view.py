@@ -1739,7 +1739,11 @@ class DualView(Frame):
 		
 		node=get_node(self.gameroot,self.current_move)
 		if node.has_property("CBM"):
-			comments+="\n"+(position_data_formating["CBM"])%(_("the computer"),node.get("CBM"))
+			if self.gameroot.has_property("BOT"):
+				bot=self.gameroot.get("BOT")
+			else:
+				bot=_("the computer")
+			comments+="\n"+(position_data_formating["CBM"])%(bot,node.get("CBM"))
 			try:
 				if node[1].has_property("BKMV"):
 					if node[1].get("BKMV")=="yes":
