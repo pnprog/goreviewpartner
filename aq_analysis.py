@@ -120,7 +120,8 @@ class AQAnalysis():
 
 						save_position_data(one_move,self.data_in_comments,"BWWR",bwwr,bot="AQ")
 						save_position_data(one_move,self.data_in_comments,"MCWR",mcwr,bot="AQ")
-
+						save_position_data(one_move,self.data_in_comments,"VNWR",vnwr,bot="AQ")
+						
 					previous_move=new_child
 					if current_color in ('w','W'):
 						current_color='b'
