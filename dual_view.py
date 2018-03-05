@@ -1503,8 +1503,13 @@ class DualView(Frame):
 		
 		node=get_node(self.gameroot,self.current_move)
 		if node.has_property("CBM"):
-			comments+="\n"+(position_data_formating["CBM"])%("the computer",node.get("CBM"))
-
+			comments+="\n"+(position_data_formating["CBM"])%(_("the computer"),node.get("CBM"))
+			try:
+				if node[1].has_property("BKMV"):
+					if node[1].get("BKMV")=="yes":
+						comments+=" ("+variation_data_formating["BKMV"]+")"
+			except:
+				pass
 		try:
 			if node.has_property("BWWR"):
 				if node[0].has_property("BWWR"):
