@@ -152,7 +152,9 @@ class LeelaAnalysis():
 								white_value=variation['value network win rate']
 								black_value=opposite_rate(white_value)
 							save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
-							
+							if best_move:
+								save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value,bot="Leela")
+						
 						if 'move evaluation' in variation:
 							save_variation_data(new_child,self.data_in_comments,"EVAL",variation['move evaluation'])
 							

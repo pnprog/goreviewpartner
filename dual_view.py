@@ -96,13 +96,13 @@ class OpenChart():
 			if data:
 				if "winrate_delta" in data:
 					if data["player_color"]=="b":
-						available_graphs.append(_("Black comparison"))
+						available_graphs.append(_("Black win rate delta"))
 						break
 		for data in self.data:
 			if data:
 				if "winrate_delta" in data:
 					if data["player_color"]=="w":
-						available_graphs.append(_("White comparison"))
+						available_graphs.append(_("White win rate delta"))
 						break
 		
 		for data in self.data:
@@ -110,6 +110,40 @@ class OpenChart():
 				if "monte_carlo_win_rate" in data:
 					available_graphs.append(_("Monte Carlo win rate"))
 					break
+		
+		for data in self.data:
+			if data:
+				if "mcwr_delta" in data:
+					if data["player_color"]=="w":
+						available_graphs.append(_("Black Monte Carlo win rate delta"))
+						break
+
+		for data in self.data:
+			if data:
+				if "mcwr_delta" in data:
+					if data["player_color"]=="b":
+						available_graphs.append(_("White Monte Carlo win rate delta"))
+						break
+		
+		for data in self.data:
+			if data:
+				if "value_network_win_rate" in data:
+					available_graphs.append(_("Value Network win rate"))
+					break
+		
+		for data in self.data:
+			if data:
+				if "vnwr_delta" in data:
+					if data["player_color"]=="w":
+						available_graphs.append(_("Black Value Network win rate delta"))
+						break
+
+		for data in self.data:
+			if data:
+				if "vnwr_delta" in data:
+					if data["player_color"]=="b":
+						available_graphs.append(_("White Value Network win rate delta"))
+						break
 		
 		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
 		self.graph_selection.pack(side=LEFT, padx=5)
@@ -210,28 +244,146 @@ class OpenChart():
 		y1=border
 		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
 		
-		if self.graph_mode.get() in (_("Black comparison"),_("White comparison")):
-			moves=self.display_comparison_graph(border,height,width)
+		if self.graph_mode.get() in (_("Black win rate delta"),_("White win rate delta")):
+			moves=self.display_winrate_delta(border,height,width)
 		elif self.graph_mode.get()==_("Win rate"):
 			moves=self.display_winrate_graph(border,height,width,lpix)
 		elif self.graph_mode.get()==_("Score estimation"):
 			moves=self.display_score_graph(border,height,width,lpix)
 		elif self.graph_mode.get()==_("Monte Carlo win rate"):
-			moves=self.display_montecarlo_winrate_graph(border,height,width,lpix)
-		print self.graph_mode.get()
+			moves=self.display_monte_carlo_winrate_graph(border,height,width,lpix)
+		elif self.graph_mode.get()==_("Value Network win rate"):
+			moves=self.display_value_network_winrate_graph(border,height,width,lpix)
+		elif self.graph_mode.get() in (_("Black Monte Carlo win rate delta"),_("White Monte Carlo win rate delta")):
+			moves=self.display_monte_carlo_delta(border,height,width)
+		elif self.graph_mode.get() in (_("Black Value Network win rate delta"),_("White Value Network win rate delta")):
+			moves=self.display_value_network_delta(border,height,width)
+		
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
 		self.display_axis(moves,height,width,border,lpix)
 
-	def display_comparison_graph(self,border,height,width):
+	def display_value_network_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()=="Black comparison":
+		if self.graph_mode.get()=="Black Value Network win rate delta":
 			player_color='b'
 		else:
 			player_color='w'
-		
-		
-		
+
+		x00=border
+		y00=height-border-(height-2*border)/2.
+		for one_data in self.data:
+			if (one_data["player_color"]==player_color) and ("vnwr_delta" in one_data):
+				position_win_rate=one_data["value_network_win_rate"]
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space*2
+				
+				y0=height-border
+				y1=height-border-position_win_rate*(height-2*border)/100.
+				
+				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				delta=one_data["vnwr_delta"]
+				
+				if player_color.lower()=="b":
+					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+				else:
+					msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+				
+				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				if delta<>0:
+					y2=y1-delta*(height-2*border)/100.
+					if delta<0:
+						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
+						msg2=_("The computer believes it's own move win rate would be %.2fpp higher.")%(-delta)
+						self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
+						self.chart.tag_bind(red_bar, "<Leave>", self.clear_status)
+						self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
+					else:
+						green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
+						msg2=_("The computer believes the actual move is %.2fpp better than it's best move.")%(delta)
+						self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
+						self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
+						self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
+						
+				self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y1
+		#drawing vertical graduation
+		self.display_vertical_winrate_graduation(border,height,width)
+		return moves
+
+	def display_monte_carlo_delta(self,border,height,width):
+		moves=[]
+		space=1.0*(width-2*border)/(self.nb_moves+1)
+		if self.graph_mode.get()=="Black Monte Carlo win rate delta":
+			player_color='b'
+		else:
+			player_color='w'
+
+		x00=border
+		y00=height-border-(height-2*border)/2.
+		for one_data in self.data:
+			if (one_data["player_color"]==player_color) and ("mcwr_delta" in one_data):
+				position_win_rate=one_data["monte_carlo_win_rate"]
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space*2
+				
+				y0=height-border
+				y1=height-border-position_win_rate*(height-2*border)/100.
+				
+				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				delta=one_data["mcwr_delta"]
+				
+				if player_color.lower()=="b":
+					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+				else:
+					msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+				
+				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				if delta<>0:
+					y2=y1-delta*(height-2*border)/100.
+					if delta<0:
+						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
+						msg2=_("The computer believes it's own move win rate would be %.2fpp higher.")%(-delta)
+						self.chart.tag_bind(red_bar, "<Enter>", partial(self.set_status,msg=msg2))
+						self.chart.tag_bind(red_bar, "<Leave>", self.clear_status)
+						self.chart.tag_bind(red_bar, "<Button-1>",partial(self.goto_move,move=move))
+					else:
+						green_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='#00ff00',outline='#00aa00')
+						msg2=_("The computer believes the actual move is %.2fpp better than it's best move.")%(delta)
+						self.chart.tag_bind(green_bar, "<Enter>", partial(self.set_status,msg=msg2))
+						self.chart.tag_bind(green_bar, "<Leave>", self.clear_status)
+						self.chart.tag_bind(green_bar, "<Button-1>",partial(self.goto_move,move=move))
+						
+				self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y1
+		#drawing vertical graduation
+		self.display_vertical_winrate_graduation(border,height,width)
+		return moves
+
+	def display_winrate_delta(self,border,height,width):
+		moves=[]
+		space=1.0*(width-2*border)/(self.nb_moves+1)
+		if self.graph_mode.get()=="Black win rate delta":
+			player_color='b'
+		else:
+			player_color='w'
+
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
@@ -281,8 +433,48 @@ class OpenChart():
 		self.display_vertical_winrate_graduation(border,height,width)
 		return moves
 
+	def display_value_network_winrate_graph(self,border,height,width,lpix):
+		moves=[]
+		space=1.0*(width-2*border)/self.nb_moves
 		
-	def display_montecarlo_winrate_graph(self,border,height,width,lpix):
+		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
+		x00=border
+		y00=height-border-(height-2*border)/2.
+		for one_data in self.data:
+			if "value_network_win_rate" in one_data:
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space
+				
+				win_rate=one_data["value_network_win_rate"]
+				if one_data["player_color"]=="w":
+					win_rate=100.-win_rate
+					color=_("White")
+				else:
+					color=_("Black")
+				player_win_rate=float(int(win_rate*100)/100.)
+				y0=height-border
+				y1=height-border-win_rate*(height-2*border)/100.
+				
+				grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				#msg="Move "+str(move)+" ("+color+"), black/white win rate: "+str(player_win_rate)+"%/"+str(100-player_win_rate)+"%"
+				msg=(_("Move %i (%s), black/white win rate: ")%(move,color))+str(win_rate)+"%/"+str(100-player_win_rate)+"%"
+				
+				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				self.chart.create_line(x0, y1, x1, y1, fill='#0000ff',width=2)
+				self.chart.create_line(x0, y1, x00, y00, fill='#0000ff')
+				x00=x1
+				y00=y1
+		#drawing vertical graduation
+		self.display_vertical_winrate_graduation(border,height,width)
+		return moves
+		
+	def display_monte_carlo_winrate_graph(self,border,height,width,lpix):
 		moves=[]
 		space=1.0*(width-2*border)/self.nb_moves
 		
@@ -1201,9 +1393,18 @@ class DualView(Frame):
 			try:
 				winrate=one_move.get('MCWR')
 				if player_color in ('b',"B"):
-					one_data['monte_carlo_win_rate']=float(winrate.split("/")[1][:-1])
-				else:
 					one_data['monte_carlo_win_rate']=float(winrate.split("%")[0])
+				else:
+					one_data['monte_carlo_win_rate']=float(winrate.split("/")[1][:-1])
+			except:
+				pass
+			
+			try:
+				winrate=one_move.get('VNWR')
+				if player_color in ('b',"B"):
+					one_data['value_network_win_rate']=float(winrate.split("%")[0])
+				else:
+					one_data['value_network_win_rate']=float(winrate.split("/")[1][:-1])
 			except:
 				pass
 			
@@ -1245,6 +1446,41 @@ class DualView(Frame):
 
 			except:
 				pass
+			
+			#delta for monte carlo win rate
+			try:
+				next_move=get_node(self.gameroot,m+1)
+				winrate=next_move.get('MCWR')
+				if player_color in ('w',"W"):
+					next_position_win_rate=float(winrate.split("/")[1][:-1])
+				else:
+					next_position_win_rate=float(winrate.split("%")[0])
+				computer_move=one_move.get('CBM')
+				if player_move==computer_move:
+					current_position_win_rate=next_position_win_rate
+					one_data['monte_carlo_win_rate']=next_position_win_rate
+				delta=next_position_win_rate-one_data['monte_carlo_win_rate']
+				one_data['mcwr_delta']=delta
+			except:
+				pass
+			
+			#delta for value network win rate
+			try:
+				next_move=get_node(self.gameroot,m+1)
+				winrate=next_move.get('VNWR')
+				if player_color in ('w',"W"):
+					next_position_win_rate=float(winrate.split("/")[1][:-1])
+				else:
+					next_position_win_rate=float(winrate.split("%")[0])
+				computer_move=one_move.get('CBM')
+				if player_move==computer_move:
+					current_position_win_rate=next_position_win_rate
+					one_data['value_network_win_rate']=next_position_win_rate
+				delta=next_position_win_rate-one_data['value_network_win_rate']
+				one_data['vnwr_delta']=delta
+			except:
+				pass
+			
 			if len(one_data)<=2:
 				#if move number and color are the only data available for this point
 				#then we don't need that data point
