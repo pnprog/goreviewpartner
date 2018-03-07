@@ -80,7 +80,7 @@ class OpenChart():
 		for data in self.data:
 			if data:
 				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
-					self.graph_mode.set("Score estimation") # initialize
+					self.graph_mode.set(_("Score estimation")) # initialize
 					available_graphs.append(_("Score estimation"))
 					break
 		
@@ -88,7 +88,7 @@ class OpenChart():
 		for data in self.data:
 			if data:
 				if "position_win_rate" in data:
-					self.graph_mode.set("Win rate") # initialize
+					self.graph_mode.set(_("Win rate")) # initialize
 					available_graphs.append(_("Win rate"))
 					break
 		
@@ -244,19 +244,20 @@ class OpenChart():
 		y1=border
 		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
 		
-		if self.graph_mode.get() in (_("Black win rate delta"),_("White win rate delta")):
+		mode=_(self.graph_mode.get())
+		if mode in (_("Black win rate delta").decode("utf"),_("White win rate delta").decode("utf")):
 			moves=self.display_winrate_delta(border,height,width)
-		elif self.graph_mode.get()==_("Win rate"):
+		elif mode==_("Win rate").decode("utf"):
 			moves=self.display_winrate_graph(border,height,width,lpix)
-		elif self.graph_mode.get()==_("Score estimation"):
+		elif mode==_("Score estimation").decode("utf"):
 			moves=self.display_score_graph(border,height,width,lpix)
-		elif self.graph_mode.get()==_("Monte Carlo win rate"):
+		elif mode==_("Monte Carlo win rate").decode("utf"):
 			moves=self.display_monte_carlo_winrate_graph(border,height,width,lpix)
-		elif self.graph_mode.get()==_("Value Network win rate"):
+		elif mode==_("Value Network win rate").decode("utf"):
 			moves=self.display_value_network_winrate_graph(border,height,width,lpix)
-		elif self.graph_mode.get() in (_("Black Monte Carlo win rate delta"),_("White Monte Carlo win rate delta")):
+		elif mode in (_("Black Monte Carlo win rate delta").decode("utf"),_("White Monte Carlo win rate delta").decode("utf")):
 			moves=self.display_monte_carlo_delta(border,height,width)
-		elif self.graph_mode.get() in (_("Black Value Network win rate delta"),_("White Value Network win rate delta")):
+		elif mode in (_("Black Value Network win rate delta").decode("utf"),_("White Value Network win rate delta").decode("utf")):
 			moves=self.display_value_network_delta(border,height,width)
 		
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
@@ -1633,8 +1634,8 @@ class DualView(Frame):
 			if one_alternative.get_move()[0]=='b': c=1
 			else: c=2
 
-			if one_alternative.has_property("BWR"):
-				black_prob=float(one_alternative.get("BWR")[:-1])
+			if one_alternative.has_property("BWWR"):
+				black_prob=float(one_alternative.get("BWWR").split("%")[0])
 				white_prob=100-black_prob
 				if c==1:
 					if self.variation_color_mode=="blue_for_winning":
