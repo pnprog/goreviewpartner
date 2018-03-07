@@ -1768,6 +1768,22 @@ class DualView(Frame):
 			pass
 		
 		try:
+			if node.has_property("VNWR"):
+				if node[0].has_property("VNWR"):
+					if node.get_move()[0].lower()=="b":
+						comments+="\n\n"+_("Black Value Network win probability:")
+						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[0]
+						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[0]
+						comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[0])-float(node.get("VNWR").split("%/")[0]))
+					else:
+						comments+="\n\n"+_("White Value Network win probability:")
+						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[1]
+						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[1]
+						comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
+		except:
+			pass
+		
+		try:
 			if node.has_property("MCWR"):
 				if node[0].has_property("MCWR"):
 					if node.get_move()[0].lower()=="b":
@@ -1792,9 +1808,9 @@ class DualView(Frame):
 		Label(new_popup,text=" ").grid(row=0,column=0)
 		Label(new_popup,text=" ").grid(row=1000,column=1000)
 
-		row=0
+		row=1
 		comments=self.get_node_comments()
-		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=0,columnspan=100)
+		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W)
 		
 		Label(new_popup,text=" ").grid(row=row+1,column=0)
 		
