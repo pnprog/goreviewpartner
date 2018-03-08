@@ -1634,9 +1634,17 @@ class DualView(Frame):
 			if one_alternative.get_move()[0]=='b': c=1
 			else: c=2
 
-			if one_alternative.has_property("BWWR"):
-				black_prob=float(one_alternative.get("BWWR").split("%")[0])
-				white_prob=100-black_prob
+			if one_alternative.has_property("BWWR") or one_alternative.has_property("VNWR") or one_alternative.has_property("MCWR"):
+				if one_alternative.has_property("BWWR"):
+					black_prob=float(one_alternative.get("BWWR").split("%")[0])
+					white_prob=100-black_prob
+				elif one_alternative.has_property("VNWR"):
+					black_prob=float(one_alternative.get("VNWR").split("%")[0])
+					white_prob=100-black_prob
+				elif one_alternative.has_property("MCWR"):
+					black_prob=float(one_alternative.get("MCWR").split("%")[0])
+					white_prob=100-black_prob
+				
 				if c==1:
 					if self.variation_color_mode=="blue_for_winning":
 						if black_prob>=50:

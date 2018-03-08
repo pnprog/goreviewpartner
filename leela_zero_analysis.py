@@ -118,16 +118,16 @@ class LeelaZeroAnalysis():
 						first_variation_move=False
 						#variation_comment=""
 			
-						if 'win rate' in variation:
+						if 'value network win rate' in variation:
 							if player_color=='b':
-								black_value=variation['win rate']
+								black_value=variation['value network win rate']
 								white_value=opposite_rate(black_value)
 							else:
-								white_value=variation['win rate']
+								white_value=variation['value network win rate']
 								black_value=opposite_rate(white_value)	
-							save_variation_data(new_child,self.data_in_comments,"BWWR",black_value+'/'+white_value)
+							save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
 							if best_move:
-								save_position_data(one_move,self.data_in_comments,"BWWR",black_value+'/'+white_value,bot="Leela")
+								save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value,bot="Leela Zero")
 
 						if 'policy network value' in variation:
 							save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
@@ -319,7 +319,7 @@ class Leela_Zero_gtp(gtp):
 					variation["playouts"]=nodes
 					
 					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
-					variation["win rate"]=value_network #for Leela Zero, the value network is used as win rate
+					variation["value network win rate"]=value_network #for Leela Zero, the value network is used as win rate
 					
 					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
 					variation["policy network value"]=policy_network
