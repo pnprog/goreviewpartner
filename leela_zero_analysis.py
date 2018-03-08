@@ -248,8 +248,9 @@ class Leela_Zero_gtp(gtp):
 
 	def undo_resign(self):
 		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
-		self.undo()
-
+		#self.undo()
+		pass #apparently, this has been "fixed" in v0.10, v0.11 or v0.12 :)
+		
 	def __init__(self,command):
 		self.c=1
 		leela_zero_working_directory=command[0][:-len(ntpath.basename(command[0]))]
