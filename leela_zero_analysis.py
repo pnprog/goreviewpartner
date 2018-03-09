@@ -51,8 +51,20 @@ class LeelaZeroAnalysis():
 		
 		position_evaluation=leela_zero.get_all_leela_zero_moves()
 		
-		if (answer.lower() not in ["pass","resign"]):
-			
+		if (answer.lower() in ["pass","resign"]):
+			if answer.lower()=="pass":
+				log(" => Leela Zero would pass")
+				leela_zero.undo()
+			elif answer.lower()=="resign":
+				log(" => Leela Zero would resign")
+				if self.stop_at_first_resign:
+					log("")
+					log("The analysis will stop now")
+					log("")
+					self.move_range=[]
+				else:
+					leela_zero.undo_resign()
+		else:
 			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			
 			#let's make sure there is at least one variation available
@@ -98,68 +110,54 @@ class LeelaZeroAnalysis():
 				#log("undo...")
 				leela_zero.undo()
 			
-			best_move=True
-			log("Number of alternative sequences:",len(position_evaluation['variations']))
-			for variation in position_evaluation['variations'][:self.maxvariations]:
-				#exemple: {'value network win rate': '50.22%', 'policy network value': '17.37%', 'sequence': 'Q16 D4 D17 Q4', 'playouts': '13', 'first move': 'Q16'}
-				previous_move=one_move.parent
-				current_color=player_color	
-				first_variation_move=True
-				for one_deep_move in variation['sequence'].split(' '):
-					if one_deep_move.lower() in ["pass","resign"]:
-						log("Leaving the variation when encountering",one_deep_move.lower())
-						break
+		best_move=True
+		log("Number of alternative sequences:",len(position_evaluation['variations']))
+		for variation in position_evaluation['variations'][:self.maxvariations]:
+			#exemple: {'value network win rate': '50.22%', 'policy network value': '17.37%', 'sequence': 'Q16 D4 D17 Q4', 'playouts': '13', 'first move': 'Q16'}
+			previous_move=one_move.parent
+			current_color=player_color	
+			first_variation_move=True
+			for one_deep_move in variation['sequence'].split(' '):
+				if one_deep_move.lower() in ["pass","resign"]:
+					log("Leaving the variation when encountering",one_deep_move.lower())
+					break
 
-					i,j=gtp2ij(one_deep_move)
-					new_child=previous_move.new_child()
-					new_child.set_move(current_color,(i,j))
-					
-					if first_variation_move==True:
-						first_variation_move=False
-						#variation_comment=""
-			
-						if 'value network win rate' in variation:
-							if player_color=='b':
-								black_value=variation['value network win rate']
-								white_value=opposite_rate(black_value)
-							else:
-								white_value=variation['value network win rate']
-								black_value=opposite_rate(white_value)	
-							save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
-							if best_move:
-								save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value,bot="Leela Zero")
-
-						if 'policy network value' in variation:
-							save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
-
-						if 'playouts' in variation:
-							save_variation_data(new_child,self.data_in_comments,"PLYO",variation['playouts'])
-						
-						#new_child.add_comment_text(variation_comment)
-						
+				i,j=gtp2ij(one_deep_move)
+				new_child=previous_move.new_child()
+				new_child.set_move(current_color,(i,j))
+				
+				if first_variation_move==True:
+					first_variation_move=False
+					#variation_comment=""
+		
+					if 'value network win rate' in variation:
+						if player_color=='b':
+							black_value=variation['value network win rate']
+							white_value=opposite_rate(black_value)
+						else:
+							white_value=variation['value network win rate']
+							black_value=opposite_rate(white_value)	
+						save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
 						if best_move:
-							best_move=False
-						
-					previous_move=new_child
-					if current_color in ('w','W'):
-						current_color='b'
-					else:
-						current_color='w'
-			log("==== no more sequences =====")
-			
-		else:
-			#log('adding "'+answer.lower()+'" to the sgf file')
-			
-			if answer.lower()=="pass":
-				leela_zero.undo()
-			elif answer.lower()=="resign":
-				if self.stop_at_first_resign:
-					log("")
-					log("The analysis will stop now")
-					log("")
-					self.move_range=[]
+							save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value,bot="Leela Zero")
+
+					if 'policy network value' in variation:
+						save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
+
+					if 'playouts' in variation:
+						save_variation_data(new_child,self.data_in_comments,"PLYO",variation['playouts'])
+					
+					#new_child.add_comment_text(variation_comment)
+					
+					if best_move:
+						best_move=False
+					
+				previous_move=new_child
+				if current_color in ('w','W'):
+					current_color='b'
 				else:
-					leela_zero.undo_resign()
+					current_color='w'
+		log("==== no more sequences =====")
 		
 		#one_move.add_comment_text(additional_comments)
 		return best_answer
