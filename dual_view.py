@@ -1874,26 +1874,36 @@ class DualView(Frame):
 				columns_header[c]=None
 			c+=1
 		
-
+		row=10
+		new_popup=Frame(new_popup,bd=2,relief=RIDGE)
+		new_popup.grid(row=row,column=10)
 		
 		row=10
 		c=0
 		for header in columns_header:
 			if header:
 				if c==0:
-					Label(new_popup,text=header,relief=SUNKEN).grid(row=row,column=10+c,columnspan=2,sticky=W+E)
+					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,columnspan=2,sticky=W+E)
 				elif c==1:
 					pass
 				else:
-					Label(new_popup,text=header,relief=SUNKEN).grid(row=row,column=10+c,sticky=W+E)
+					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,sticky=W+E)
+				Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+1,column=10+c,sticky=W+E)
 			c+=1
-		row+=1
+		row+=2
 		
-		for c in range(len(columns)):
-			for r in range(nb_variations):
+		for r in range(nb_variations):
+			for c in range(len(columns)):
 				if columns_header[c]:
-					Label(new_popup,text=columns[c][r],relief=SUNKEN).grid(row=row+r,column=10+c,sticky=W+E)
-			
+					Label(new_popup,text=columns[c][r],relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
+			if r==0:
+				row+=1
+				for c in range(len(columns)):
+					if columns_header[c]:
+						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
+
+				
+				
 		
 	def initialize(self):
 
