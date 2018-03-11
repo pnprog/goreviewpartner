@@ -165,12 +165,7 @@ class GnuGoAnalysis():
 			if answer.lower()=="pass":
 				gnugo.undo()
 			elif answer.lower()=="resign":
-				if self.stop_at_first_resign:
-					log("")
-					log("The analysis will stop now")
-					log("")
-					self.move_range=[]
-		
+				gnugo.undo_resign()
 		
 		#one_move.add_comment_text(additional_comments)
 		
@@ -195,15 +190,24 @@ class GnuGoAnalysis():
 		return answer #returning the best move, necessary for live analysis
 		
 	def run_all_analysis(self):
-		#GnuGo needs to rewrite this method because it additionnaly deals with all the workers
 		self.current_move=1
-		
+
 		while self.current_move<=self.max_move:
+			answer=""
 			if self.current_move in self.move_range:
-				self.run_analysis(self.current_move)
+				answer=self.run_analysis(self.current_move)
+				self.total_done+=1
+				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+				log("For this position,",self.bot.bot_name,"would play:",answer)
+				log("Analysis for this move is completed")
 			elif self.move_range:
 				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
-			
+			if (answer.lower()=="resign") and (self.stop_at_first_resign==True):
+				log("")
+				log("The analysis will stop now")
+				log("")
+				self.move_range=[]
+				#the bot has proposed to resign, and resign_at_first_stop is ON
 			if self.move_range:
 				linelog("now asking "+self.bot.bot_name+" to play the game move:")
 				one_move=go_to_move(self.move_zero,self.current_move)
@@ -218,16 +222,11 @@ class GnuGoAnalysis():
 					self.bot.place_black(ij2gtp(player_move))
 					for worker in self.workers:
 						worker.place_black(ij2gtp(player_move))
-				
-				log("Analysis for this move is completed")
-			else:
-				#the bot has proposed to resign, and resign_at_first_stop is ON
-				pass
-			
+
 			self.current_move+=1
 			self.update_queue.put(self.current_move)
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-			self.total_done+=1
+			
+		return
 			
 	def terminate_bot(self):
 		log("killing gnugo")

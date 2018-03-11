@@ -126,13 +126,6 @@ class RayAnalysis():
 
 			log("==== no more sequences =====")
 		
-		if best_answer.lower()=="resign":
-			if self.stop_at_first_resign:
-				log("")
-				log("The analysis will stop now")
-				log("")
-				self.move_range=[]
-		
 		#one_move.add_comment_text(additional_comments)
 		return best_answer
 

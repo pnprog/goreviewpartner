@@ -53,17 +53,9 @@ class LeelaZeroAnalysis():
 		
 		if (answer.lower() in ["pass","resign"]):
 			if answer.lower()=="pass":
-				log(" => Leela Zero would pass")
 				leela_zero.undo()
 			elif answer.lower()=="resign":
-				log(" => Leela Zero would resign")
-				if self.stop_at_first_resign:
-					log("")
-					log("The analysis will stop now")
-					log("")
-					self.move_range=[]
-				else:
-					leela_zero.undo_resign()
+				leela_zero.undo_resign()
 		else:
 			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			

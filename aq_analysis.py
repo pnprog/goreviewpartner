@@ -135,11 +135,7 @@ class AQAnalysis():
 			if answer.lower()=="pass":
 				aq.undo()
 			elif answer.lower()=="resign":
-				if self.stop_at_first_resign:
-					log("")
-					log("The analysis will stop now")
-					log("")
-					self.move_range=[]
+				aq.undo_resign()
 
 		return answer
 

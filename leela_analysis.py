@@ -50,21 +50,12 @@ class LeelaAnalysis():
 		if "estimated score" in position_evaluation:
 			#one_move.set("ES",position_evaluation["estimated score"])
 			save_position_data(one_move,self.data_in_comments,"ES",position_evaluation["estimated score"],bot="Leela")
-			
 		if (answer.lower() in ["pass","resign"]):
 			bookmove=False
 			if answer.lower()=="pass":
-				log(" => Leela would pass")
 				leela.undo()
 			elif answer.lower()=="resign":
-				log(" => Leela would resign")
-				if self.stop_at_first_resign:
-					log("")
-					log("The analysis will stop now")
-					log("")
-					self.move_range=[]
-				else:
-					leela.undo_resign()
+				leela.undo_resign()
 			nb_undos=0
 		else:
 			nb_undos=1 #let's remember to undo that move from Leela
