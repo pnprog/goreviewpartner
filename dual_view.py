@@ -589,11 +589,7 @@ class OpenChart():
 				y4=max(middle,y0,y1,y2)
 				
 				white_bar=self.chart.create_rectangle(x0, y3, x1, y4, fill='#eeeeee',outline='')
-				if y0!=y1:
-					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
-					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
-					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
-					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
+
 
 				self.chart.create_line(x0, y2, x1, y2, fill='#0000ff',width=2)
 				self.chart.create_line(x0, y2, x00, y00, fill='#0000ff')
@@ -620,6 +616,10 @@ class OpenChart():
 				self.chart.tag_bind(white_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(white_bar, "<Button-1>",partial(self.goto_move,move=move))
 				if y0!=y1:
+					grey_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
+					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
+					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 					self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 					self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 					self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
