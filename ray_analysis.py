@@ -374,14 +374,15 @@ if __name__ == "__main__":
 		if not filename:
 			sys.exit()
 		log("filename:",filename)
-		top = Tk()
+		
+		top = Application()
 		bot=Ray
 		
 		slowbot=bot
 		slowbot['profile']="slow"
 		fastbot=dict(bot)
 		fastbot['profile']="fast"
-		RangeSelector(top,filename,bots=[slowbot, fastbot]).pack()
+		RangeSelector(top,filename,bots=[slowbot, fastbot])
 		top.mainloop()
 	else:
 		try:
@@ -394,23 +395,21 @@ if __name__ == "__main__":
 			show_error("SGF file missing\n"+usage)
 			sys.exit()
 		
-		top=None
+		app=None
 		batch=[]
 		
 		for filename in parameters[1]:
-			
 			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				app=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
-				app.terminate_bot()
+				popup=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
+				popup.terminate_bot()
 			else:
-				if not top:
-					top = Tk()
-					top.withdraw()
+				if not app:
+					app = Application()
 				one_analysis=[RunAnalysis,filename,move_selection,intervals,variation-1,komi]
 				batch.append(one_analysis)
 		
 		if not nogui:
-			top.after(1,lambda: batch_analysis(top,batch))
-			top.mainloop()
+			app.after(100,lambda: batch_analysis(app,batch))
+			app.mainloop()

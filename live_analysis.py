@@ -12,18 +12,18 @@ import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysi
 #bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 bots_for_playing=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 
-class LiveAnalysisLauncher(Frame):
+class LiveAnalysisLauncher(Toplevel):
 	def __init__(self,parent):
-		Frame.__init__(self,parent)
+		Toplevel.__init__(self,parent)
 		self.parent=parent
-		self.popup=None
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		self.config(padx=10,pady=10)
+		
 		root = self
 		root.parent.title('GoReviewPartner')
 		
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
-		
-		self.pack(padx=10, pady=10)
 
 		row=1
 		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
@@ -162,15 +162,10 @@ class LiveAnalysisLauncher(Frame):
 			self.filename.delete(0, END)
 			self.filename.insert(0, filename)
 		
-	def close_app(self):
-		if self.popup:
-			try:
-				log("closing RunAlanlysis popup from RangeSelector")
-				self.popup.close_app()
-			except:
-				log("RangeSelector could not close its RunAlanlysis popup")
-				pass
-
+	def close(self):
+		self.destroy()
+		self.parent.remove_popup(self)
+		
 	def start(self):
 		#bots={bot['name']:bot for bot in bots_for_analysis}
 		#analyser=bots[self.bot_selection.get()]
@@ -219,9 +214,10 @@ class LiveAnalysisLauncher(Frame):
 		Config.write(open(config_file,"w"))
 		 
 		filename=os.path.join(Config.get("General","livefolder"),self.filename.get())
-		
-		self.popup=LiveAnalysis(self.parent.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get())
-		self.parent.destroy()
+		self.withdraw()
+		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get())
+		self.parent.add_popup(popup)
+		self.close()
 
 	def selected_black_index(self):
 		i=0
@@ -302,8 +298,9 @@ class LiveAnalysisLauncher(Frame):
 			widget.grid(row=row,column=2,sticky=W)
 			self.overlap_thinking_widgets.append(widget)
 			
-class LiveAnalysis():
+class LiveAnalysis(Toplevel):
 	def __init__(self,parent,analyser=None,black=None,white=None,dim=19,komi=6.5,handicap=0,filename="Live.sgf",overlap_thinking=False):
+		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.dim=dim
 		self.komi=komi
@@ -324,9 +321,7 @@ class LiveAnalysis():
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-
-		self.popup=Toplevel(self.parent)
-		popup=self.popup
+		popup=self
 		
 		dim=self.dim
 		
@@ -489,7 +484,7 @@ class LiveAnalysis():
 		if self.handicap>0:
 			self.handicap_stones=[]
 			self.history.append(None)
-			show_info(_("Place %i handicap stones on the board")%self.handicap,self.popup)
+			show_info(_("Place %i handicap stones on the board")%self.handicap,self)
 			goban.bind("<Button-1>",lambda e: self.place_handicap(e,self.handicap))
 			
 		else:
@@ -498,7 +493,7 @@ class LiveAnalysis():
 			self.g.get_root().set("PL", "b")
 			self.black_to_play()
 			
-		self.popup.protocol("WM_DELETE_WINDOW", self.close)
+		self.protocol("WM_DELETE_WINDOW", self.close)
 		self.parent.after(500,self.follow_analysis)
 		
 	def close(self):
@@ -516,8 +511,8 @@ class LiveAnalysis():
 		
 		self.analyser.bot.close()
 
-		
-		self.popup.destroy()
+		self.destroy()
+		self.parent.remove_popup(self)
 		
 	def pause(self):
 		if self.pause_button.cget("relief")!=SUNKEN:
@@ -553,9 +548,8 @@ class LiveAnalysis():
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
 		
-		popup=Toplevel(self.parent)
-		new_popup=dual_view.DualView(popup,self.filename[:-4]+".rsgf",min(width,height))
-		new_popup.pack(fill=BOTH,expand=1)
+		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
+		self.parent.add_popup(new_popup)
 
 	def follow_analysis(self):
 		msg=None
@@ -612,7 +606,7 @@ class LiveAnalysis():
 					if type(self.white)!=type("abc"):
 						self.white.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 						
-					show_info(_("The game is now starting"),self.popup)
+					show_info(_("The game is now starting"),self)
 					self.next_color=2
 					#self.goban.bind("<Button-1>",self.click)
 					
@@ -712,7 +706,7 @@ class LiveAnalysis():
 				if type(self.white)!=type("abc"):
 					#white is a bot
 					result=self.white.final_score()
-					show_info(self.white.bot_name+": "+result,parent=self.popup)
+					show_info(self.white.bot_name+": "+result,parent=self)
 				return
 		elif color==2:
 			if self.black_just_passed:
@@ -720,7 +714,7 @@ class LiveAnalysis():
 				if type(self.black)!=type("abc"):
 					#black is a bot
 					result=self.black.final_score()
-					show_info(self.black.bot_name+": "+result,parent=self.popup)
+					show_info(self.black.bot_name+": "+result,parent=self)
 				return
 
 		
@@ -765,28 +759,28 @@ class LiveAnalysis():
 		if move.lower()=="resign":
 			log("The bot is resigning")
 			if color==1:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self.popup)
+				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
 				self.goban.display(self.grid,self.markup)
 				return
 			elif color==2:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self.popup)
+				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self)
 				self.goban.display(self.grid,self.markup)
 				return
 		elif move.lower()=="pass":
 			log("The bot is passing")
 			if color==1:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self.popup)
+				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
 				if self.white_just_passed:
 					self.goban.display(self.grid,self.markup)
 					result=self.gtp_thread.bot.final_score()
-					show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+result,parent=self.popup)
+					show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+result,parent=self)
 					return
 			elif color==2:
-				show_info(self.gtp_thread.bot.bot_name+": "+move.lower(),parent=self.popup)
+				show_info(self.gtp_thread.bot.bot_name+": "+move.lower(),parent=self)
 				if self.black_just_passed:
 					self.goban.display(self.grid,self.markup)
 					result=self.gtp_thread.bot.final_score()
-					show_info(self.gtp_thread.bot.bot_name+": "+result,parent=self.popup)
+					show_info(self.gtp_thread.bot.bot_name+": "+result,parent=self)
 					return
 			self.next_color=3-color
 			self.current_move+=1
@@ -952,19 +946,19 @@ class LiveAnalysis():
 			if move.lower()=="resign":
 				log("The analyser is resigning")
 				if color==1:
-					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self.popup)
+					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
 					return
 				elif color==2:
-					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self.popup)
+					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self)
 					return
 			elif move.lower()=="pass":
 				log("The analyser is passing")
 				if color==1:
-					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self.popup)
+					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
 					if self.white_just_passed:
 						return
 				elif color==2:
-					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self.popup)
+					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self)
 					if self.black_just_passed:
 						return
 				self.next_color=3-color
@@ -1098,8 +1092,7 @@ class LiveAnalysis():
 		self.goban.redraw()
 
 if __name__ == "__main__":
-	top = Tk()
-	popup = Toplevel(top)
-	popup.parent=top
-	LiveAnalysisLauncher(popup)
+	top = Application()
+	popup=LiveAnalysisLauncher(top)
+	top.add_popup(popup)
 	top.mainloop()

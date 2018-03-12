@@ -128,10 +128,12 @@ class OpenSettings(Toplevel):
 		
 		return setting_frame
 		
-	def __init__(self,parent=None):
+	def __init__(self,parent,refresh=None):
 		Toplevel.__init__(self)
 		self.parent=parent
-
+		
+		self.refresh=None
+		
 		self.title('GoReviewPartner')
 		
 		left_column=Frame(self, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
@@ -177,11 +179,11 @@ class OpenSettings(Toplevel):
 		
 		Config.write(open(config_file,"w"))
 		
-		if self.parent!=None:
-			self.parent.refresh()
+		if self.refresh!=None:
+			self.refresh()
 		
 		
 if __name__ == "__main__":
 	top = Tk()
-	OpenSettings()
+	OpenSettings(top)
 	top.mainloop()

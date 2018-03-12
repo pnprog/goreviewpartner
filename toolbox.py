@@ -20,7 +20,7 @@ def log(*args):
 			except:
 				print "?"*len(arg),
 		except:
-			print "["+type()+"]",
+			print "["+type(arg)+"]",
 	print
 
 def linelog(*args):
@@ -39,7 +39,7 @@ def linelog(*args):
 			except:
 				print "?"*len(arg),
 		except:
-			print "["+type()+"]",
+			print "["+type(arg)+"]",
 
 import tkMessageBox
 
@@ -130,28 +130,26 @@ import os
 import urllib2
 
 
-class DownloadFromURL(Frame):
+class DownloadFromURL(Toplevel):
 	def __init__(self,parent,bots=None):
-		Frame.__init__(self,parent)
+		Toplevel.__init__(self,parent)
 		self.bots=bots
 		self.parent=parent
-		self.parent.title('GoReviewPartner')
-
-		Label(self,text='   ').grid(column=0,row=0)
-		Label(self,text='   ').grid(column=2,row=4)
+		self.title('GoReviewPartner')
+		self.config(padx=10,pady=10)
 
 		Label(self,text=_("Paste the URL to the SGF file (http or https):")).grid(row=1,column=1,sticky=W)
 		self.url_entry=Entry(self)
 		self.url_entry.grid(row=2,column=1,sticky=W)
-
+		self.url_entry.focus()
+		
 		Button(self,text=_("Get"),command=self.get).grid(row=3,column=1,sticky=E)
-		self.popup=None
-		self.focus()
+		
+		self.protocol("WM_DELETE_WINDOW", self.close)
 
 	def get(self):
 		user_agent = 'GoReviewPartner (https://github.com/pnprog/goreviewpartner/)'
 		headers = { 'User-Agent' : user_agent }
-
 
 		url=self.url_entry.get()
 		if not url:
@@ -166,7 +164,7 @@ class DownloadFromURL(Frame):
 		try:
 			h=urllib2.urlopen(r)
 		except:
-			show_error(_("Could not download the URL"))
+			show_error(_("Could not download the URL"),parent=self)
 			return
 		filename=""
 
@@ -174,7 +172,7 @@ class DownloadFromURL(Frame):
 
 		if sgf[:7]!="(;FF[4]":
 			log("not a sgf file")
-			show_error(_("Not a SGF file!"))
+			show_error(_("Not a SGF file!"),parent=self)
 			log(sgf[:7])
 			return
 
@@ -203,25 +201,16 @@ class DownloadFromURL(Frame):
 
 		log(filename)
 		write_rsgf(filename,sgf)
+
+		popup=RangeSelector(self.parent,filename,self.bots)
+		self.parent.add_popup(popup)
+		self.close()
+
+	def close(self):
+		log("Closing DownloadFromURL()")
+		self.parent.remove_popup(self)
 		self.destroy()
 
-		self.popup=RangeSelector(self.parent,filename,self.bots)
-		self.popup.pack()
-
-
-	def close_app(self):
-		if self.popup:
-			try:
-				log("closing RunAlanlysis popup from RangeSelector")
-				self.popup.close_app()
-			except:
-				log("RangeSelector could not close its RunAlanlysis popup")
-				pass
-
-		try:
-			self.parent.destroy()
-		except:
-			pass
 
 
 class WriteException(Exception):
@@ -344,13 +333,16 @@ def check_selection_for_color(move_zero,move_selection,color):
 	else:
 		return move_selection
 
-class RangeSelector(Frame):
+class RangeSelector(Toplevel):
 	def __init__(self,parent,filename,bots=None):
-		Frame.__init__(self,parent)
+		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
+		self.config(padx=10,pady=10)
 		root = self
 		root.parent.title('GoReviewPartner')
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		
 		self.bots=bots
 
 		self.g=open_sgf(self.filename)
@@ -476,7 +468,7 @@ class RangeSelector(Frame):
 			komi_entry.insert(0, str(komi))
 		except Exception, e:
 			log("Error while reading komi value, please check:\n"+str(e))
-			show_error(_("Error while reading komi value, please check:")+"\n"+str(e))
+			show_error(_("Error while reading komi value, please check:")+"\n"+str(e),parent=self)
 			komi_entry.insert(0, "0")
 
 		row+=10
@@ -501,7 +493,6 @@ class RangeSelector(Frame):
 		self.color=c
 		self.nb_moves=nb_moves
 		self.only_entry=only_entry
-		self.popup=None
 		self.komi_entry=komi_entry
 
 		self.focus()
@@ -524,25 +515,20 @@ class RangeSelector(Frame):
 		except:
 			pass
 
-	def close_app(self):
-		if self.popup:
-			try:
-				log("closing RunAlanlysis popup from RangeSelector")
-				self.popup.close_app()
-			except:
-				log("RangeSelector could not close its RunAlanlysis popup")
-				pass
+	def close(self):
+		self.destroy()
+		self.parent.remove_popup(self)
 
 	def start(self):
 
 		if self.nb_moves==0:
-			show_error(_("This variation is empty (0 move), the analysis cannot be performed!"))
+			show_error(_("This variation is empty (0 move), the analysis cannot be performed!"),parent=self)
 			return
 
 		try:
 			komi=float(self.komi_entry.get())
 		except:
-			show_error(_("Incorrect value for komi (%s), please double check.")%self.komi_entry.get())
+			show_error(_("Incorrect value for komi (%s), please double check.")%self.komi_entry.get(),parent=self)
 			return
 
 		if self.bots!=None:
@@ -568,7 +554,7 @@ class RangeSelector(Frame):
 			intervals="moves "+selection
 			move_selection=check_selection(selection,self.nb_moves)
 			if move_selection==False:
-				show_error(_("Could not make sense of the moves range.")+"\n"+_("Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"))
+				show_error(_("Could not make sense of the moves range.")+"\n"+_("Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"),parent=self)
 				return
 
 		if self.color.get()=="black":
@@ -596,16 +582,9 @@ class RangeSelector(Frame):
 		Config.write(open(config_file,"w"))
 
 		####################################
-		self.parent.destroy()
-		try:
-			newtop=Toplevel(self.parent.parent)
-			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi,profile)
-			self.popup.pack()
-		except:
-			newtop=Tk()
-			self.popup=RunAnalysis(newtop,self.filename,move_selection,intervals,variation,komi,profile)
-			self.popup.pack()
-			newtop.mainloop()
+		self.close()
+		popup=RunAnalysis(self.parent,self.filename,move_selection,intervals,variation,komi,profile)
+		self.parent.add_popup(popup)
 
 
 
@@ -764,10 +743,10 @@ class LiveAnalysisBase():
 
 
 
-class RunAnalysisBase(Frame):
+class RunAnalysisBase(Toplevel):
 	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
 		if parent!="no-gui":
-			Frame.__init__(self,parent)
+			Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
@@ -890,7 +869,8 @@ class RunAnalysisBase(Frame):
 					self.bot.place_black(ij2gtp(player_move))
 
 			self.current_move+=1
-			self.update_queue.put(self.current_move)
+			if self.parent!="no-gui":
+				self.update_queue.put(self.current_move)
 			
 		return
 
@@ -901,7 +881,7 @@ class RunAnalysisBase(Frame):
 		except:
 			pass
 		log("Leaving follow_anlysis()")
-		show_error(_("Analysis aborted:")+"\n\n"+self.error)
+		show_error(_("Analysis aborted:")+"\n\n"+self.error,parent=self)
 
 	def follow_analysis(self):
 
@@ -975,9 +955,11 @@ class RunAnalysisBase(Frame):
 
 
 	def terminate_bot(self):
-		log("killing",self.bot.bot_name)
-		self.bot.close()
-
+		try:
+			log("killing",self.bot.bot_name)
+			self.bot.close()
+		except Exception,e:
+			log(e)
 	def remove_app(self):
 		log("RunAnalysis beeing closed")
 		self.lab2.config(text=_("Now closing, please wait..."))
@@ -988,11 +970,10 @@ class RunAnalysisBase(Frame):
 			pass
 		self.destroy()
 
-	def close_app(self):
+	def close(self):
 		self.remove_app()
 		self.destroy()
-		self.parent.destroy()
-		#self.parent.quit()
+		self.parent.remove_popup(self)
 		log("RunAnalysis closed")
 		self.completed=True
 
@@ -1005,8 +986,8 @@ class RunAnalysisBase(Frame):
 
 
 		root = self
-		root.parent.title('GoReviewPartner')
-		root.parent.protocol("WM_DELETE_WINDOW", self.close_app)
+		root.title('GoReviewPartner')
+		root.protocol("WM_DELETE_WINDOW", self.close)
 
 		bg=root.cget("background")
 		logo = Canvas(root,bg=bg,width=5,height=5)
@@ -1033,7 +1014,7 @@ class RunAnalysisBase(Frame):
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
 		except Exception,e:
-			show_error(str(e))
+			show_error(str(e),parent=self)
 			self.lab1.config(text=_("Aborted"))
 			self.lab2.config(text="")
 			return
@@ -1299,7 +1280,7 @@ def parse_command_line(filename,argv):
 				variation=int(v)
 				found=True
 			except:
-				show_error("Wrong variation parameter\n"+usage)
+				show_error("Wrong variation parameter\n"+usage,parent=self)
 				sys.exit()
 	if not found:
 		variation=1
@@ -1307,18 +1288,18 @@ def parse_command_line(filename,argv):
 	log("Variation:",variation)
 
 	if variation<1:
-		show_error("Wrong variation parameter, it must be a positive integer")
+		show_error("Wrong variation parameter, it must be a positive integer",parent=self)
 		sys.exit()
 
 	if variation>len(leaves):
-		show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)")
+		show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)",parent=self)
 		sys.exit()
 
 	nb_moves=leaves[variation-1][1]
 	log("Moves for this variation:",nb_moves)
 
 	if nb_moves==0:
-		show_error("This variation is empty (0 move), the analysis cannot be performed!")
+		show_error("This variation is empty (0 move), the analysis cannot be performed!",parent=self)
 		sys.exit()
 
 	#nb_moves=get_moves_number(move_zero)
@@ -1327,7 +1308,7 @@ def parse_command_line(filename,argv):
 	for p,v in argv:
 		if p=="--range":
 			if v=="":
-				show_error("Wrong range parameter\n"+usage)
+				show_error("Wrong range parameter\n"+usage,parent=self)
 				sys.exit()
 			elif v=="all":
 				break
@@ -1336,7 +1317,7 @@ def parse_command_line(filename,argv):
 				log("Range:",v)
 				move_selection=check_selection(v.replace('"',''),nb_moves)
 				if move_selection==False:
-					show_error("Wrong range parameter\n"+usage)
+					show_error("Wrong range parameter\n"+usage,parent=self)
 					sys.exit()
 				found=True
 				break
@@ -1359,7 +1340,7 @@ def parse_command_line(filename,argv):
 			elif v=="both":
 				break
 			else:
-				show_error("Wrong color parameter\n"+usage)
+				show_error("Wrong color parameter\n"+usage,parent=self)
 				sys.exit()
 	if not found:
 		intervals+=" (both colors)"
@@ -1372,7 +1353,7 @@ def parse_command_line(filename,argv):
 				komi=float(v)
 				found=True
 			except:
-				show_error("Wrong komi parameter\n"+usage)
+				show_error("Wrong komi parameter\n"+usage,parent=self)
 				sys.exit()
 	if not found:
 		try:
@@ -1381,7 +1362,7 @@ def parse_command_line(filename,argv):
 			msg="Error while reading komi value, please check:\n"+str(e)
 			msg+="\nPlease indicate komi using --komi parameter"
 			log(msg)
-			show_error(msg)
+			show_error(msg,parent=self)
 			sys.exit()
 
 	log("Komi:",komi)
@@ -1499,33 +1480,40 @@ def _(txt=None):
 		return translations[txt]
 	return txt
 
-def batch_analysis(top,batch):
+def batch_analysis(app,batch):
 	#there appears to be a Tk 8.6 regression bug that leads to random "Tcl_AsyncDelete: async handler deleted by the wrong thread Abandon (core dumped)"
-	#this happens when top=Tk() is detroyed after one analysis, and a new one is created for the next analysis
-	#this bug is sidestepped by recycling the same top=Tk() for all analysis
+	#this happens when app=Tk() is detroyed after one analysis, and a new one is created for the next analysis
+	#this bug is sidestepped by recycling the same app=Tk() for all analysis
 	#see also: http://learning-python.com/python-changes-2014-plus.html#s35E
+	
+	try:
+		if len(batch)==0:
+			app.remove_popup(app)
+			return
+		
+		app.add_popup(app)
+		one_analysis=batch[0]
 
-	if len(batch)==0:
-		top.destroy()
-		return
-
-	one_analysis=batch[0]
-
-	if len(one_analysis)==1:
-		if one_analysis[0].completed==False:
-			top.after(1000,lambda: batch_analysis(top,batch))
+		if len(one_analysis)==1:
+			if one_analysis[0].completed==False:
+				app.after(1000,lambda: batch_analysis(app,batch))
+			else:
+				batch=batch[1:]
+				app.after(1,lambda: batch_analysis(app,batch))
 		else:
-			batch=batch[1:]
-			top.after(1,lambda: batch_analysis(top,batch))
-	else:
-		run,filename,move_selection,intervals,variation,komi=one_analysis
-		log("File to analyse:",filename)
-		app=run(Toplevel(top),filename,move_selection,intervals,variation,komi)
-		app.pack()
-		app.propose_review=app.close_app
-		batch[0]=[app]
-		top.after(1,lambda: batch_analysis(top,batch))
+			run,filename,move_selection,intervals,variation,komi=one_analysis
+			log("File to analyse:",filename)
+			popup=run(app,filename,move_selection,intervals,variation,komi)
+			app.add_popup(popup)
+			popup.propose_review=popup.close
+			batch[0]=[popup]
+			app.after(1,lambda: batch_analysis(app,batch))
+	except Exception, e:
+		log("Batch analysis failed")
+		log(e)
+		app.force_close()
 
+		
 def slow_profile_bots():
 	from leela_analysis import Leela
 	from gnugo_analysis import GnuGo
@@ -1784,3 +1772,39 @@ def save_variation_data(node,data_in_comments,sgf_property,value):
 			comment=""
 		node.set("C",comment+txt+"\n")
 		#node.add_comment_text(txt)
+
+class Application(Tk):
+	def __init__(self):
+		Tk.__init__(self)
+		self.popups=[]
+		self.title('GoReviewPartner')
+		try:
+			ico = Image("photo", file="icon.gif")
+			self.tk.call('wm', 'iconphoto', str(self), '-default', ico)
+		except:
+			log("(Could not load the application icon)")
+		self.withdraw()
+	
+	def force_close(self):
+		import os
+		os._exit(0)
+	
+	def remove_popup(self,popup):
+		log("Removing popup")
+		self.popups.remove(popup)
+		log("Totally",len(self.popups),"popups")
+		if len(self.popups)==0:
+			time.sleep(2)
+			log("")
+			log("Leaving GoReviewPartner")
+			log("")
+			log("Hope you enjoyed the experience!")
+			
+			self.quit()
+			self.force_close()
+			
+	def add_popup(self,popup):
+		if popup not in self.popups:
+			log("Adding new popup")
+			self.popups.append(popup)
+			log("Totally",len(self.popups),"popups")

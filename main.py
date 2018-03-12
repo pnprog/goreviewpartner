@@ -19,6 +19,8 @@ import dual_view
 import settings
 from toolbox import *
 from toolbox import _
+from live_analysis import LiveAnalysisLauncher
+
 
 log("Checking availability of config file")
 import ConfigParser
@@ -29,132 +31,109 @@ except Exception, e:
 	show_error(_("Could not open the config file of Go Review Partner")+"\n"+str(e))
 	sys.exit()
 
+class Main(Toplevel):
+	def __init__(self,parent):
+		Toplevel.__init__(self,parent)
+		self.parent=parent
+		
+		bg=self.cget("background")
+		
+		logo = Canvas(self,bg=bg,width=5,height=5)
+		logo.pack(fill=BOTH,expand=1)
+		logo.bind("<Configure>",lambda e: draw_logo(logo,e))
 
-app = Tk()
+		label = Label(self, text=_("This is GoReviewPartner"), font="-weight bold")
+		label.pack(padx=5, pady=5)
 
-app.title('GoReviewPartner')
+		self.popups=[]
 
-bg=app.cget("background")
-logo = Canvas(app,bg=bg,width=5,height=5)
-logo.pack(fill=BOTH,expand=1)
+		self.analysis_bouton=Button(self, text=_("Run a SGF file analysis"), command=self.launch_analysis)
+		self.analysis_bouton.pack(fill=X,padx=5, pady=5)
+		
+		self.download_bouton=Button(self, text=_("Download a SGF file for analysis"), command=self.download_sgf_for_review)
+		self.download_bouton.pack(fill=X,padx=5, pady=5)
+		
+		self.live_bouton=Button(self, text=_("Run a live analysis"), command=self.launch_live_analysis)
+		self.live_bouton.pack(fill=X,padx=5, pady=5)
+		
+		review_bouton=Button(self, text=_("Open a RSGF file for review"), command=self.launch_review)
+		review_bouton.pack(fill=X,padx=5, pady=5)
+		
+		bouton=Button(self, text=_("Settings"), command=self.launch_settings)
+		bouton.pack(fill=X,padx=5, pady=5)
 
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		
+	def close(self):
+		for popup in self.popups[:]:
+			popup.close()
+		log("closing Main")
+		self.destroy()
+		self.parent.remove_popup(self)
 
-logo.bind("<Configure>",lambda e: draw_logo(logo,e))
+	def launch_analysis(self):
+		filename = open_sgf_file(parent=self)
+		log(filename)
+		log("gamename:",filename[:-4])
+		if not filename:
+			return
+		log("filename:",filename)
+		
+		new_popup=RangeSelector(self.parent,filename,bots=get_available("AnalysisBot"))
 
-label = Label(app, text=_("This is GoReviewPartner"), font="-weight bold")
-label.pack(padx=5, pady=5)
+		self.parent.add_popup(new_popup)
 
+	def download_sgf_for_review(self):	
+		new_popup=DownloadFromURL(self.parent,bots=get_available("AnalysisBot"))
+		self.parent.add_popup(new_popup)
 
-popups=[]
-from sys import exit
-from time import sleep
-def close_app():
-	global popups, app
-	for popup in popups:
-		popup.close_app()
-	log("closing")
-	app.destroy()
-	app.quit()
-	exit()
+	def launch_live_analysis(self):		
+		new_popup=LiveAnalysisLauncher(self.parent)
+		self.parent.add_popup(new_popup)
 
-def launch_analysis():
-	global popups
-	filename = open_sgf_file(parent=app)
-	log(filename)
-	log("gamename:",filename[:-4])
-	if not filename:
-		return
-	log("filename:",filename)
-				
-	top = Toplevel(app)
-	top.parent=app
-	new_popup=RangeSelector(top,filename,bots=get_available("AnalysisBot"))
-	new_popup.pack()
-	popups.append(new_popup)
-	#top.mainloop()
+	def launch_review(self):
+		filename = open_rsgf_file(parent=self.parent)
+		log(filename)
+		if not filename:
+			return
 
-analysis_bouton=Button(app, text=_("Run a SGF file analysis"), command=launch_analysis)
-analysis_bouton.pack(fill=X,padx=5, pady=5)
+		display_factor=.5
+		
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		
+		new_popup=dual_view.DualView(self.parent,filename,min(width,height))
+		
+		self.parent.add_popup(new_popup)
 
-def download_sgf_for_review():	
-	top = Toplevel(app)
-	new_popup=DownloadFromURL(top,bots=get_available("AnalysisBot"))
-	new_popup.pack()
-	popups.append(new_popup)
+	def launch_settings(self):
+		settings.OpenSettings(self)
 
-download_bouton=Button(app, text=_("Download a SGF file for analysis"), command=download_sgf_for_review)
-download_bouton.pack(fill=X,padx=5, pady=5)
-
-from live_analysis import LiveAnalysisLauncher
-
-def launch_live_analysis():
-	global popups				
-	top = Toplevel(app)
-	top.parent=app
-	new_popup=LiveAnalysisLauncher(top)
-	popups.append(new_popup)
-	#top.mainloop()
-
-live_bouton=Button(app, text=_("Run a live analysis"), command=launch_live_analysis)
-live_bouton.pack(fill=X,padx=5, pady=5)
-
-def launch_review():
-	filename = open_rsgf_file(parent=app)
-	log(filename)
-	if not filename:
-		return
-
-	display_factor=.5
-	
-	screen_width = app.winfo_screenwidth()
-	screen_height = app.winfo_screenheight()
-	
-	width=int(display_factor*screen_width)
-	height=int(display_factor*screen_height)
-	
-	top = Toplevel(app)
-	new_popup=dual_view.DualView(top,filename,min(width,height))
-	new_popup.pack(fill=BOTH,expand=1)
-	popups.append(new_popup)
-
-	
-review_bouton=Button(app, text=_("Open a RSGF file for review"), command=launch_review)
-review_bouton.pack(fill=X,padx=5, pady=5)
+	def refresh(self):
+		log("refreshing")
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		if len(get_available("AnalysisBot"))==0:
+			self.analysis_bouton.config(state='disabled')
+			self.download_bouton.config(state='disabled')
+			self.live_bouton.config(state='disabled')
+		else:
+			self.analysis_bouton.config(state='normal')
+			self.download_bouton.config(state='normal')
+			self.live_bouton.config(state='normal')
+		
+		if len(get_available("LiveAnalysisBot"))==0:
+			self.live_bouton.config(state='disabled')
+		else:
+			self.live_bouton.config(state='normal')
 
 
-def launch_settings():
-	settings.OpenSettings(app)
+app = Application()
+popup=Main(app)
+popup.refresh()
+app.add_popup(popup)
 
-def refresh():
-	log("refreshing")
-	global review_bouton, analysis_bouton
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-	if len(get_available("AnalysisBot"))==0:
-		analysis_bouton.config(state='disabled')
-		download_bouton.config(state='disabled')
-		live_bouton.config(state='disabled')
-	else:
-		analysis_bouton.config(state='normal')
-		download_bouton.config(state='normal')
-		live_bouton.config(state='normal')
-	
-	if len(get_available("LiveAnalysisBot"))==0:
-		live_bouton.config(state='disabled')
-	else:
-		live_bouton.config(state='normal')
-
-bouton=Button(app, text=_("Settings"), command=launch_settings)
-bouton.pack(fill=X,padx=5, pady=5)
-
-app.protocol("WM_DELETE_WINDOW", close_app)
-#app.wm_iconphoto(True, PhotoImage(file='../logo.png'))
-try:
-	ico = Image("photo", file="icon.gif")
-	app.tk.call('wm', 'iconphoto', str(app), '-default', ico)
-except:
-	log("(Could not load the application icon)")
-refresh()
-app.refresh=refresh
 app.mainloop()
-log("terminated")

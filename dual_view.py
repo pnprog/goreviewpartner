@@ -44,8 +44,10 @@ def get_node(root,number=0):
 	return node
 
 
-class OpenChart():
+class OpenChart(Toplevel):
 	def __init__(self,parent,data,nb_moves,current_move=0):
+		Toplevel.__init__(self,parent)
+		
 		self.parent=parent
 		self.nb_moves=nb_moves
 		self.data=data
@@ -54,8 +56,8 @@ class OpenChart():
 		self.initialize()
 	def close(self):
 		log("closing popup")
-		self.popup.destroy()
-		self.parent.all_popups.remove(self)
+		self.destroy()
+		self.parent.remove_popup(self)
 		log("done")
 
 	def initialize(self):
@@ -65,8 +67,8 @@ class OpenChart():
 		popup_width=self.parent.winfo_width()
 		popup_height=self.parent.winfo_height()/2+10
 		
-		self.popup=Toplevel(self.parent)
-		popup=self.popup
+		
+		popup=self
 		popup.geometry(str(popup_width)+'x'+str(popup_height))
 		bg=popup.cget("background")
 		#popup.configure(background=bg)
@@ -164,9 +166,9 @@ class OpenChart():
 		bottom_frame.pack()
 	
 		self.clear_status()
-		self.popup.bind('<Control-q>', self.save_as_png)
+		self.bind('<Control-q>', self.save_as_png)
 		
-		self.popup.protocol("WM_DELETE_WINDOW", self.close)
+		self.protocol("WM_DELETE_WINDOW", self.close)
 		popup.focus()
 	
 	def set_status(self,event=None,msg=''):
@@ -661,8 +663,9 @@ class OpenChart():
 		canvas2png(self.chart,filename)
 
 
-class OpenMove():
+class OpenMove(Toplevel):
 	def __init__(self,parent,move,dim,sgf,goban_size=200):
+		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.move=move
 		self.dim=dim
@@ -707,12 +710,12 @@ class OpenMove():
 	def close(self):
 		log("closing popup")
 		self.display_queue.put(0)
-		self.popup.destroy()
+		self.destroy()
 		
 		for bot in self.bots:
 			bot.close()
 
-		self.parent.all_popups.remove(self)
+		self.parent.remove_popup(self)
 		log("done")
 	
 	def undo(self,event=None):
@@ -722,7 +725,7 @@ class OpenMove():
 			return
 		elif len(self.history)==1:
 			self.undo_button.config(state='disabled')
-		popup=self.popup
+		
 		self.grid,self.markup=self.history.pop()
 		self.next_color=3-self.next_color
 		self.goban.display(self.grid,self.markup)
@@ -772,7 +775,7 @@ class OpenMove():
 				self.display_queue.put(2)
 				
 				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))
-				self.popup.after(0,one_thread.start())
+				self.after(0,one_thread.start())
 				return
 			else:
 				log("End of SELF PLAY")
@@ -925,8 +928,7 @@ class OpenMove():
 		komi=self.sgf.get_komi()
 		gameroot=self.sgf.get_root()
 		
-		self.popup=Toplevel(self.parent)
-		popup=self.popup
+		popup=self
 		
 		dim=self.dim
 		move=self.move
@@ -1023,7 +1025,7 @@ class OpenMove():
 		popup.grid_columnconfigure(2, weight=1)
 		
 		
-		self.popup.bind('<Control-q>', self.save_as_png)
+		self.bind('<Control-q>', self.save_as_png)
 		goban3.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		goban3.bind("<Leave>",lambda e: self.clear_status())
 		
@@ -1121,7 +1123,7 @@ class OpenMove():
 				self.goban.display(self.grid,self.markup,True)
 				self.parent.after(250,self.wait_for_display)
 			else:
-				show_info(msg,self.popup)
+				show_info(msg,self)
 				self.goban.display(self.grid,self.markup)
 				self.parent.after(0,self.wait_for_display)
 		except:
@@ -1150,10 +1152,9 @@ class OpenMove():
 		top.destroy()
 		canvas2png(self.goban,filename)
 		
-class DualView(Frame):
+class DualView(Toplevel):
 	def __init__(self,parent,filename,goban_size=200):
-		Frame.__init__(self,parent)
-		
+		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
 		self.goban_size=goban_size
@@ -1173,13 +1174,19 @@ class DualView(Frame):
 		self.pressed=0
 		self.parent.focus()
 
-	def close_app(self):
-		for popup in self.all_popups[:]:
+	def remove_popup(self,popup):
+		log("Removing popup")
+		self.popups.remove(popup)
+
+	def add_popup(self,popup):
+		log("Adding new popup")
+		self.popups.append(popup)
+
+	def close(self):
+		for popup in self.popups[:]:
 			popup.close()
-
 		self.destroy()
-		self.parent.destroy()
-
+		self.parent.remove_popup(self)
 	
 	def prev_10_move(self,event=None):
 		self.current_move=max(1,self.current_move-10)
@@ -1226,7 +1233,7 @@ class DualView(Frame):
 		if not pressed:
 			self.current_move=move_number
 			self.display_move(self.current_move)
-			for popup in self.all_popups:
+			for popup in self.popups:
 				if isinstance(popup,OpenChart):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
@@ -1234,7 +1241,7 @@ class DualView(Frame):
 		
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
-			for popup in self.all_popups:
+			for popup in self.popups:
 				if isinstance(popup,OpenChart):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
@@ -1491,7 +1498,7 @@ class DualView(Frame):
 	def show_graphs(self,event=None):
 		new_popup=OpenChart(self,self.data_for_chart,self.nb_moves)
 		new_popup.current_move=self.current_move
-		self.all_popups.append(new_popup)
+		self.add_popup(new_popup)
 		
 	
 	def hide_territories(self,event=None):
@@ -1726,7 +1733,7 @@ class DualView(Frame):
 		
 		new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
-		self.all_popups.append(new_popup)
+		self.add_popup(new_popup)
 	
 	def get_node_comments(self):
 		comments=""
@@ -1943,9 +1950,9 @@ class DualView(Frame):
 
 
 		self.parent.title('GoReviewPartner')
-		self.parent.protocol("WM_DELETE_WINDOW", self.close_app)
+		self.protocol("WM_DELETE_WINDOW", self.close)
 		
-		self.all_popups=[]
+		self.popups=[]
 		
 		bg=self.cget("background")
 		#self.configure(background=bg)
@@ -2123,38 +2130,28 @@ import goban
 #goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 
 if __name__ == "__main__":
-	
 	Config = ConfigParser.ConfigParser()
 	Config.read(config_file)
-	
 	if len(sys.argv)==1:
 		temp_root = Tk()
 		filename = open_rsgf_file(parent=temp_root)
 		temp_root.destroy()
 		log(filename)
-
 		if not filename:
 			sys.exit()
 	else:
 		filename=sys.argv[1]
-	
-	top = Tk()
-	
+	top = Application()
 	display_factor=.5
 	try:
 		display_factor=float(Config.get("Review", "GobanScreenRatio"))
 	except:
 		Config.set("Review", "GobanScreenRatio",display_factor)
 		Config.write(open(config_file,"w"))
-	
 	screen_width = top.winfo_screenwidth()
 	screen_height = top.winfo_screenheight()
-	
 	width=int(display_factor*screen_width)
 	height=int(display_factor*screen_height)
-	
-	DualView(top,filename,min(width,height)).pack(fill=BOTH,expand=1)
+	popup=DualView(top,filename,min(width,height))
+	top.add_popup(popup)
 	top.mainloop()
-
-	
-	
