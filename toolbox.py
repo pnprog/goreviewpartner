@@ -582,10 +582,10 @@ class RangeSelector(Toplevel):
 		Config.write(open(config_file,"w"))
 
 		####################################
-		self.close()
+		
 		popup=RunAnalysis(self.parent,self.filename,move_selection,intervals,variation,komi,profile)
 		self.parent.add_popup(popup)
-
+		self.close()
 
 
 
@@ -904,7 +904,13 @@ class RunAnalysisBase(Toplevel):
 				self.lab2.config(text=_("Remaining time: %ih, %imn, %is")%(remaining_h,remaining_m,remaining_s))
 			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
 			self.pb.step()
-
+			
+			
+			import dual_view
+			if self.total_done==1:
+				Button(self.right_frame,text=_("Start review"),command=self.start_review).pack()
+				
+			
 		except:
 			pass
 
@@ -914,19 +920,13 @@ class RunAnalysisBase(Toplevel):
 			else:
 				self.parent.after(10,self.follow_analysis)
 		else:
-			self.propose_review()
+			self.end_of_analysis()
 
-	def propose_review(self):
+	def end_of_analysis(self):
 		self.lab1.config(text=_("Completed"))
 		self.lab2.config(text="")
 		self.pb["maximum"] = 100
 		self.pb["value"] = 100
-
-		try:
-			#import dual_view
-			Button(self.right_frame,text=_("Start review"),command=self.start_review).pack(side=TOP)
-		except:
-			pass
 
 	def start_review(self):
 		import dual_view
@@ -949,10 +949,10 @@ class RunAnalysisBase(Toplevel):
 		height=int(display_factor*screen_height)
 		#Toplevel()
 
-		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
-		new_popup.pack(fill=BOTH,expand=1)
-		self.remove_app()
-
+		popup=dual_view.DualView(app,self.filename[:-4]+".rsgf",min(width,height))
+		self.parent.add_popup(popup)
+		if (self.pb["maximum"] == 100) and (self.pb["value"] == 100):
+			self.close()
 
 	def terminate_bot(self):
 		try:
@@ -1505,7 +1505,7 @@ def batch_analysis(app,batch):
 			log("File to analyse:",filename)
 			popup=run(app,filename,move_selection,intervals,variation,komi)
 			app.add_popup(popup)
-			popup.propose_review=popup.close
+			popup.end_of_analysis=popup.close
 			batch[0]=[popup]
 			app.after(1,lambda: batch_analysis(app,batch))
 	except Exception, e:
@@ -1792,7 +1792,7 @@ class Application(Tk):
 	def remove_popup(self,popup):
 		log("Removing popup")
 		self.popups.remove(popup)
-		log("Totally",len(self.popups),"popups")
+		log("Totally",len(self.popups),"popups left")
 		if len(self.popups)==0:
 			time.sleep(2)
 			log("")

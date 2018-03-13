@@ -368,7 +368,8 @@ if __name__ == "__main__":
 		slowbot['profile']="slow"
 		fastbot=dict(bot)
 		fastbot['profile']="fast"
-		RangeSelector(top,filename,bots=[slowbot, fastbot])
+		popup=RangeSelector(top,filename,bots=[slowbot, fastbot])
+		top.add_popup(popup)
 		top.mainloop()
 	else:
 		try:
