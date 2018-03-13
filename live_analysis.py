@@ -316,7 +316,37 @@ class LiveAnalysis(Toplevel):
 		self.white_just_passed=False
 		
 		self.initialize()
+
+	def open_move(self):
+		from dual_view import OpenMove
+		log("Opening move",self.current_move)
 		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
+		display_factor=.5
+		try:
+			display_factor=float(Config.get("Review", "GobanScreenRatio"))
+		except:
+			Config.set("Review", "GobanScreenRatio",display_factor)
+			Config.write(open(config_file,"w"))
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		goban_size=min(width,height)
+		
+		new_popup=OpenMove(self.parent,self.current_move,self.dim,self.g,goban_size)
+		new_popup.goban.mesh=self.goban.mesh
+		new_popup.goban.wood=self.goban.wood
+		new_popup.goban.black_stones=self.goban.black_stones
+		new_popup.goban.white_stones=self.goban.white_stones
+		new_popup.goban.no_redraw=[]
+		
+		self.parent.after(100,lambda :new_popup.goban.display(new_popup.grid,new_popup.markup))
+		
+		self.parent.add_popup(new_popup)
+
 	def initialize(self):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -476,6 +506,9 @@ class LiveAnalysis(Toplevel):
 		
 		row+=1
 		Label(panel,text="").grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		Button(panel,text=_("Open position"),command=self.open_move).grid(column=1,row=row,sticky=W+E)
 		
 		row+=1
 		self.review_bouton_wrapper=Frame(panel)
