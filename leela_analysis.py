@@ -292,15 +292,20 @@ class Leela_gtp(gtp):
 			self.undo_resign()
 		else:
 			self.undo()
-			
-		if color==1:
-			black_win_rate=position_evaluation["variations"][0]["win rate"]
-			white_win_rate=opposite_rate(black_win_rate)
-		else:
-			white_win_rate=position_evaluation["variations"][0]["win rate"]
-			black_win_rate=opposite_rate(white_win_rate)
-		return _("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
-			
+		txt=""
+		try:
+			if color==1:
+				black_win_rate=position_evaluation["variations"][0]["win rate"]
+				white_win_rate=opposite_rate(black_win_rate)
+			else:
+				white_win_rate=position_evaluation["variations"][0]["win rate"]
+				black_win_rate=opposite_rate(white_win_rate)
+			txt+= _("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
+			txt+="\n\n"+_("Score estimation for this variation: %s")%self.get_leela_final_score()
+		except:
+			txt+=_("Score estimation for this variation: %s")%self.get_leela_final_score()
+
+		return txt
 	def undo_resign(self):
 		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
 		self.undo()
