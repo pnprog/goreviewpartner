@@ -100,7 +100,7 @@ class RayAnalysis():
 
 								save_variation_data(new_child,self.data_in_comments,"MCWR",black_value+'/'+white_value)
 								if best_move:
-									save_position_data(one_move,self.data_in_comments,"MCWR",black_value+'/'+white_value,bot="Leela")
+									save_position_data(one_move,self.data_in_comments,"MCWR",black_value+'/'+white_value,bot="Ray")
 									
 								
 							if policy:
@@ -213,6 +213,25 @@ class Ray_gtp(gtp):
 			return True			
 		except Exception, e:
 			raise GtpException("GtpException in undo()\n"+str(e))
+	
+	def quick_evaluation(self,color):
+		
+		if color==2:
+			answer=self.get_ray_stat("white")
+		else:
+			answer=self.get_ray_stat("black")
+		
+		sequence_first_move,count,simulation,policy,value,win,one_sequence=answer[0]
+		
+		txt=""
+		if win:
+			if color==1:
+				winrate=str(float(win))+'%/'+str(100-float(win))+'%'
+			else:
+				winrate=str(100-float(win))+'%/'+str(win)+'%'
+			txt+= _("black/white win probability for this variation: ")+winrate
+
+		return txt
 	
 	def get_ray_stat(self,color):
 		t0=time()
