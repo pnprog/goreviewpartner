@@ -85,15 +85,6 @@ def go_to_move(move_zero,move_number=0):
 			return False
 		move=move[0]
 		k+=1
-	"""
-	color=move.get_move()[0]
-	if not color:
-		if move is move_zero:
-			color=move_zero.get('PL')
-		else:
-			color=guess_color_to_play(move_zero,move_number)
-		move.set(color.upper(), move.get_move()[1])
-	"""
 	return move
 
 def gtp2ij(move):
@@ -224,29 +215,40 @@ class DownloadFromURL(Toplevel):
 class WriteException(Exception):
 	pass
 
+filelock=threading.Lock()
 def write_rsgf(filename,sgf_content):
+	filelock.acquire()
 	try:
 		log("Saving RSGF file",filename)
 		new_file=open(filename,'w')
-		new_file.write(sgf_content)
+		if type(sgf_content)=="abc":
+			new_file.write(sgf_content)
+		else:
+			new_file.write(sgf_content.serialise())
 		new_file.close()
 	except Exception,e:
 		log("Could not save the RSGF file",filename)
 		log(e)
 		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
-
+	filelock.release()
 def write_sgf(filename,sgf_content):
+	filelock.acquire()
 	try:
 		log("Saving SGF file",filename)
 		new_file=open(filename,'w')
-		new_file.write(sgf_content)
+		if type(sgf_content)=="abc":
+			new_file.write(sgf_content)
+		else:
+			new_file.write(sgf_content.serialise())
 		new_file.close()
 	except Exception,e:
 		log("Could not save the SGF file",filename)
 		log(e)
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
+	filelock.release()
 
 def open_sgf(filename):
+	filelock.acquire()
 	try:
 		log("Opening SGF file",filename)
 		txt = open(filename)
@@ -257,7 +259,7 @@ def open_sgf(filename):
 		log("Could not open the SGF file",filename)
 		log(e)
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
-
+	filelock.release()
 
 def clean_sgf(txt):
 	return txt
@@ -713,7 +715,7 @@ class LiveAnalysisBase():
 
 				old_branch.delete()
 
-				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+				write_rsgf(self.filename[:-4]+".rsgf",self.g)
 				self.cpu_lock.release()
 				self.update_queue.put((0,"wait"))
 				continue
@@ -741,7 +743,7 @@ class LiveAnalysisBase():
 			self.best_moves_queue.put([self.current_move,answer])
 			if self.update_queue.empty():
 				self.label_queue.put("")
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+			write_rsgf(self.filename[:-4]+".rsgf",self.g)
 			self.cpu_lock.release()
 			#self.current_move+=1
 			time.sleep(.1) #enought time for Live analysis to grap the lock
@@ -855,7 +857,7 @@ class RunAnalysisBase(Toplevel):
 			if self.current_move in self.move_range:
 				answer=self.run_analysis(self.current_move)
 				self.total_done+=1
-				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+				write_rsgf(self.filename[:-4]+".rsgf",self.g)
 				log("For this position,",self.bot.bot_name,"would play:",answer)
 				log("Analysis for this move is completed")
 			elif self.move_range:
@@ -1020,7 +1022,7 @@ class RunAnalysisBase(Toplevel):
 		current_move=1
 
 		try:
-			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
+			write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		except Exception,e:
 			show_error(str(e),parent=self)
 			self.lab1.config(text=_("Aborted"))
@@ -1273,9 +1275,7 @@ except:
 	usage=""
 
 def parse_command_line(filename,argv):
-
 	g=open_sgf(filename)
-	content=g.serialise()
 
 	move_zero=g.get_root()
 
