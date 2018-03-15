@@ -473,6 +473,7 @@ class LiveAnalysis(Toplevel):
 		
 		self.undo_button=Button(panel,text=_("Undo"),state="disabled")
 		
+		
 		if (self.black=="human") or (self.white=="human"):
 			self.pass_button.grid(column=1,row=row,sticky=W+E)
 			self.undo_button.grid(column=1,row=row+1,sticky=W+E)
@@ -657,7 +658,9 @@ class LiveAnalysis(Toplevel):
 		threading.current_thread().answer=answer
 		threading.current_thread().bot=bot
 	
-	def undo_as_black(self):
+	def undo_as_black(self, event=None):
+		if self.undo_button.cget("state")=='disabled':
+			return
 		log("Black undo from move",self.current_move,"back to move",self.current_move-2)
 		self.undo_button.config(state='disabled')
 		self.pass_button.config(state='disabled')
@@ -665,7 +668,9 @@ class LiveAnalysis(Toplevel):
 		self.parent.after(100,self.undo)
 		#self.undo()
 
-	def undo_as_white(self):
+	def undo_as_white(self, event=None):
+		if self.undo_button.cget("state")=='disabled':
+			return
 		log("White undo from move",self.current_move,"back to move",self.current_move-2)
 		self.undo_button.config(state='disabled')
 		self.pass_button.config(state='disabled')
@@ -900,6 +905,7 @@ class LiveAnalysis(Toplevel):
 			self.pass_button.config(state='normal')
 			if self.current_move>=3:
 				self.undo_button.config(state='normal',command=self.undo_as_black)
+				self.goban.bind("<Button-2>",self.undo_as_black)
 			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.black=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
@@ -936,6 +942,7 @@ class LiveAnalysis(Toplevel):
 			self.pass_button.config(state='normal')
 			if self.current_move>=3:
 				self.undo_button.config(state='normal',command=self.undo_as_white)
+				self.goban.bind("<Button-2>",self.undo_as_white)
 			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.white=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)

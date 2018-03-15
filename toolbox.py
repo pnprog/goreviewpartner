@@ -3,8 +3,12 @@
 class AbortedException(Exception):
 	pass
 
+import threading
 
+loglock=threading.Lock()
 def log(*args):
+	global loglock
+	loglock.acquire()
 	for arg in args:
 		try:
 			try:
@@ -22,8 +26,11 @@ def log(*args):
 		except:
 			print "["+type(arg)+"]",
 	print
+	loglock.release()
 
 def linelog(*args):
+	global loglock
+	loglock.acquire()
 	for arg in args:
 		try:
 			try:
@@ -40,6 +47,7 @@ def linelog(*args):
 				print "?"*len(arg),
 		except:
 			print "["+type(arg)+"]",
+	loglock.release()
 
 import tkMessageBox
 
@@ -589,7 +597,7 @@ class RangeSelector(Toplevel):
 
 
 
-import threading
+
 import Queue
 import time
 import ConfigParser
@@ -675,7 +683,7 @@ class LiveAnalysisBase():
 
 			if msg=="wait":
 				log("Analyser iddle for one second")
-				time.sleep(1) #enought time for user to press "undo" one more time
+				time.sleep(2) #enought time for user to press "undo" one more time
 				self.cpu_lock.release()
 				time.sleep(0.1) #in case the user pressed "undo", then enought time for Live analysis to grab the lock
 				continue

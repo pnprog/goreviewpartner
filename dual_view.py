@@ -720,7 +720,8 @@ class OpenMove(Toplevel):
 	
 	def undo(self,event=None):
 		log("UNDO")
-
+		if self.undo_button.cget("state")=='disabled':
+			return
 		if len(self.history)<1:
 			return
 		elif len(self.history)==1:
