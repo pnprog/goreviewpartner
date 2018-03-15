@@ -525,6 +525,7 @@ class LiveAnalysis(Toplevel):
 			self.next_color=1		
 			self.current_move=1
 			self.g.get_root().set("PL", "b")
+			write_rsgf(self.filename[:-4]+".rsgf",self.g)
 			self.black_to_play()
 			
 		self.protocol("WM_DELETE_WINDOW", self.close)
@@ -591,12 +592,13 @@ class LiveAnalysis(Toplevel):
 			msg=self.analyser.label_queue.get(False)
 			if type(msg)==type(123):
 				self.analysis_label.config(text=_("Currently at move %i")%msg)
-
+				if msg>2 and len(self.review_bouton_wrapper.children)==0:
+					print "msg>2 [",msg,"]"
+					Button(self.review_bouton_wrapper,text=_("Start review"),command=self.start_review).pack(fill=X)
 			else:
 				self.analysis_label.config(text=_("Waiting for next move"))
 				
-			if msg>2 and len(self.review_bouton_wrapper.children)==0:
-				Button(self.review_bouton_wrapper,text=_("Start review"),command=self.start_review).pack(fill=X)
+
 			
 		except:
 			pass
@@ -633,7 +635,7 @@ class LiveAnalysis(Toplevel):
 					self.goban.bind("<Button-1>",lambda e: self.place_handicap(e,handicap-1))
 				else:
 					self.g.get_root().set("AB",self.handicap_stones)
-					#write_sgf(self.filename,self.g.serialise())
+					write_rsgf(self.filename[:-4]+".rsgf",self.g)
 					print self.handicap_stones
 					if type(self.black)!=type("abc"):
 						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
@@ -726,7 +728,8 @@ class LiveAnalysis(Toplevel):
 		self.current_move-=2
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
 		self.parent.after(100,self.after_undo) #enough time for analyser to grab the process lock and process the queue
-
+		write_rsgf(self.filename[:-4]+".rsgf",self.g)
+		
 	def after_undo(self):
 		self.pass_button.config(state='normal')
 		if self.current_move>=3:
@@ -884,6 +887,7 @@ class LiveAnalysis(Toplevel):
 				self.black_to_play()
 		
 	def black_to_play(self):
+		write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		result=self.pause_lock.acquire(False)
 		if not result:
 			self.parent.after(250,self.black_to_play)
@@ -921,6 +925,7 @@ class LiveAnalysis(Toplevel):
 			self.bot_to_play()
 	
 	def white_to_play(self):
+		write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		result=self.pause_lock.acquire(False)
 		if not result:
 			self.parent.after(250,self.white_to_play)

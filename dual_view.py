@@ -53,44 +53,44 @@ class OpenChart(Toplevel):
 		self.data=data
 		self.current_move=current_move
 
+		
+		
+		popup_width=self.parent.winfo_width()
+		popup_height=self.parent.winfo_height()/2+10
+		self.geometry(str(popup_width)+'x'+str(popup_height))
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		self.last_graph=Config.get("Review","LastGraph").decode("utf")
 		self.initialize()
+
 	def close(self):
 		log("closing popup")
 		self.destroy()
 		self.parent.remove_popup(self)
 		log("done")
 
+
+
 	def initialize(self):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		
-		popup_width=self.parent.winfo_width()
-		popup_height=self.parent.winfo_height()/2+10
-		
+		    
+		for widget in self.pack_slaves():
+			widget.destroy()
 		
 		popup=self
-		popup.geometry(str(popup_width)+'x'+str(popup_height))
 		bg=popup.cget("background")
-		#popup.configure(background=bg)
 		
 		top_frame=Frame(popup)
-		top_frame.pack()
 		top_frame.pack()
 		
 		self.graph_mode=StringVar()
 		available_graphs=[]
-		for data in self.data:
-			if data:
-				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
-					self.graph_mode.set(_("Score estimation")) # initialize
-					available_graphs.append(_("Score estimation"))
-					break
-		
-		
+
 		for data in self.data:
 			if data:
 				if "position_win_rate" in data:
-					self.graph_mode.set(_("Win rate")) # initialize
+					#self.graph_mode.set(_("Win rate")) # initialize
 					available_graphs.append(_("Win rate"))
 					break
 		
@@ -147,11 +147,22 @@ class OpenChart(Toplevel):
 						available_graphs.append(_("White Value Network win rate delta"))
 						break
 		
+		for data in self.data:
+			if data:
+				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
+					#self.graph_mode.set(_("Score estimation")) # initialize
+					available_graphs.append(_("Score estimation"))
+					break
+		
 		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
 		self.graph_selection.pack(side=LEFT, padx=5)
-		self.graph_mode.trace("w", lambda a,b,c: self.display())
-		if not self.graph_mode.get():
-			self.graph_mode.set(available_graphs[0])
+		if self.last_graph in [mode.decode("utf") for mode in available_graphs]:
+			self.graph_mode.set(self.last_graph)
+		else:
+			self.last_graph=available_graphs[0].decode("utf")
+			self.graph_mode.set(self.last_graph)
+			
+		self.graph_mode.trace("w", lambda a,b,c: self.change_graph())
 		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
 		#self.chart.grid(sticky=N+S+W+E)
 		
@@ -218,6 +229,18 @@ class OpenChart(Toplevel):
 				#self.chart.create_line(x0, y1, x1, y1, fill='black')
 				y0=y1
 	
+	def change_graph(self,event=None):
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
+		self.last_graph=_(self.graph_mode.get())
+		if type(self.last_graph)!=type(u"utf"):
+			self.last_graph=self.last_graph.decode("utf8")
+		
+		Config.set("Review","LastGraph",self.last_graph.encode("utf"))
+		Config.write(open(config_file,"w"))
+		self.display()
+		
 	def display(self,event=None):
 		if event:
 			width=event.width
@@ -246,7 +269,8 @@ class OpenChart(Toplevel):
 		y1=border
 		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
 		
-		mode=_(self.graph_mode.get())
+		mode=self.last_graph
+
 		if mode in (_("Black win rate delta").decode("utf"),_("White win rate delta").decode("utf")):
 			moves=self.display_winrate_delta(border,height,width)
 		elif mode==_("Win rate").decode("utf"):
@@ -776,7 +800,7 @@ class OpenMove(Toplevel):
 				self.display_queue.put(2)
 				
 				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))
-				self.after(0,one_thread.start())
+				self.after(0,one_thread.start)
 				return
 			else:
 				log("End of SELF PLAY")
@@ -1174,7 +1198,7 @@ class DualView(Toplevel):
 
 		self.pressed=0
 		self.parent.focus()
-
+	
 	def remove_popup(self,popup):
 		log("Removing popup")
 		self.popups.remove(popup)
@@ -1298,9 +1322,9 @@ class DualView(Toplevel):
 		self.current_variation_move=move
 		self.current_variation_sequence=sequence
 		
-		self.parent.bind("<Up>", self.show_variation_next)
-		self.parent.bind("<Down>", self.show_variation_prev)
-		self.parent.bind("<MouseWheel>", self.mouse_wheel)
+		self.bind("<Up>", self.show_variation_next)
+		self.bind("<Down>", self.show_variation_prev)
+		self.bind("<MouseWheel>", self.mouse_wheel)
 		if not self.inverted_mouse_wheel:
 			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
 			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
@@ -1321,13 +1345,16 @@ class DualView(Toplevel):
 			self.show_variation_prev()
 	
 	def show_variation_next(self,event=None):
-		
+		if self.current_variation_sequence==None:
+			return
 		move=(self.current_variation_move+1)%(len(self.current_variation_sequence)+1)
 		move=max(1,move)
 		#log(move,'/',len(self.current_variation_sequence))
 		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 	
 	def show_variation_prev(self,event=None):
+		if self.current_variation_sequence==None:
+			return
 		move=(self.current_variation_move-1)%len(self.current_variation_sequence)
 		if move<1:
 			move=len(self.current_variation_sequence)
@@ -1910,8 +1937,57 @@ class DualView(Toplevel):
 					if columns_header[c]:
 						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
 
+	def update_from_file(self):
+		try:
+			h1=hash(open_sgf(self.filename).serialise())
+			h2=hash(self.sgf.serialise())
+			
+			if h1!=h2:
+				log("Reloding the RSGF file from hard drive")
+				old_sgf=self.sgf
+				self.sgf=open_sgf(self.filename)
+				log("Updating data")
+				#self.dim=self.sgf.get_size()
+				#self.komi=self.sgf.get_komi()
+				self.gameroot=self.sgf.get_root()
+				nb_moves=get_node_number(self.gameroot)
+				if nb_moves!=self.nb_moves:
+					log("Updating label")
+					self.nb_moves=nb_moves
+					self.move_number.config(text=str(self.current_move)+'/'+str(self.nb_moves))
 				
+				new_parent=get_node(self.gameroot,self.current_move-1)
+				old_parent=get_node(old_sgf.get_root(),self.current_move-1)
+				if len(old_parent)!=len(new_parent):
+					#current move beeing displayed should be updated
+					log("updating current display")
+					self.pressed=time.time()
+					pf=partial(self.goto_move,move_number=self.current_move,pressed=self.pressed)
+					self.parent.after(0,lambda: pf())
 				
+				log("Updating data for charts")
+				self.data_for_chart=self.prepare_data_for_chart()
+				if not self.charts_button:
+					#there was no chart up to this point
+					for data in self.data_for_chart:
+						if data<>None:
+							log("Creating the chart button")
+							self.charts_button=Button(self, text=_('Graphs'))
+							self.charts_button.bind('<Button-1>', self.show_graphs)
+							self.charts_button.grid(column=3,row=2,sticky=E)
+							break
+				
+				for popup in self.popups:
+					if isinstance(popup,OpenChart):
+						log("Updating chart")
+						popup.nb_moves=self.nb_moves
+						popup.data=self.data_for_chart
+						popup.initialize()
+						popup.display()
+		except:
+			pass
+		
+		self.after(10000,self.update_from_file)
 		
 	def initialize(self):
 
@@ -2002,6 +2078,7 @@ class DualView(Toplevel):
 		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
 		
 		self.data_for_chart=self.prepare_data_for_chart()
+		self.charts_button=None
 		for data in self.data_for_chart:
 			if data<>None:
 				self.charts_button=Button(self, text=_('Graphs'))
@@ -2079,6 +2156,7 @@ class DualView(Toplevel):
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
 		self.goban1.bind("<Configure>",self.redraw)
+		self.after(10000,self.update_from_file)
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)

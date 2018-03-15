@@ -226,11 +226,12 @@ def write_rsgf(filename,sgf_content):
 		else:
 			new_file.write(sgf_content.serialise())
 		new_file.close()
+		filelock.release()
 	except Exception,e:
 		log("Could not save the RSGF file",filename)
 		log(e)
+		filelock.release()
 		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
-	filelock.release()
 def write_sgf(filename,sgf_content):
 	filelock.acquire()
 	try:
@@ -241,26 +242,28 @@ def write_sgf(filename,sgf_content):
 		else:
 			new_file.write(sgf_content.serialise())
 		new_file.close()
+		filelock.release()
 	except Exception,e:
 		log("Could not save the SGF file",filename)
 		log(e)
+		filelock.release()
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
-	filelock.release()
+	
 
 def open_sgf(filename):
 	filelock.acquire()
 	try:
-		log("Opening SGF file",filename)
+		#log("Opening SGF file",filename)
 		txt = open(filename)
 		g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
+		filelock.release()
 		return g
 	except Exception,e:
 		log("Could not open the SGF file",filename)
 		log(e)
+		filelock.release()
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
-	filelock.release()
-
 def clean_sgf(txt):
 	return txt
 	for private_property in ["MULTIGOGM","MULTIGOBM"]:
@@ -685,7 +688,7 @@ class LiveAnalysisBase():
 
 			if msg=="wait":
 				log("Analyser iddle for one second")
-				time.sleep(2) #enought time for user to press "undo" one more time
+				time.sleep(5) #enought time for user to press "undo" one more time
 				self.cpu_lock.release()
 				time.sleep(0.1) #in case the user pressed "undo", then enought time for Live analysis to grab the lock
 				continue
@@ -709,7 +712,7 @@ class LiveAnalysisBase():
 				new_branch=parent[0]
 				old_branch=parent[1]
 
-				for p in ["ES","CBM","BWR","WWR","UBS","LBS","C"]:
+				for p in ["ES","CBM","BWWR","VNWR", "MCWR","UBS","LBS","C"]:
 					if old_branch.has_property(p):
 						new_branch.set(p,old_branch.get(p))
 
@@ -718,6 +721,7 @@ class LiveAnalysisBase():
 				write_rsgf(self.filename[:-4]+".rsgf",self.g)
 				self.cpu_lock.release()
 				self.update_queue.put((0,"wait"))
+				write_rsgf(self.filename[:-4]+".rsgf",self.g)
 				continue
 
 			log("Analyser received msg to analyse move",msg)
