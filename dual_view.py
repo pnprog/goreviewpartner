@@ -15,9 +15,6 @@ import ConfigParser
 
 import threading, Queue
 
-import mss
-import mss.tools
-
 bg='#C0C0C0'
 
 from goban import *
@@ -2186,15 +2183,6 @@ class DualView(Toplevel):
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban2,filename)
 	
-def canvas2png(goban,filename):
-	top = goban.winfo_rooty()
-	left = goban.winfo_rootx()
-	width = goban.winfo_width()
-	height = goban.winfo_height()
-	monitor = {'top': top, 'left': left, 'width': width, 'height': height}
-	sct_img = mss.mss().grab(monitor)
-	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
-
 from gomill import sgf, sgf_moves
 import goban
 #goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))

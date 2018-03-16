@@ -317,6 +317,10 @@ class LiveAnalysis(Toplevel):
 		
 		self.initialize()
 
+	def save_as_png(self,e=None):
+		filename=save_png_file(filename='move'+str(self.current_move)+'.png',parent=self)
+		canvas2png(self.goban,filename)
+
 	def open_move(self):
 		from dual_view import OpenMove
 		log("Opening move",self.current_move)
@@ -380,6 +384,9 @@ class LiveAnalysis(Toplevel):
 		goban = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban.space=self.goban_size/(dim+1+1)
 		goban.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
+		goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		buttons_with_status.append(goban)
+		
 		popup.grid_rowconfigure(1, weight=1)
 		popup.grid_columnconfigure(2, weight=1)
 		
@@ -543,6 +550,8 @@ class LiveAnalysis(Toplevel):
 		
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		self.parent.after(500,self.follow_analysis)
+	
+		self.bind('<Control-q>', self.save_as_png)
 	
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)

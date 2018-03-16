@@ -1820,3 +1820,13 @@ class Application(Tk):
 			log("Adding new popup")
 			self.popups.append(popup)
 			log("Totally",len(self.popups),"popups")
+import mss
+import mss.tools
+def canvas2png(goban,filename):
+	top = goban.winfo_rooty()
+	left = goban.winfo_rootx()
+	width = goban.winfo_width()
+	height = goban.winfo_height()
+	monitor = {'top': top, 'left': left, 'width': width, 'height': height}
+	sct_img = mss.mss().grab(monitor)
+	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
