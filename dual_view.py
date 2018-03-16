@@ -680,10 +680,7 @@ class OpenChart(Toplevel):
 		
 		
 	def save_as_png(self,e=None):
-		top=Tk()
-		top.withdraw()
-		filename=save_png_file(filename=self.graph_mode.get()+' graph.png',parent=top)
-		top.destroy()
+		filename=save_png_file(filename=self.graph_mode.get()+' graph.png',parent=self)
 		canvas2png(self.chart,filename)
 
 
@@ -1168,13 +1165,8 @@ class OpenMove(Toplevel):
 		
 		self.goban.redraw()
 
-
-
 	def save_as_png(self,e=None):
-		top=Tk()
-		top.withdraw()
-		filename = save_png_file(parent=top,filename='variation_move'+str(self.move)+'.png')
-		top.destroy()
+		filename = save_png_file(parent=self,filename='variation_move'+str(self.move)+'.png')
 		canvas2png(self.goban,filename)
 		
 class DualView(Toplevel):
@@ -2117,8 +2109,8 @@ class DualView(Toplevel):
 		self.goban1.space=self.goban_size/(self.dim+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1)
 		
-		self.parent.bind('<Control-q>', self.save_left_as_png)
-		self.parent.bind('<Control-w>', self.save_right_as_png)
+		self.bind('<Control-q>', self.save_left_as_png)
+		self.bind('<Control-w>', self.save_right_as_png)
 		
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 		
@@ -2187,12 +2179,11 @@ class DualView(Toplevel):
 		self.status_bar.config(text="")
 
 	def save_left_as_png(self,e=None):
-		filename = save_png_file(parent=self.parent,filename='move'+str(self.current_move)+'.png')
+		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban1,filename)
 
-		
 	def save_right_as_png(self,e=None):
-		filename = save_png_file(parent=self.parent,filename='move'+str(self.current_move)+'.png')
+		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban2,filename)
 	
 def canvas2png(goban,filename):
