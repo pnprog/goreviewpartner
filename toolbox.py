@@ -1808,11 +1808,22 @@ class Application(Tk):
 		if len(self.popups)==0:
 			time.sleep(2)
 			log("")
-			log("Leaving GoReviewPartner")
-			log("")
+			log("GoReviewPartner is leaving")
 			log("Hope you enjoyed the experience!")
+			log("")
+			log("List of contributors")
 			
-			self.quit()
+			contributors_file_url=os.path.join(os.path.abspath(pathname),"AUTHORS")
+			contributors_file = open(contributors_file_url,"r")
+			contributors=contributors_file.read()
+			contributors_file.close()
+
+			for line in contributors.split('\n'):
+				if not line:
+					continue
+				if line[0]=="#":
+					continue
+				log("\t",line)
 			self.force_close()
 			
 	def add_popup(self,popup):
