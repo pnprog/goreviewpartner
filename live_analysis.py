@@ -352,7 +352,7 @@ class LiveAnalysis(Toplevel):
 		Config.read(config_file)
 		
 		popup=self
-		
+		buttons_with_status=[]
 		dim=self.dim
 		
 		#popup.configure(background=bg)
@@ -469,10 +469,12 @@ class LiveAnalysis(Toplevel):
 		
 		row+=1
 		self.pass_button=Button(panel,text=_("Pass"),state="disabled",command=self.player_pass)
-		
+		self.pass_button.bind("<Enter>",lambda e: self.set_status(_("Pass for the next move")))
+		buttons_with_status.append(self.pass_button)
 		
 		self.undo_button=Button(panel,text=_("Undo"),state="disabled")
-		
+		self.undo_button.bind("<Enter>",lambda e: self.set_status(_("Undo to previous move")))
+		buttons_with_status.append(self.undo_button)
 		
 		if (self.black=="human") or (self.white=="human"):
 			self.pass_button.grid(column=1,row=row,sticky=W+E)
@@ -482,6 +484,8 @@ class LiveAnalysis(Toplevel):
 			row+=1
 			self.pause_button=Button(panel,text=_("Pause"),command=self.pause)
 			self.pause_button.grid(column=1,row=row,sticky=W+E)
+			self.pause_button.bind("<Enter>",lambda e: self.set_status(_("Pause the game")))
+			buttons_with_status.append(self.pause_button)
 		self.pause_lock=Lock()
 		
 		row+=1
@@ -509,7 +513,10 @@ class LiveAnalysis(Toplevel):
 		Label(panel,text="").grid(column=1,row=row,sticky=W)
 		
 		row+=1
-		Button(panel,text=_("Open position"),command=self.open_move).grid(column=1,row=row,sticky=W+E)
+		open_button=Button(panel,text=_("Open position"),command=self.open_move)
+		open_button.grid(column=1,row=row,sticky=W+E)
+		open_button.bind("<Enter>",lambda e: self.set_status(_("Open this position onto a third goban to play out variations.")))
+		buttons_with_status.append(open_button)
 		
 		row+=1
 		self.review_bouton_wrapper=Frame(panel)
@@ -527,10 +534,22 @@ class LiveAnalysis(Toplevel):
 			self.g.get_root().set("PL", "b")
 			write_rsgf(self.filename[:-4]+".rsgf",self.g)
 			self.black_to_play()
-			
+		
+		self.status_bar=Label(self,text='',background=bg)
+		self.status_bar.grid(column=1,row=3,sticky=W,columnspan=2)
+		
+		for button in buttons_with_status:
+			button.bind("<Leave>",lambda e: self.clear_status())
+		
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		self.parent.after(500,self.follow_analysis)
+	
+	def set_status(self,msg):
+		self.status_bar.config(text=msg)
 		
+	def clear_status(self):
+		self.status_bar.config(text="")
+
 	def close(self):
 		log("Closing analyser bot")
 		self.game_label.config(text=_("Now closing, please wait"))
@@ -593,8 +612,10 @@ class LiveAnalysis(Toplevel):
 			if type(msg)==type(123):
 				self.analysis_label.config(text=_("Currently at move %i")%msg)
 				if msg>2 and len(self.review_bouton_wrapper.children)==0:
-					print "msg>2 [",msg,"]"
-					Button(self.review_bouton_wrapper,text=_("Start review"),command=self.start_review).pack(fill=X)
+					button=Button(self.review_bouton_wrapper,text=_("Start review"),command=self.start_review)
+					button.pack(fill=X)
+					button.bind("<Enter>",lambda e: self.set_status(_("Start the review")))
+					button.bind("<Leave>",lambda e: self.clear_status())
 			else:
 				self.analysis_label.config(text=_("Waiting for next move"))
 				
