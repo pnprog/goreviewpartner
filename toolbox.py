@@ -221,7 +221,7 @@ def write_rsgf(filename,sgf_content):
 	try:
 		log("Saving RSGF file",filename)
 		new_file=open(filename,'w')
-		if type(sgf_content)=="abc":
+		if type(sgf_content)==type("abc"):
 			new_file.write(sgf_content)
 		else:
 			new_file.write(sgf_content.serialise())
@@ -237,7 +237,7 @@ def write_sgf(filename,sgf_content):
 	try:
 		log("Saving SGF file",filename)
 		new_file=open(filename,'w')
-		if type(sgf_content)=="abc":
+		if type(sgf_content)==type("abc"):
 			new_file.write(sgf_content)
 		else:
 			new_file.write(sgf_content.serialise())
