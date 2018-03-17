@@ -1600,7 +1600,7 @@ class DualView(Toplevel):
 		if m>=0:
 			left_comments=self.get_node_comments()
 			if get_node(self.gameroot,m+1).has_property("C"):
-				left_comments+="\n"+get_node(self.gameroot,m+1).get("C")
+				left_comments+="\n\n==========\n"+get_node(self.gameroot,m+1).get("C")
 			self.comment_box1.insert(END,left_comments)
 			
 		if m>0:
@@ -1762,7 +1762,10 @@ class DualView(Toplevel):
 			if self.gameroot.has_property("PW"):
 				comments+=_("White")+": "+self.gameroot.get("PW")+"\n"
 			
-		comments+="\n"+_("Move %i")%self.current_move
+			if comments:
+				comments+="\n"
+		
+		comments+=_("Move %i")%self.current_move
 		game_move_color,game_move=get_node(self.gameroot,self.current_move).get_move()
 		
 		if game_move_color.lower()=="w":
