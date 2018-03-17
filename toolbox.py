@@ -922,7 +922,9 @@ class RunAnalysisBase(Toplevel):
 			
 			import dual_view
 			if self.total_done==1:
-				Button(self.right_frame,text=_("Start review"),command=self.start_review).pack()
+				if not self.review_button:
+					self.review_button=Button(self.right_frame,text=_("Start review"),command=self.start_review)
+					self.review_button.pack()
 				
 			
 		except:
@@ -1054,7 +1056,7 @@ class RunAnalysisBase(Toplevel):
 			self.move_zero.set("BOTV",self.bot.bot_version)
 
 		self.root=root
-
+		self.review_button=None
 
 
 
