@@ -1379,7 +1379,7 @@ class DualView(Toplevel):
 				pass
 			
 			try:
-				player_move=ij2gtp(player_move)
+				player_move=ij2gtp(player_move).upper()
 				one_data['move']=m #move number
 			except:
 				pass
@@ -1460,6 +1460,7 @@ class DualView(Toplevel):
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
 				computer_move=one_move.get('CBM')
+				print player_move,computer_move
 				if player_move==computer_move:
 					# in case the computer best move is the actual game move then:
 					# 1/ normally delta=0
@@ -1468,7 +1469,8 @@ class DualView(Toplevel):
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
 				one_data['winrate_delta']=delta
-
+				if m==127:
+					raw_input()
 			except:
 				pass
 			
