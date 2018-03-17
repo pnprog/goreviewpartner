@@ -1824,6 +1824,8 @@ class Application(Tk):
 				if line[0]=="#":
 					continue
 				log("\t",line)
+			log("")
+			log("You are welcomed to support GoReviewPartner (bug repports, code fixes, translations, ideas...). If you are interested, get in touch through Github Reddit, or Lifein19x19 !")
 			self.force_close()
 			
 	def add_popup(self,popup):
