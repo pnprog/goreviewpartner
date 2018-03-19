@@ -668,12 +668,25 @@ class LiveAnalysisBase():
 
 	def run_live_analysis(self):
 		self.current_move=1
-
+		wait=0
 		while 1:
+			while wait>0:
+				time.sleep(0.1)
+				wait-=0.1
+				try:
+					priority,msg=self.update_queue.get(False)
+					if priority<1:
+						log("Analyser received a high priority message")
+						wait=0
+					self.update_queue.put((priority,msg))
+				except:
+					continue
+				
+				
 			if not self.cpu_lock.acquire(False):
 				time.sleep(2) #let's wait just enough time in case human player already has a move to play
 				continue
-
+			
 			try:
 				priority,msg=self.update_queue.get(False)
 			except:
@@ -687,10 +700,9 @@ class LiveAnalysisBase():
 				return
 
 			if msg=="wait":
-				log("Analyser iddle for one second")
-				time.sleep(5) #enought time for user to press "undo" one more time
+				log("Analyser iddle for five seconds")
 				self.cpu_lock.release()
-				time.sleep(0.1) #in case the user pressed "undo", then enought time for Live analysis to grab the lock
+				wait=5
 				continue
 
 			if type(msg)==type("undo xxx"):
