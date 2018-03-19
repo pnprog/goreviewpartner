@@ -60,8 +60,8 @@ def show_error(txt,parent=None):
 
 def show_info(txt,parent=None):
 	try:
-		tkMessageBox.showinfo(_("Information"),txt,parent=parent)
 		log("INFO: "+txt)
+		tkMessageBox.showinfo(_("Information"),txt,parent=parent)
 	except:
 		log("INFO: "+txt)
 
