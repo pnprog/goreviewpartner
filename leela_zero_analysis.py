@@ -212,6 +212,7 @@ class Variation(dict):
 
 class Leela_Zero_gtp(gtp):
 
+
 	def quick_evaluation(self,color):
 		if color==2:
 			answer=self.play_white()
@@ -250,8 +251,20 @@ class Leela_Zero_gtp(gtp):
 		self.size=0
 		
 		self.stderr_queue=Queue.Queue()
+		log("Checking Leela Zero stderr to check for OpenCL SGEMM tuner running")
+		while 1:
+			err_line=self.process.stderr.readline()
+			self.stderr_queue.put(err_line)
+			if "Started OpenCL SGEMM tuner.\n" in err_line:
+				log("OpenCL SGEMM tuner is running")
+				show_info(_("Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."))
+				break
+			elif "Loaded existing SGEMM tuning.\n" in err_line:
+				log("OpenCL SGEMM tuner has already been runned")
+				break
 		
 		threading.Thread(target=self.consume_stderr).start()
+		
 	def get_leela_zero_final_score(self):
 		self.write("final_score")
 		answer=self.readline().strip()
