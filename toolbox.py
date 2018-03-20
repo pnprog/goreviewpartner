@@ -647,13 +647,18 @@ class LiveAnalysisBase():
 		self.best_moves_queue=Queue.Queue()
 
 		self.move_zero=self.g.get_root()
-
+		
+		self.no_variation_if_same_move=True
+		
 		size=self.g.get_size()
 		log("size of the tree:", size)
 		self.size=size
 
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
+		
+		self.no_variation_if_same_move=Config.getboolean('Analysis', 'NoVariationIfSameMove')
+		
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
 
 		self.stop_at_first_resign=False
@@ -755,6 +760,21 @@ class LiveAnalysisBase():
 			answer=self.run_analysis(self.current_move)
 			log("Analyser best move: move %i at %s"%(self.current_move,answer))
 			self.best_moves_queue.put([self.current_move,answer])
+			
+			try:
+				game_move=go_to_move(self.move_zero,self.current_move).get_move()[1]
+				log("Game move:",game_move)
+				if game_move:
+					if self.no_variation_if_same_move:
+						if ij2gtp(game_move)==answer.lower():
+							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
+							parent=go_to_move(self.move_zero,self.current_move-1)
+							for child in parent[1:]:
+								child.delete()
+			except:
+				#what could possibly go wrong with this?
+				pass
+			
 			if self.update_queue.empty():
 				self.label_queue.put("")
 			write_rsgf(self.filename[:-4]+".rsgf",self.g)
@@ -784,7 +804,9 @@ class RunAnalysisBase(Toplevel):
 
 		self.current_move=None
 		self.time_per_move=None
-
+		
+		self.no_variation_if_same_move=self.no_variation_if_same_move=Config.getboolean('Analysis', 'NoVariationIfSameMove')
+		
 		self.error=None
 
 		self.g=open_sgf(self.filename)
@@ -874,6 +896,21 @@ class RunAnalysisBase(Toplevel):
 				log("Analysis for this move is completed")
 			elif self.move_range:
 				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
+			
+			try:
+				game_move=go_to_move(self.move_zero,self.current_move).get_move()[1]
+				if game_move:
+					if self.no_variation_if_same_move:
+						if ij2gtp(game_move)==answer.lower():
+							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
+							parent=go_to_move(self.move_zero,self.current_move-1)
+							for child in parent[1:]:
+								child.delete()
+							write_rsgf(self.filename[:-4]+".rsgf",self.g)
+			except:
+				#what could possibly go wrong with this?
+				pass
+			
 			if (answer.lower()=="resign") and (self.stop_at_first_resign==True):
 				log("")
 				log("The analysis will stop now")
@@ -1865,9 +1902,9 @@ def get_position_comments(current_move,gameroot):
 		game_move_color=guess_color_to_play(gameroot,current_move)
 	
 	if game_move_color.lower()=="w":
-		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move)
+		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move).upper()
 	elif game_move_color.lower()=="b":
-		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move)
+		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move).upper()
 	
 	node=get_node(gameroot,current_move)
 	if node.has_property("CBM"):

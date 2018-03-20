@@ -352,7 +352,7 @@ class Leela_gtp(gtp):
 		position_evaluation=Position()
 		
 		for err_line in buff:
-			log(err_line)
+			#log(err_line)
 			
 			if "score=" in err_line:
 				position_evaluation["estimated score"]=err_line.split("score=")[1].strip()

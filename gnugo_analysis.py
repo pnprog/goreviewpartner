@@ -192,6 +192,21 @@ class GnuGoAnalysis():
 				log("Analysis for this move is completed")
 			elif self.move_range:
 				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
+
+			try:
+				game_move=go_to_move(self.move_zero,self.current_move).get_move()[1]
+				if game_move:
+					if self.pass_if_same_move:
+						if ij2gtp(game_move)==answer.lower():
+							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
+							parent=go_to_move(self.move_zero,self.current_move-1)
+							for child in parent[1:]:
+								child.delete()
+							write_rsgf(self.filename[:-4]+".rsgf",self.g)
+			except:
+				#what could possibly go wrong with this?
+				pass
+
 			if (answer.lower()=="resign") and (self.stop_at_first_resign==True):
 				log("")
 				log("The analysis will stop now")
