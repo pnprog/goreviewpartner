@@ -2017,7 +2017,7 @@ class DualView(Toplevel):
 				break
 
 
-		self.title('GoReviewPartner')
+		self.title('GoReviewPartner - '+os.path.basename(self.filename))
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		
 		self.popups=[]
