@@ -648,8 +648,6 @@ class LiveAnalysisBase():
 
 		self.move_zero=self.g.get_root()
 
-		self.data_in_comments=False
-
 		size=self.g.get_size()
 		log("size of the tree:", size)
 		self.size=size
@@ -786,8 +784,6 @@ class RunAnalysisBase(Toplevel):
 
 		self.current_move=None
 		self.time_per_move=None
-
-		self.data_in_comments=False
 
 		self.error=None
 
@@ -1060,12 +1056,9 @@ class RunAnalysisBase(Toplevel):
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
 
-		if self.data_in_comments:
-			self.move_zero.add_comment_text(first_comment+"\n")
-		else:
-			self.move_zero.set("RSGF",first_comment+"\n")
-			self.move_zero.set("BOT",self.bot.bot_name)
-			self.move_zero.set("BOTV",self.bot.bot_version)
+		self.move_zero.set("RSGF",first_comment+"\n")
+		self.move_zero.set("BOT",self.bot.bot_name)
+		self.move_zero.set("BOTV",self.bot.bot_version)
 
 		self.root=root
 		self.review_button=None
@@ -1764,18 +1757,6 @@ def format_data(sgf_property,formating,value="",bot="Bot"):
 
 	return txt
 
-def save_position_data(node,data_in_comments,sgf_property,value,bot="Bot"):
-	txt=format_data(sgf_property,position_data_formating,value,bot)
-	if not data_in_comments:
-		node.set(sgf_property,value)
-	else:
-		if node.has_property("C"):
-			comment=node.get("C")
-		else:
-			comment=""
-		node.set("C",comment+txt+"\n")
-		#node.add_comment_text(txt)
-
 variation_data_formating={}
 variation_data_formating["ES"]=_("Score estimation for this variation: %s")
 variation_data_formating["BWWR"]=_("black/white win probability for this variation: %s")
@@ -1787,17 +1768,12 @@ variation_data_formating["PLYO"]=_("Number of playouts used to estimate this var
 variation_data_formating["EVAL"]=_("Evaluation for this variation: %s")
 variation_data_formating["RAVE"]=_("RAVE(x%%: y) for this variation: %s")
 
-def save_variation_data(node,data_in_comments,sgf_property,value):
-	txt=format_data(sgf_property,variation_data_formating,value)
-	if not data_in_comments:
-		node.set(sgf_property,value)
-	else:
-		if node.has_property("C"):
-			comment=node.get("C")
-		else:
-			comment=""
-		node.set("C",comment+txt+"\n")
-		#node.add_comment_text(txt)
+def save_position_data(node,sgf_property,value):
+	node.set(sgf_property,value)
+
+def save_variation_data(node,sgf_property,value):
+	node.set(sgf_property,value)
+
 
 class Application(Tk):
 	def __init__(self):
@@ -1864,7 +1840,7 @@ def canvas2png(goban,filename):
 
 def get_variation_comments(one_variation):
 	comments=''
-	for sgf_property in ("BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","ES"):
+	for sgf_property in ("BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","ES","BKMV"):
 		if one_variation.has_property(sgf_property):
 			comments+=format_data(sgf_property,variation_data_formating,one_variation.get(sgf_property))+"\n"
 	return comments

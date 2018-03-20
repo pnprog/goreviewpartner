@@ -55,10 +55,10 @@ class AQAnalysis():
 		if current_move>1:
 			es=aq.final_score()
 			#one_move.set("ES",es)
-			save_position_data(one_move,self.data_in_comments,"ES",es,bot="AQ")
+			save_position_data(one_move,"ES",es)
 
 		log("AQ preferred move:",answer)
-		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="AQ") #Computer Best Move
+		save_position_data(one_move,"CBM",answer) #Computer Best Move
 
 		all_moves=aq.get_all_aq_moves()
 
@@ -97,30 +97,19 @@ class AQAnalysis():
 
 					if first_variation_move:
 						first_variation_move=False
-						#variation_comment=_("black/white win probability for this variation: ")+black_win_rate+'/'+white_win_rate
-						save_variation_data(new_child,self.data_in_comments,"BWWR",bwwr)
+						save_variation_data(new_child,"BWWR",bwwr)
+						save_variation_data(new_child,"PLYO",str(count))
+						save_variation_data(new_child,"VNWR",vnwr)
+						save_variation_data(new_child,"MCWR",mcwr)
+						save_variation_data(new_child,"PNV",str(prob)+"%")
 
-						#variation_comment+="\nCount: "+str(count)
-						#new_child.set("PLYO",str(count))
-						save_variation_data(new_child,self.data_in_comments,"PLYO",str(count))
-
-						#variation_comment+="\nValue: "+str(value)
-						save_variation_data(new_child,self.data_in_comments,"VNWR",vnwr)
-
-						#variation_comment+="\nRoll: "+str(roll)
-						save_variation_data(new_child,self.data_in_comments,"MCWR",mcwr)
-
-						#variation_comment+="\nProb: "+str(prob)+"%"
-						save_variation_data(new_child,self.data_in_comments,"PNV",str(prob)+"%")
-
-						#new_child.add_comment_text(variation_comment)
 
 					if best_move:
 						best_move=False
 
-						save_position_data(one_move,self.data_in_comments,"BWWR",bwwr,bot="AQ")
-						save_position_data(one_move,self.data_in_comments,"MCWR",mcwr,bot="AQ")
-						save_position_data(one_move,self.data_in_comments,"VNWR",vnwr,bot="AQ")
+						save_position_data(one_move,"BWWR",bwwr)
+						save_position_data(one_move,"MCWR",mcwr)
+						save_position_data(one_move,"VNWR",vnwr)
 						
 					previous_move=new_child
 					if current_color in ('w','W'):

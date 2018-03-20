@@ -42,13 +42,11 @@ class LeelaZeroAnalysis():
 		
 		if current_move>1:
 			es=leela_zero.get_leela_zero_final_score()
-			#one_move.set("ES",es)
-			save_position_data(one_move,self.data_in_comments,"ES",es,bot="Leela Zero")
+			save_position_data(one_move,"ES",es)
 			
 		best_answer=answer
-		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="Leela Zero") #Computer Best Move
-		#additional_comments+="\n"+_("For this position, %s would %s"%("Leela Zero",answer.lower()))
-		
+		save_position_data(one_move,"CBM",answer) #Computer Best Move
+
 		position_evaluation=leela_zero.get_all_leela_zero_moves()
 		
 		if (answer.lower() in ["pass","resign"]):
@@ -129,15 +127,15 @@ class LeelaZeroAnalysis():
 						else:
 							white_value=variation['value network win rate']
 							black_value=opposite_rate(white_value)	
-						save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
+						save_variation_data(new_child,"VNWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value,bot="Leela Zero")
+							save_position_data(one_move,"VNWR",black_value+'/'+white_value)
 
 					if 'policy network value' in variation:
-						save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
+						save_variation_data(new_child,"PNV",variation['policy network value'])
 
 					if 'playouts' in variation:
-						save_variation_data(new_child,self.data_in_comments,"PLYO",variation['playouts'])
+						save_variation_data(new_child,"PLYO",variation['playouts'])
 					
 					#new_child.add_comment_text(variation_comment)
 					

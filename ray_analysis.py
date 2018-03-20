@@ -44,7 +44,7 @@ class RayAnalysis():
 		if current_move>2:
 			es=ray.final_score()
 			#one_move.set("ES",es)
-			save_position_data(one_move,self.data_in_comments,"ES",es,bot="Ray")
+			save_position_data(one_move,"ES",es)
 			
 		log(len(answer),"sequences")
 
@@ -54,7 +54,7 @@ class RayAnalysis():
 				log("Adding sequence starting from",sequence_first_move)
 				if best_move:
 					best_answer=sequence_first_move
-					save_position_data(one_move,self.data_in_comments,"CBM",best_answer,bot="Ray")
+					save_position_data(one_move,"CBM",best_answer)
 					
 				previous_move=one_move.parent
 				current_color=player_color
@@ -82,12 +82,12 @@ class RayAnalysis():
 									winrate=str(float(win))+'%/'+str(100-float(win))+'%'
 								else:
 									winrate=str(100-float(win))+'%/'+str(win)+'%'
-								save_variation_data(new_child,self.data_in_comments,"BWWR",winrate)
+								save_variation_data(new_child,"BWWR",winrate)
 								if best_move:
-									save_position_data(one_move,self.data_in_comments,"BWWR",winrate,bot="Ray")
+									save_position_data(one_move,"BWWR",winrate)
 							
 							if count:
-								save_variation_data(new_child,self.data_in_comments,"PLYO",count)
+								save_variation_data(new_child,"PLYO",count)
 								
 							if simulation:
 								simulation+="%"
@@ -98,13 +98,13 @@ class RayAnalysis():
 									white_value=simulation
 									black_value=opposite_rate(white_value)
 
-								save_variation_data(new_child,self.data_in_comments,"MCWR",black_value+'/'+white_value)
+								save_variation_data(new_child,"MCWR",black_value+'/'+white_value)
 								if best_move:
-									save_position_data(one_move,self.data_in_comments,"MCWR",black_value+'/'+white_value,bot="Ray")
+									save_position_data(one_move,"MCWR",black_value+'/'+white_value)
 									
 								
 							if policy:
-								save_variation_data(new_child,self.data_in_comments,"PNV",policy+"%")
+								save_variation_data(new_child,"PNV",policy+"%")
 								
 							if value:
 								if player_color=='b':
@@ -113,9 +113,9 @@ class RayAnalysis():
 								else:
 									white_value=value+"%"
 									black_value=opposite_rate(white_value)
-								save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
+								save_variation_data(new_child,"VNWR",black_value+'/'+white_value)
 								if best_move:
-									save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value)
+									save_position_data(one_move,"VNWR",black_value+'/'+white_value)
 							
 							if best_move:
 								best_move=False

@@ -42,14 +42,14 @@ class LeelaAnalysis():
 		
 		
 		best_answer=answer
-		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="Leela") #Computer Best Move
+		save_position_data(one_move,"CBM",answer) #Computer Best Move
 		
 		#all_moves=leela.get_all_leela_moves()
 		position_evaluation=leela.get_all_leela_moves()
 
 		if "estimated score" in position_evaluation:
 			#one_move.set("ES",position_evaluation["estimated score"])
-			save_position_data(one_move,self.data_in_comments,"ES",position_evaluation["estimated score"],bot="Leela")
+			save_position_data(one_move,"ES",position_evaluation["estimated score"])
 		if (answer.lower() in ["pass","resign"]):
 			bookmove=False
 			if answer.lower()=="pass":
@@ -136,9 +136,9 @@ class LeelaAnalysis():
 						else:
 							white_value=variation['win rate']
 							black_value=opposite_rate(white_value)
-						save_variation_data(new_child,self.data_in_comments,"BWWR",black_value+'/'+white_value)
+						save_variation_data(new_child,"BWWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,self.data_in_comments,"BWWR",black_value+'/'+white_value,bot="Leela")
+							save_position_data(one_move,"BWWR",black_value+'/'+white_value)
 					
 					if 'monte carlo win rate' in variation:
 						if player_color=='b':
@@ -147,9 +147,9 @@ class LeelaAnalysis():
 						else:
 							white_value=variation['monte carlo win rate']
 							black_value=opposite_rate(white_value)
-						save_variation_data(new_child,self.data_in_comments,"MCWR",black_value+'/'+white_value)
+						save_variation_data(new_child,"MCWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,self.data_in_comments,"MCWR",black_value+'/'+white_value,bot="Leela")
+							save_position_data(one_move,"MCWR",black_value+'/'+white_value)
 					
 					if 'value network win rate' in variation:
 						if player_color=='b':
@@ -158,27 +158,25 @@ class LeelaAnalysis():
 						else:
 							white_value=variation['value network win rate']
 							black_value=opposite_rate(white_value)
-						save_variation_data(new_child,self.data_in_comments,"VNWR",black_value+'/'+white_value)
+						save_variation_data(new_child,"VNWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,self.data_in_comments,"VNWR",black_value+'/'+white_value,bot="Leela")
+							save_position_data(one_move,"VNWR",black_value+'/'+white_value)
 					
 					if 'move evaluation' in variation:
-						save_variation_data(new_child,self.data_in_comments,"EVAL",variation['move evaluation'])
+						save_variation_data(new_child,"EVAL",variation['move evaluation'])
 						
 					if 'rapid action value estimation' in variation:
-						save_variation_data(new_child,self.data_in_comments,"RAVE",variation['rapid action value estimation'])
+						save_variation_data(new_child,"RAVE",variation['rapid action value estimation'])
 						
 					if 'policy network value' in variation:
-						save_variation_data(new_child,self.data_in_comments,"PNV",variation['policy network value'])
+						save_variation_data(new_child,"PNV",variation['policy network value'])
 					
 					if 'playouts' in variation:
-						save_variation_data(new_child,self.data_in_comments,"PLYO",variation['playouts'])
+						save_variation_data(new_child,"PLYO",variation['playouts'])
 						
 					if bookmove:
 						bookmove=False
-						save_variation_data(new_child,self.data_in_comments,"BKMV","yes")
-					
-					#new_child.add_comment_text(variation_comment)
+						save_variation_data(new_child,"BKMV","yes")
 					
 					if best_move:
 						best_move=False

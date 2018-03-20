@@ -75,18 +75,11 @@ class GnuGoAnalysis():
 			ubs="W%+d"%(float(final_score.split()[3][:-1]))
 			lbs="W%+d"%(float(final_score.split()[5][:-1]))
 		
-		#one_move.set("ES",es) #estimated score
-		save_position_data(one_move,self.data_in_comments,"ES",es,bot="GnuGo")
+		save_position_data(one_move,"ES",es)
+		save_position_data(one_move,"UBS",ubs)
+		save_position_data(one_move,"LBS",lbs)
 		
-		#one_move.set("UBS",ubs) #upper bound score
-		save_position_data(one_move,self.data_in_comments,"UBS",ubs,bot="GnuGo")
-		
-		#one_move.set("LBS",lbs) #lower bound score
-		save_position_data(one_move,self.data_in_comments,"LBS",lbs,bot="GnuGo")
-		
-		#additional_comments=_("Gnugo score estimation before the move was played: ")+final_score
-		
-		
+
 		if player_color in ('w',"W"):
 			log("gnugo plays white")
 			top_moves=gnugo.gnugo_top_moves_white()
@@ -97,8 +90,7 @@ class GnuGoAnalysis():
 			answer=gnugo.play_black()
 
 		log("====","Gnugo answer:",answer)
-		#additional_comments+="\n"+_("For this position, %s would %s"%("GnuGo",answer.lower()))
-		save_position_data(one_move,self.data_in_comments,"CBM",answer,bot="GnuGo")
+		save_position_data(one_move,"CBM",answer)
 		
 		log("==== Gnugo top moves")
 		for one_top_move in top_moves:
@@ -152,9 +144,7 @@ class GnuGoAnalysis():
 							new_child.set_move(current_color,(i,j))
 							if first_move:
 								first_move=False
-								save_variation_data(new_child,self.data_in_comments,"ES",es)
-								#new_child.set("ES",es)
-								#new_child.add_comment_text((_("%s score estimation for this variation")%"GnuGo")+": "+es+"\n")
+								save_variation_data(new_child,"ES",es)
 							previous_move=new_child
 							if current_color in ('w','W'):
 								current_color='b'
