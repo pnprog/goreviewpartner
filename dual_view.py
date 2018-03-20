@@ -2017,7 +2017,7 @@ class DualView(Toplevel):
 				break
 
 
-		self.parent.title('GoReviewPartner')
+		self.title('GoReviewPartner')
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		
 		self.popups=[]
@@ -2077,8 +2077,8 @@ class DualView(Toplevel):
 				self.charts_button.grid(column=3,row=2,sticky=E)
 				break
 		
-		self.parent.bind('<Left>', self.prev_move)
-		self.parent.bind('<Right>', self.next_move)
+		self.bind('<Left>', self.prev_move)
+		self.bind('<Right>', self.next_move)
 
 		#Label(app,background=bg).grid(column=1,row=2)
 
