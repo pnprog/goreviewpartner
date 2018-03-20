@@ -19,28 +19,6 @@ bg='#C0C0C0'
 
 from goban import *
 
-def get_node_number(node):
-	k=0
-	while node:
-		node=node[0]
-		if (node.get_move()[0]!=None) and (node.get_move()[1]!=None):
-			k+=1
-		else:
-			break
-	return k
-
-def get_node(root,number=0):
-	if number==0:return root
-	node=root
-	k=0
-	while k!=number:
-		if not node:
-			return False
-		node=node[0]
-		k+=1
-	return node
-
-
 class OpenChart(Toplevel):
 	def __init__(self,parent,data,nb_moves,current_move=0):
 		Toplevel.__init__(self,parent)
@@ -1597,7 +1575,7 @@ class DualView(Toplevel):
 		"""
 		
 		if m>=0:
-			left_comments=self.get_node_comments()
+			left_comments=get_position_comments(self.current_move,self.gameroot)
 			if get_node(self.gameroot,m+1).has_property("C"):
 				left_comments+="\n\n==========\n"+get_node(self.gameroot,m+1).get("C")
 			self.comment_box1.insert(END,left_comments)
@@ -1709,14 +1687,9 @@ class DualView(Toplevel):
 						except:
 							pass	
 			
-			
-			comment=''
-			for sgf_property in ("BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","ES"):
-				if one_alternative.has_property(sgf_property):
-					comment+=format_data(sgf_property,variation_data_formating,one_alternative.get(sgf_property))+"\n"
-			
+			comments=get_variation_comments(one_alternative)
 			if one_alternative.has_property("C"):
-				comment+=one_alternative.get("C")
+				comments+=one_alternative.get("C")
 
 			
 			if ij==real_game_ij:
@@ -1724,13 +1697,13 @@ class DualView(Toplevel):
 			else:
 				letter_color=displaycolor
 			
-			alternative_sequence=[[c,ij,chr(64+a),comment,displaycolor,letter_color]]
+			alternative_sequence=[[c,ij,chr(64+a),comments,displaycolor,letter_color]]
 			while len(one_alternative)>0:
 				one_alternative=one_alternative[0]
 				ij=one_alternative.get_move()[1]
 				if one_alternative.get_move()[0]=='b':c=1
 				else:c=2
-				alternative_sequence.append([c,ij,chr(64+a),comment,"whocare?","whocare"])
+				alternative_sequence.append([c,ij,chr(64+a),comments,"whocare?","whocare"])
 			i,j=parent[a].get_move()[1]
 			markup2[i][j]=alternative_sequence
 			
@@ -1750,90 +1723,6 @@ class DualView(Toplevel):
 		new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
 		self.add_popup(new_popup)
-	
-	def get_node_comments(self):
-		comments=""
-		if self.current_move==1:
-			if self.gameroot.has_property("RSGF"):
-				comments+=self.gameroot.get("RSGF")
-			if self.gameroot.has_property("PB"):
-				comments+=_("Black")+": "+self.gameroot.get("PB")+"\n"
-			if self.gameroot.has_property("PW"):
-				comments+=_("White")+": "+self.gameroot.get("PW")+"\n"
-			
-			if comments:
-				comments+="\n"
-		
-		comments+=_("Move %i")%self.current_move
-		game_move_color,game_move=get_node(self.gameroot,self.current_move).get_move()
-		
-		if game_move_color.lower()=="w":
-			comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move)
-		elif game_move_color.lower()=="b":
-			comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move)
-		
-		node=get_node(self.gameroot,self.current_move)
-		if node.has_property("CBM"):
-			if self.gameroot.has_property("BOT"):
-				bot=self.gameroot.get("BOT")
-			else:
-				bot=_("the computer")
-			comments+="\n"+(position_data_formating["CBM"])%(bot,node.get("CBM"))
-			try:
-				if node[1].has_property("BKMV"):
-					if node[1].get("BKMV")=="yes":
-						comments+=" ("+variation_data_formating["BKMV"]+")"
-			except:
-				pass
-		try:
-			if node.has_property("BWWR"):
-				if node[0].has_property("BWWR"):
-					if node.get_move()[0].lower()=="b":
-						comments+="\n\n"+_("Black win probability:")
-						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
-						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
-						comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
-					else:
-						comments+="\n\n"+_("White win probability:")
-						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
-						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
-						comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
-		except:
-			pass
-		
-		try:
-			if node.has_property("VNWR"):
-				if node[0].has_property("VNWR"):
-					if node.get_move()[0].lower()=="b":
-						comments+="\n\n"+_("Black Value Network win probability:")
-						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[0]
-						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[0]
-						comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[0])-float(node.get("VNWR").split("%/")[0]))
-					else:
-						comments+="\n\n"+_("White Value Network win probability:")
-						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[1]
-						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[1]
-						comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
-		except:
-			pass
-		
-		try:
-			if node.has_property("MCWR"):
-				if node[0].has_property("MCWR"):
-					if node.get_move()[0].lower()=="b":
-						comments+="\n\n"+_("Black Monte Carlo win probability:")
-						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[0]
-						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[0]
-						comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[0])-float(node.get("MCWR").split("%/")[0]))
-					else:
-						comments+="\n\n"+_("White Monte Carlo win probability:")
-						comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[1]
-						comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[1]
-						comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[1][:-1])-float(node.get("MCWR").split("%/")[1][:-1]))
-		except:
-			pass
-		
-		return comments
 	
 	def open_table(self):
 		log("opening table")

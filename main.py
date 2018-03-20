@@ -20,7 +20,7 @@ import settings
 from toolbox import *
 from toolbox import _
 from live_analysis import LiveAnalysisLauncher
-
+from r2sgf import rsgf2sgf
 
 log("Checking availability of config file")
 import ConfigParser
@@ -59,11 +59,20 @@ class Main(Toplevel):
 		review_bouton=Button(self, text=_("Open a RSGF file for review"), command=self.launch_review)
 		review_bouton.pack(fill=X,padx=5, pady=5)
 		
+		r2sgf_bouton=Button(self, text=_("Convert RSGF file to SGF file"), command=self.r2sgf)
+		r2sgf_bouton.pack(fill=X,padx=5, pady=5)
+		
 		bouton=Button(self, text=_("Settings"), command=self.launch_settings)
 		bouton.pack(fill=X,padx=5, pady=5)
 
 		self.protocol("WM_DELETE_WINDOW", self.close)
-		
+	
+	def r2sgf(self):
+		filename = open_rsgf_file(parent=self.parent)
+		if not filename:
+			return
+		rsgf2sgf(filename)
+		show_info(_("The file %s as been converted to %s")%(os.path.basename(filename),os.path.basename(filename)+".sgf"),parent=self.parent)
 	def close(self):
 		for popup in self.popups[:]:
 			popup.close()

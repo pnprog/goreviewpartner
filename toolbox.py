@@ -1860,3 +1860,119 @@ def canvas2png(goban,filename):
 	monitor = {'top': top, 'left': left, 'width': width, 'height': height}
 	sct_img = mss.mss().grab(monitor)
 	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
+
+
+def get_variation_comments(one_variation):
+	comments=''
+	for sgf_property in ("BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","ES"):
+		if one_variation.has_property(sgf_property):
+			comments+=format_data(sgf_property,variation_data_formating,one_variation.get(sgf_property))+"\n"
+	return comments
+	
+def get_position_comments(current_move,gameroot):
+	comments=""
+	if current_move==1:
+		if gameroot.has_property("RSGF"):
+			comments+=gameroot.get("RSGF")
+		if gameroot.has_property("PB"):
+			comments+=_("Black")+": "+gameroot.get("PB")+"\n"
+		if gameroot.has_property("PW"):
+			comments+=_("White")+": "+gameroot.get("PW")+"\n"
+		
+		if comments:
+			comments+="\n"
+	
+	comments+=_("Move %i")%current_move
+	game_move_color,game_move=get_node(gameroot,current_move).get_move()
+	
+	if not game_move_color:
+		game_move_color=guess_color_to_play(gameroot,current_move)
+	
+	if game_move_color.lower()=="w":
+		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move)
+	elif game_move_color.lower()=="b":
+		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move)
+	
+	node=get_node(gameroot,current_move)
+	if node.has_property("CBM"):
+		if gameroot.has_property("BOT"):
+			bot=gameroot.get("BOT")
+		else:
+			bot=_("the computer")
+		comments+="\n"+(position_data_formating["CBM"])%(bot,node.get("CBM"))
+		try:
+			if node[1].has_property("BKMV"):
+				if node[1].get("BKMV")=="yes":
+					comments+=" ("+variation_data_formating["BKMV"]+")"
+		except:
+			pass
+	try:
+		if node.has_property("BWWR"):
+			if node[0].has_property("BWWR"):
+				if node.get_move()[0].lower()=="b":
+					comments+="\n\n"+_("Black win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
+					comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
+				else:
+					comments+="\n\n"+_("White win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
+					comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
+	except:
+		pass
+	
+	try:
+		if node.has_property("VNWR"):
+			if node[0].has_property("VNWR"):
+				if node.get_move()[0].lower()=="b":
+					comments+="\n\n"+_("Black Value Network win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[0]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[0]
+					comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[0])-float(node.get("VNWR").split("%/")[0]))
+				else:
+					comments+="\n\n"+_("White Value Network win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[1]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[1]
+					comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
+	except:
+		pass
+	
+	try:
+		if node.has_property("MCWR"):
+			if node[0].has_property("MCWR"):
+				if node.get_move()[0].lower()=="b":
+					comments+="\n\n"+_("Black Monte Carlo win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[0]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[0]
+					comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[0])-float(node.get("MCWR").split("%/")[0]))
+				else:
+					comments+="\n\n"+_("White Monte Carlo win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[1]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[1]
+					comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[1][:-1])-float(node.get("MCWR").split("%/")[1][:-1]))
+	except:
+		pass
+	
+	return comments
+
+def get_node_number(node):
+	k=0
+	while node:
+		node=node[0]
+		if (node.get_move()[0]!=None) and (node.get_move()[1]!=None):
+			k+=1
+		else:
+			break
+	return k
+
+def get_node(root,number=0):
+	if number==0:return root
+	node=root
+	k=0
+	while k!=number:
+		if not node:
+			return False
+		node=node[0]
+		k+=1
+	return node
