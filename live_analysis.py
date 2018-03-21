@@ -130,6 +130,26 @@ class LiveAnalysisLauncher(Toplevel):
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 
+
+		row+=1
+		Label(self,text=_("Select colors to be analysed")).grid(row=row,column=1,sticky=W)
+
+		self.color = StringVar()
+		self.color.set("both")
+		row+=1
+		c0=Radiobutton(self,text=_("Black & white"),variable=self.color, value="both")
+		c0.grid(row=row,column=1,sticky=W)
+		self.after(0,c0.select)
+		row+=1
+		c1=Radiobutton(self,text=_("Black only"),variable=self.color, value="black")
+		c1.grid(row=row,column=1,sticky=W)
+
+		row+=1
+		c2=Radiobutton(self,text=_("White only"),variable=self.color, value="white")
+		c2.grid(row=row,column=1,sticky=W)
+		
+		row+=10
+		Label(self,text="").grid(row=row,column=1)
 		row+=1		
 		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
 
@@ -215,7 +235,7 @@ class LiveAnalysisLauncher(Toplevel):
 		 
 		filename=os.path.join(Config.get("General","livefolder"),self.filename.get())
 		self.withdraw()
-		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get())
+		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
 		self.parent.add_popup(popup)
 		self.close()
 
@@ -299,7 +319,7 @@ class LiveAnalysisLauncher(Toplevel):
 			self.overlap_thinking_widgets.append(widget)
 			
 class LiveAnalysis(Toplevel):
-	def __init__(self,parent,analyser=None,black=None,white=None,dim=19,komi=6.5,handicap=0,filename="Live.sgf",overlap_thinking=False):
+	def __init__(self,parent,analyser=None,black=None,white=None,dim=19,komi=6.5,handicap=0,filename="Live.sgf",overlap_thinking=False,color="both"):
 		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.dim=dim
@@ -307,6 +327,7 @@ class LiveAnalysis(Toplevel):
 		self.handicap=handicap
 		self.filename=filename
 		self.overlap_thinking=overlap_thinking
+		self.color=color
 		
 		self.analyser=analyser
 		self.black=black
@@ -930,8 +951,9 @@ class LiveAnalysis(Toplevel):
 		self.g.lock.acquire()
 		self.latest_node = self.g.extend_main_sequence()
 		self.g.lock.release()
-		log("Sending request to analyse move",self.current_move,"to analyser")
-		self.analyser.update_queue.put((self.current_move,self.current_move))
+		if self.color!="white":
+			log("Sending request to analyse move",self.current_move,"to analyser")
+			self.analyser.update_queue.put((self.current_move,self.current_move))
 		self.pass_button.config(state='disabled')
 		self.undo_button.config(state='disabled')
 		if self.black=="human":
@@ -968,8 +990,9 @@ class LiveAnalysis(Toplevel):
 		self.g.lock.acquire()
 		self.latest_node = self.g.extend_main_sequence()
 		self.g.lock.release()
-		log("Sending request to analyse move",self.current_move,"to analyser")
-		self.analyser.update_queue.put((self.current_move,self.current_move))
+		if self.color!="black":
+			log("Sending request to analyse move",self.current_move,"to analyser")
+			self.analyser.update_queue.put((self.current_move,self.current_move))
 		self.pass_button.config(state='disabled')
 		self.undo_button.config(state='disabled')
 		if self.white=="human":
