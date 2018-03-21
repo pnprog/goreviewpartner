@@ -60,6 +60,15 @@ class OpenSettings(Toplevel):
 		MaxVariationsToRecord = StringVar() 
 		MaxVariationsToRecord.set(Config.get("Analysis","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row,column=2)
+		
+		row+=1
+		Label(setting_frame,text=_("Only keep variations when game move and bot move differ")).grid(row=row,column=1,sticky=W)
+		NoVariationIfSameMove = BooleanVar() 
+		NoVariationIfSameMove.set(Config.getboolean("Analysis","NoVariationIfSameMove"))
+		NoVariationIfSameMoveCheckbutton=Checkbutton(setting_frame, text="", variable=NoVariationIfSameMove,onvalue=True,offvalue=False)
+		NoVariationIfSameMoveCheckbutton.grid(row=row,column=2,sticky=W)
+		NoVariationIfSameMoveCheckbutton.var=NoVariationIfSameMove
+		
 		row+=1
 		Label(setting_frame,text=_("Save bot command line into RSGF file")).grid(row=row,column=1,sticky=W)
 		SaveCommandLine = BooleanVar(value=Config.getboolean('Analysis', 'SaveCommandLine'))
@@ -123,6 +132,7 @@ class OpenSettings(Toplevel):
 		self.MaxVariationsToDisplay=MaxVariationsToDisplay
 		self.VariationsColoring=VariationsColoring
 		self.InvertedMouseWheel=InvertedMouseWheel
+		self.NoVariationIfSameMove=NoVariationIfSameMove
 		
 		setting_frame.save=self.save
 		
@@ -176,6 +186,7 @@ class OpenSettings(Toplevel):
 		coloring={_("Winning variations (>50%) only in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
 		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
 		Config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
+		Config.set("Analysis","NoVariationIfSameMove",self.NoVariationIfSameMove.get())
 		
 		Config.write(open(config_file,"w"))
 		
