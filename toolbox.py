@@ -1332,7 +1332,7 @@ import getopt
 
 import __main__
 try:
-	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=both] [--komi=<komi>] [--variation=<variation>] [--no-gui] <sgf file1> <sgf file2> <sgf file3>"
+	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=<both|black|white>] [--komi=<komi>] [--variation=<variation>] [--profil=<fast|slow>] [--no-gui] <sgf file1> <sgf file2> <sgf file3>"
 except:
 	log("Command line features are disabled")
 	usage=""
@@ -1438,13 +1438,27 @@ def parse_command_line(filename,argv):
 
 	log("Komi:",komi)
 
+	found=False
+	for p,v in argv:
+		if p=="--profil":
+			if v.lower() in ("slow","fast"):
+				profil=v
+				found=True
+			else:
+				show_error("Wrong profil parameter\n"+usage,parent=self)
+				sys.exit()
+	if not found:
+		profil="slow"
+
+	log("Profil:",profil)
+
 	nogui=False
 	for p,v in argv:
 		if p=="--no-gui":
 			nogui=True
 			break
 
-	return move_selection,intervals,variation,komi,nogui
+	return move_selection,intervals,variation,komi,nogui,profil
 
 # from http://www.py2exe.org/index.cgi/WhereAmI
 def we_are_frozen():
@@ -1572,9 +1586,9 @@ def batch_analysis(app,batch):
 				batch=batch[1:]
 				app.after(1,lambda: batch_analysis(app,batch))
 		else:
-			run,filename,move_selection,intervals,variation,komi=one_analysis
+			run,filename,move_selection,intervals,variation,komi,profil=one_analysis
 			log("File to analyse:",filename)
-			popup=run(app,filename,move_selection,intervals,variation,komi)
+			popup=run(app,filename,move_selection,intervals,variation,komi,profil)
 			app.add_popup(popup)
 			popup.end_of_analysis=popup.close
 			batch[0]=[popup]

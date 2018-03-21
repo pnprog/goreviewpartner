@@ -569,7 +569,7 @@ if __name__ == "__main__":
 		top.mainloop()
 	else:
 		try:
-			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
+			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])
 		except Exception, e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
@@ -582,15 +582,15 @@ if __name__ == "__main__":
 		batch=[]
 		
 		for filename in parameters[1]:
-			move_selection,intervals,variation,komi,nogui=parse_command_line(filename,parameters[0])
+			move_selection,intervals,variation,komi,nogui,profil=parse_command_line(filename,parameters[0])
 			if nogui:
 				log("File to analyse:",filename)
-				popup=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi)
+				popup=RunAnalysis("no-gui",filename,move_selection,intervals,variation-1,komi,profil)
 				popup.terminate_bot()
 			else:
 				if not app:
 					app = Application()
-				one_analysis=[RunAnalysis,filename,move_selection,intervals,variation-1,komi]
+				one_analysis=[RunAnalysis,filename,move_selection,intervals,variation-1,komi,profil]
 				batch.append(one_analysis)
 		
 		if not nogui:
