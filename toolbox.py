@@ -668,7 +668,15 @@ class LiveAnalysisBase():
 	def start(self):
 		threading.Thread(target=self.run_live_analysis).start()
 
-
+	def play(self,gtp_color,gtp_move):
+		if gtp_color=='w':
+			self.bot.place_white(gtp_move)
+		else:
+			self.bot.place_black(gtp_move)
+	
+	def undo(self):
+		self.bot.undo()
+	
 	def run_live_analysis(self):
 		self.current_move=1
 		wait=0
@@ -719,7 +727,7 @@ class LiveAnalysisBase():
 					log("Analysis of move",move_to_undo,"was completed already, let's remove that branch")
 					while self.current_move>=move_to_undo:
 						log("Undoing move",self.current_move,"through GTP")
-						self.bot.undo()
+						self.undo()
 						self.current_move-=1
 
 				log("Deleting the SGF branch")
@@ -748,10 +756,10 @@ class LiveAnalysisBase():
 				log("game move",self.current_move,"is",player_color,"at",player_move)
 				if player_color in ('w',"W"):
 					log("white at",ij2gtp(player_move))
-					self.bot.place_white(ij2gtp(player_move))
+					self.play("w",ij2gtp(player_move))
 				else:
 					log("black at",ij2gtp(player_move))
-					self.bot.place_black(ij2gtp(player_move))
+					self.play("b",ij2gtp(player_move))
 				self.current_move+=1
 
 			log("Analyser is currently at move",self.current_move)
@@ -805,6 +813,9 @@ class RunAnalysisBase(Toplevel):
 		self.current_move=None
 		self.time_per_move=None
 		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		
 		self.no_variation_if_same_move=self.no_variation_if_same_move=Config.getboolean('Analysis', 'NoVariationIfSameMove')
 		
 		self.error=None
@@ -846,8 +857,6 @@ class RunAnalysisBase(Toplevel):
 				return
 			self.root.after(500,self.follow_analysis)
 
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
 
 		try:
@@ -882,6 +891,12 @@ class RunAnalysisBase(Toplevel):
 		#################################################
 
 		log("Analysis for this move is completed")
+	
+	def play(self,gtp_color,gtp_move):
+		if gtp_color=='w':
+			self.bot.place_white(gtp_move)
+		else:
+			self.bot.place_black(gtp_move)
 
 	def run_all_analysis(self):
 		self.current_move=1
@@ -922,10 +937,10 @@ class RunAnalysisBase(Toplevel):
 				player_color,player_move=one_move.get_move()
 				if player_color in ('w',"W"):
 					log("now asking "+self.bot.bot_name+" to play the game move: white at",ij2gtp(player_move))
-					self.bot.place_white(ij2gtp(player_move))
+					self.play('w',ij2gtp(player_move))
 				else:
 					log("now asking "+self.bot.bot_name+" to play the game move: black at",ij2gtp(player_move))
-					self.bot.place_black(ij2gtp(player_move))
+					self.play('b',ij2gtp(player_move))
 
 			self.current_move+=1
 			if self.parent!="no-gui":

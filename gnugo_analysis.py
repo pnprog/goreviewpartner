@@ -178,61 +178,22 @@ class GnuGoAnalysis():
 			one_move.parent.set("TW",white_influence_points)
 		
 		return answer #returning the best move, necessary for live analysis
-		
-	def run_all_analysis(self):
-		self.current_move=1
-
-		while self.current_move<=self.max_move:
-			answer=""
-			if self.current_move in self.move_range:
-				answer=self.run_analysis(self.current_move)
-				self.total_done+=1
-				write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-				log("For this position,",self.bot.bot_name,"would play:",answer)
-				log("Analysis for this move is completed")
-			elif self.move_range:
-				log("Move",self.current_move,"not in the list of moves to be analysed, skipping")
-
-			try:
-				game_move=go_to_move(self.move_zero,self.current_move).get_move()[1]
-				if game_move:
-					if self.pass_if_same_move:
-						if ij2gtp(game_move)==answer.lower():
-							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
-							parent=go_to_move(self.move_zero,self.current_move-1)
-							for child in parent[1:]:
-								child.delete()
-							write_rsgf(self.filename[:-4]+".rsgf",self.g)
-			except:
-				#what could possibly go wrong with this?
-				pass
-
-			if (answer.lower()=="resign") and (self.stop_at_first_resign==True):
-				log("")
-				log("The analysis will stop now")
-				log("")
-				self.move_range=[]
-				#the bot has proposed to resign, and resign_at_first_stop is ON
-			if self.move_range:
-				linelog("now asking "+self.bot.bot_name+" to play the game move:")
-				one_move=go_to_move(self.move_zero,self.current_move)
-				player_color,player_move=one_move.get_move()
-				if player_color in ('w',"W"):
-					log("white at",ij2gtp(player_move))
-					self.bot.place_white(ij2gtp(player_move))
-					for worker in self.workers:
-						worker.place_white(ij2gtp(player_move))
-				else:
-					log("black at",ij2gtp(player_move))
-					self.bot.place_black(ij2gtp(player_move))
-					for worker in self.workers:
-						worker.place_black(ij2gtp(player_move))
-			self.current_move+=1
-			if self.parent!="no-gui":
-				self.update_queue.put(self.current_move)
-			
-		return
-			
+	
+	def play(self,gtp_color,gtp_move):#GnuGo needs to redifine this method to apply it to all its workers
+		if gtp_color=='w':
+			self.bot.place_white(gtp_move)
+			for worker in self.workers:
+				worker.place_white(gtp_move)
+		else:
+			self.bot.place_black(gtp_move)
+			for worker in self.workers:
+				worker.place_black(gtp_move)
+	
+	def undo(self):
+		self.bot.undo()
+		for worker in self.workers:
+			worker.undo()
+	
 	def terminate_bot(self):
 		log("killing gnugo")
 		self.gnugo.close()
