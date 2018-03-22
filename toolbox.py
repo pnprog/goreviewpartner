@@ -1937,10 +1937,7 @@ def get_position_comments(current_move,gameroot):
 	
 	node=get_node(gameroot,current_move)
 	if node.has_property("CBM"):
-		if gameroot.has_property("BOT"):
-			bot=gameroot.get("BOT")
-		else:
-			bot=_("the computer")
+		bot=gameroot.get("BOT")
 		comments+="\n"+(position_data_formating["CBM"])%(bot,node.get("CBM"))
 		try:
 			if node[1].has_property("BKMV"):

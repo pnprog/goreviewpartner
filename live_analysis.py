@@ -497,7 +497,7 @@ class LiveAnalysis(Toplevel):
 		
 		row+=1
 		self.pass_button=Button(panel,text=_("Pass"),state="disabled",command=self.player_pass)
-		self.pass_button.bind("<Enter>",lambda e: self.set_status(_("Pass for the next move")))
+		self.pass_button.bind("<Enter>",lambda e: self.set_status(_("Pass for this move")))
 		buttons_with_status.append(self.pass_button)
 		
 		self.undo_button=Button(panel,text=_("Undo"),state="disabled")

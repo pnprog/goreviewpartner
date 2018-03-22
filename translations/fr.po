@@ -176,11 +176,7 @@ msgstr "Analyse par GoReviewPartner"
 msgid "Win rate"
 msgstr "Probabitité de gagner"
 
-msgid "Black comparison"
-msgstr "Graphique de comparaison pour Noir"
 
-msgid "White comparison"
-msgstr "Graphique de comparaison pour Blanc"
 
 msgid "<Ctrl+Q> to save the goban as an image."
 msgstr "<Ctrl+Q> pour enregistrer le goban comme image."
@@ -467,8 +463,7 @@ msgstr "A l'ouverture d'une position"
 ###### GnuGo specific ######
 ############################
 
-msgid "Gnugo score estimation before the move was played: "
-msgstr "Estimation du score par Gnugo avant que le coup ne soit joué: "
+
 
 msgid "GnuGo thread failed:"
 msgstr "Le processus Gnugo a échoué:"
@@ -512,8 +507,6 @@ msgstr "%s a rejeté cette taille de goban (%ix%i)"
 ###### Running analysis ######
 ##############################
 
-msgid "For this position, %s would %s"
-msgstr "Pour cette position, %s choisirait %s"
 
 msgid "White to play, in the game, white played %s"
 msgstr "A blanc de jouer, dans la partie, blanc a joué %s"
@@ -534,29 +527,8 @@ msgstr "Ferméture en cours, veuillez patienter..."
 msgid "black/white win probability for this variation: "
 msgstr "Probabilités noire/blanche de gagner pour cette variation: "
 
-msgid "Monte Carlo win probalbility for this move: "
-msgstr "Probabilités Monte Carlo pour ce coup: "
-
-msgid "Value network black/white win probability for this move: "
-msgstr "Probabilités \"Value Network\" noire/blanche pour ce coup: "
-
-msgid "Policy network value for this move: "
-msgstr "Valeur \"Policy network\" pour ce coup: "
-
-msgid "Evaluation for this move: "
-msgstr "Evaluation pour ce coup: "
-
-msgid "RAVE(x%: y) for this move: "
-msgstr "RAVE(x%: y) pour ce coup: "
-
-msgid "Number of playouts used to estimate this variation: "
-msgstr "Nombre de simulations utilisées pour estimer cette variation: "
-
 msgid "Book move"
-msgstr ""
-
-msgid "%s black/white win probability for this position: "
-msgstr "Probabilités noire/blanche de gagner pour cette variation selon %s: "
+msgstr "Dictionnaire de fuseki"
 
 msgid "Time per move (s)"
 msgstr "Temps de réflexion par coup (en secondes)"
@@ -568,4 +540,192 @@ msgstr "Temps de réflexion par coup (en secondes)"
 msgid "See AQ parameters in aq_config.txt"
 msgstr "Voir aussi le fichier aq_config.txt"
 
+msgid "Value network black/white win probability for this variation: %s"
+msgstr "Probabilité \"Value Network\" noire/blanche pour cette variation: %s"
 
+msgid "Test"
+msgstr "Tester"
+
+msgid "Black win rate delta"
+msgstr "Deltas de probabilité pour Noir"
+
+msgid "White win rate delta"
+msgstr "Deltas de probabilité pour Blanc"
+
+
+msgid "Monte Carlo win rate"
+msgstr "Probabilités Monte Carlo"
+
+msgid "Black Monte Carlo win rate delta"
+msgstr "Delta Monte Carlo pour Noir"
+
+msgid "White Monte Carlo win rate delta"
+msgstr "Deltas Monte Carlo pour Blanc"
+
+msgid "Value Network win rate"
+msgstr "Probabilités \"Value Network\""
+
+msgid "Black Value Network win rate delta"
+msgstr "Deltas \"value Network\" pour Noir"
+
+msgid "White Value Network win rate delta"
+msgstr "Deltas \"value network\" pour Blanc"
+
+msgid "Quick evaluation"
+msgstr "Évaluation rapide"
+
+msgid "Ask the bot for a quick evaluation"
+msgstr "Demander au bot une évaluation rapide"
+
+msgid "Evaluation"
+msgstr "Évaluation"
+
+msgid "Move"
+msgstr "Coup"
+
+msgid "Playouts"
+msgstr "Simulations"
+
+msgid "Policy Network value"
+msgstr "Valeur \"Policy Network\""
+
+msgid "RAVE"
+msgstr "RAVE"
+
+msgid "Table"
+msgstr "Tableau"
+
+msgid "Score estimation for this variation: %s"
+msgstr "Estimation du score pour cette variation: %s"
+
+msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
+msgstr "Leela Zero est en train d'ajuster les parametres OpenCL SGEMM. Cela pourrait prendre plusieurs minutes avant que Leela Zero ne soit prête."
+
+msgid "Pass for this move"
+msgstr "Passer pour ce coup"
+
+msgid "Undo to previous move"
+msgstr "Annuler le précédent coup"
+
+msgid "Pause the game"
+msgstr "Mettre la partie en pause"
+
+msgid "Start the review"
+msgstr "Commencer la revue"
+
+msgid "Convert RSGF file to SGF file"
+msgstr "Convertir le fichier RSGF en fichier SGF"
+
+msgid "The file %s as been converted to %s"
+msgstr "The fichier %s a été convertie en %s"
+
+msgid "Only keep variations when game move and bot move differ"
+msgstr "Ne garder les variations seulement si le coup dans la partie differe du coup de l'ordinateur"
+
+msgid "Blue/red coloring of the variations"
+msgstr "Coloration blue/rouge des variations"
+
+msgid "The best variation in blue"
+msgstr "La meilleur variation en bleu"
+
+msgid "Variations better than actual game move in blue"
+msgstr "Variations meilleurs que dans la partie en bleu"
+
+msgid "Winning variations (>50%) only in blue"
+msgstr "Seulement les variations gagnantes (>50%) en bleu"
+
+msgid "Labels for the variations"
+msgstr "Label pour les variations"
+
+msgid "Letters"
+msgstr "Lettres"
+
+msgid "Rates"
+msgstr "Probabilités"
+
+msgid "Inverted mouse wheel"
+msgstr "Molette de souris inversée"
+
+msgid "This is a %i stones handicap game."
+msgstr "C'est une partie à %i pierres de handicap."
+
+msgid "You may want to adjust the value of komi based on the rule set and the bot used."
+msgstr "Vous pourriez avoir besoin d'ajuster la valeur du komi en fonction des rêgles et du programme utilisés"
+
+msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
+msgstr "Le fichier SGF contient des pierres de handicap blanches ! %s ne sait pas gérer ça!"
+
+msgid "%s score estimation before the move was played: %s"
+msgstr "Estimation du score par %s avant que le coup ne soit joué: %s"
+
+msgid "Upper bound: %s"
+msgstr "Maximum: %s"
+
+msgid "Lower bound: %s"
+msgstr "Minimum: %s"
+
+msgid "For this position, %s would play: %s"
+msgstr "Pour cette position, %s choisirait %s"
+
+msgid "%s black/white win probability for this position: %s"
+msgstr "Probabilités noire/blanche de gagner pour cette variation selon %s: %s"
+
+msgid "%s Monte Carlo win probability for this move: %s"
+msgstr "Probabilités Monte Carlo pour ce coup: %s"
+
+
+msgid "%s Value Network win probability for this move: %s"
+msgstr "Probabilités \"Value Network\" noire/blanche pour ce coup: %s"
+
+msgid "black/white win probability for this variation: %s"
+msgstr "Probilitités de victoire noire/blanche pour cette variation: %s"
+
+msgid "Policy network value for this variation: %s"
+msgstr "Valeur \"Policy network\" pour cette variation: %s"
+
+
+msgid "Monte Carlo win probability for this variation: %s"
+msgstr "Probabilité Monte Carlo pour cette variation: %s"
+
+msgid "Number of playouts used to estimate this variation: %s"
+msgstr "Nombre de simulations utilisées pour estimer cette variation: %s"
+
+
+msgid "Evaluation for this variation: %s"
+msgstr "Evaluation pour cette variation: %s"
+
+
+msgid "RAVE(x%%: y) for this variation: %s"
+msgstr "RAVE(x%: y) pour cette variation: %s"
+
+
+msgid "Black win probability:"
+msgstr "Probabilité de gagner pour Noir:"
+
+msgid "before %s"
+msgstr "avant %s"
+
+msgid "after %s"
+msgstr "après %s"
+
+msgid "White win probability:"
+msgstr "Probabilité de gagner pour Blanc:"
+
+msgid "Black Value Network win probability:"
+msgstr "Probabilité \"Value Network\" de gagner pour Noir:"
+
+msgid "White Value Network win probability:"
+msgstr "Probabilité \"Value Network\" de gagner pour Blanc:"
+
+msgid "Black Monte Carlo win probability:"
+msgstr "Probabilité \"Monte Carlo\" de gagner pour Noir:"
+
+msgid "White Monte Carlo win probability:"
+msgstr "Probabilité \"Monte Carlo\" de gagner pour Blanc:"
+
+
+msgid "Could not run the program:"
+msgstr "Ne peut pas lancer le programme:"
+
+msgid "Send GTP command"
+msgstr "Envoyer la commade GTP"

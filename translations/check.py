@@ -2,7 +2,7 @@
 import subprocess
 
 #updating the list of english entries
-python_files=["main.py", "toolbox.py", "settings.py", "gnugo_analysis.py", "leela_analysis.py", "leela_zero_analysis.py", "aq_analysis.py", "ray_analysis.py", "dual_view.py", "live_analysis.py"]
+python_files=["main.py", "toolbox.py", "settings.py", "gnugo_analysis.py", "leela_analysis.py", "leela_zero_analysis.py", "aq_analysis.py", "ray_analysis.py", "dual_view.py", "live_analysis.py", "gtp_terminal.py", "r2sgf.py"]
 
 
 cmd="xgettext --no-wrap -E --keyword=_ --language=python -o en.po --sort-by-file "
