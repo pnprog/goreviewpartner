@@ -1157,7 +1157,7 @@ class DualView(Toplevel):
 		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 		self.variation_color_mode=Config.get("Review", "VariationsColoring")
 		self.inverted_mouse_wheel=Config.getboolean('Review', 'InvertedMouseWheel')
-		self.variation_label=Config.get('Review', 'VariationLabel')
+		self.variation_label=Config.get('Review', 'VariationsLabel')
 		
 		self.initialize()
 		

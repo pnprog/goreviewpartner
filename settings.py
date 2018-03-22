@@ -34,7 +34,7 @@ class OpenSettings(Toplevel):
 		
 		log("Initializing GRP setting interface")
 		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)		
+		Config.read(config_file)
 		
 		setting_frame=Frame(top_setting_frame)
 		
@@ -115,6 +115,14 @@ class OpenSettings(Toplevel):
 		coloring=(_("Winning variations (>50%) only in blue"),_("The best variation in blue"),_("Variations better than actual game move in blue"))
 		VariationsColoring.set(coloring[0])
 		OptionMenu(setting_frame,VariationsColoring,*coloring).grid(row=row,column=2,sticky=W)
+		
+		row+=1
+		Label(setting_frame,text=_("Labels for the variations")).grid(row=row,column=1,sticky=W)
+		value={"letter":_("Letters"),"rate":_("Rates")}
+		VariationsLabel = StringVar()
+		VariationsLabel.set(value[Config.get("Review","VariationsLabel")])
+		OptionMenu(setting_frame,VariationsLabel,_("Letters"),_("Rates")).grid(row=row,column=2,sticky=W)
+		
 		row+=1
 		Label(setting_frame,text=_("Inverted mouse wheel")).grid(row=row,column=1,sticky=W)
 		InvertedMouseWheel = BooleanVar(value=Config.getboolean('Review', 'InvertedMouseWheel'))
@@ -135,6 +143,8 @@ class OpenSettings(Toplevel):
 		self.VariationsColoring=VariationsColoring
 		self.InvertedMouseWheel=InvertedMouseWheel
 		self.NoVariationIfSameMove=NoVariationIfSameMove
+		self.VariationsColoring=VariationsColoring
+		self.VariationsLabel=VariationsLabel
 		
 		setting_frame.save=self.save
 		
@@ -196,6 +206,8 @@ class OpenSettings(Toplevel):
 		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
 		Config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
 		Config.set("Analysis","NoVariationIfSameMove",self.NoVariationIfSameMove.get())
+		labeling={_("Letters"):"letter",_("Rates"):"rate"}
+		Config.set("Review","VariationsLabel",labeling[self.VariationsLabel.get()])
 		
 		Config.write(open(config_file,"w"))
 		
