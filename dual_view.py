@@ -1157,7 +1157,8 @@ class DualView(Toplevel):
 		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 		self.variation_color_mode=Config.get("Review", "VariationsColoring")
 		self.inverted_mouse_wheel=Config.getboolean('Review', 'InvertedMouseWheel')
-
+		self.variation_label=Config.get('Review', 'VariationLabel')
+		
 		self.initialize()
 		
 		self.current_move=1
@@ -1264,9 +1265,14 @@ class DualView(Toplevel):
 				if temp_markup[u][v]!=0:
 					temp_markup[u][v]=''
 		
-		k=1
-		for color,(u,v),s,comment,displaycolor,letter_color in sequence[:move]:
-			#temp_grid[u][v]=color
+		#displaying first move
+		color,(u,v),s,comment,displaycolor,letter_color=sequence[0]
+		place(temp_grid,u,v,color)
+		temp_markup[u][v]=1
+		
+		#displaying following moves
+		k=2
+		for color,(u,v) in sequence[1:move]:
 			place(temp_grid,u,v,color)
 			temp_markup[u][v]=k
 			k+=1
@@ -1634,7 +1640,8 @@ class DualView(Toplevel):
 			
 			if one_alternative.get_move()[0]=='b': c=1
 			else: c=2
-
+			black_prob=None
+			white_prob=None
 			if one_alternative.has_property("BWWR") or one_alternative.has_property("VNWR") or one_alternative.has_property("MCWR"):
 				if one_alternative.has_property("BWWR"):
 					black_prob=float(one_alternative.get("BWWR").split("%")[0])
@@ -1696,14 +1703,23 @@ class DualView(Toplevel):
 				letter_color="black"
 			else:
 				letter_color=displaycolor
+
+			if self.variation_label=="letter":
+				alternative_sequence=[[c,ij,chr(64+a),comments,displaycolor,letter_color]]
+			else:
+				if (c==1) and (black_prob):
+					alternative_sequence=[[c,ij,str(int(round(black_prob))),comments,displaycolor,letter_color]]
+				elif (c==2) and (white_prob):
+					alternative_sequence=[[c,ij,str(int(round(white_prob))),comments,displaycolor,letter_color]]
+				else:
+					alternative_sequence=[[c,ij,chr(64+a),comments,displaycolor,letter_color]]
 			
-			alternative_sequence=[[c,ij,chr(64+a),comments,displaycolor,letter_color]]
 			while len(one_alternative)>0:
 				one_alternative=one_alternative[0]
 				ij=one_alternative.get_move()[1]
 				if one_alternative.get_move()[0]=='b':c=1
 				else:c=2
-				alternative_sequence.append([c,ij,chr(64+a),comments,"whocare?","whocare"])
+				alternative_sequence.append([c,ij])
 			i,j=parent[a].get_move()[1]
 			markup2[i][j]=alternative_sequence
 			
