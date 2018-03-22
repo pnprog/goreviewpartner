@@ -15,7 +15,7 @@ class gtp():
 		self.size=0
 		self.command_line=command[0]+" "+" ".join(command[1:])
 		self.stderr_queue=Queue.Queue()
-		
+		self.stdout_queue=Queue.Queue()
 		threading.Thread(target=self.consume_stderr).start()
 		
 	####low level function####
@@ -31,6 +31,20 @@ class gtp():
 					return
 			except Exception, e:
 				log("leaving consume_stderr thread due to exception")
+				return
+	
+	def consume_stdout(self):
+		while 1:
+			try:
+				line=self.process.stdout.readline()
+				if line:
+					self.stdout_queue.put(line)
+				else:
+					log("leaving consume_stdout thread")
+					return
+			except Exception, e:
+				log("leaving consume_stdout thread due to exception")
+				log(e)
 				return
 	
 	def quick_evaluation(self,color):

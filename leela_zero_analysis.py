@@ -243,25 +243,46 @@ class Leela_Zero_gtp(gtp):
 	def __init__(self,command):
 		self.c=1
 		leela_zero_working_directory=command[0][:-len(ntpath.basename(command[0]))]
-		log("Leela Zero working directory:",leela_zero_working_directory)
-
-		self.process=subprocess.Popen(command,cwd=leela_zero_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		
+		if leela_zero_working_directory:
+			log("Leela Zero working directory:",leela_zero_working_directory)
+			self.process=subprocess.Popen(command,cwd=leela_zero_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		else:
+			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		
 		self.stderr_queue=Queue.Queue()
-		log("Checking Leela Zero stderr to check for OpenCL SGEMM tuner running")
-		while 1:
-			err_line=self.process.stderr.readline()
-			self.stderr_queue.put(err_line)
-			if "Started OpenCL SGEMM tuner.\n" in err_line:
-				log("OpenCL SGEMM tuner is running")
-				show_info(_("Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."))
-				break
-			elif "Loaded existing SGEMM tuning.\n" in err_line:
-				log("OpenCL SGEMM tuner has already been runned")
-				break
+		self.stdout_queue=Queue.Queue()
 		
 		threading.Thread(target=self.consume_stderr).start()
+		
+		log("Checking Leela Zero stderr to check for OpenCL SGEMM tuner running")
+		delay=10
+		while 1:
+			err_line=self.stderr_queue.get(delay)
+			delay=1
+			try:
+				self.stderr_queue.put(err_line)
+				if "Started OpenCL SGEMM tuner." in err_line:
+					log("OpenCL SGEMM tuner is running")
+					show_info(_("Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."))
+					break
+				elif "Loaded existing SGEMM tuning.\n" in err_line:
+					log("OpenCL SGEMM tuner has already been runned")
+					break
+				elif "Could not open weights file" in err_line:
+					show_info(err_line.strip())
+					break
+				elif "A network weights file is required to use the program." in err_line:
+					show_info(err_line.strip())
+					break
+				elif "Weights file is the wrong version." in err_line:
+					show_info(err_line.strip())
+					break
+				
+			except:
+				break
+		
 		
 	def get_leela_zero_final_score(self):
 		self.write("final_score")
@@ -340,6 +361,8 @@ class LeelaZeroSettings(LeelaSettings):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		self.name="LeelaZero"
+		self.parent=parent
+		self.gtp=Leela_Zero_gtp
 		self.initialize()
 
 

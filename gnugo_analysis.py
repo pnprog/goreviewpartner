@@ -323,8 +323,10 @@ class GnuGo_gtp(gtp):
 
 
 class GnuGoSettings(Frame):
+
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
+		self.parent=parent
 		log("Initializing GnuGo setting interface")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -362,7 +364,8 @@ class GnuGoSettings(Frame):
 		SlowParameters = StringVar() 
 		SlowParameters.set(Config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
-
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(GnuGo_gtp,"slow")).grid(row=row,column=1,sticky=W)
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -379,7 +382,9 @@ class GnuGoSettings(Frame):
 		FastParameters = StringVar() 
 		FastParameters.set(Config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
-
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(GnuGo_gtp,"fast")).grid(row=row,column=1,sticky=W)
+		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1

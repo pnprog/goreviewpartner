@@ -402,6 +402,8 @@ class LeelaSettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		self.name="Leela"
+		self.gtp=Leela_gtp
+		self.parent=parent
 		self.initialize()
 		
 	def initialize(self):
@@ -434,6 +436,9 @@ class LeelaSettings(Frame):
 		SlowTimePerMove = StringVar()
 		SlowTimePerMove.set(Config.get(bot,"SlowTimePerMove"))
 		Entry(self, textvariable=SlowTimePerMove, width=30).grid(row=row,column=2)
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(self.gtp,"slow")).grid(row=row,column=1,sticky=W)
+
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -457,6 +462,9 @@ class LeelaSettings(Frame):
 		FastTimePerMove = StringVar() 
 		FastTimePerMove.set(Config.get(bot,"FastTimePerMove"))
 		Entry(self, textvariable=FastTimePerMove, width=30).grid(row=row,column=2)
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(self.gtp,"fast")).grid(row=row,column=1,sticky=W)
+		
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)

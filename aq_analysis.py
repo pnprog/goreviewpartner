@@ -159,13 +159,18 @@ class AQ_gtp(gtp):
 		self.c=1
 
 		aq_working_directory=command[0][:-len(ntpath.basename(command[0]))]
-		log("AQ working directory:",aq_working_directory)
-
-		self.process=subprocess.Popen(command,cwd=aq_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		
+		if aq_working_directory:
+			log("AQ working directory:",aq_working_directory)
+			self.process=subprocess.Popen(command,cwd=aq_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		else:
+			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		
 		self.size=0
 
 		self.stderr_queue=Queue.Queue()
-
+		self.stdout_queue=Queue.Queue()
+		
 		threading.Thread(target=self.consume_stderr).start()
 
 		self.history=[]
@@ -316,6 +321,7 @@ class AQ_gtp(gtp):
 class AQSettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
+		self.parent=parent
 		log("Initializing AQ setting interface")
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
@@ -339,7 +345,9 @@ class AQSettings(Frame):
 		SlowParameters = StringVar()
 		SlowParameters.set(Config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
-
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(AQ_gtp,"slow")).grid(row=row,column=1,sticky=W)
+		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
@@ -356,6 +364,8 @@ class AQSettings(Frame):
 		FastParameters = StringVar()
 		FastParameters.set(Config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(AQ_gtp,"fast")).grid(row=row,column=1,sticky=W)
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)

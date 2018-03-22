@@ -259,6 +259,7 @@ class Ray_gtp(gtp):
 class RaySettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
+		self.parent=parent
 		log("Initializing Ray setting interface")
 		
 		Config = ConfigParser.ConfigParser()
@@ -283,6 +284,8 @@ class RaySettings(Frame):
 		SlowParameters = StringVar() 
 		SlowParameters.set(Config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(Ray_gtp,"slow")).grid(row=row,column=1,sticky=W)
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -300,6 +303,9 @@ class RaySettings(Frame):
 		FastParameters = StringVar() 
 		FastParameters.set(Config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
+		row+=1
+		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(Ray_gtp,"fast")).grid(row=row,column=1,sticky=W)
+
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)

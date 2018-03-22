@@ -6,7 +6,8 @@ from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
 from aq_analysis import AQSettings
 from leela_zero_analysis import LeelaZeroSettings
-from toolbox import log, config_file, _, available_translations, lang
+from toolbox import log, config_file, _, available_translations, lang, Application
+
 
 class OpenSettings(Toplevel):
 
@@ -18,10 +19,11 @@ class OpenSettings(Toplevel):
 		settings_dict={"GRP":self.display_GRP_settings, "AQ":AQSettings, "GnuGo":GnuGoSettings, "Leela":LeelaSettings, "Ray":RaySettings, "Leela Zero":LeelaZeroSettings}
 		
 		self.setting_frame=Frame(self.right_column)
+		self.setting_frame.parent=self
 		key=self.setting_mode.get()
 		new_settings=settings_dict[key](self.setting_frame)
 		new_settings.grid(row=0,column=0, padx=5, pady=5)
-		
+		self.current_settings=new_settings
 		Button(self.setting_frame,text=_("Save settings"),command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 		
 		self.setting_frame.pack()
@@ -137,7 +139,13 @@ class OpenSettings(Toplevel):
 		setting_frame.save=self.save
 		
 		return setting_frame
-		
+	
+	def close(self):
+		log("closing popup")
+		self.destroy()
+		self.parent.remove_popup(self)
+		log("done")
+	
 	def __init__(self,parent,refresh=None):
 		Toplevel.__init__(self)
 		self.parent=parent
@@ -165,7 +173,8 @@ class OpenSettings(Toplevel):
 		self.right_column=right_column
 		self.setting_frame=None
 		self.display_settings()
-
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		
 	def save(self):
 		global lang, translations
 		log("Saving GRP settings")
@@ -193,8 +202,25 @@ class OpenSettings(Toplevel):
 		if self.refresh!=None:
 			self.refresh()
 		
+	def test(self,gtp_bot,profil):
+		from gtp_terminal import Terminal
+		
+		if profil=="slow":
+			command=self.current_settings.SlowCommand.get()
+			parameters=self.current_settings.SlowParameters.get().split()
+		if profil=="fast":
+			command=self.current_settings.FastCommand.get()
+			parameters=self.current_settings.FastParameters.get().split()
+		
+		if not command:
+			log("Empty command line!")
+			return
+		
+		popup=Terminal(self.parent,gtp_bot,[command]+parameters)
+		self.parent.add_popup(popup)
 		
 if __name__ == "__main__":
-	top = Tk()
-	OpenSettings(top)
-	top.mainloop()
+	app = Application()
+	popup=OpenSettings(app)
+	app.add_popup(popup)
+	app.mainloop()
