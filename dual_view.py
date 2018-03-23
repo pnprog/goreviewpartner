@@ -267,7 +267,7 @@ class OpenChart(Toplevel):
 	def display_value_network_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()=="Black Value Network win rate delta":
+		if self.graph_mode.get()==_("Black Value Network win rate delta").decode("utf"):
 			player_color='b'
 		else:
 			player_color='w'
@@ -324,7 +324,7 @@ class OpenChart(Toplevel):
 	def display_monte_carlo_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()=="Black Monte Carlo win rate delta":
+		if self.graph_mode.get()==_("Black Monte Carlo win rate delta").decode("utf"):
 			player_color='b'
 		else:
 			player_color='w'
@@ -381,7 +381,7 @@ class OpenChart(Toplevel):
 	def display_winrate_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()=="Black win rate delta":
+		if self.graph_mode.get()==_("Black win rate delta").decode("utf"):
 			player_color='b'
 		else:
 			player_color='w'
