@@ -1575,10 +1575,6 @@ class DualView(Toplevel):
 		
 		#indicating last play with delta
 		self.comment_box1.delete(1.0, END)
-		"""if m>=0:
-			if get_node(self.gameroot,m+1).has_property("C"):
-				self.comment_box1.insert(END,get_node(self.gameroot,m+1).get("C"))
-		"""
 		
 		if m>=0:
 			left_comments=get_position_comments(self.current_move,self.gameroot)
@@ -1604,9 +1600,11 @@ class DualView(Toplevel):
 				break
 			if one_move.get_move()[0]=='b':	c=1
 			else: c=2
-			main_sequence.append([c,ij,"A",None,"black","black"])
 			if m==0:
 				real_game_ij=ij
+				main_sequence.append([c,ij,"A",None,"black","black"])
+			else:
+				main_sequence.append([c,ij])
 		try:
 			i,j=list(get_node(self.gameroot,move).get_move()[1])
 		except:
