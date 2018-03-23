@@ -251,6 +251,7 @@ class Leela_Zero_gtp(gtp):
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		
+		self.stderr_starting_queue=Queue.Queue(maxsize=100)
 		self.stderr_queue=Queue.Queue()
 		self.stdout_queue=Queue.Queue()
 		
@@ -260,7 +261,8 @@ class Leela_Zero_gtp(gtp):
 		delay=10
 		while 1:
 			try:
-				err_line=self.stderr_queue.get(True,delay)
+				err_line=self.stderr_starting_queue.get(True,delay)
+				
 				delay=1
 				if "Started OpenCL SGEMM tuner." in err_line:
 					log("OpenCL SGEMM tuner is running")
@@ -278,12 +280,34 @@ class Leela_Zero_gtp(gtp):
 				elif "Weights file is the wrong version." in err_line:
 					show_info(err_line.strip())
 					break
-				
+				elif "BLAS Core:" in err_line:
+					log("Could not find out, abandoning")
+					break
 			except:
 				log("Could not find out, abandoning")
 				break
 		
 		
+
+	def consume_stderr(self):
+		while 1:
+			try:
+				err_line=self.process.stderr.readline()
+				if err_line:
+					self.stderr_queue.put(err_line)
+					try:
+						self.stderr_starting_queue.put(err_line,block=False)
+					except:
+						#no need to keep all those log in memory, so there is a limit at 100 lines
+						pass
+				else:
+					log("leaving consume_stderr thread")
+					return
+			except Exception, e:
+				log("leaving consume_stderr thread due to exception")
+				return
+
+
 	def get_leela_zero_final_score(self):
 		self.write("final_score")
 		answer=self.readline().strip()
