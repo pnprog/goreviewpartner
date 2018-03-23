@@ -430,6 +430,17 @@ class LiveAnalysis(Toplevel):
 		#self.analyser=self.analyser[0](self.g,self.filename)
 		self.analyser=self.analyser["liveanalysis"](self.g,self.filename,self.analyser["profile"])
 		
+		first_comment=_("Analysis by GoReviewPartner")
+		first_comment+="\n"+("Bot: %s/%s"%(self.analyser.bot.bot_name,self.analyser.bot.bot_version))
+		first_comment+="\n"+("Komi: %0.1f"%self.komi)
+
+		if Config.getboolean('Analysis', 'SaveCommandLine'):
+			first_comment+="\n"+("Command line: %s"%self.analyser.bot.command_line)
+
+		self.g.get_root().set("RSGF",first_comment+"\n")
+		self.g.get_root().set("BOT",self.analyser.bot.bot_name)
+		self.g.get_root().set("BOTV",self.analyser.bot.bot_version)
+		
 		self.cpu_lock=Lock()
 		if not self.overlap_thinking:
 			self.analyser.cpu_lock=self.cpu_lock #analyser and bot share the same cpu lock
@@ -443,6 +454,7 @@ class LiveAnalysis(Toplevel):
 			#self.black=bot_starting_procedure(self.black[2],self.black[3],self.black[1],self.g,profil="fast")
 			self.black=self.black["starting"](self.g,profile=self.black["profile"])
 			log("Black bot started")
+		
 		
 		if type(self.white)!=type("abc"):
 			#white is neither human nor analyser not black
@@ -471,7 +483,7 @@ class LiveAnalysis(Toplevel):
 			
 		self.game_label=Label(panel,text=_("Black")+": "+player_black)
 		self.game_label.grid(column=1,row=row,sticky=W)
-		
+		self.g.get_root().set("PB",player_black)
 		
 		row+=1
 		if self.white=="human":
@@ -485,7 +497,8 @@ class LiveAnalysis(Toplevel):
 			
 		self.game_label=Label(panel,text=_("White")+": "+player_white)
 		self.game_label.grid(column=1,row=row,sticky=W)
-
+		self.g.get_root().set("PW",player_white)
+		
 		row+=1
 		self.game_label=Label(panel,text=_("Komi")+": "+str(self.komi))
 		self.game_label.grid(column=1,row=row,sticky=W)
