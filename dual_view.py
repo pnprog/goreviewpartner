@@ -84,26 +84,6 @@ class OpenChart(Toplevel):
 		
 		for data in self.data:
 			if data:
-				if "monte_carlo_win_rate" in data:
-					available_graphs.append(_("Monte Carlo win rate"))
-					break
-		
-		for data in self.data:
-			if data:
-				if "mcwr_delta" in data:
-					if data["player_color"]=="w":
-						available_graphs.append(_("Black Monte Carlo win rate delta"))
-						break
-
-		for data in self.data:
-			if data:
-				if "mcwr_delta" in data:
-					if data["player_color"]=="b":
-						available_graphs.append(_("White Monte Carlo win rate delta"))
-						break
-		
-		for data in self.data:
-			if data:
 				if "value_network_win_rate" in data:
 					available_graphs.append(_("Value Network win rate"))
 					break
@@ -120,6 +100,26 @@ class OpenChart(Toplevel):
 				if "vnwr_delta" in data:
 					if data["player_color"]=="b":
 						available_graphs.append(_("White Value Network win rate delta"))
+						break
+		
+		for data in self.data:
+			if data:
+				if "monte_carlo_win_rate" in data:
+					available_graphs.append(_("Monte Carlo win rate"))
+					break
+		
+		for data in self.data:
+			if data:
+				if "mcwr_delta" in data:
+					if data["player_color"]=="w":
+						available_graphs.append(_("Black Monte Carlo win rate delta"))
+						break
+
+		for data in self.data:
+			if data:
+				if "mcwr_delta" in data:
+					if data["player_color"]=="b":
+						available_graphs.append(_("White Monte Carlo win rate delta"))
 						break
 		
 		for data in self.data:
