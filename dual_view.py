@@ -1747,7 +1747,7 @@ class DualView(Toplevel):
 		Label(new_popup,text=" ").grid(row=1000,column=1000)
 
 		row=1
-		comments=self.get_node_comments()
+		comments=get_position_comments(self.current_move,self.gameroot)
 		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W)
 		
 		Label(new_popup,text=" ").grid(row=row+1,column=0)
