@@ -24,7 +24,7 @@ def log(*args):
 			except:
 				print "?"*len(arg),
 		except:
-			print "["+type(arg)+"]",
+			print "["+str(type(arg))+"]",
 	print
 	loglock.release()
 
@@ -46,7 +46,7 @@ def linelog(*args):
 			except:
 				print "?"*len(arg),
 		except:
-			print "["+type(arg)+"]",
+			print "["+str(type(arg))+"]",
 	loglock.release()
 
 import tkMessageBox
