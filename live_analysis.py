@@ -366,7 +366,6 @@ class LiveAnalysis(Toplevel):
 		new_popup.goban.wood=self.goban.wood
 		new_popup.goban.black_stones=self.goban.black_stones
 		new_popup.goban.white_stones=self.goban.white_stones
-		new_popup.goban.no_redraw=[]
 		
 		self.parent.after(100,lambda :new_popup.goban.display(new_popup.grid,new_popup.markup))
 		
@@ -1200,7 +1199,7 @@ class LiveAnalysis(Toplevel):
 		new_anchor_y=(event.height-new_size)/2.
 		self.goban.anchor_y=new_anchor_y
 		
-		self.goban.redraw()
+		self.goban.reset()
 
 if __name__ == "__main__":
 	top = Application()

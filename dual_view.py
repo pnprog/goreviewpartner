@@ -1115,10 +1115,10 @@ class OpenMove(Toplevel):
 				pass
 			elif msg==1:
 				self.goban.display(self.grid,self.markup)
-				self.parent.after(250,self.wait_for_display)
+				self.parent.after(100,self.wait_for_display)
 			elif msg==2:
 				self.goban.display(self.grid,self.markup,True)
-				self.parent.after(250,self.wait_for_display)
+				self.parent.after(100,self.wait_for_display)
 			else:
 				show_info(msg,self)
 				self.goban.display(self.grid,self.markup)
@@ -1138,7 +1138,7 @@ class OpenMove(Toplevel):
 		new_anchor_y=(event.height-new_size)/2.
 		self.goban.anchor_y=new_anchor_y
 		
-		self.goban.redraw()
+		self.goban.reset()
 
 	def save_as_png(self,e=None):
 		filename = save_png_file(parent=self,filename='variation_move'+str(self.move)+'.png')
@@ -1278,13 +1278,14 @@ class DualView(Toplevel):
 			k+=1
 		
 		goban.display(temp_grid,temp_markup)
-		
 		self.comment_box2.delete(1.0, END)
 		if comment:
 			self.comment_box2.insert(END,comment)
 		u=i+goban.mesh[i][j][0]
 		v=j+goban.mesh[i][j][1]
 		local_area=goban.draw_point(u,v,1,color="",outline="")
+		goban.temporary_shapes.append(local_area)
+		
 		goban.tag_bind(local_area, "<Leave>", lambda e: self.leave_variation(goban,grid,markup))
 		
 		self.current_variation_goban=goban
@@ -1730,10 +1731,10 @@ class DualView(Toplevel):
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
 		new_popup.goban.mesh=self.goban1.mesh
 		new_popup.goban.wood=self.goban1.wood
-		new_popup.goban.black_stones=self.goban1.black_stones
-		new_popup.goban.white_stones=self.goban1.white_stones
-		new_popup.goban.no_redraw=[]
+		new_popup.goban.black_stones=self.goban1.black_stones_style
+		new_popup.goban.white_stones=self.goban1.white_stones_style
 		
+		new_popup.goban.reset()
 		new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
 		self.add_popup(new_popup)
@@ -2000,8 +2001,12 @@ class DualView(Toplevel):
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
-		self.goban2.black_stones=self.goban1.black_stones
-		self.goban2.white_stones=self.goban1.white_stones
+		
+		self.goban2.black_stones_style=self.goban1.black_stones_style
+		self.goban2.white_stones_style=self.goban1.white_stones_style
+		
+		#self.goban2.black_stones=self.goban1.black_stones
+		#self.goban2.white_stones=self.goban1.white_stones
 		self.goban2.grid(column=3,row=row,sticky=W+E+N+S)
 		
 		self.grid_rowconfigure(row, weight=1)
@@ -2066,8 +2071,8 @@ class DualView(Toplevel):
 		self.goban1.anchor_y=new_anchor_y
 		self.goban2.anchor_y=new_anchor_y
 		
-		self.goban1.redraw()
-		self.goban2.redraw()
+		self.goban1.reset()
+		self.goban2.reset()
 		
 		if sys.platform!="darwin":
 			#https://github.com/pnprog/goreviewpartner/issues/7
