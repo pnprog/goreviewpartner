@@ -370,6 +370,8 @@ class RaySettings(Frame):
 		
 		Config.write(open(config_file,"w"))
 
+		if self.parent.parent.refresh!=None:
+			self.parent.parent.refresh()
 
 class RayOpenMove(BotOpenMove):
 	def __init__(self,sgf_g,profile="slow"):

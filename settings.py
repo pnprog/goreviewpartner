@@ -160,7 +160,7 @@ class OpenSettings(Toplevel):
 		Toplevel.__init__(self)
 		self.parent=parent
 		
-		self.refresh=None
+		self.refresh=refresh
 		
 		self.title('GoReviewPartner')
 		

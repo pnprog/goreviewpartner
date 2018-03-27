@@ -119,7 +119,8 @@ class Main(Toplevel):
 		self.parent.add_popup(new_popup)
 
 	def launch_settings(self):
-		settings.OpenSettings(self)
+		new_popup=settings.OpenSettings(self.parent,refresh=self.refresh)
+		self.parent.add_popup(new_popup)
 
 	def refresh(self):
 		log("refreshing")

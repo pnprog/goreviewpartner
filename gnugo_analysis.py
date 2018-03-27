@@ -429,7 +429,6 @@ class GnuGoSettings(Frame):
 		self.liveplayer_bot=liveplayer_bot
 		self.review_bot=review_bot
 		
-		
 	def save(self):
 		log("Saving GnuGo settings")
 		Config = ConfigParser.ConfigParser()
@@ -452,6 +451,9 @@ class GnuGoSettings(Frame):
 		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
 				
 		Config.write(open(config_file,"w"))
+
+		if self.parent.parent.refresh!=None:
+			self.parent.parent.refresh()
 
 class GnuGoOpenMove(BotOpenMove):
 	def __init__(self,sgf_g,profile="slow"):

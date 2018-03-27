@@ -433,7 +433,8 @@ class AQSettings(Frame):
 
 		Config.write(open(config_file,"w"))
 
-
+		if self.parent.parent.refresh!=None:
+			self.parent.parent.refresh()
 
 
 class AQOpenMove(BotOpenMove):
