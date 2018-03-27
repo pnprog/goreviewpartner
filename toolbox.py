@@ -1351,7 +1351,7 @@ def parse_command_line(filename,argv):
 				variation=int(v)
 				found=True
 			except:
-				show_error("Wrong variation parameter\n"+usage,parent=self)
+				show_error("Wrong variation parameter\n"+usage)
 				sys.exit()
 	if not found:
 		variation=1
@@ -1359,18 +1359,18 @@ def parse_command_line(filename,argv):
 	log("Variation:",variation)
 
 	if variation<1:
-		show_error("Wrong variation parameter, it must be a positive integer",parent=self)
+		show_error("Wrong variation parameter, it must be a positive integer")
 		sys.exit()
 
 	if variation>len(leaves):
-		show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)",parent=self)
+		show_error("Wrong variation parameter, this SGF file has only "+str(len(leaves))+" variation(s)")
 		sys.exit()
 
 	nb_moves=leaves[variation-1][1]
 	log("Moves for this variation:",nb_moves)
 
 	if nb_moves==0:
-		show_error("This variation is empty (0 move), the analysis cannot be performed!",parent=self)
+		show_error("This variation is empty (0 move), the analysis cannot be performed!")
 		sys.exit()
 
 	#nb_moves=get_moves_number(move_zero)
@@ -1379,7 +1379,7 @@ def parse_command_line(filename,argv):
 	for p,v in argv:
 		if p=="--range":
 			if v=="":
-				show_error("Wrong range parameter\n"+usage,parent=self)
+				show_error("Wrong range parameter\n"+usage)
 				sys.exit()
 			elif v=="all":
 				break
@@ -1388,7 +1388,7 @@ def parse_command_line(filename,argv):
 				log("Range:",v)
 				move_selection=check_selection(v.replace('"',''),nb_moves)
 				if move_selection==False:
-					show_error("Wrong range parameter\n"+usage,parent=self)
+					show_error("Wrong range parameter\n"+usage)
 					sys.exit()
 				found=True
 				break
@@ -1411,7 +1411,7 @@ def parse_command_line(filename,argv):
 			elif v=="both":
 				break
 			else:
-				show_error("Wrong color parameter\n"+usage,parent=self)
+				show_error("Wrong color parameter\n"+usage)
 				sys.exit()
 	if not found:
 		intervals+=" (both colors)"
@@ -1424,7 +1424,7 @@ def parse_command_line(filename,argv):
 				komi=float(v)
 				found=True
 			except:
-				show_error("Wrong komi parameter\n"+usage,parent=self)
+				show_error("Wrong komi parameter\n"+usage)
 				sys.exit()
 	if not found:
 		try:
@@ -1433,7 +1433,7 @@ def parse_command_line(filename,argv):
 			msg="Error while reading komi value, please check:\n"+str(e)
 			msg+="\nPlease indicate komi using --komi parameter"
 			log(msg)
-			show_error(msg,parent=self)
+			show_error(msg)
 			sys.exit()
 
 	log("Komi:",komi)
@@ -1445,7 +1445,7 @@ def parse_command_line(filename,argv):
 				profil=v
 				found=True
 			else:
-				show_error("Wrong profil parameter\n"+usage,parent=self)
+				show_error("Wrong profil parameter\n"+usage)
 				sys.exit()
 	if not found:
 		profil="slow"
