@@ -511,7 +511,7 @@ class RangeSelector(Toplevel):
 		self.focus()
 		self.parent.focus()
 
-	def variation_changed(self,*args):
+	def variation_changed(self,*unused):
 		log("variation changed!",self.variation_selection.get())
 		try:
 			self.after(0,self.r1.select)
@@ -885,7 +885,7 @@ class RunAnalysisBase(Toplevel):
 		pass
 
 	def run_analysis(self,current_move):
-
+		log("Analysis of move",current_move)
 		#################################################
 		##### here is the place to perform analysis #####
 		#################################################

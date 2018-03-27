@@ -262,7 +262,7 @@ class OpenChart(Toplevel):
 			moves=self.display_value_network_delta(border,height,width)
 		
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
-		self.display_axis(moves,height,width,border,lpix)
+		self.display_axis(height,width,border)
 
 	def display_value_network_delta(self,border,height,width):
 		moves=[]
@@ -628,7 +628,7 @@ class OpenChart(Toplevel):
 		self.display_vertical_score_graduation(border,height,width,maximum)
 		return moves
 
-	def display_axis(self,moves,height,width,border,lpix):
+	def display_axis(self,height,width,border):
 		#drawing axis
 		x0=border
 		y0=height-border
@@ -654,7 +654,7 @@ class OpenChart(Toplevel):
 				x0=x1
 		
 		
-	def save_as_png(self,e=None):
+	def save_as_png(self,event=None):
 		filename=save_png_file(filename=self.graph_mode.get()+' graph.png',parent=self)
 		canvas2png(self.chart,filename)
 
@@ -1140,7 +1140,7 @@ class OpenMove(Toplevel):
 		
 		self.goban.reset()
 
-	def save_as_png(self,e=None):
+	def save_as_png(self,event=None):
 		filename = save_png_file(parent=self,filename='variation_move'+str(self.move)+'.png')
 		canvas2png(self.goban,filename)
 		
@@ -2085,11 +2085,11 @@ class DualView(Toplevel):
 	def clear_status(self):
 		self.status_bar.config(text="")
 
-	def save_left_as_png(self,e=None):
+	def save_left_as_png(self,event=None):
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban1,filename)
 
-	def save_right_as_png(self,e=None):
+	def save_right_as_png(self,event=None):
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban2,filename)
 	
