@@ -266,15 +266,6 @@ def open_sgf(filename):
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
 def clean_sgf(txt):
 	return txt
-	for private_property in ["MULTIGOGM","MULTIGOBM"]:
-		if private_property in txt:
-			log("removing private property",private_property,"from sgf content")
-			txt1,txt2=txt.split(private_property+'[')
-			txt=txt1+"]".join(txt2.split(']')[1:])
-	return txt
-
-
-
 
 def get_all_sgf_leaves(root,deep=0):
 
@@ -1253,14 +1244,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 				if colour in ('w',"W"):
 					raise LaunchingException(_("The SGF file contains white handicap stones! %s cannot deal with that!")%bot_name)
 				positions.append(move)
-				"""
-				if colour in ('w',"W"):
-					log("Adding initial white stone at",move)
-					bot.place_white(move)
-				else:
-					log("Adding initial black stone at",move)
-					bot.place_black(move)
-				"""
+
 		if len(positions)>0:
 			bot.set_free_handicap(positions)
 			#log("Setting bot komi at",sgf_g.get_komi(),"+",len(positions))
