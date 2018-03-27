@@ -298,7 +298,7 @@ class OpenChart(Toplevel):
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 				
-				if delta<>0:
+				if delta!=0:
 					y2=y1-delta*(height-2*border)/100.
 					if delta<0:
 						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
@@ -355,7 +355,7 @@ class OpenChart(Toplevel):
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 				
-				if delta<>0:
+				if delta!=0:
 					y2=y1-delta*(height-2*border)/100.
 					if delta<0:
 						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
@@ -412,7 +412,7 @@ class OpenChart(Toplevel):
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 				
-				if delta<>0:
+				if delta!=0:
 					y2=y1-delta*(height-2*border)/100.
 					if delta<0:
 						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
@@ -1865,7 +1865,7 @@ class DualView(Toplevel):
 				if not self.charts_button:
 					#there was no chart up to this point
 					for data in self.data_for_chart:
-						if data<>None:
+						if data!=None:
 							log("Creating the chart button")
 							self.charts_button=Button(self, text=_('Graphs'))
 							self.charts_button.bind('<Button-1>', self.show_graphs)
@@ -1975,7 +1975,7 @@ class DualView(Toplevel):
 		self.data_for_chart=self.prepare_data_for_chart()
 		self.charts_button=None
 		for data in self.data_for_chart:
-			if data<>None:
+			if data!=None:
 				self.charts_button=Button(self, text=_('Graphs'))
 				self.charts_button.bind('<Button-1>', self.show_graphs)
 				self.charts_button.grid(column=3,row=2,sticky=E)

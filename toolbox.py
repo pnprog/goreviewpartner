@@ -974,7 +974,7 @@ class RunAnalysisBase(Toplevel):
 			remaining_s=remaining_s-3600*remaining_h
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
-			if self.time_per_move<>0:
+			if self.time_per_move!=0:
 				self.lab2.config(text=_("Remaining time: %ih, %imn, %is")%(remaining_h,remaining_m,remaining_s))
 			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
 			self.pb.step()
