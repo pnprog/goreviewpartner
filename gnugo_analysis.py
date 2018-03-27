@@ -295,7 +295,7 @@ class GnuGo_gtp(gtp):
 		answers_list=[]
 		for value in answer:
 			try:
-				score=float(value)
+				float(value)
 			except:
 				answers_list.append(value)
 		return answers_list
@@ -310,7 +310,7 @@ class GnuGo_gtp(gtp):
 		answers_list=[]
 		for value in answer:
 			try:
-				score=float(value)
+				float(value)
 			except:
 				answers_list.append(value)
 		return answers_list

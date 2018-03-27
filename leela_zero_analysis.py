@@ -305,7 +305,8 @@ class Leela_Zero_gtp(gtp):
 					log("leaving consume_stderr thread")
 					return
 			except Exception, e:
-				log("leaving consume_stderr thread due to exception")
+				log("leaving consume_stderr thread due to exception:")
+				log(e)
 				return
 
 
@@ -348,8 +349,6 @@ class Leela_Zero_gtp(gtp):
 			sleep(.1)
 		
 		buff.reverse()
-		
-		answers=[]
 		
 		position_evaluation=Position()
 		

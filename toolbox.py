@@ -331,7 +331,7 @@ def check_selection_for_color(move_zero,move_selection,color):
 		new_move_selection=[]
 		for m in move_selection:
 			one_move=go_to_move(move_zero,m)
-			player_color,player_move=one_move.get_move()
+			player_color,unused=one_move.get_move()
 			if player_color.lower()=='b':
 				new_move_selection.append(m)
 		return new_move_selection
@@ -339,7 +339,7 @@ def check_selection_for_color(move_zero,move_selection,color):
 		new_move_selection=[]
 		for m in move_selection:
 			one_move=go_to_move(move_zero,m)
-			player_color,player_move=one_move.get_move()
+			player_color,unused=one_move.get_move()
 			if player_color.lower()=='w':
 				new_move_selection.append(m)
 		return new_move_selection
@@ -389,7 +389,7 @@ class RangeSelector(Toplevel):
 
 		options=[]
 		v=1
-		for leaf,deep in self.leaves:
+		for unused,deep in self.leaves:
 			options.append(_("Variation %i (%i moves)")%(v,deep))
 			v+=1
 		self.variation_selection.set(options[0])
@@ -462,7 +462,7 @@ class RangeSelector(Toplevel):
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 
-		board, plays = sgf_moves.get_setup_and_moves(self.g)
+		board, unused = sgf_moves.get_setup_and_moves(self.g)
 		if len(board.list_occupied_points())>0:
 			row+=1
 			Label(self,text=_("This is a %i stones handicap game.")%len(board.list_occupied_points())).grid(row=row,column=1,columnspan=2,sticky=W)
@@ -616,7 +616,7 @@ def guess_color_to_play(move_zero,move_number):
 
 
 
-	player_color,player_move=one_move.get_move()
+	player_color,unused=one_move.get_move()
 	if player_color != None:
 		return player_color
 
@@ -980,7 +980,7 @@ class RunAnalysisBase(Toplevel):
 			self.pb.step()
 			
 			
-			import dual_view
+
 			if self.total_done==1:
 				if not self.review_button:
 					self.review_button=Button(self.right_frame,text=_("Start review"),command=self.start_review)
@@ -1085,7 +1085,7 @@ class RunAnalysisBase(Toplevel):
 
 		self.pb = ttk.Progressbar(right_frame, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
-		current_move=1
+
 
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g)
@@ -1096,7 +1096,7 @@ class RunAnalysisBase(Toplevel):
 			return
 
 		self.t0=time.time()
-		first_move=go_to_move(self.move_zero,1)
+
 		first_comment=_("Analysis by GoReviewPartner")
 		first_comment+="\n"+("Bot: %s/%s"%(self.bot.bot_name,self.bot.bot_version))
 		first_comment+="\n"+("Komi: %0.1f"%self.komi)
@@ -1242,8 +1242,8 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		log("Clearing the board")
 		bot.reset()
 
-		board, plays = sgf_moves.get_setup_and_moves(sgf_g)
-		handicap_stones=""
+		board, unused = sgf_moves.get_setup_and_moves(sgf_g)
+
 		log("Adding handicap stones, if any")
 		positions=[]
 		for colour, move0 in board.list_occupied_points():

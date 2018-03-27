@@ -265,7 +265,7 @@ class Leela_gtp(gtp):
 	
 	def showboard(self):
 		self.write("showboard")
-		one_line=self.readline() #empty line
+		self.readline() #empty line
 		buff=[]
 		while self.stderr_queue.empty():
 			sleep(.1)
@@ -348,7 +348,6 @@ class Leela_gtp(gtp):
 		
 		buff.reverse()
 		
-		answers=[]
 		position_evaluation=Position()
 		
 		for err_line in buff:

@@ -221,7 +221,7 @@ class Ray_gtp(gtp):
 		else:
 			answer=self.get_ray_stat("black")
 		
-		sequence_first_move,count,simulation,policy,value,win,one_sequence=answer[0]
+		unused,unused,unused,unused,unused,win,unused=answer[0]
 		
 		txt=""
 		if win:
@@ -242,7 +242,7 @@ class Ray_gtp(gtp):
 		sequences=[]
 		
 		for i in range(10):
-			one_line=answer=self.process.stdout.readline().strip()
+			one_line=self.process.stdout.readline().strip()
 			if one_line.strip()=="":
 				break
 			log(one_line)

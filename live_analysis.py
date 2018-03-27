@@ -410,8 +410,8 @@ class LiveAnalysis(Toplevel):
 		popup.grid_rowconfigure(1, weight=1)
 		popup.grid_columnconfigure(2, weight=1)
 		
-		grid=[[0 for row in range(dim)] for col in range(dim)]
-		markup=[["" for row in range(dim)] for col in range(dim)]
+		grid=[[0 for r in range(dim)] for c in range(dim)]
+		markup=[["" for r in range(dim)] for c in range(dim)]
 		
 		
 				
@@ -685,7 +685,7 @@ class LiveAnalysis(Toplevel):
 				self.history[0]=[copy(self.grid),copy(self.markup)]
 				place(self.grid,i,j,1)
 				self.grid[i][j]=1
-				self.markup=[["" for row in range(dim)] for col in range(dim)]
+				self.markup=[["" for r in range(dim)] for c in range(dim)]
 				self.markup[i][j]=0
 				self.goban.display(self.grid,self.markup)
 				self.handicap_stones.append([i,j])
@@ -825,7 +825,7 @@ class LiveAnalysis(Toplevel):
 		self.next_color=3-color
 		self.current_move+=1
 		self.history.append([copy(self.grid),copy(self.markup)])
-		self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
+		self.markup=[["" for r in range(self.dim)] for c in range(self.dim)]
 		self.goban.display(self.grid,self.markup)
 		if color==1:
 			self.g.lock.acquire()
@@ -889,7 +889,7 @@ class LiveAnalysis(Toplevel):
 			self.next_color=3-color
 			self.current_move+=1
 			self.history.append([copy(self.grid),copy(self.markup)])
-			self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
+			self.markup=[["" for r in range(self.dim)] for c in range(self.dim)]
 			self.goban.display(self.grid,self.markup,freeze=True)
 			if color==1:
 				self.g.lock.acquire()
@@ -933,8 +933,8 @@ class LiveAnalysis(Toplevel):
 				if type(self.white)!=type("abc"):
 					#white is a bot
 					log("Asking white (%s) to play the game move"%self.white.bot_name)
-					if not self.white.place_black(ij2gtp((i,j))):
-						a=10/0
+
+
 				self.white_to_play()
 			else:
 				#white just played
@@ -945,8 +945,6 @@ class LiveAnalysis(Toplevel):
 				if (type(self.black)!=type("abc")) and (self.white!="black"):
 					#white and black are different bots
 					log("Asking black (%s) to play the game move"%self.black.bot_name)
-					if not self.black.place_white(ij2gtp((i,j))):
-						a=10/0
 				self.black_to_play()
 		
 	def black_to_play(self):
@@ -1074,7 +1072,7 @@ class LiveAnalysis(Toplevel):
 				self.next_color=3-color
 				self.current_move+=1
 				self.history.append([copy(self.grid),copy(self.markup)])
-				self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
+				self.markup=[["" for r in range(self.dim)] for c in range(self.dim)]
 				self.goban.display(self.grid,self.markup,freeze=True)
 				if color==1:
 					self.g.lock.acquire()
@@ -1155,7 +1153,7 @@ class LiveAnalysis(Toplevel):
 				place(self.grid,i,j,color)
 				self.grid[i][j]=color
 				
-				self.markup=[["" for row in range(dim)] for col in range(dim)]
+				self.markup=[["" for r in range(dim)] for c in range(dim)]
 				self.markup[i][j]=0
 					
 				self.goban.display(self.grid,self.markup)

@@ -310,7 +310,6 @@ class AQ_gtp(gtp):
 					value=0.0
 				roll=err_line[3]
 				prob=err_line[4]
-				depth=err_line[5]
 
 				if sequence:
 					answers=[[one_answer,int(count),value,float(roll),float(prob),sequence]]+answers

@@ -18,7 +18,6 @@ def rsgf2sgf(rsgf_file):
 		
 		for a in range(1,len(parent)):
 			one_alternative=parent[a]
-			ij=one_alternative.get_move()[1]
 			comments=get_variation_comments(one_alternative)
 			one_alternative.set("C",comments)
 		current_move+=1

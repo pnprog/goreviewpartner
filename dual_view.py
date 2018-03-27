@@ -242,7 +242,7 @@ class OpenChart(Toplevel):
 		x0=border+(self.current_move-1)*space
 		x1=x0+space
 		y1=border
-		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
+		self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')#yellow_bar
 		
 		mode=self.last_graph
 
@@ -753,7 +753,7 @@ class OpenMove(Toplevel):
 			
 			place(self.grid,i,j,color)
 			self.grid[i][j]=color
-			self.markup=[["" for row in range(dim)] for col in range(dim)]
+			self.markup=[["" for r in range(dim)] for c in range(dim)]
 			self.markup[i][j]=0
 			self.next_color=3-color
 		else:
@@ -821,7 +821,7 @@ class OpenMove(Toplevel):
 				place(self.grid,i,j,color)
 				self.grid[i][j]=color
 					
-				self.markup=[["" for row in range(dim)] for col in range(dim)]
+				self.markup=[["" for r in range(dim)] for c in range(dim)]
 				self.markup[i][j]=0
 					
 				self.goban.display(self.grid,self.markup)
@@ -921,8 +921,7 @@ class OpenMove(Toplevel):
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		
-		sgf=self.sgf
-		komi=self.sgf.get_komi()
+
 		gameroot=self.sgf.get_root()
 		
 		popup=self
@@ -1038,7 +1037,8 @@ class OpenMove(Toplevel):
 		log("========================")
 		log("opening move",move)
 		
-		board, noneed = sgf_moves.get_setup_and_moves(self.sgf)
+		
+		board, unused = sgf_moves.get_setup_and_moves(self.sgf)
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
@@ -1266,7 +1266,7 @@ class DualView(Toplevel):
 					temp_markup[u][v]=''
 		
 		#displaying first move
-		color,(u,v),s,comment,displaycolor,letter_color=sequence[0]
+		color,(u,v),unused,comment,unused,unused=sequence[0]
 		place(temp_grid,u,v,color)
 		temp_markup[u][v]=1
 		
@@ -1340,7 +1340,7 @@ class DualView(Toplevel):
 		white_t=self.territories[1]
 		
 		dim=self.dim
-		markup=[["" for row in range(dim)] for col in range(dim)]
+		markup=[["" for r in range(dim)] for c in range(dim)]
 		
 		for i,j in black_t:
 			markup[i][j]=-1
@@ -1517,7 +1517,7 @@ class DualView(Toplevel):
 		markup1=[["" for row in range(dim)] for col in range(dim)]
 		grid2=[[0 for row in range(dim)] for col in range(dim)]
 		markup2=[["" for row in range(dim)] for col in range(dim)]
-		board, noneed = sgf_moves.get_setup_and_moves(self.sgf)
+		board, unused = sgf_moves.get_setup_and_moves(self.sgf)
 
 		self.current_grid=grid1
 		self.current_markup=markup1
@@ -1758,7 +1758,7 @@ class DualView(Toplevel):
 		nb_variations=min(len(parent)-1,self.maxvariations+1)
 		log(nb_variations,"variations")
 		
-		columns=[[None for i in range(nb_variations+1)] for j in range(len(columns_header))]
+		columns=[[None for r in range(nb_variations+1)] for c in range(len(columns_header))]
 		
 		for a in range(1,min(len(parent),self.maxvariations+1)):
 			one_alternative=parent[a]
