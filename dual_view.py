@@ -1832,11 +1832,9 @@ class DualView(Toplevel):
 						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
 
 	def update_from_file(self):
+		print time.time()-os.path.getmtime(self.filename)
 		try:
-			h1=hash(open_sgf(self.filename).serialise())
-			h2=hash(self.sgf.serialise())
-			
-			if h1!=h2:
+			if time.time()-os.path.getmtime(self.filename)<=10:
 				log("Reloding the RSGF file from hard drive")
 				old_sgf=self.sgf
 				self.sgf=open_sgf(self.filename)
@@ -1910,16 +1908,6 @@ class DualView(Toplevel):
 		#goban.prepare_mesh()
 		self.gameroot=self.sgf.get_root()
 		self.nb_moves=get_node_number(self.gameroot)
-		print "#########",self.nb_moves
-		"""
-		for m in range(0,self.nb_moves+1)[::-1]:
-			one_move=get_node(self.gameroot,m)
-			player_color,player_move=one_move.get_move()
-			if (player_color==None) or (player_move==None):
-				self.nb_moves-=1
-			else:
-				break
-		"""
 
 		self.title('GoReviewPartner - '+os.path.basename(self.filename))
 		self.protocol("WM_DELETE_WINDOW", self.close)
