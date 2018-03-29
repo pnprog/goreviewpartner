@@ -1980,6 +1980,7 @@ def get_position_comments(current_move,gameroot):
 	return comments
 
 def get_node_number(node):
+	return get_moves_number(node)
 	k=0
 	while node:
 		node=node[0]

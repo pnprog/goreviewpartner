@@ -1079,7 +1079,7 @@ class OpenMove(Toplevel):
 			markup3[i][j]=0
 		
 		try:
-			if get_node(gameroot,move).get_move()[0].lower()=="w":
+			if guess_color_to_play(gameroot,move)=="w":
 				self.next_color=2
 			else:
 				self.next_color=1
@@ -1606,17 +1606,16 @@ class DualView(Toplevel):
 				main_sequence.append([c,ij,"A",None,"black","black"])
 			else:
 				main_sequence.append([c,ij])
+		
+		real_game_ij=(-1,-1)
 		try:
 			i,j=list(get_node(self.gameroot,move).get_move()[1])
+			if main_sequence:
+				markup1[i][j]=main_sequence
 		except:
-			self.prev_move()
-			return
-		if main_sequence:
-			markup1[i][j]=main_sequence
-		else:
-			real_game_ij=(-1,-1)
-			#real_game_ij=get_node(self.gameroot,move).get_move()[1]
-		
+			#self.prev_move()
+			#return
+			pass
 		#alternative sequences ####################################################################################
 		parent=get_node(self.gameroot,move-1)
 		if parent==False:
@@ -1911,7 +1910,8 @@ class DualView(Toplevel):
 		#goban.prepare_mesh()
 		self.gameroot=self.sgf.get_root()
 		self.nb_moves=get_node_number(self.gameroot)
-		
+		print "#########",self.nb_moves
+		"""
 		for m in range(0,self.nb_moves+1)[::-1]:
 			one_move=get_node(self.gameroot,m)
 			player_color,player_move=one_move.get_move()
@@ -1919,7 +1919,7 @@ class DualView(Toplevel):
 				self.nb_moves-=1
 			else:
 				break
-
+		"""
 
 		self.title('GoReviewPartner - '+os.path.basename(self.filename))
 		self.protocol("WM_DELETE_WINDOW", self.close)
