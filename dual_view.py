@@ -1832,9 +1832,8 @@ class DualView(Toplevel):
 						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
 
 	def update_from_file(self):
-		print time.time()-os.path.getmtime(self.filename)
 		try:
-			if time.time()-os.path.getmtime(self.filename)<=10:
+			if time.time()-os.path.getmtime(self.filename)<=20:
 				log("Reloding the RSGF file from hard drive")
 				old_sgf=self.sgf
 				self.sgf=open_sgf(self.filename)
