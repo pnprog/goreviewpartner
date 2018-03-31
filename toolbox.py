@@ -848,6 +848,18 @@ class RunAnalysisBase(Toplevel):
 				return
 			self.root.after(500,self.follow_analysis)
 
+		first_comment=_("Analysis by GoReviewPartner")
+		first_comment+="\n"+("Bot: %s/%s"%(self.bot.bot_name,self.bot.bot_version))
+		first_comment+="\n"+("Komi: %0.1f"%self.komi)
+		first_comment+="\n"+("Intervals: %s"%self.intervals)
+
+		if Config.getboolean('Analysis', 'SaveCommandLine'):
+			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
+
+		self.move_zero.set("RSGF",first_comment+"\n")
+		self.move_zero.set("BOT",self.bot.bot_name)
+		self.move_zero.set("BOTV",self.bot.bot_version)
+
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
 
 		try:
@@ -1087,22 +1099,7 @@ class RunAnalysisBase(Toplevel):
 			return
 
 		self.t0=time.time()
-
-		first_comment=_("Analysis by GoReviewPartner")
-		first_comment+="\n"+("Bot: %s/%s"%(self.bot.bot_name,self.bot.bot_version))
-		first_comment+="\n"+("Komi: %0.1f"%self.komi)
-		first_comment+="\n"+("Intervals: %s"%self.intervals)
-
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-
-		if Config.getboolean('Analysis', 'SaveCommandLine'):
-			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
-
-		self.move_zero.set("RSGF",first_comment+"\n")
-		self.move_zero.set("BOT",self.bot.bot_name)
-		self.move_zero.set("BOTV",self.bot.bot_version)
-
+		
 		self.root=root
 		self.review_button=None
 

@@ -1832,8 +1832,9 @@ class DualView(Toplevel):
 						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
 
 	def update_from_file(self):
+		period=20
 		try:
-			if time.time()-os.path.getmtime(self.filename)<=20:
+			if time.time()-os.path.getmtime(self.filename)<=period:
 				log("Reloding the RSGF file from hard drive")
 				old_sgf=self.sgf
 				self.sgf=open_sgf(self.filename)
@@ -1878,7 +1879,7 @@ class DualView(Toplevel):
 		except:
 			pass
 		
-		self.after(10000,self.update_from_file)
+		self.after(period*1000,self.update_from_file)
 		
 	def initialize(self):
 
