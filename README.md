@@ -1,7 +1,7 @@
 ![alt text](http://ns1297.imingo.net/grp-documentation/img/goreviewpartner.png "Go Review Partner logo")
 
 # goreviewpartner
-A tool to help analyse and review your game of go (weiqi, baduk) using bots. Currently support [GnuGo](https://www.gnu.org/software/gnugo/), [Leela](https://www.sjeng.org/leela.html), [Ray](https://github.com/zakki/Ray) and [AQ](https://github.com/ymgaq/AQ).
+A tool to help analyse and review your games of Go ([weiqi, baduk](https://en.wikipedia.org/wiki/Go_(game))) using bots. Currently supporting [Leela Zero](https://github.com/gcp/leela-zero/), [AQ](https://github.com/ymgaq/AQ), [Leela](https://www.sjeng.org/leela.html), [Ray](https://github.com/zakki/Ray) and [GnuGo](https://www.gnu.org/software/gnugo/).
 
 Project home page: [http://ns1297.imingo.net/](http://ns1297.imingo.net/).
 Windows ready downloads are available from the home page.
