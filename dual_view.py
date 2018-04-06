@@ -1917,13 +1917,7 @@ class DualView(Toplevel):
 				self.data_for_chart=self.prepare_data_for_chart()
 				if not self.charts_button:
 					#there was no chart up to this point
-					for data in self.data_for_chart:
-						if data!=None:
-							log("Creating the chart button")
-							self.charts_button=Button(self, text=_('Graphs'))
-							self.charts_button.bind('<Button-1>', self.show_graphs)
-							self.charts_button.grid(column=3,row=2,sticky=E)
-							break
+					self.initialize_charts_button()
 				
 				for popup in self.popups:
 					if isinstance(popup,OpenChart):
@@ -1936,6 +1930,15 @@ class DualView(Toplevel):
 			pass
 		
 		self.after(period*1000,self.update_from_file)
+
+	def initialize_charts_button(self):
+		for data in self.data_for_chart:
+			if data!=None:
+				log("Creating the chart button")
+				self.charts_button=Button(self.buttons_bar2, text=_('Graphs'))
+				self.charts_button.grid(column=3,row=1) #,sticky=E
+				self.charts_button.bind('<Button-1>', self.show_graphs)
+				break
 		
 	def initialize(self):
 
@@ -1969,123 +1972,107 @@ class DualView(Toplevel):
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		
 		self.popups=[]
+		self.data_for_chart=self.prepare_data_for_chart()
 		
 		bg=self.cget("background")
 		#self.configure(background=bg)
 		
-		Label(self,text='   ',background=bg).grid(column=0,row=0)
-		
+		# Such frames
 		buttons_bar=Frame(self,background=bg)
-		buttons_bar.grid(column=1,row=1,columnspan=3)
-		
-		first_move_button=Button(buttons_bar, text='|<< ',command=self.first_move)
-		first_move_button.grid(column=8,row=1)
-		
-		prev_10_moves_button=Button(buttons_bar, text=' << ',command=self.prev_10_move)
-		prev_10_moves_button.grid(column=9,row=1)
-		
-		prev_button=Button(buttons_bar, text=' <  ',command=self.prev_move)
-		prev_button.grid(column=10,row=1)
-		
-		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
-		
-		self.move_number=Label(buttons_bar,text='   ',background=bg)
-		self.move_number.grid(column=20,row=1)
-		
+		self.buttons_bar2=buttons_bar2=Frame(self,background=bg)
+		lists_frame=Frame(self,background=bg)
 
-		
-		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
-		
-		next_button=Button(buttons_bar, text='  > ',command=self.next_move)
-		next_button.grid(column=30,row=1)
-		
-		next_10_moves_button=Button(buttons_bar, text=' >> ',command=self.next_10_move)
-		next_10_moves_button.grid(column=31,row=1)
-		
-		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
-		final_move_button.grid(column=32,row=1)
-		
-		buttons_bar2=Frame(self,background=bg)
-		buttons_bar2.grid(column=1,row=2,sticky=W)
-		
-		open_button=Button(buttons_bar2, text=_('Open position'),command=self.open_move)
-		open_button.grid(column=1,row=1)
-		
-		self.territory_button=Button(buttons_bar2, text=_('Show territories'))
-		self.territory_button.grid(column=2,row=1)
-		self.territory_button.bind('<Button-1>', self.show_territories)
-		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
-		
-		self.data_for_chart=self.prepare_data_for_chart()
-		self.charts_button=None
-		for data in self.data_for_chart:
-			if data!=None:
-				self.charts_button=Button(self, text=_('Graphs'))
-				self.charts_button.bind('<Button-1>', self.show_graphs)
-				self.charts_button.grid(column=3,row=2,sticky=E)
-				break
-		
-		self.bind('<Left>', self.prev_move)
-		self.bind('<Right>', self.next_move)
 
-		#Label(app,background=bg).grid(column=1,row=2)
-
-		row=10
-
-		#Label(self,background=bg).grid(column=1,row=row-1)
-
+		# Such widgets for main window
 		#self.goban1 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-		self.goban1 = Goban(self.dim,master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-		
-
-		
-		self.goban1.grid(column=1,row=row,sticky=W+E+N+S)
-		Label(self, text='            ',background=bg).grid(column=2,row=row)
+		self.goban1 = Goban(self.dim,master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0) #bg
 		#self.goban2 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
-		
-		self.goban2.black_stones_style=self.goban1.black_stones_style
-		self.goban2.white_stones_style=self.goban1.white_stones_style
-		
-		#self.goban2.black_stones=self.goban1.black_stones
-		#self.goban2.white_stones=self.goban1.white_stones
-		self.goban2.grid(column=3,row=row,sticky=W+E+N+S)
-		
-		self.grid_rowconfigure(row, weight=1)
-		self.grid_columnconfigure(1, weight=1)
-		self.grid_columnconfigure(3, weight=1)
-		
+		self.goban2.black_stones=self.goban1.black_stones
+		self.goban2.white_stones=self.goban1.white_stones
 		self.goban1.space=self.goban_size/(self.dim+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1)
+
+
+		self.status_bar=Label(self,text='',background=bg, wraplength = self.goban_size - 2)
+
+		# Such widgets for the buttons_bar - game navigation
+		first_move_button=Button(buttons_bar, text='|<< ',command=self.first_move)
+		prev_10_moves_button=Button(buttons_bar, text=' << ',command=self.prev_10_move)
+		prev_button=Button(buttons_bar, text=' <  ',command=self.prev_move)
+		self.move_number=Label(buttons_bar,text='   ',background=bg)
+		next_button=Button(buttons_bar, text='  > ',command=self.next_move)
+		next_10_moves_button=Button(buttons_bar, text=' >> ',command=self.next_10_move)
+		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
 		
-		self.bind('<Control-q>', self.save_left_as_png)
-		self.bind('<Control-w>', self.save_right_as_png)
+		# Such widgets for the buttons_bar2 - commands and extra windows
+		open_button=Button(buttons_bar2, text=_('Open position'),command=self.open_move)
+		self.territory_button=Button(buttons_bar2, text=_('Show territories'))
+		self.table_button=Button(buttons_bar2,text=_("Table"),command=self.open_table)
+		self.charts_button=None
+		self.initialize_charts_button()
 		
-		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
-		
+		# Such widgets for the rightmost list frame
 		police = tkFont.nametofont("TkFixedFont")
 		lpix = police.measure("a")
 		self.lpix=lpix
-		#self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
+		self.comment_lines = int(self.goban_size / police.metrics('linespace') - 2)
+		self.comment_chars = 30
+		#self.comment_box1=ScrolledText(lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
+		self.comment_box2=ScrolledText(lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
 		
-		self.table_button=Button(self,text=_("Table"),command=self.open_table)
-		self.table_button.grid(column=2,row=row,sticky=S)
 		
-		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(2*self.goban_size/lpix-2),height=7,foreground='black')
-		self.comment_box2.grid(column=1, columnspan=3,row=row+4,sticky=W+E)
+		#Place widgets in button_bar
+		first_move_button.grid(column=8,row=1)
+		prev_10_moves_button.grid(column=9,row=1)
+		prev_button.grid(column=10,row=1)
+		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
+		self.move_number.grid(column=20,row=1)
+		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
+		next_button.grid(column=30,row=1)
+		next_10_moves_button.grid(column=31,row=1)
+		final_move_button.grid(column=32,row=1)
+
+		#Place widgets in command bar
+		open_button.grid(column=1,row=1)
+		self.table_button.grid(column=2,row=1)
+		self.territory_button.grid(column=4,row=1)
+
+		#Place widgets in lists frame
+		#self.comment_box1.grid(column=1,row=1,sticky=N+S+E+W, padx=2, pady=2)
+		self.comment_box2.grid(column=1,row=2,sticky=N+S+E+W, padx=2, pady=2)
+		lists_frame.grid_columnconfigure(1, weight=1)
+		lists_frame.grid_rowconfigure(1, weight=1)
+		lists_frame.grid_rowconfigure(2, weight=1)
+
 		
-		self.status_bar=Label(self,text='',background=bg)
-		self.status_bar.grid(column=1,row=row+5,sticky=W,columnspan=3)
+		#Place widgets in main frame
+		self.goban1.grid(column=1,row=1,sticky=W+E+N+S)
+		Label(self, text='   ',background=bg).grid(column=2,row=1)
+		self.goban2.grid(column=3,row=1,sticky=W+E+N+S)
+		self.status_bar.grid(column=1,row=2,sticky=W)
+		buttons_bar.grid(column=3,row=2,sticky=S,pady=5)
+
+		lists_frame.grid(column=5,row=0,rowspan=2,sticky=N+S+E+W,pady=5)
+		buttons_bar2.grid(column=5,row=2,sticky=S,pady=5) #,sticky=W
+
+		self.grid_columnconfigure(1, weight=1)
+		self.grid_columnconfigure(3, weight=1)
+		self.grid_columnconfigure(5, weight=1)
+		self.grid_rowconfigure(1, weight=1)
+		#self.grid_columnconfigure(5, weight=1)
 		
-		#Label(self,text='   ',background=bg).grid(column=4,row=row+6)
+		# Such keybindings
+		self.territory_button.bind('<Button-1>', self.show_territories)
+		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
+		self.parent.bind('<Control-q>', self.save_left_as_png)
+		self.parent.bind('<Control-w>', self.save_right_as_png)
+		self.parent.bind('<Left>', self.prev_move)
+		self.parent.bind('<Right>', self.next_move)
 		
-		goban.show_variation=self.show_variation
-		
-		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
-		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
-		
+		# Such tooltips
 		first_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to first move.")))
 		prev_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go back 10 moves.")))
 		prev_button.bind("<Enter>",lambda e: self.set_status(_("Go back one move. Shortcut: keyboard left key.")))
@@ -2094,12 +2081,15 @@ class DualView(Toplevel):
 		next_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go forward 10 moves.")))
 		final_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to final move.")))
 		self.territory_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show territories.")))
+		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
 		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
 		self.goban1.bind("<Configure>",self.redraw)
 		self.after(10000,self.update_from_file)
-	
+		goban.show_variation=self.show_variation
+		
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
 		new_space=new_size/(self.dim+1+1)
@@ -2120,8 +2110,9 @@ class DualView(Toplevel):
 		
 		if sys.platform!="darwin":
 			#https://github.com/pnprog/goreviewpartner/issues/7
-			self.comment_box2.config(width=int(event.width/self.lpix-10))
-		
+			#self.comment_box1.config(width=self.comment_chars)
+			self.comment_box2.config(width=self.comment_chars)
+
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
 		
