@@ -1358,12 +1358,13 @@ class DualView(Toplevel):
 			one_move=get_node(self.gameroot,m)
 
 			try:
-				player_color,player_move=one_move.get_move()
-				one_data['player_color']=player_color.lower() #which turn it is to play
-			except:
+				one_data['player_color']=guess_color_to_play(self.gameroot,m) #which turn it is to play
+			except Exception, e:
+				print e
 				pass
 			
 			try:
+				player_color,player_move=one_move.get_move()
 				player_move=ij2gtp(player_move).upper()
 				one_data['move']=m #move number
 			except:
