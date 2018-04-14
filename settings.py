@@ -112,16 +112,16 @@ class OpenSettings(Toplevel):
 		row+=1
 		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
 		VariationsColoring = StringVar()
-		coloring=(_("Winning variations (>50%) only in blue"),_("The best variation in blue"),_("Variations better than actual game move in blue"))
-		VariationsColoring.set(coloring[0])
-		OptionMenu(setting_frame,VariationsColoring,*coloring).grid(row=row,column=2,sticky=W)
+		coloring={"blue_for_winning":_("Winning variations (>50%) only in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
+		VariationsColoring.set(coloring[Config.get("Review","VariationsColoring")])
+		OptionMenu(setting_frame,VariationsColoring,*tuple(coloring.values())).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(setting_frame,text=_("Labels for the variations")).grid(row=row,column=1,sticky=W)
-		value={"letter":_("Letters"),"rate":_("Rates")}
+		values={"letter":_("Letters"),"rate":_("Rates")}
 		VariationsLabel = StringVar()
-		VariationsLabel.set(value[Config.get("Review","VariationsLabel")])
-		OptionMenu(setting_frame,VariationsLabel,_("Letters"),_("Rates")).grid(row=row,column=2,sticky=W)
+		VariationsLabel.set(values[Config.get("Review","VariationsLabel")])
+		OptionMenu(setting_frame,VariationsLabel,*tuple(values.values())).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(setting_frame,text=_("Inverted mouse wheel")).grid(row=row,column=1,sticky=W)
