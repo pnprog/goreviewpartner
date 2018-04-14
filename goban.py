@@ -65,14 +65,14 @@ class Stone():
 		if self.hidden:
 			self.canvas.move(self.s1,self.offset,self.offset)
 			self.canvas.move(self.s2,self.offset,self.offset)
-			self.canvas.move(self.s2,self.offset,self.offset)
+			self.canvas.move(self.s3,self.offset,self.offset)
 			self.hidden=False
 	
 	def hide(self):
 		if not self.hidden:
 			self.canvas.move(self.s1,-self.offset,-self.offset)
 			self.canvas.move(self.s2,-self.offset,-self.offset)
-			self.canvas.move(self.s2,-self.offset,-self.offset)
+			self.canvas.move(self.s3,-self.offset,-self.offset)
 			self.hidden=True
 	
 	def ij2xy(self,i,j):
