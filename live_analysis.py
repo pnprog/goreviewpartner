@@ -684,10 +684,12 @@ class LiveAnalysis(Toplevel):
 				self.analyser.bot.place(ij2gtp((i,j)),1)
 				self.history[0]=[copy(self.grid),copy(self.markup)]
 				place(self.grid,i,j,1)
+				
 				self.grid[i][j]=1
 				self.markup=[["" for r in range(dim)] for c in range(dim)]
 				self.markup[i][j]=0
 				self.goban.display(self.grid,self.markup)
+				self.goban.black_stones[i][j].shine()
 				self.handicap_stones.append([i,j])
 				#if type(self.black)!=type("abc"):
 				#	self.black.place_black(ij2gtp((i,j)))
@@ -923,7 +925,10 @@ class LiveAnalysis(Toplevel):
 			self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
 			self.markup[i][j]=0
 			self.goban.display(self.grid,self.markup,freeze=True)
-			
+			if color==1:
+				self.goban.black_stones[i][j].shine()
+			else:
+				self.goban.white_stones[i][j].shine()
 			if color==1:
 				#black juste played
 				self.g.lock.acquire()
@@ -1149,7 +1154,7 @@ class LiveAnalysis(Toplevel):
 				#nothing, so we add a stone			
 	
 				self.history.append([copy(self.grid),copy(self.markup)])
-					
+				
 				place(self.grid,i,j,color)
 				self.grid[i][j]=color
 				
@@ -1157,6 +1162,10 @@ class LiveAnalysis(Toplevel):
 				self.markup[i][j]=0
 					
 				self.goban.display(self.grid,self.markup)
+				if color==1:
+					self.goban.black_stones[i][j].shine()
+				else:
+					self.goban.white_stones[i][j].shine()
 				self.next_color=3-color
 				
 				self.g.lock.acquire()

@@ -752,6 +752,8 @@ class OpenMove(Toplevel):
 			self.history.append([copy(self.grid),copy(self.markup)])
 			
 			place(self.grid,i,j,color)
+			self.display_queue.put((i,j))
+			
 			self.grid[i][j]=color
 			self.markup=[["" for r in range(dim)] for c in range(dim)]
 			self.markup[i][j]=0
@@ -770,7 +772,6 @@ class OpenMove(Toplevel):
 			if move.lower() not in ["pass","resign"]:
 				log("SELF PLAY")
 				self.display_queue.put(2)
-				
 				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))
 				self.after(0,one_thread.start)
 				return
@@ -825,6 +826,10 @@ class OpenMove(Toplevel):
 				self.markup[i][j]=0
 					
 				self.goban.display(self.grid,self.markup)
+				if color==1:
+					self.goban.black_stones[i][j].shine()
+				else:
+					self.goban.white_stones[i][j].shine()
 				self.next_color=3-color
 				self.undo_button.config(state='normal')
 				
@@ -836,7 +841,8 @@ class OpenMove(Toplevel):
 					if self.black_autoplay:
 						threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 						#self.click_button(self.menu_bots[self.selected_bot.get()])
-						
+
+				
 	def set_status(self,msg,event=None):
 		self.status_bar.config(text=msg)
 		
@@ -1110,7 +1116,7 @@ class OpenMove(Toplevel):
 	def wait_for_display(self):
 		try:
 			msg=self.display_queue.get(False)
-			
+			print msg,type(msg)
 			if msg==0:
 				pass
 			elif msg==1:
@@ -1119,6 +1125,13 @@ class OpenMove(Toplevel):
 			elif msg==2:
 				self.goban.display(self.grid,self.markup,True)
 				self.parent.after(100,self.wait_for_display)
+			elif type(msg)==type((1,1)):
+				i,j=msg
+				if self.grid[i][j]==1:
+					self.goban.black_stones[i][j].shine()
+				else:
+					self.goban.white_stones[i][j].shine()
+				self.parent.after(0,self.wait_for_display)
 			else:
 				show_info(msg,self)
 				self.goban.display(self.grid,self.markup)
