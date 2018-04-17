@@ -1257,6 +1257,7 @@ class DualView(Toplevel):
 		
 	def leave_variation(self,goban,grid,markup):
 		self.comment_box2.delete(1.0, END)
+		self.comment_box2.insert(END,self.game_comments)
 		self.parent.bind("<Up>", lambda e: None)
 		self.parent.bind("<Down>", lambda e: None)
 		self.current_variation_sequence=None
@@ -1589,19 +1590,21 @@ class DualView(Toplevel):
 			self.territory_button.grid_remove()
 		
 		#indicating last play with delta
-		self.comment_box1.delete(1.0, END)
 		
+		self.game_comments=""
+		self.comment_box2.delete(1.0, END)
 		if m>=0:
 			left_comments=get_position_comments(self.current_move,self.gameroot)
 			if get_node(self.gameroot,m+1).has_property("C"):
 				left_comments+="\n\n==========\n"+get_node(self.gameroot,m+1).get("C")
-			self.comment_box1.insert(END,left_comments)
+			self.game_comments=left_comments
+			self.comment_box2.insert(END,self.game_comments)
 			
 		if m>0:
 			markup1[i][j]=0
 			markup2[i][j]=0
 
-		self.comment_box2.delete(1.0, END)
+		
 		#next sequence in current game ############################################################################
 		main_sequence=[]
 		real_game_ij=(-1,-1)
@@ -2026,14 +2029,13 @@ class DualView(Toplevel):
 		police = tkFont.nametofont("TkFixedFont")
 		lpix = police.measure("a")
 		self.lpix=lpix
-		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
-		self.comment_box1.grid(column=1,row=row+4)
+		#self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
 		
 		self.table_button=Button(self,text=_("Table"),command=self.open_table)
-		self.table_button.grid(column=2,row=row+4)
+		self.table_button.grid(column=2,row=row,sticky=S)
 		
-		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
-		self.comment_box2.grid(column=3,row=row+4)
+		self.comment_box2=ScrolledText(self,font=police,wrap="word",width=int(2*self.goban_size/lpix-2),height=7,foreground='black')
+		self.comment_box2.grid(column=1, columnspan=3,row=row+4,sticky=W+E)
 		
 		self.status_bar=Label(self,text='',background=bg)
 		self.status_bar.grid(column=1,row=row+5,sticky=W,columnspan=3)
@@ -2076,11 +2078,11 @@ class DualView(Toplevel):
 		self.goban1.reset()
 		self.goban2.reset()
 		
+		
 		if sys.platform!="darwin":
 			#https://github.com/pnprog/goreviewpartner/issues/7
-			self.comment_box1.config(width=int(event.width/self.lpix-10))
 			self.comment_box2.config(width=int(event.width/self.lpix-10))
-
+		
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
 		
