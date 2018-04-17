@@ -1591,6 +1591,7 @@ class DualView(Toplevel):
 		self.comment_box2.delete(1.0, END)
 		#next sequence in current game ############################################################################
 		main_sequence=[]
+		real_game_ij=(-1,-1)
 		for m in range(self.realgamedeepness):
 			one_move=get_node(self.gameroot,move+m)
 			if one_move==False:
@@ -1608,7 +1609,7 @@ class DualView(Toplevel):
 			else:
 				main_sequence.append([c,ij])
 		
-		real_game_ij=(-1,-1)
+		
 		try:
 			i,j=list(get_node(self.gameroot,move).get_move()[1])
 			if main_sequence:
@@ -1697,12 +1698,11 @@ class DualView(Toplevel):
 			if one_alternative.has_property("C"):
 				comments+=one_alternative.get("C")
 
-			
-			if ij==real_game_ij:
+			if ij==real_game_ij: #in case the variation first move is the same as the game actual move, keep the label in black
 				letter_color="black"
 			else:
 				letter_color=displaycolor
-
+			
 			if self.variation_label=="letter":
 				alternative_sequence=[[c,ij,chr(64+a),comments,displaycolor,letter_color]]
 			else:
