@@ -87,7 +87,7 @@ class Goban(Canvas):
 	def __init__(self,dim,**kwargs):
 		self.dim=dim
 		self.space=space
-		self.wood_color=(.9*236,.9*206,.9*124)
+		self.wood_color=(214,174,114) #same as gogui
 		Canvas.__init__(self,**kwargs)
 		
 		self.anchor_x=0
