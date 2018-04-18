@@ -1116,7 +1116,6 @@ class OpenMove(Toplevel):
 	def wait_for_display(self):
 		try:
 			msg=self.display_queue.get(False)
-			print msg,type(msg)
 			if msg==0:
 				pass
 			elif msg==1:
@@ -1165,14 +1164,12 @@ class Table(Toplevel):
 		self.parent.remove_popup(self)
 		log("done")
 
-	def __init__(self,parent,gameroot,current_move=0):
+	def __init__(self,parent,gameroot,current_move,grid,markup):
 		Toplevel.__init__(self,parent)
 		log("opening table for move",current_move)
 		
-		
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		self.parent=parent
-		
 		
 		self.gameroot=gameroot
 		
@@ -1180,9 +1177,9 @@ class Table(Toplevel):
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Review", "MaxVariations"))
 		
-		self.display_move(current_move)
+		self.display_move(current_move,grid,markup)
 		
-	def display_move(self,current_move):
+	def display_move(self,current_move,grid,markup):
 		new_popup=self
 		
 		for widget in new_popup.winfo_children():
@@ -1201,7 +1198,7 @@ class Table(Toplevel):
 		columns_header=[_("Move"),'nothing here',_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score estimation")]
 		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
-		nb_variations=min(len(parent)-1,self.maxvariations+1)
+		nb_variations=min(len(parent),self.maxvariations+1)
 		log(nb_variations,"variations")
 		
 		columns=[[None for r in range(nb_variations+1)] for c in range(len(columns_header))]
@@ -1272,13 +1269,19 @@ class Table(Toplevel):
 		for r in range(nb_variations):
 			for c in range(len(columns)):
 				if columns_header[c]:
-					Label(new_popup,text=columns[c][r],relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
+					one_label=Label(new_popup,text=columns[c][r],relief=RIDGE)
+					one_label.grid(row=row+r,column=10+c,sticky=W+E)
+					if r>0:
+						i,j=gtp2ij(columns[1][r])
+						one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.goban2,grid=grid,markup=markup,i=i,j=j))
+						one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.goban2,grid,markup))
 			if r==0:
 				row+=1
 				for c in range(len(columns)):
 					if columns_header[c]:
 						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
-
+			
+				
 
 class DualView(Toplevel):
 	def __init__(self,parent,filename,goban_size=200):
@@ -1368,7 +1371,7 @@ class DualView(Toplevel):
 					#self.parent.after(0,popup.display)
 					popup.display()
 				elif isinstance(popup,Table):
-					popup.display_move(self.current_move)
+					popup.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
 					
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
@@ -1378,7 +1381,7 @@ class DualView(Toplevel):
 					#self.parent.after(0,popup.display)
 					popup.display()
 				elif isinstance(popup,Table):
-					popup.display_move(self.current_move)
+					popup.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
 					
 		self.update_idletasks()
 		
@@ -1501,7 +1504,6 @@ class DualView(Toplevel):
 			try:
 				one_data['player_color']=guess_color_to_play(self.gameroot,m) #which turn it is to play
 			except Exception, e:
-				print e
 				pass
 			
 			try:
@@ -1644,7 +1646,7 @@ class DualView(Toplevel):
 		self.add_popup(new_popup)
 		
 	def open_table(self,event=None):
-		new_popup=Table(self,self.gameroot,self.current_move)
+		new_popup=Table(self,self.gameroot,self.current_move,self.goban2.grid,self.goban2.markup)
 		self.add_popup(new_popup)
 	
 	def hide_territories(self,event=None):
