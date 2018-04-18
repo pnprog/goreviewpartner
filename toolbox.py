@@ -621,10 +621,8 @@ def guess_color_to_play(move_zero,move_number):
 	previous_move_color=guess_color_to_play(move_zero,move_number-1)
 
 	if previous_move_color.lower()=='b':
-		print "guess_color_to_play(%i)=%s"%(move_number,"w")
 		return "w"
 	else:
-		print "guess_color_to_play(%i)=%s"%(move_number,"b")
 		return "b"
 
 class LiveAnalysisBase():

@@ -1156,7 +1156,130 @@ class OpenMove(Toplevel):
 	def save_as_png(self,event=None):
 		filename = save_png_file(parent=self,filename='variation_move'+str(self.move)+'.png')
 		canvas2png(self.goban,filename)
+
+class Table(Toplevel):
+
+	def close(self):
+		log("closing popup")
+		self.destroy()
+		self.parent.remove_popup(self)
+		log("done")
+
+	def __init__(self,parent,gameroot,current_move=0):
+		Toplevel.__init__(self,parent)
+		log("opening table for move",current_move)
 		
+		
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		self.parent=parent
+		
+		
+		self.gameroot=gameroot
+		
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		self.maxvariations=int(Config.get("Review", "MaxVariations"))
+		
+		self.display_move(current_move)
+		
+	def display_move(self,current_move):
+		new_popup=self
+		
+		for widget in new_popup.winfo_children():
+			widget.destroy()
+		
+		self.current_move=current_move
+		Label(new_popup,text=" ").grid(row=0,column=0)
+		Label(new_popup,text=" ").grid(row=1000,column=1000)
+
+		row=1
+		comments=get_position_comments(self.current_move,self.gameroot)
+		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W)
+		
+		Label(new_popup,text=" ").grid(row=row+1,column=0)
+		
+		columns_header=[_("Move"),'nothing here',_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score estimation")]
+		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
+		parent=get_node(self.gameroot,self.current_move-1)
+		nb_variations=min(len(parent)-1,self.maxvariations+1)
+		log(nb_variations,"variations")
+		
+		columns=[[None for r in range(nb_variations+1)] for c in range(len(columns_header))]
+		color=guess_color_to_play(self.gameroot,current_move)
+		for a in range(1,min(len(parent),self.maxvariations+1)):
+			one_alternative=parent[a]
+			c=0
+			
+			for key in columns_sgf_properties:
+				if one_alternative.has_property(key):
+					value=one_alternative.get(key)
+					if "%/" in value:
+						if color=="b":
+							value=value.split("/")[0]
+						else:
+							value=value.split("/")[1]
+					columns[c][a]=value
+				c+=1
+			columns[0][a]="ABCDEFGHIJKLMNOPQRSTUVWXYZ"[a-1]
+			columns[1][a]=ij2gtp(one_alternative.get_move()[1])
+		
+		try:
+			columns[0][0]="A"
+			columns[1][0]=ij2gtp(parent[0].get_move()[1])
+			one_alternative=parent[0][1]
+			c=0
+			for key in columns_sgf_properties:
+				if one_alternative.has_property(key):
+					value=one_alternative.get(key)
+					if "%/" in value:
+						if parent[0].get_move()[0].lower()=="b":
+							value=value.split("/")[0]
+						else:
+							value=value.split("/")[1]
+					columns[c][0]=value
+				c+=1
+		except:
+			pass
+		c=0
+		for column in columns:
+			empty=True
+			for row in column:
+				if row!=None:
+					empty=False
+					break
+			if empty:
+				columns_header[c]=None
+			c+=1
+		
+		row=10
+		new_popup=Frame(new_popup,bd=2,relief=RIDGE)
+		new_popup.grid(row=row,column=10)
+		
+		row=10
+		c=0
+		for header in columns_header:
+			if header:
+				if c==0:
+					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,columnspan=2,sticky=W+E)
+				elif c==1:
+					pass
+				else:
+					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,sticky=W+E)
+				Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+1,column=10+c,sticky=W+E)
+			c+=1
+		row+=2
+		
+		for r in range(nb_variations):
+			for c in range(len(columns)):
+				if columns_header[c]:
+					Label(new_popup,text=columns[c][r],relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
+			if r==0:
+				row+=1
+				for c in range(len(columns)):
+					if columns_header[c]:
+						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
+
+
 class DualView(Toplevel):
 	def __init__(self,parent,filename,goban_size=200):
 		Toplevel.__init__(self,parent)
@@ -1244,7 +1367,9 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-		
+				elif isinstance(popup,Table):
+					popup.display_move(self.current_move)
+					
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
 			for popup in self.popups:
@@ -1252,7 +1377,9 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-
+				elif isinstance(popup,Table):
+					popup.display_move(self.current_move)
+					
 		self.update_idletasks()
 		
 	def leave_variation(self,goban,grid,markup):
@@ -1516,6 +1643,9 @@ class DualView(Toplevel):
 		new_popup.current_move=self.current_move
 		self.add_popup(new_popup)
 		
+	def open_table(self,event=None):
+		new_popup=Table(self,self.gameroot,self.current_move)
+		self.add_popup(new_popup)
 	
 	def hide_territories(self,event=None):
 		self.goban1.display(self.current_grid,self.current_markup)
@@ -1754,99 +1884,6 @@ class DualView(Toplevel):
 		new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
 		self.add_popup(new_popup)
-	
-	def open_table(self):
-		log("opening table")
-		
-		new_popup=Toplevel(self.parent)
-		Label(new_popup,text=" ").grid(row=0,column=0)
-		Label(new_popup,text=" ").grid(row=1000,column=1000)
-
-		row=1
-		comments=get_position_comments(self.current_move,self.gameroot)
-		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W)
-		
-		Label(new_popup,text=" ").grid(row=row+1,column=0)
-		
-		columns_header=[_("Move"),'nothing here',_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score estimation")]
-		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
-		parent=get_node(self.gameroot,self.current_move-1)
-		nb_variations=min(len(parent)-1,self.maxvariations+1)
-		log(nb_variations,"variations")
-		
-		columns=[[None for r in range(nb_variations+1)] for c in range(len(columns_header))]
-		
-		for a in range(1,min(len(parent),self.maxvariations+1)):
-			one_alternative=parent[a]
-			c=0
-			for key in columns_sgf_properties:
-				if one_alternative.has_property(key):
-					value=one_alternative.get(key)
-					if "%/" in value:
-						if parent[0].get_move()[0].lower()=="b":
-							value=value.split("/")[0]
-						else:
-							value=value.split("/")[1]
-					columns[c][a]=value
-				c+=1
-			columns[0][a]="ABCDEFGHIJKLMNOPQRSTUVWXYZ"[a-1]
-			columns[1][a]=ij2gtp(one_alternative.get_move()[1])
-		
-		try:
-			columns[0][0]="A"
-			columns[1][0]=ij2gtp(parent[0].get_move()[1])
-			one_alternative=parent[0][1]
-			c=0
-			for key in columns_sgf_properties:
-				if one_alternative.has_property(key):
-					value=one_alternative.get(key)
-					if "%/" in value:
-						if parent[0].get_move()[0].lower()=="b":
-							value=value.split("/")[0]
-						else:
-							value=value.split("/")[1]
-					columns[c][0]=value
-				c+=1
-		except:
-			pass
-		c=0
-		for column in columns:
-			empty=True
-			for row in column:
-				if row!=None:
-					empty=False
-					break
-			if empty:
-				columns_header[c]=None
-			c+=1
-		
-		row=10
-		new_popup=Frame(new_popup,bd=2,relief=RIDGE)
-		new_popup.grid(row=row,column=10)
-		
-		row=10
-		c=0
-		for header in columns_header:
-			if header:
-				if c==0:
-					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,columnspan=2,sticky=W+E)
-				elif c==1:
-					pass
-				else:
-					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,sticky=W+E)
-				Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+1,column=10+c,sticky=W+E)
-			c+=1
-		row+=2
-		
-		for r in range(nb_variations):
-			for c in range(len(columns)):
-				if columns_header[c]:
-					Label(new_popup,text=columns[c][r],relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
-			if r==0:
-				row+=1
-				for c in range(len(columns)):
-					if columns_header[c]:
-						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
 
 	def update_from_file(self):
 		period=20
