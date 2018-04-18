@@ -46,12 +46,14 @@ class Stone():
 		j=self.j
 		u=self.i+self.mesh[i][j][0]
 		v=self.j+self.mesh[i][j][1]
+		
 		c1,c2,c3=self.style
-		self.s1=self.draw_point(u,v,.9,color=c1,outline="#000000",width=1)
+		self.outline="black"
+		
+		self.s1=self.draw_point(u,v,.9,color=c1,outline=self.outline,width=1)
 		self.s2=self.draw_point(u-0.1,v+0.1,.45,color=c2,outline="")
 		self.s3=self.draw_point(u-0.15,v+0.15,.15,color=c3,outline="")
-		self.s4=self.draw_point(u,v,.9,color="",outline="black",width=0)
-		
+		self.s4=self.draw_point(u,v,.9,color="",outline=c1,width=0)
 		
 	def create_white_stone(self):
 		i=self.i
@@ -60,22 +62,25 @@ class Stone():
 		v=self.j+self.mesh[i][j][1]
 		
 		c1,c2,c3=self.style
-		#self.s1=self.draw_point(u,v,.9,color=c1,outline="#808080",width=1)
-		self.s1=self.draw_point(u,v,.9,color=c1,outline="#808080",width=1)
+		self.outline="#808080"
+		
+		self.s1=self.draw_point(u,v,.9,color=c1,outline=self.outline,width=1)
 		self.s2=self.draw_point(u-0.05,v+0.05,.7,color=c2,outline="")
 		self.s3=self.draw_point(u-0.075,v+0.075,.5,color=c3,outline="")
 		self.s4=self.draw_point(u,v,.9,color="",outline=c1,width=0)
 		
 	
-	def shine(self,remaining=40):
-		s=abs(sin((40-remaining)*(8*pi/100.))*2.)
+	def shine(self,remaining=25):
+		s=abs(sin((25-remaining)*(8*pi/100.))*2.)
 		self.canvas.itemconfig(self.s4,width=int((0.1+s)*self.space/22))
+		self.canvas.itemconfig(self.s1,outline="#D6AE72")
 		
 		remaining-=1
 		if remaining==0:
 			self.canvas.itemconfig(self.s4,width=0)
+			self.canvas.itemconfig(self.s1,outline=self.outline)
 		else:
-			self.canvas.after(20,lambda: self.shine(remaining))
+			self.canvas.after(30,lambda: self.shine(remaining))
 		
 	def show(self):
 		if self.hidden:
