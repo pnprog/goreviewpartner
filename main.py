@@ -37,33 +37,41 @@ class Main(Toplevel):
 		self.parent=parent
 		
 		bg=self.cget("background")
-		
-		logo = Canvas(self,bg=bg,width=5,height=5)
-		logo.pack(fill=BOTH,expand=1)
-		logo.bind("<Configure>",lambda e: draw_logo(logo,e))
 
-		label = Label(self, text=_("This is GoReviewPartner"), font="-weight bold")
-		label.pack(padx=5, pady=5)
 
 		self.popups=[]
 
-		self.analysis_bouton=Button(self, text=_("Run a SGF file analysis"), command=self.launch_analysis)
+		self.control_frame = Frame(self);
+		
+		label = Label(self.control_frame, text=_("This is GoReviewPartner"), font="-weight bold")
+		label.pack(padx=5, pady=5)
+
+		self.analysis_bouton=Button(self.control_frame, text=_("Run a SGF file analysis"), command=self.launch_analysis)
 		self.analysis_bouton.pack(fill=X,padx=5, pady=5)
 		
-		self.download_bouton=Button(self, text=_("Download a SGF file for analysis"), command=self.download_sgf_for_review)
+		self.download_bouton=Button(self.control_frame, text=_("Download a SGF file for analysis"), command=self.download_sgf_for_review)
 		self.download_bouton.pack(fill=X,padx=5, pady=5)
 		
-		self.live_bouton=Button(self, text=_("Run a live analysis"), command=self.launch_live_analysis)
+		self.live_bouton=Button(self.control_frame, text=_("Run a live analysis"), command=self.launch_live_analysis)
 		self.live_bouton.pack(fill=X,padx=5, pady=5)
 		
-		review_bouton=Button(self, text=_("Open a RSGF file for review"), command=self.launch_review)
+		review_bouton=Button(self.control_frame, text=_("Open a RSGF file for review"), command=self.launch_review)
 		review_bouton.pack(fill=X,padx=5, pady=5)
 		
-		r2sgf_bouton=Button(self, text=_("Convert RSGF file to SGF file"), command=self.r2sgf)
+		r2sgf_bouton=Button(self.control_frame, text=_("Convert RSGF file to SGF file"), command=self.r2sgf)
 		r2sgf_bouton.pack(fill=X,padx=5, pady=5)
 		
-		bouton=Button(self, text=_("Settings"), command=self.launch_settings)
+		bouton=Button(self.control_frame, text=_("Settings"), command=self.launch_settings)
 		bouton.pack(fill=X,padx=5, pady=5)
+
+		self.control_frame.pack(fill=X, side=BOTTOM)
+		
+		self.logo_frame = Frame(self)
+
+		logo = Canvas(self.logo_frame,bg=bg,width=5,height=5)
+		logo.pack(fill=BOTH, expand=1)
+		logo.bind("<Configure>",lambda e: draw_logo(logo,e))
+		self.logo_frame.pack(fill=BOTH, side=BOTTOM, expand=1)
 
 		self.protocol("WM_DELETE_WINDOW", self.close)
 	
