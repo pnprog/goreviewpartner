@@ -1474,7 +1474,7 @@ Config.read(config_file)
 lang=Config.get("General","Language")
 
 
-available_translations={"en": u"English", "fr" : u"Français", "de" : u"Deutsch", "kr" : u"Korean"}
+available_translations={"en": u"English", "fr" : u"Français", "de" : u"Deutsch", "kr" : u"한국어"}
 if not lang:
 	log("No language setting in the config file")
 	log("System language detection:")
