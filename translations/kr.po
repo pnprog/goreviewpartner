@@ -1,1 +1,458 @@
 
+#########################
+### popups and errors ###
+#########################
+
+# file selector
+msgid "Select a file"
+msgstr "파일을 선택하세요"
+
+# file type selector
+msgid "SGF file"
+msgstr "SGF파일"
+
+# file type selector
+msgid "SGF file reviewed"
+msgstr "SGF파일 검토 완료"
+
+#popup
+msgid "Error"
+msgstr "오류"
+
+#popup
+msgid "Information"
+msgstr "정보"
+
+#error
+msgid "Could not open the config file of Go Review Partner"
+msgstr "프로그램 설정파일을 열 수 없습니다"
+
+#error
+msgid "Could not save the RSGF file: "
+msgstr "RSGF파일을 저장할 수 없습니다: "
+
+#error
+msgid "Could not save the SGF file: "
+msgstr "SGF파일을 저장할 수 없습니다: "
+
+#error
+msgid "Error while initializing the GTP bot:"
+msgstr "GTP 엔진을 초기화할 수 없습니다:"
+
+#error
+msgid "Error while initializing the graphical interface:"
+msgstr "그래픽을 초기화할 수 없습니다:"
+
+#error
+msgid "Aborted"
+msgstr "중지되었습니다"
+
+#error
+msgid "Analysis aborted:"
+msgstr "분석이 중지되었습니다:"
+
+#########################
+###### main panel #######
+#########################
+
+msgid "Open a RSGF file for review"
+msgstr "검토할 RSGF파일 열기"
+
+msgid "Settings"
+msgstr "프로그램 설정"
+
+msgid "This is GoReviewPartner"
+msgstr "Go Review Partner"
+
+msgid "Run a SGF file analysis"
+msgstr "SGF파일 분석 시작"
+
+msgid "Download a SGF file for analysis"
+msgstr "분석할 SGF파일 다운로드"
+
+msgid "Run a live analysis"
+msgstr "실시간 분석 실행"
+
+msgid "Convert RSGF file to SGF file"
+msgstr "파일 변환(RSGF→SGF)"
+
+#########################
+### SGF download panel ##
+#########################
+
+msgid "Paste the URL to the SGF file (http or https):"
+msgstr "SGF파일 URL경로 (http oder https):"
+
+msgid "Get"
+msgstr "가져오기"
+
+msgid "Could not download the URL"
+msgstr "해당 URL을 다운로드할 수 없습니다"
+
+msgid "Not a SGF file!"
+msgstr "SGF파일이 아닙니다!"
+
+#############################
+### Analysis setting panel ##
+#############################
+
+msgid "Bot to use for analysis:"
+msgstr "분석 프로그램:"
+
+msgid "Select variation to be analysed"
+msgstr "분석할 변화도를 선택하세요"
+
+msgid "Variation %i (%i moves)"
+msgstr "변화도 %i (%i 번째 수)"
+
+msgid "Select moves to be analysed"
+msgstr "분석할 착수번호 선택"
+
+msgid "Analyse all %i moves"
+msgstr "전체 %i 수를 분석"
+
+msgid "Analyse only those moves:"
+msgstr "일부 구간만 분석:"
+
+msgid "Select colors to be analysed"
+msgstr "분석할 색깔(흑/백)을 선택"
+
+msgid "Black & white"
+msgstr "흑&백 모두 분석"
+
+msgid "Black only"
+msgstr "흑만 분석"
+
+msgid "White only"
+msgstr "백만 분석"
+
+msgid "Confirm the value of komi"
+msgstr "덤 값 확인"
+
+msgid "Error while reading komi value, please check:"
+msgstr "덤 값을 읽는데 실패했습니다. 확인해 주세요:"
+
+msgid "Start"
+msgstr "시작"
+
+msgid "This variation is empty (0 move), the analysis cannot be performed!"
+msgstr "변화도가 없으므로(0 수), 분석을 진행할 수 없습니다!"
+
+msgid "Incorrect value for komi (%s), please double check."
+msgstr "덤 값 (%s) 오류입니다, 재확인 바랍니다."
+
+msgid "Could not make sense of the moves range."
+msgstr "착수의 구간을 파악할 수 없습니다."
+
+msgid "Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"
+msgstr "착수번호 간격을 지정하세요 (예: \"10-20, 40,50-51,63,67\")"
+
+########################
+### Analysis running ###
+########################
+
+msgid "Remaining time: %ih, %imn, %is"
+msgstr "남은 시간: %i시간, %i분, %i초"
+
+msgid "Currently at move %i/%i"
+msgstr "현재 착수번호 %i/%i"
+
+msgid "Completed"
+msgstr "완료"
+
+msgid "Start review"
+msgstr "리뷰 시작"
+
+#####################################
+### Comments inside the RSGF file ###
+#####################################
+
+msgid "Analysis of: %s"
+msgstr "분석 프로그램: %s"
+
+msgid "Analysis by GoReviewPartner"
+msgstr "Go Review Partner 로 분석하였습니다"
+
+############################
+####### RSGF review ########
+############################
+msgid "Win rate"
+msgstr "승률"
+
+msgid "Black comparison"
+msgstr "흑 비교"
+
+msgid "White comparison"
+msgstr "백 비교"
+
+msgid "<Ctrl+Q> to save the goban as an image."
+msgstr "바둑판을 이미지로 저장하려면 <Ctrl+Q>를 누르세요."
+
+msgid "<Ctrl+Q> to save the graph as an image."
+msgstr "그래프를 이미지로 저장하려면 <Ctrl+Q>를 누르세요."
+
+msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
+msgstr "%i 번째 수: 흑의 승률: %s, 컴퓨터의 승률: %s"
+
+msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
+msgstr "%i 번째 수: 백의 승률: %s, 컴퓨터의 승률: %s"
+
+msgid "The computer believes it's own move win rate would be %.2fpp higher."
+msgstr "컴퓨터는 자신이 둔 수의 승률이 %.2f%% 더 높다고 생각합니다."
+
+msgid "The computer believes the actual move is %.2fpp better than it's best move."
+msgstr "컴퓨터는 실제 둔 수가 최선의 수보다 %.2f%% 더 좋다고 생각합니다."
+
+msgid "Black win rate"
+msgstr "흑 승률"
+
+msgid "White"
+msgstr "백"
+
+msgid "Black"
+msgstr "흑"
+
+msgid "Move %i (%s), black/white win rate: "
+msgstr "착수번호 %i (%s), 흑/백 승률: "
+
+msgid "Choose a filename"
+msgstr "파일명을 고르세요"
+
+msgid "Undo last move. Shortcut: mouse middle button."
+msgstr "마지막 수 무르기. 단축키: 마우스 가운데 버튼."
+
+#msgid "Ask %s to play the next move."
+#msgstr "%s 컴퓨터에게 다음 수를 두도록 합니다"
+
+msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
+msgstr "착수 순서를 보려면 마우스 휠 또는 키보드 위/아래 키를 사용하시오."
+
+msgid "Open position"
+msgstr "현재 위치에서 새 바둑판을 엽니다"
+
+msgid "Show territories"
+msgstr "영역(집) 보기"
+
+msgid "Graphs"
+msgstr "그래프"
+
+msgid "<Ctrl+W> to save the goban as an image."
+msgstr "바둑판을 이미지로 저장하려면 <Ctrl+W>를 누르세요."
+
+msgid "Go to first move."
+msgstr "첫 수로 이동."
+
+msgid "Go back 10 moves."
+msgstr "10수 뒤로 이동."
+
+msgid "Go back one move. Shortcut: keyboard left key."
+msgstr "한수 뒤로 이동. 단축키: 키보드 왼쪽 키."
+
+msgid "Open this position onto a third goban to play out variations."
+msgstr "새 바둑판을 열어서 현재 상태에서 변화도를 둬 봅니다."
+
+msgid "Go forward one move. Shortcut: keyboard right key."
+msgstr "한수 앞으로 이동. 단축키: 키보드 오른쪽 키."
+
+msgid "Go forward 10 moves."
+msgstr "10수 앞으로 이동."
+
+msgid "Go to final move."
+msgstr "마지막 수로 이동."
+
+msgid "Keep pressed to show territories."
+msgstr "영역(집)을 보려면 계속 누르고 있으세요."
+
+msgid "Undo"
+msgstr "무르기"
+
+msgid "Select a bot."
+msgstr "인공지능을 선택하세요"
+
+msgid "Play one move"
+msgstr "한수 두기"
+
+msgid "Ask the bot to play one move."
+msgstr "컴퓨터에게 한수 두게 하기."
+
+msgid "Play as white"
+msgstr "백으로 두기"
+
+msgid "Ask the bot to play as White."
+msgstr "컴퓨터가 백으로 두게 하기."
+
+msgid "Play as black"
+msgstr "흑으로 두기"
+
+msgid "Ask the bot to play as Black."
+msgstr "컴퓨터가 흑으로 두게 하기."
+
+msgid "Self play"
+msgstr "스스로 두기"
+
+msgid "Ask the bot to play alone."
+msgstr "컴퓨터가 혼자 두게 하기."
+
+msgid "Abort"
+msgstr "취소"
+
+
+########################
+#### Settings panel ####
+########################
+
+msgid "Save settings"
+msgstr "설정 저장"
+
+msgid "%s settings"
+msgstr "%s 설정"
+
+msgid "Fuzzy Stone"
+msgstr "바둑돌 삐딱하게"
+
+msgid "Real game sequence deepness"
+msgstr "실제 몇 수까지 둔 것을 표시"
+
+msgid "Goban/screen ratio"
+msgstr "화면에서 바둑판의 비율(크기)"
+
+msgid "Maximum number of variations to record during analysis"
+msgstr "분석하는 동안 기록할 최대 변화도의 수"
+
+msgid "Save bot command line into RSGF file"
+msgstr "인공지능 명령어를 RSGF파일에 기록"
+
+msgid "Maximum number of variations to display during review"
+msgstr "리뷰하는 동안 표시될 최대 변화도의 수"
+
+msgid "Command"
+msgstr "명령어"
+
+msgid "Needed for review"
+msgstr "리뷰하는 데 필요"
+
+msgid "Parameters"
+msgstr "파라미터(조건)"
+
+msgid "Stop the analysis if the bot resigns"
+msgstr "인공지능이 기권하면 분석을 멈춤"
+
+msgid "Parameters for the analysis"
+msgstr "분석에 대한 조건"
+
+msgid "Parameters for the review"
+msgstr "리뷰에 대한 조건"
+
+msgid "General parameters"
+msgstr "일반 조건들"
+
+msgid "Language"
+msgstr "언어"
+
+
+############################
+###### GnuGo specific ######
+############################
+
+msgid "Gnugo score estimation before the move was played: "
+msgstr "착수 직전의 Gnugo의 점수 예측: "
+
+msgid "GnuGo thread failed:"
+msgstr "Gnugo 실행 실패:"
+
+msgid "Maximum number of variations"
+msgstr "최대 변화도의 갯수"
+
+msgid "Deepness for each variation"
+msgstr "각 변화도의 최대 예측할 수"
+
+
+################################
+###### bot initialization ######
+################################
+
+msgid "The config.ini file does not contain entry for %s command line!"
+msgstr "config.ini 파일에 %s 명령어에 대한 항목가 없음!"
+
+msgid "The config.ini file does not contain command line for %s!"
+msgstr "config.ini 파일에 %s 명령어가 없음!"
+
+msgid "Could not run %s using the command from config.ini file:"
+msgstr "config.ini 파일의 명령어를 실행할 수 없음:"
+
+msgid "%s did not replied as expected to the GTP name command:"
+msgstr "%s 이(가) \"GTP name\" 명령어에 제대로 응답하지 않음:"
+
+msgid "%s did not identified itself as expected:"
+msgstr "%s 이(가) 제대로 인식되지 않음:"
+
+msgid "%s did not replied as expected to the GTP version command:"
+msgstr "%s 이(가) \"GTP version\" 명령어에 제대로 응답하지 않음:"
+
+msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
+msgstr "GTP 명령어로 바둑판 크기를 정할 수 없음. %s 이(가) GTP모드에서 동작하는지 확인 바람."
+
+msgid "%s rejected this board size (%ix%i)"
+msgstr "%s 이(가) 바둑판 크기를 거부함 (%ix%i)"
+
+##############################
+###### Running analysis ######
+##############################
+
+msgid "For this position, %s would %s"
+msgstr "이 경우에서는 %s 같으면 %s 위치에 두었을 것입니다."
+
+msgid "White to play, in the game, white played %s"
+msgstr "현재 백이 둘 차례, 대국에서는 백이 %s 에 두었음"
+
+msgid "Black to play, in the game, black played %s"
+msgstr "현재 흑이 둘 차례, 대국에서는 흑이 %s 에 두었음"
+
+msgid "Move %i"
+msgstr "착수번호 %i"
+
+msgid "Now closing, please wait..."
+msgstr "닫는 중, 잠시 기다리세요..."
+
+###############################
+####### Leela specific ########
+###############################
+
+msgid "black/white win probability for this variation: "
+msgstr "이 시점의 흑/백의 승률: "
+
+msgid "Monte Carlo win probalbility for this move: "
+msgstr "이 착수에 대한 Monte Carlo 승률: "
+
+msgid "Value network black/white win probability for this move: "
+msgstr "이 착수에 대한 흑/백 가중치(승률): "
+
+msgid "Policy network value for this move: "
+msgstr "이 착수에 대한 \"policy network\" 값: "
+
+msgid "Evaluation for this move: "
+msgstr "이 착수에 대한 평가: "
+
+msgid "RAVE(x%: y) for this move: "
+msgstr "이 착수에 대한 RAVE(x%: y): "
+
+msgid "Number of playouts used to estimate this variation: "
+msgstr "이 변화도를 예측하기 위한 playouts 숫자: "
+
+msgid "Book move"
+msgstr "착수 예약"
+
+msgid "%s black/white win probability for this position: "
+msgstr "이 시점의 %s 흑/백 승률: "
+
+msgid "Time per move (s)"
+msgstr "착수 시간 (초)"
+
+############################
+####### AQ specific ########
+############################
+
+msgid "See AQ parameters in aq_config.txt"
+msgstr "\"aq_config.txt\"에서 AQ 파라미터를 확인하세요"
+
+
