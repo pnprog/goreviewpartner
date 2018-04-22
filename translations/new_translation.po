@@ -142,7 +142,7 @@ msgstr ""
 
 #4.6
 msgid "Now closing, please wait..."
-msgstr "닫는 중, 잠시 기다리세요..."
+msgstr ""
 
 
 ############## RSGF review
@@ -279,7 +279,7 @@ msgstr ""
 ############## Graphs
 #7.1
 msgid "Win rate"
-msgstr "승률"
+msgstr ""
 
 #7.2
 msgid "Black win rate delta"
@@ -319,7 +319,7 @@ msgstr ""
 
 #7.11
 msgid "Black win rate"
-msgstr "흑 승률"
+msgstr ""
 
 #7.12
 msgid "Move %i (%s), black/white win rate: "
@@ -358,23 +358,23 @@ msgstr ""
 ############## GRP Settings
 #8.1
 msgid "%s settings"
-msgstr "%s 설정"
+msgstr ""
 
 #8.2
 msgid "General parameters"
-msgstr "일반 조건들"
+msgstr ""
 
 #8.3
 msgid "Language"
-msgstr "언어"
+msgstr ""
 
 #8.4
 msgid "Parameters for the analysis"
-msgstr "분석에 대한 조건"
+msgstr ""
 
 #8.5
 msgid "Maximum number of variations to record during analysis"
-msgstr "분석하는 동안 기록할 최대 변화도의 수"
+msgstr ""
 
 #8.6
 msgid "Only keep variations when game move and bot move differ"
@@ -382,27 +382,27 @@ msgstr ""
 
 #8.7
 msgid "Save bot command line into RSGF file"
-msgstr "인공지능 명령어를 RSGF파일에 기록"
+msgstr ""
 
 #8.8
 msgid "Parameters for the review"
-msgstr "리뷰에 대한 조건"
+msgstr ""
 
 #8.9
 msgid "Fuzzy Stone"
-msgstr "바둑돌 삐딱하게"
+msgstr ""
 
 #8.10
 msgid "Real game sequence deepness"
-msgstr "실제 몇 수까지 둔 것을 표시"
+msgstr ""
 
 #8.11
 msgid "Goban/screen ratio"
-msgstr "화면에서 바둑판의 비율(크기)"
+msgstr ""
 
 #8.12
 msgid "Maximum number of variations to display during review"
-msgstr "리뷰하는 동안 표시될 최대 변화도의 수"
+msgstr ""
 
 #8.13
 msgid "Blue/red coloring of the variations"
@@ -418,7 +418,7 @@ msgstr ""
 
 #8.16
 msgid "Save settings"
-msgstr "설정 저장"
+msgstr ""
 
 #8.17
 msgid "The best variation in blue"
@@ -499,7 +499,7 @@ msgstr ""
 
 #9.14
 msgid "See AQ parameters in aq_config.txt"
-msgstr "\"aq_config.txt\"에서 AQ 파라미터를 확인하세요"
+msgstr ""
 
 #9.15
 msgid "Slow profile"
@@ -585,7 +585,7 @@ msgstr ""
 
 #10.14
 msgid "black/white win probability for this variation: %s"
-msgstr "이 시점의 흑/백의 승률: %s"
+msgstr ""
 
 #10.15
 msgid "Policy network value for this variation: %s"
@@ -617,7 +617,7 @@ msgstr ""
 
 #10.22
 msgid "Analysis by GoReviewPartner"
-msgstr "Go Review Partner 로 분석하였습니다"
+msgstr ""
 
 #10.23
 msgid "Bot"
