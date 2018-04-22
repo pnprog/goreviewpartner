@@ -594,8 +594,8 @@ class LiveAnalysis(Toplevel):
 
 	def close(self):
 		log("Closing analyser bot")
-		self.game_label.config(text=_("Now closing, please wait"))
-		self.analysis_label.config(text=_("Now closing, please wait"))
+		self.game_label.config(text=_("Now closing, please wait..."))
+		self.analysis_label.config(text=_("Now closing, please wait..."))
 		log("Sending None msg to analyser")
 		self.analyser.update_queue.put((0,None))
 		if type(self.black)!=type("abc"):

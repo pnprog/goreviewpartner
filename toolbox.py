@@ -454,19 +454,21 @@ class RangeSelector(Toplevel):
 		Label(self,text="").grid(row=row,column=1)
 
 		board, unused = sgf_moves.get_setup_and_moves(self.g)
+		"""
 		if len(board.list_occupied_points())>0:
 			row+=1
 			Label(self,text=_("This is a %i stones handicap game.")%len(board.list_occupied_points())).grid(row=row,column=1,columnspan=2,sticky=W)
 			row+=1
 			Label(self,text=_("You may want to adjust the value of komi based on the rule set and the bot used.")).grid(row=row,column=1,columnspan=2,sticky=W)
-
+		"""
+		
 		row+=1
 		Label(self,text=_("Confirm the value of komi")).grid(row=row,column=1,sticky=W)
 
 		komi_entry=Entry(self)
 		komi_entry.grid(row=row,column=2,sticky=W)
 		komi_entry.delete(0, END)
-
+		
 		try:
 			komi=self.g.get_komi()
 			komi_entry.insert(0, str(komi))
@@ -525,9 +527,9 @@ class RangeSelector(Toplevel):
 
 	def start(self):
 
-		if self.nb_moves==0:
-			show_error(_("This variation is empty (0 move), the analysis cannot be performed!"),parent=self)
-			return
+		#if self.nb_moves==0:
+		#	show_error(_("This variation is empty (0 move), the analysis cannot be performed!"),parent=self)
+		#	return
 
 		try:
 			komi=float(self.komi_entry.get())
@@ -847,12 +849,12 @@ class RunAnalysisBase(Toplevel):
 			self.root.after(500,self.follow_analysis)
 
 		first_comment=_("Analysis by GoReviewPartner")
-		first_comment+="\n"+("Bot: %s/%s"%(self.bot.bot_name,self.bot.bot_version))
-		first_comment+="\n"+("Komi: %0.1f"%self.komi)
-		first_comment+="\n"+("Intervals: %s"%self.intervals)
+		first_comment+="\n"+_("Bot")+(": %s/%s"%(self.bot.bot_name,self.bot.bot_version))
+		first_comment+="\n"+_("Komi")+(": %0.1f"%self.komi)
+		first_comment+="\n"+_("Intervals")+(": %s"%self.intervals)
 
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
-			first_comment+="\n"+("Command line: %s"%self.bot.command_line)
+			first_comment+="\n"+(_("Command line")+": %s"%self.bot.command_line)
 
 		self.move_zero.set("RSGF",first_comment+"\n")
 		self.move_zero.set("BOT",self.bot.bot_name)
@@ -984,7 +986,7 @@ class RunAnalysisBase(Toplevel):
 
 			if self.total_done==1:
 				if not self.review_button:
-					self.review_button=Button(self.right_frame,text=_("Start review"),command=self.start_review)
+					self.review_button=Button(self.right_frame,text=_("Start the review"),command=self.start_review)
 					self.review_button.pack()
 				
 			
