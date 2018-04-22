@@ -654,7 +654,7 @@ class LiveAnalysis(Toplevel):
 			if type(msg)==type(123):
 				self.analysis_label.config(text=_("Currently at move %i")%msg)
 				if msg>2 and len(self.review_bouton_wrapper.children)==0:
-					button=Button(self.review_bouton_wrapper,text=_("Start review"),command=self.start_review)
+					button=Button(self.review_bouton_wrapper,text=_("Start the review"),command=self.start_review)
 					button.pack(fill=X)
 					button.bind("<Enter>",lambda e: self.set_status(_("Start the review")))
 					button.bind("<Leave>",lambda e: self.clear_status())

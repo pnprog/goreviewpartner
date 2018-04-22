@@ -263,7 +263,7 @@ def open_sgf(filename):
 		log("Could not open the SGF file",filename)
 		log(e)
 		filelock.release()
-		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
+		raise WriteException(_("Could not open the SGF file: ")+filename+"\n"+str(e))
 def clean_sgf(txt):
 	return txt
 
@@ -1470,6 +1470,17 @@ log('GRP path:', os.path.abspath(pathname))
 config_file=os.path.join(os.path.abspath(pathname),"config.ini")
 log('Config file:', config_file)
 
+log("Checking availability of config file")
+import ConfigParser
+Config = ConfigParser.ConfigParser()
+try:
+	Config.readfp(open(config_file))
+except Exception, e:
+	show_error("Could not open the config file of Go Review Partner"+"\n"+str(e)) #this cannot be translated
+	sys.exit()
+
+
+
 log("Reading language setting from config file")
 Config = ConfigParser.ConfigParser()
 Config.read(config_file)
@@ -1771,13 +1782,7 @@ def opposite_rate(value):
 	return str(100-float(value[:-1]))+"%"
 
 position_data_formating={}
-position_data_formating["ES"]=_("%s score estimation before the move was played: %s")
-position_data_formating["UBS"]=" • "+_("Upper bound: %s")
-position_data_formating["LBS"]=" • "+_("Lower bound: %s")
 position_data_formating["CBM"]=_("For this position, %s would play: %s")
-position_data_formating["BWWR"]=_("%s black/white win probability for this position: %s")
-position_data_formating["MCWR"]=_("%s Monte Carlo win probability for this move: %s")
-position_data_formating["VNWR"]=_("%s Value Network win probability for this move: %s")
 position_data_formating["B"]=_("Black to play, in the game, black played %s")
 position_data_formating["W"]=_("White to play, in the game, white played %s")
 

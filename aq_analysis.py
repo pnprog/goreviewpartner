@@ -259,7 +259,7 @@ class AQ_gtp(gtp):
 			else:
 				white_win_rate=str(all_moves[0][2])+"%"
 				black_win_rate=opposite_rate(white_win_rate)
-			txt+= _("Value network black/white win probability for this variation: %s")%(black_win_rate+'/'+white_win_rate)
+			txt+= variation_data_formating["VNWR"]%(black_win_rate+'/'+white_win_rate)
 		except:
 			pass
 

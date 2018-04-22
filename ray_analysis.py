@@ -229,7 +229,7 @@ class Ray_gtp(gtp):
 				winrate=str(float(win))+'%/'+str(100-float(win))+'%'
 			else:
 				winrate=str(100-float(win))+'%/'+str(win)+'%'
-			txt+= _("black/white win probability for this variation: ")+winrate
+			txt+= variation_data_formating["BWWR"]%winrate
 
 		return txt
 	

@@ -22,15 +22,6 @@ from toolbox import _
 from live_analysis import LiveAnalysisLauncher
 from r2sgf import rsgf2sgf
 
-log("Checking availability of config file")
-import ConfigParser
-Config = ConfigParser.ConfigParser()
-try:
-	Config.readfp(open(config_file))
-except Exception, e:
-	show_error(_("Could not open the config file of Go Review Partner")+"\n"+str(e))
-	sys.exit()
-
 class Main(Toplevel):
 	def __init__(self,parent):
 		Toplevel.__init__(self,parent)
