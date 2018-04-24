@@ -2006,7 +2006,7 @@ def get_position_short_comments(current_move,gameroot):
 		except:
 			pass
 		comments+=")"
-
+	'''
 	comments+="\n"
 	try:
 		if node.has_property("BWWR"):
@@ -2037,7 +2037,7 @@ def get_position_short_comments(current_move,gameroot):
 					comments+=_("VN")+" %+.2fpp  "%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
 	except:
 		pass
-
+	'''
 	return comments
 
 def get_node_number(node):

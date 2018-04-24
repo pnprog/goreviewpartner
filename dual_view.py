@@ -1206,7 +1206,6 @@ class TableWidget:
 		comments=get_position_short_comments(self.current_move,self.gameroot)
 		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W+N)
 		
-		Label(new_popup,text=" ").grid(row=row+1,column=0)
 		columns_header=[_("MOVE"),'nothing here',_("WR"),_("MCWR"),_("VNWR"),_("PNV"),_("Ply"),_("EV"),_("RAVE"),_("SCORE")]
 		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
@@ -1260,9 +1259,29 @@ class TableWidget:
 				columns_header[c]=None
 			c+=1
 		
+		row=2
+		dframe=Frame(new_popup)
+		dframe.grid(row=row,column=1,columnspan=100,sticky=W+N)
+
+		c=0
+		deltas_strings = [_("WR"),"BWWR",_("MC"), "MCWR",_("VN"),"VNWR"]
+		for i in range(0,len(deltas_strings),2):
+			idx = columns_sgf_properties.index(deltas_strings[i+1])
+			if( columns_header[idx] and columns[idx][0] and columns[idx][1] ):
+				delta = float(columns[idx][0].split("%")[0]) - float(columns[idx][1].split("%")[0])
+				dtext = "%+.2fpp"%delta
+			else:
+				delta = None
+				dtext = "__.__"
+			Label(dframe,text=deltas_strings[i]+":").grid(row=0,column=c,sticky=W)
+			Label(dframe,text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen" ).grid(row=0,column=c+1,sticky=W)
+			c = c + 2
+
+		Label(new_popup,text=" ").grid(row=row+1,column=0,sticky=W+N)
+
 		row=10
 		new_popup=Frame(new_popup,bd=2,relief=RIDGE)
-		new_popup.grid(row=row,column=10)
+		new_popup.grid(row=row,column=10,sticky=W+N)
 		
 		row=10
 		c=0
