@@ -1783,9 +1783,9 @@ class DualView(Toplevel):
 			if one_move.has_property("TW"):
 				self.territories[1]=one_move.get("TW")
 		if self.territories!=[[],[]]:
-			self.territory_button.grid()
+			self.territory_button.config(state=NORMAL)
 		else:
-			self.territory_button.grid_remove()
+			self.territory_button.config(state=DISABLED)
 		
 		#indicating last play with delta
 		
@@ -1981,9 +1981,11 @@ class DualView(Toplevel):
 				
 				log("Updating data for charts")
 				self.data_for_chart=self.prepare_data_for_chart()
-				if not self.charts_button:
-					#there was no chart up to this point
-					self.initialize_charts_button()
+				for data in self.data_for_chart:
+					if data!=None:
+						# there was no chart up to this point
+						self.charts_button.configure( state = NORMAL )
+						break
 				
 				for popup in self.popups:
 					if isinstance(popup,OpenChart):
@@ -1997,15 +1999,6 @@ class DualView(Toplevel):
 		
 		self.after(period*1000,self.update_from_file)
 
-	def initialize_charts_button(self):
-		for data in self.data_for_chart:
-			if data!=None:
-				log("Creating the chart button")
-				self.charts_button=Button(self.buttons_bar2, text=_('Graphs'))
-				self.charts_button.grid(column=3,row=1) #,sticky=E
-				self.charts_button.bind('<Button-1>', self.show_graphs)
-				break
-		
 	def initialize(self):
 
 		self.realgamedeepness=5
@@ -2075,11 +2068,15 @@ class DualView(Toplevel):
 		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
-		open_button=Button(buttons_bar2, text=_('Open position'),command=self.open_move)
-		self.territory_button=Button(buttons_bar2, text=_('Show territories'))
+		open_button=Button(buttons_bar2, text=_('Interactive'),command=self.open_move)
+		self.territory_button=Button(buttons_bar2, text=_('Territory'))
 		self.table_button=Button(buttons_bar2,text=_("Table"),command=self.open_table)
-		self.charts_button=None
-		self.initialize_charts_button()
+		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),state=DISABLED)
+
+		for data in self.data_for_chart:
+			if data!=None:
+				self.charts_button.configure( state = NORMAL )
+				break
 		
 		# Such widgets for the rightmost list frame
 		police = tkFont.nametofont("TkFixedFont")
@@ -2103,9 +2100,10 @@ class DualView(Toplevel):
 		final_move_button.grid(column=32,row=1)
 
 		#Place widgets in command bar
-		open_button.grid(column=1,row=1)
-		self.table_button.grid(column=2,row=1)
-		self.territory_button.grid(column=4,row=1)
+		open_button.grid(column=1,row=1,padx=2)
+		self.table_button.grid(column=2,row=1,padx=2)
+		self.charts_button.grid(column=3,row=1,padx=2)
+		self.territory_button.grid(column=4,row=1,padx=2)
 
 		#Place widgets in lists frame
 		#self.comment_box1.grid(column=1,row=1,sticky=N+S+E+W, padx=2, pady=2)
@@ -2147,6 +2145,7 @@ class DualView(Toplevel):
 		next_button.bind("<Enter>",lambda e: self.set_status(_("Go forward one move. Shortcut: keyboard right key.")))
 		next_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go forward 10 moves.")))
 		final_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to final move.")))
+		self.charts_button.bind('<Button-1>', self.show_graphs)
 		self.territory_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show territories.")))
 		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
