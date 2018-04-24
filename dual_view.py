@@ -2038,7 +2038,7 @@ class DualView(Toplevel):
 		
 		# Such frames
 		buttons_bar=Frame(self,background=bg)
-		self.buttons_bar2=buttons_bar2=Frame(self,background=bg)
+		self.buttons_bar2=Frame(self,background=bg)
 		self.lists_frame=Frame(self,background=bg)
 		self.table_frame = None
 
@@ -2050,8 +2050,8 @@ class DualView(Toplevel):
 		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
-		self.goban2.black_stones=self.goban1.black_stones
-		self.goban2.white_stones=self.goban1.white_stones
+		self.goban2.black_stones_style=self.goban1.black_stones_style
+		self.goban2.white_stones_style=self.goban1.white_stones_style
 		self.goban1.space=self.goban_size/(self.dim+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1)
 
@@ -2068,9 +2068,9 @@ class DualView(Toplevel):
 		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
-		open_button=Button(buttons_bar2, text=_('Interactive'),command=self.open_move)
-		self.territory_button=Button(buttons_bar2, text=_('Territory'))
-		self.table_button=Button(buttons_bar2,text=_("Table"),command=self.open_table)
+		open_button=Button(self.buttons_bar2, text=_('Interactive'),command=self.open_move)
+		self.territory_button=Button(self.buttons_bar2, text=_('Territory'))
+		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
 		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),state=DISABLED)
 
 		for data in self.data_for_chart:
@@ -2121,7 +2121,7 @@ class DualView(Toplevel):
 		buttons_bar.grid(column=3,row=2,sticky=S,pady=5)
 
 		self.lists_frame.grid(column=5,row=0,rowspan=2,sticky=N+S+E+W,pady=5)
-		buttons_bar2.grid(column=5,row=2,sticky=S,pady=5) #,sticky=W
+		self.buttons_bar2.grid(column=5,row=2,sticky=S,pady=5) #,sticky=W
 
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(3, weight=1)
@@ -2132,10 +2132,10 @@ class DualView(Toplevel):
 		# Such keybindings
 		self.territory_button.bind('<Button-1>', self.show_territories)
 		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
-		self.parent.bind('<Control-q>', self.save_left_as_png)
-		self.parent.bind('<Control-w>', self.save_right_as_png)
-		self.parent.bind('<Left>', self.prev_move)
-		self.parent.bind('<Right>', self.next_move)
+		self.bind('<Control-q>', self.save_left_as_png)
+		self.bind('<Control-w>', self.save_right_as_png)
+		self.bind('<Left>', self.prev_move)
+		self.bind('<Right>', self.next_move)
 		
 		# Such tooltips
 		first_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to first move.")))
