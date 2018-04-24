@@ -1169,8 +1169,21 @@ class Table(Toplevel):
 		log("opening table for move",current_move)
 		
 		self.protocol("WM_DELETE_WINDOW", self.close)
+
 		self.parent=parent
+
+		self.table = TableWidget(self,parent,gameroot,current_move,grid,markup)
+
+	def display_move(self,current_move,grid,markup):
+		self.table.display_move(current_move,grid,markup)
+
+
+class TableWidget:
+	def __init__(self,widget,parent,gameroot,current_move,grid,markup):
+		log("creating table widget",current_move)
 		
+		self.parent=parent
+		self.widget=widget
 		self.gameroot=gameroot
 		
 		Config = ConfigParser.ConfigParser()
@@ -1178,9 +1191,9 @@ class Table(Toplevel):
 		self.maxvariations=int(Config.get("Review", "MaxVariations"))
 		
 		self.display_move(current_move,grid,markup)
-		
+
 	def display_move(self,current_move,grid,markup):
-		new_popup=self
+		new_popup=self.widget
 		
 		for widget in new_popup.winfo_children():
 			widget.destroy()
@@ -1372,7 +1385,10 @@ class DualView(Toplevel):
 					popup.display()
 				elif isinstance(popup,Table):
 					popup.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
-					
+			# if the table is docked
+			if self.table_frame and self.table_frame.grid_info() :
+				self.table_widget.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
+
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
 			for popup in self.popups:
@@ -1382,7 +1398,10 @@ class DualView(Toplevel):
 					popup.display()
 				elif isinstance(popup,Table):
 					popup.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
-					
+			# if the table is docked
+			if self.table_frame and self.table_frame.grid_info() :
+				self.table_widget.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
+
 		self.update_idletasks()
 		
 	def leave_variation(self,goban,grid,markup):
@@ -1646,9 +1665,38 @@ class DualView(Toplevel):
 		self.add_popup(new_popup)
 		
 	def open_table(self,event=None):
-		new_popup=Table(self,self.gameroot,self.current_move,self.goban2.grid,self.goban2.markup)
-		self.add_popup(new_popup)
-	
+		# Variant A: popup
+		#   new_popup=Table(self,self.gameroot,self.current_move,self.goban2.grid,self.goban2.markup)
+		#   self.add_popup(new_popup)
+		#
+		# Variant B: widget
+		# We should (1) hide comment, (2) show table (widget), (3) re-set button to close table
+		self.comment_box2.grid_remove()
+
+		bg=self.cget("background")
+
+		# TODO: May be this should be moved to initialize, but need a solution to prevent blinking when greed() and greed_remove() instantly
+		if self.table_frame == None:
+			self.table_frame=Frame(self.lists_frame,background=bg)
+			self.table_frame.grid(column=1,row=2,sticky=N+W, padx=2, pady=2)
+			self.table_widget = TableWidget(self.table_frame,self,self.gameroot,self.current_move,self.goban2.grid,self.goban2.markup)
+		else:
+			# It was created and hidden already
+			self.table_frame.grid()
+
+		self.table_button["text"] = _("Comment")
+		self.table_button["command"] = self.close_table
+
+
+
+	def close_table(self,event=None):
+		# We should (1) close table, (2) show comments, (3) re-set button to open table
+		self.table_frame.grid_remove()
+		self.comment_box2.grid()
+
+		self.table_button["text"] = _("Table")
+		self.table_button["command"] = self.open_table
+
 	def hide_territories(self,event=None):
 		self.goban1.display(self.current_grid,self.current_markup)
 	
@@ -1980,7 +2028,8 @@ class DualView(Toplevel):
 		# Such frames
 		buttons_bar=Frame(self,background=bg)
 		self.buttons_bar2=buttons_bar2=Frame(self,background=bg)
-		lists_frame=Frame(self,background=bg)
+		self.lists_frame=Frame(self,background=bg)
+		self.table_frame = None
 
 
 		# Such widgets for main window
@@ -2020,8 +2069,8 @@ class DualView(Toplevel):
 		self.lpix=lpix
 		self.comment_lines = int(self.goban_size / police.metrics('linespace') - 2)
 		self.comment_chars = 30
-		#self.comment_box1=ScrolledText(lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
-		self.comment_box2=ScrolledText(lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
+		#self.comment_box1=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
+		self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
 		
 		
 		#Place widgets in button_bar
@@ -2043,9 +2092,9 @@ class DualView(Toplevel):
 		#Place widgets in lists frame
 		#self.comment_box1.grid(column=1,row=1,sticky=N+S+E+W, padx=2, pady=2)
 		self.comment_box2.grid(column=1,row=2,sticky=N+S+E+W, padx=2, pady=2)
-		lists_frame.grid_columnconfigure(1, weight=1)
-		lists_frame.grid_rowconfigure(1, weight=1)
-		lists_frame.grid_rowconfigure(2, weight=1)
+		self.lists_frame.grid_columnconfigure(1, weight=1)
+		#self.lists_frame.grid_rowconfigure(1, weight=1)
+		self.lists_frame.grid_rowconfigure(2, weight=1)
 
 		
 		#Place widgets in main frame
@@ -2055,7 +2104,7 @@ class DualView(Toplevel):
 		self.status_bar.grid(column=1,row=2,sticky=W)
 		buttons_bar.grid(column=3,row=2,sticky=S,pady=5)
 
-		lists_frame.grid(column=5,row=0,rowspan=2,sticky=N+S+E+W,pady=5)
+		self.lists_frame.grid(column=5,row=0,rowspan=2,sticky=N+S+E+W,pady=5)
 		buttons_bar2.grid(column=5,row=2,sticky=S,pady=5) #,sticky=W
 
 		self.grid_columnconfigure(1, weight=1)
