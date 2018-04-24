@@ -230,7 +230,7 @@ msgstr "스스로 두기"
 
 #6.6
 msgid "Quick evaluation"
-msgstr "빠른 계산"
+msgstr "승부 예측"
 
 #6.7
 msgid "Undo last move. Shortcut: mouse middle button."
