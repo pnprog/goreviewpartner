@@ -1203,12 +1203,11 @@ class TableWidget:
 		Label(new_popup,text=" ").grid(row=1000,column=1000)
 
 		row=1
-		comments=get_position_comments(self.current_move,self.gameroot)
-		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W)
+		comments=get_position_short_comments(self.current_move,self.gameroot)
+		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W+N)
 		
 		Label(new_popup,text=" ").grid(row=row+1,column=0)
-		
-		columns_header=[_("Move"),'nothing here',_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score estimation")]
+		columns_header=[_("MOVE"),'nothing here',_("WR"),_("MCWR"),_("VNWR"),_("PNV"),_("Ply"),_("EV"),_("RAVE"),_("SCORE")]
 		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
 		nb_variations=min(len(parent),self.maxvariations+1)
