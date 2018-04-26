@@ -2036,36 +2036,38 @@ class DualView(Toplevel):
 		bg=self.cget("background")
 		#self.configure(background=bg)
 		
+		# Such paned containers
+		central_frame = PanedWindow(self, orient=HORIZONTAL)
+		gobans_frame = PanedWindow(central_frame,relief=SUNKEN, orient=HORIZONTAL) #one paned frame for gobans, so that they resize at the same ratio
+		
 		# Such frames
-		buttons_bar=Frame(self,background=bg)
-		self.buttons_bar2=Frame(self,background=bg)
-		self.lists_frame=Frame(self,background=bg)
+		buttons_bar=Frame(self)
+		self.buttons_bar2=Frame(self)
+		self.lists_frame=Frame(central_frame,relief=SUNKEN)
 		self.table_frame = None
-
+		
 
 		# Such widgets for main window
-		#self.goban1 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-		self.goban1 = Goban(self.dim,master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0) #bg
-		#self.goban2 = Canvas(self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-		self.goban2 = Goban(self.dim, master=self, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		self.goban1 = Goban(self.dim,master=gobans_frame,relief=SUNKEN,bd=2) #bg
+		self.goban2 = Goban(self.dim, master=gobans_frame,relief=SUNKEN,bd=2)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
 		self.goban2.black_stones_style=self.goban1.black_stones_style
 		self.goban2.white_stones_style=self.goban1.white_stones_style
-		self.goban1.space=self.goban_size/(self.dim+1+1)
-		self.goban2.space=self.goban_size/(self.dim+1+1)
+		self.goban1.space=self.goban_size/(self.dim+1+1+1)
+		self.goban2.space=self.goban_size/(self.dim+1+1+1)
 
 
-		self.status_bar=Label(self,text='',background=bg, wraplength = self.goban_size - 2)
+		self.status_bar=Label(self,text='',anchor=W,justify=LEFT)
 
 		# Such widgets for the buttons_bar - game navigation
-		first_move_button=Button(buttons_bar, text='|<< ',command=self.first_move)
-		prev_10_moves_button=Button(buttons_bar, text=' << ',command=self.prev_10_move)
-		prev_button=Button(buttons_bar, text=' <  ',command=self.prev_move)
-		self.move_number=Label(buttons_bar,text='   ',background=bg)
-		next_button=Button(buttons_bar, text='  > ',command=self.next_move)
-		next_10_moves_button=Button(buttons_bar, text=' >> ',command=self.next_10_move)
-		final_move_button=Button(buttons_bar, text=' >>|',command=self.final_move)
+		first_move_button=Button(self.buttons_bar2, text='|<< ',command=self.first_move)
+		prev_10_moves_button=Button(self.buttons_bar2, text=' << ',command=self.prev_10_move)
+		prev_button=Button(self.buttons_bar2, text=' <  ',command=self.prev_move)
+		self.move_number=Label(self.buttons_bar2,text='   ',background=bg,width=9)
+		next_button=Button(self.buttons_bar2, text='  > ',command=self.next_move)
+		next_10_moves_button=Button(self.buttons_bar2, text=' >> ',command=self.next_10_move)
+		final_move_button=Button(self.buttons_bar2, text=' >>|',command=self.final_move)
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
 		open_button=Button(self.buttons_bar2, text=_('Interactive'),command=self.open_move)
@@ -2083,51 +2085,46 @@ class DualView(Toplevel):
 		lpix = police.measure("a")
 		self.lpix=lpix
 		self.comment_lines = int(self.goban_size / police.metrics('linespace') - 2)
-		self.comment_chars = 30
-		#self.comment_box1=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
+		self.comment_chars = int(self.goban_size/2/lpix) #half the size of one goban
 		self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
 		
 		
 		#Place widgets in button_bar
-		first_move_button.grid(column=8,row=1)
-		prev_10_moves_button.grid(column=9,row=1)
-		prev_button.grid(column=10,row=1)
-		Label(buttons_bar,text='          ',background=bg).grid(column=19,row=1)
-		self.move_number.grid(column=20,row=1)
-		Label(buttons_bar,text='          ',background=bg).grid(column=29,row=1)
-		next_button.grid(column=30,row=1)
-		next_10_moves_button.grid(column=31,row=1)
-		final_move_button.grid(column=32,row=1)
-
+		first_move_button.grid(column=1,row=1)
+		prev_10_moves_button.grid(column=2,row=1)
+		prev_button.grid(column=3,row=1)
+		self.move_number.grid(column=5,row=1)
+		next_button.grid(column=7,row=1)
+		next_10_moves_button.grid(column=8,row=1)
+		final_move_button.grid(column=9,row=1)
+		
+		#spacer to separate left and right groups of button
+		Label(self.buttons_bar2,text='').grid(column=50,row=1,sticky=W+E)
+		self.buttons_bar2.columnconfigure(50, weight=1)
+		
 		#Place widgets in command bar
-		open_button.grid(column=1,row=1,padx=2)
-		self.table_button.grid(column=2,row=1,padx=2)
-		self.charts_button.grid(column=3,row=1,padx=2)
-		self.territory_button.grid(column=4,row=1,padx=2)
-
+		open_button.grid(column=100,row=1)
+		self.table_button.grid(column=101,row=1)
+		self.charts_button.grid(column=102,row=1)
+		self.territory_button.grid(column=103,row=1)
+		
 		#Place widgets in lists frame
-		#self.comment_box1.grid(column=1,row=1,sticky=N+S+E+W, padx=2, pady=2)
 		self.comment_box2.grid(column=1,row=2,sticky=N+S+E+W, padx=2, pady=2)
 		self.lists_frame.grid_columnconfigure(1, weight=1)
-		#self.lists_frame.grid_rowconfigure(1, weight=1)
 		self.lists_frame.grid_rowconfigure(2, weight=1)
 
-		
 		#Place widgets in main frame
-		self.goban1.grid(column=1,row=1,sticky=W+E+N+S)
-		Label(self, text='   ',background=bg).grid(column=2,row=1)
-		self.goban2.grid(column=3,row=1,sticky=W+E+N+S)
-		self.status_bar.grid(column=1,row=2,sticky=W)
-		buttons_bar.grid(column=3,row=2,sticky=S,pady=5)
-
-		self.lists_frame.grid(column=5,row=0,rowspan=2,sticky=N+S+E+W,pady=5)
-		self.buttons_bar2.grid(column=5,row=2,sticky=S,pady=5) #,sticky=W
-
-		self.grid_columnconfigure(1, weight=1)
-		self.grid_columnconfigure(3, weight=1)
-		self.grid_columnconfigure(5, weight=1)
-		self.grid_rowconfigure(1, weight=1)
-		#self.grid_columnconfigure(5, weight=1)
+		self.buttons_bar2.pack(fill=X)
+		
+		
+		central_frame.pack(fill=BOTH, expand=1)	
+		gobans_frame.add(self.goban1, stretch="always") #https://mail.python.org/pipermail/tkinter-discuss/2012-May/003146.html
+		gobans_frame.add(self.goban2, stretch="always")
+		
+		central_frame.add(gobans_frame, stretch="always")
+		central_frame.add(self.lists_frame, stretch="always")
+		
+		self.status_bar.pack(fill=X)
 		
 		# Such keybindings
 		self.territory_button.bind('<Button-1>', self.show_territories)
@@ -2152,32 +2149,39 @@ class DualView(Toplevel):
 		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
-		self.goban1.bind("<Configure>",self.redraw)
+		self.goban1.bind("<Configure>",self.redraw_left)
+		self.goban2.bind("<Configure>",self.redraw_right)
+		
 		self.after(10000,self.update_from_file)
 		goban.show_variation=self.show_variation
 		
-	def redraw(self, event):
+
+	def redraw_left(self, event):
 		new_size=min(event.width,event.height)
-		new_space=new_size/(self.dim+1+1)
+		new_space=new_size/(self.dim+1+1+1)
+		if new_space==self.goban1.space:
+			return
 		self.goban1.space=new_space
-		self.goban2.space=new_space
-		
 		new_anchor_x=(event.width-new_size)/2
 		self.goban1.anchor_x=new_anchor_x
-		self.goban2.anchor_x=new_anchor_x
-		
 		new_anchor_y=(event.height-new_size)/2
 		self.goban1.anchor_y=new_anchor_y
-		self.goban2.anchor_y=new_anchor_y
-		
 		self.goban1.reset()
+		
+
+	def redraw_right(self, event):
+		new_size=min(event.width,event.height)
+		new_space=new_size/(self.dim+1+1+1)
+		if new_space==self.goban2.space:
+			return
+		self.goban2.space=new_space
+		new_anchor_x=(event.width-new_size)/2
+		self.goban2.anchor_x=new_anchor_x
+		new_anchor_y=(event.height-new_size)/2
+		self.goban2.anchor_y=new_anchor_y
 		self.goban2.reset()
 		
-		
-		if sys.platform!="darwin":
-			#https://github.com/pnprog/goreviewpartner/issues/7
-			#self.comment_box1.config(width=self.comment_chars)
-			self.comment_box2.config(width=self.comment_chars)
+
 
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
