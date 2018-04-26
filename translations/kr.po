@@ -147,7 +147,7 @@ msgstr "닫는 중, 잠시 기다리세요..."
 ############## RSGF review
 #5.1
 msgid "Open position"
-msgstr "현위치에서 따로검토"
+msgstr "현위치에서 따로 놓아보기"
 
 #5.2
 msgid "Show territories"
@@ -258,7 +258,7 @@ msgstr "인공지능이 혼자서 둡니다."
 
 #6.13
 msgid "Ask the bot for a quick evaluation"
-msgstr "인공지능이 빨리 계산해 보도록 합니다"
+msgstr "인공지능에게 승부을 예상하게 합니다"
 
 #6.14
 msgid "Abort"
@@ -361,7 +361,7 @@ msgstr "%s 설정"
 
 #8.2
 msgid "General parameters"
-msgstr "일반 설정"
+msgstr "- 일반 설정 -"
 
 #8.3
 msgid "Language"
@@ -369,7 +369,7 @@ msgstr "언어"
 
 #8.4
 msgid "Parameters for the analysis"
-msgstr "분석 설정"
+msgstr "- 분석 설정 -"
 
 #8.5
 msgid "Maximum number of variations to record during analysis"
@@ -385,7 +385,7 @@ msgstr "인공지능 명령어를 RSGF파일에 기록"
 
 #8.8
 msgid "Parameters for the review"
-msgstr "검토 조건"
+msgstr "- 검토 조건 -"
 
 #8.9
 msgid "Fuzzy Stone"
@@ -397,7 +397,7 @@ msgstr "실제 두어진 수를 몇 수까지 표시"
 
 #8.11
 msgid "Goban/screen ratio"
-msgstr "화면높이 대비 바둑판의 비율(크기)"
+msgstr "화면높이 대비 바둑판의 크기 비율"
 
 #8.12
 msgid "Maximum number of variations to display during review"
@@ -421,23 +421,23 @@ msgstr "설정 저장"
 
 #8.17
 msgid "The best variation in blue"
-msgstr "최선의 수(위치)를 파랑색으로 표시"
+msgstr "가장 좋은 위치를 파랑색으로 표시"
 
 #8.18
 msgid "Winning variations (>50%) only in blue"
-msgstr "승률 50% 이상인 수(위치)를 파랑색으로 표시"
+msgstr "승률 50% 이상인 위치를 파랑색으로 표시"
 
 #8.19
 msgid "Variations better than actual game move in blue"
-msgstr "실제 두어진 수보다 좋은 수(위치)를 파랑색으로 표시"
+msgstr "실제 두어진 수보다 좋은 위치를 파랑색으로 표시"
 
 #8.20
 msgid "Rates"
-msgstr "승률"
+msgstr "승률로 표시"
 
 #8.21
 msgid "Letters"
-msgstr "레터(문자)"
+msgstr "레터(문자)로 표시"
 
 
 
@@ -446,7 +446,7 @@ msgstr "레터(문자)"
 ############## Bots Settings
 #9.1
 msgid "Slow profile parameters"
-msgstr "느린 프로파일 설정"
+msgstr "- 느린 프로파일 설정 -"
 
 #9.2
 msgid "Command"
@@ -458,7 +458,7 @@ msgstr "파라미터"
 
 #9.4
 msgid "Time per move (s)"
-msgstr "착수 제한시간 (초)"
+msgstr "착수시간 제한 (초)"
 
 #9.5
 msgid "Test"
@@ -470,7 +470,7 @@ msgstr "빠른 프로파일 설정"
 
 #9.7
 msgid "%s availability"
-msgstr "%s 가능한 작업"
+msgstr "- 사용할 %s 프로파일 -"
 
 #9.8
 msgid "Static analysis"
@@ -486,7 +486,7 @@ msgstr "흑 또는 백으로 실시간 분석"
 
 #9.11
 msgid "When opening a position for manual play"
-msgstr "수동 수읽기 검토에 사용할 프로파일"
+msgstr "따로 놓아보기 할 때"
 
 #9.12
 msgid "Maximum number of variations"
@@ -514,7 +514,7 @@ msgstr "모든 프로파일"
 
 #9.18
 msgid "None"
-msgstr "선택안함"
+msgstr "선택 안함"
 
 
 
@@ -672,7 +672,7 @@ msgstr "SGF파일명"
 
 #11.9
 msgid "Human"
-msgstr "인간"
+msgstr "사람"
 
 #11.10
 msgid "Place %i handicap stones on the board"
