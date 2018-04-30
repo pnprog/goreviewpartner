@@ -1981,6 +1981,72 @@ def get_position_comments(current_move,gameroot):
 	
 	return comments
 
+def get_position_short_comments(current_move,gameroot):
+	# One line comment
+	comments=""
+	if current_move==1:
+		if gameroot.has_property("RSGF"):
+			comments+=gameroot.get("RSGF")
+		if gameroot.has_property("PB"):
+			comments+=_("Black")+": "+gameroot.get("PB")+"\n"
+		if gameroot.has_property("PW"):
+			comments+=_("White")+": "+gameroot.get("PW")+"\n"
+
+		if comments:
+			comments+="\n"
+
+	node=get_node(gameroot,current_move)
+
+	game_move_color,game_move=node.get_move()
+	if not game_move_color:
+		game_move_color=guess_color_to_play(gameroot,current_move)
+
+	comments+=_("%s%i/%i: %s ")%(game_move_color.upper(),current_move,get_node_number(gameroot),ij2gtp(game_move).upper())
+
+	if node.has_property("CBM"):
+		bot=gameroot.get("BOT")
+		comments+="(%s => %s"%(bot,node.get("CBM"))
+		try:
+			if node[1].has_property("BKMV"):
+				if node[1].get("BKMV")=="yes":
+					comments+=_(": Book")
+		except:
+			pass
+		comments+=")"
+	'''
+	comments+="\n"
+	try:
+		if node.has_property("BWWR"):
+			if node[0].has_property("BWWR"):
+				if node.get_move()[0].lower()=="b":
+					comments+=_("WR: ")+"%+.2fpp  "%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
+				else:
+					comments+=_("WR: ")+"%+.2fpp  "%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
+	except:
+		pass
+
+	try:
+		if node.has_property("MCWR"):
+			if node[0].has_property("MCWR"):
+				if node.get_move()[0].lower()=="b":
+					comments+=_("MC")+" %+.2fpp  "%(float(node[0].get("MCWR").split("%/")[0])-float(node.get("MCWR").split("%/")[0]))
+				else:
+					comments+=_("MC")+" %+.2fpp  "%(float(node[0].get("MCWR").split("%/")[1][:-1])-float(node.get("MCWR").split("%/")[1][:-1]))
+	except:
+		pass
+
+	try:
+		if node.has_property("VNWR"):
+			if node[0].has_property("VNWR"):
+				if node.get_move()[0].lower()=="b":
+					comments+=_("VN")+" %+.2fpp  "%(float(node[0].get("VNWR").split("%/")[0])-float(node.get("VNWR").split("%/")[0]))
+				else:
+					comments+=_("VN")+" %+.2fpp  "%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
+	except:
+		pass
+	'''
+	return comments
+
 def get_node_number(node):
 	return get_moves_number(node)
 	k=0

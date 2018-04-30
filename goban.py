@@ -101,13 +101,14 @@ class Stone():
 	def ij2xy(self,i,j):
 		space=self.space
 		dim=self.dim
-		y=(0.5+dim-i)*space+self.anchor_y
-		x=(0.5+1.+j)*space+self.anchor_x
+		y=(0.5+0.5+dim-i)*space+self.anchor_y
+		x=(0.5+0.5+1.+j)*space+self.anchor_x
 		return x,y
 
 
 class Goban(Canvas):
 	def __init__(self,dim,**kwargs):
+		
 		self.dim=dim
 		self.space=space
 		self.wood_color=(214,174,114) #same as gogui
@@ -171,6 +172,10 @@ class Goban(Canvas):
 	
 	def create_goban(self):
 		space=self.space
+		
+		if space<4:
+			return
+		
 		dim=self.dim
 		r,g,b=self.wood_color
 		bg='#%02x%02x%02x' % (r, g, b)
@@ -233,8 +238,8 @@ class Goban(Canvas):
 	def ij2xy(self,i,j):
 		space=self.space
 		dim=self.dim
-		y=(0.5+dim-i)*space+self.anchor_y
-		x=(0.5+1.+j)*space+self.anchor_x
+		y=(0.5+0.5+dim-i)*space+self.anchor_y
+		x=(0.5+0.5+1.+j)*space+self.anchor_x
 		return x,y
 
 	def xy2ij(self,x,y):
@@ -244,7 +249,7 @@ class Goban(Canvas):
 		x-=self.anchor_x
 		y-=self.anchor_y
 
-		return int(round(0.5+dim-1.*y/space)),int(round(1.*x/space-0.5)-1)
+		return int(round(0.5+0.5+dim-1.*y/space)),int(round(1.*x/space-0.5-0.5)-1)
 
 	def draw_point(self,i,j,diameter,color="black",outline="black",width=1):
 		space=self.space
@@ -274,6 +279,10 @@ class Goban(Canvas):
 		self.grid=grid
 		self.markup=markup
 		space=self.space
+		
+		if space<4:
+			return
+		
 		dim=self.dim
 		for item in self.temporary_shapes:
 			self.delete(item)
