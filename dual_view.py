@@ -1304,7 +1304,7 @@ class TableWidget:
 		
 		if not self.table_frame:
 			row=10
-			self.table_frame=Frame(new_popup,bd=2,relief=RIDGE)
+			self.table_frame=LabelFrame(new_popup)
 			self.table_frame.grid(row=row,column=10,sticky=W+N)
 		row=10
 		c=0
@@ -1312,13 +1312,13 @@ class TableWidget:
 			if header:
 				if c==0:
 					one_label=self.get_label((row,10+c),self.table_frame)
-					one_label.config(text=header,relief=RIDGE,bd=3,width=6)
+					one_label.config(text=header,relief=RIDGE,bd=2,width=6)
 					one_label.grid(columnspan=2)
 				elif c==1:
 					pass
 				else:
 					one_label=self.get_label((row,10+c),self.table_frame)
-					one_label.config(text=header,relief=RIDGE,bd=3,width=7)
+					one_label.config(text=header,relief=RIDGE,bd=2,width=7)
 			c+=1
 		row+=2
 		
@@ -1333,7 +1333,7 @@ class TableWidget:
 						one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.goban2,grid=grid,markup=markup,i=i,j=j))
 						one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.goban2,grid,markup))
 					else:
-						one_label.config(bd=3)
+						one_label.config(bd=2)
 					
 					if c==0:
 						one_label.config(width=2)
@@ -2064,7 +2064,7 @@ class DualView(Toplevel):
 		#self.configure(background=bg)
 		
 		# Such paned containers
-		central_frame = PanedWindow(self, orient=HORIZONTAL)
+		central_frame = PanedWindow(self, orient=HORIZONTAL,relief=SUNKEN)
 		gobans_frame = PanedWindow(central_frame,relief=SUNKEN, orient=HORIZONTAL) #one paned frame for gobans, so that they resize at the same ratio
 		
 		# Such frames
