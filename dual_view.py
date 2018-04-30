@@ -1189,24 +1189,43 @@ class TableWidget:
 		Config = ConfigParser.ConfigParser()
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Review", "MaxVariations"))
-		
+		self.my_labels={}
+		self.dframe=None
+		self.table_frame=None
 		self.display_move(current_move,grid,markup)
-
+		
+		
+	def get_label(self,name,container):
+		if name in self.my_labels:
+			return self.my_labels[name]
+		if type(name)==type("abc"):
+			if name=="node comments":
+				new_label=Label(container,justify=LEFT)
+				new_label.grid(row=1,column=1,columnspan=100,sticky=W+N)
+				self.my_labels[name]=new_label
+				return new_label
+		else:
+			row,column=name
+			new_label=Label(container)
+			new_label.grid(row=row,column=column,sticky=W+E)
+			self.my_labels[name]=new_label
+			return new_label
+		
+		
 	def display_move(self,current_move,grid,markup):
 		new_popup=self.widget
 		
-		for widget in new_popup.winfo_children():
-			widget.destroy()
+		for widget in self.my_labels.values():
+			widget.config(text="")
 		
 		self.current_move=current_move
-		Label(new_popup,text=" ").grid(row=0,column=0)
-		Label(new_popup,text=" ").grid(row=1000,column=1000)
-
-		row=1
-		comments=get_position_short_comments(self.current_move,self.gameroot)
-		Label(new_popup,text=comments,justify=LEFT).grid(row=row,column=1,columnspan=100,sticky=W+N)
 		
-		columns_header=[_("MOVE"),'nothing here',_("WR"),_("MCWR"),_("VNWR"),_("PNV"),_("Ply"),_("EV"),_("RAVE"),_("SCORE")]
+		comments=get_position_short_comments(self.current_move,self.gameroot)
+		one_label=self.get_label("node comments",self.widget) #get or create that label widget
+		one_label.config(text=comments)
+		
+		
+		columns_header=["MOVE",'nothing here',"WR","MCWR","VNWR","PNV","PO","EV","RAVE","SCORE"]
 		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
 		nb_variations=min(len(parent),self.maxvariations+1)
@@ -1260,11 +1279,12 @@ class TableWidget:
 			c+=1
 		
 		row=2
-		dframe=Frame(new_popup)
-		dframe.grid(row=row,column=1,columnspan=100,sticky=W+N)
+		if self.dframe==None:
+			self.dframe=Frame(new_popup)
+			self.dframe.grid(row=row,column=1,columnspan=100,sticky=W+N)
 
 		c=0
-		deltas_strings = [_("WR"),"BWWR",_("MC"), "MCWR",_("VN"),"VNWR"]
+		deltas_strings = ["WR","BWWR","MC", "MCWR","VN","VNWR"]
 		for i in range(0,len(deltas_strings),2):
 			idx = columns_sgf_properties.index(deltas_strings[i+1])
 			if( columns_header[idx] and columns[idx][0] and columns[idx][1] ):
@@ -1272,46 +1292,53 @@ class TableWidget:
 				dtext = "%+.2fpp"%delta
 			else:
 				delta = None
-				dtext = "__.__"
-			Label(dframe,text=deltas_strings[i]+":").grid(row=0,column=c,sticky=W)
-			Label(dframe,text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen" ).grid(row=0,column=c+1,sticky=W)
+				dtext = "NA"
+			#Label(dframe,text=deltas_strings[i]+":").grid(row=0,column=c,sticky=W)
+			one_label=self.get_label((0,c),self.dframe)
+			one_label.config(text=deltas_strings[i]+":")
+			
+			another_label=self.get_label((0,c+1),self.dframe)
+			another_label.config(text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen")
+			#Label(dframe,text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen" ).grid(row=0,column=c+1,sticky=W)
 			c = c + 2
-
-		Label(new_popup,text=" ").grid(row=row+1,column=0,sticky=W+N)
-
-		row=10
-		new_popup=Frame(new_popup,bd=2,relief=RIDGE)
-		new_popup.grid(row=row,column=10,sticky=W+N)
 		
+		if not self.table_frame:
+			row=10
+			self.table_frame=Frame(new_popup,bd=2,relief=RIDGE)
+			self.table_frame.grid(row=row,column=10,sticky=W+N)
 		row=10
 		c=0
 		for header in columns_header:
 			if header:
 				if c==0:
-					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,columnspan=2,sticky=W+E)
+					one_label=self.get_label((row,10+c),self.table_frame)
+					one_label.config(text=header,relief=RIDGE,bd=3,width=6)
+					one_label.grid(columnspan=2)
 				elif c==1:
 					pass
 				else:
-					Label(new_popup,text=header,relief=RIDGE).grid(row=row,column=10+c,sticky=W+E)
-				Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+1,column=10+c,sticky=W+E)
+					one_label=self.get_label((row,10+c),self.table_frame)
+					one_label.config(text=header,relief=RIDGE,bd=3,width=7)
 			c+=1
 		row+=2
 		
 		for r in range(nb_variations):
 			for c in range(len(columns)):
 				if columns_header[c]:
-					one_label=Label(new_popup,text=columns[c][r],relief=RIDGE)
-					one_label.grid(row=row+r,column=10+c,sticky=W+E)
+					one_label=self.get_label((row+r,10+c),self.table_frame)
+					one_label.config(text=columns[c][r],relief=RIDGE)
+					
 					if r>0:
 						i,j=gtp2ij(columns[1][r])
 						one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.goban2,grid=grid,markup=markup,i=i,j=j))
 						one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.goban2,grid,markup))
-			if r==0:
-				row+=1
-				for c in range(len(columns)):
-					if columns_header[c]:
-						Frame(new_popup,height=2,bd=1,relief=RIDGE).grid(row=row+r,column=10+c,sticky=W+E)
-			
+					else:
+						one_label.config(bd=3)
+					
+					if c==0:
+						one_label.config(width=2)
+					elif c==1:
+						one_label.config(width=4)
 				
 
 class DualView(Toplevel):
@@ -1696,7 +1723,7 @@ class DualView(Toplevel):
 		# TODO: May be this should be moved to initialize, but need a solution to prevent blinking when greed() and greed_remove() instantly
 		if self.table_frame == None:
 			self.table_frame=Frame(self.lists_frame,background=bg)
-			self.table_frame.grid(column=1,row=2,sticky=N+W, padx=2, pady=2)
+			self.table_frame.grid(column=1,row=2,sticky=N+W, padx=10, pady=10)
 			self.table_widget = TableWidget(self.table_frame,self,self.gameroot,self.current_move,self.goban2.grid,self.goban2.markup)
 		else:
 			# It was created and hidden already
@@ -1841,7 +1868,7 @@ class DualView(Toplevel):
 			log("no alternative move")
 			goban1.display(grid1,markup1)
 			goban2.display(grid2,markup2)
-			self.table_button.config(state='disabled')
+			#self.table_button.config(state='disabled')
 			return
 		else:
 			self.table_button.config(state='normal')
@@ -2070,8 +2097,8 @@ class DualView(Toplevel):
 		final_move_button=Button(self.buttons_bar2, text=' >>|',command=self.final_move)
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
-		open_button=Button(self.buttons_bar2, text=_('Interactive'),command=self.open_move)
-		self.territory_button=Button(self.buttons_bar2, text=_('Territory'))
+		open_button=Button(self.buttons_bar2, text=_('Open position'),command=self.open_move)
+		self.territory_button=Button(self.buttons_bar2, text=_('Show territories'))
 		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
 		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),state=DISABLED)
 
