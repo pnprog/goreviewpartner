@@ -1,9 +1,10 @@
-# git shortlog -sn | cut -c8- with manually removed duplicates
+# git shortlog -sn | cut -c8- with manually removed duplicates (taken from Leela Zero project)
 
 pnprog
+Boris NA
+Wonsik Kim
 chermes
 Adam Bender
 Brandon Sloane
 Isaac Deutsch
 Michael Kelley
-Wonsik Kim
