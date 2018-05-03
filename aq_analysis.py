@@ -174,6 +174,7 @@ class AQ_gtp(gtp):
 		threading.Thread(target=self.consume_stderr).start()
 
 		self.history=[]
+		self.free_handicap_stones=[]
 
 	def place_black(self,move):
 		self.write("play black "+move)

@@ -152,6 +152,7 @@ class Ray_gtp(gtp):
 	def __init__(self,command):
 		gtp.__init__(self,command)
 		self.history=[]
+		self.free_handicap_stones=[]
 	
 	def place_black(self,move):
 		self.write("play black "+move)
@@ -199,7 +200,7 @@ class Ray_gtp(gtp):
 		answer=self.readline()
 		try:
 			if answer[0]!="=":
-			return False
+				return False
 			#adding handicap stones
 			if len(self.free_handicap_stones)>0:
 				self.set_free_handicap(self.free_handicap_stones)
