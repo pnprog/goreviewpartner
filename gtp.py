@@ -17,6 +17,7 @@ class gtp():
 		self.stderr_queue=Queue.Queue()
 		self.stdout_queue=Queue.Queue()
 		threading.Thread(target=self.consume_stderr).start()
+		self.free_handicap_stones=[]
 		
 	####low level function####
 	
@@ -136,6 +137,7 @@ class gtp():
 			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
 	def set_free_handicap(self,positions):
+		self.free_handicap_stones=positions[:]
 		stones=""
 		for p in positions:
 			stones+=p+" "

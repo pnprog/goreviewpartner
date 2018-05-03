@@ -1229,23 +1229,47 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 		log("Clearing the board")
 		bot.reset()
-
+		
+		log("Checking for existing stones or handicap stones on the board")
+		gameroot=sgf_g.get_root()
+		if gameroot.has_property("HA"):
+			nb_handicap=gameroot.get("HA")
+			log("The SGF indicates",nb_handicap,"stone(s)")
+		else:
+			nb_handicap=0
+			log("The SGF does not indicate handicap stone")
+		
 		board, unused = sgf_moves.get_setup_and_moves(sgf_g)
-
-		log("Adding handicap stones, if any")
-		positions=[]
-		for colour, move0 in board.list_occupied_points():
-			if move0 != None:
-				row, col = move0
+		nb_occupied_points=len(board.list_occupied_points())
+		log("The SGF indicates",nb_occupied_points,"occupied point(s)")
+		
+		free_handicap_black_stones_positions=[]
+		already_played_black_stones_position=[]
+		already_played_white_stones_position=[]
+		
+		for color, move in board.list_occupied_points():
+			if move != None:
+				row, col = move
 				move=ij2gtp((row,col))
-				if colour in ('w',"W"):
-					raise LaunchingException(_("The SGF file contains white handicap stones! %s cannot deal with that!")%bot_name)
-				positions.append(move)
+				if color.lower()=='b':
+					if nb_handicap>0:
+						free_handicap_black_stones_positions.append(move)
+						nb_handicap-=1
+					else:
+						already_played_black_stones_position.append(move)
+				else:
+					already_played_white_stones_position.append(move)
 
-		if len(positions)>0:
-			bot.set_free_handicap(positions)
-			#log("Setting bot komi at",sgf_g.get_komi(),"+",len(positions))
-			#bot.komi(sgf_g.get_komi()+len(positions))
+		if len(free_handicap_black_stones_positions)>0:
+			bot.set_free_handicap(free_handicap_black_stones_positions)
+		
+		for stone in already_played_black_stones_position:
+			log("Adding a black stone at",stone)
+			bot.place_black(stone)
+		
+		for stone in already_played_white_stones_position:
+			log("Adding a white stone at",stone)
+			bot.place_white(stone)
 
 		log("Setting komi at",sgf_g.get_komi())
 		bot.komi(sgf_g.get_komi())
