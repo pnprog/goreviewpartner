@@ -199,7 +199,10 @@ class Ray_gtp(gtp):
 		answer=self.readline()
 		try:
 			if answer[0]!="=":
-				return False
+			return False
+			#adding handicap stones
+			if len(self.free_handicap_stones)>0:
+				self.set_free_handicap(self.free_handicap_stones)
 			self.history.pop()
 			history=self.history[:]
 			self.history=[]

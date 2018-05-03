@@ -141,7 +141,6 @@ class gtp():
 		stones=""
 		for p in positions:
 			stones+=p+" "
-		log("Setting handicap stones at",stones.strip())
 		self.write("set_free_handicap "+stones.strip())
 		answer=self.readline().strip()
 		try:

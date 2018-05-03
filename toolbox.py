@@ -1261,6 +1261,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 					already_played_white_stones_position.append(move)
 
 		if len(free_handicap_black_stones_positions)>0:
+			log("Setting handicap stones at"," ".join(free_handicap_black_stones_positions))
 			bot.set_free_handicap(free_handicap_black_stones_positions)
 		
 		for stone in already_played_black_stones_position:
