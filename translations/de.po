@@ -684,12 +684,12 @@ msgid "Evaluation for this variation: %s"
 msgstr ""
 
 #10.20
-msgid "RAVE(x%%: y) for this variation: %s"
+msgid "RAVE(x%% : y) for this variation: %s"
 #translation missing:
 msgstr ""
 #old english sentence and translation:
-#msgid "RAVE(x%: y) for this move: "
-#msgstr "RAVE(x%: y) für diesen Zug: "
+#msgid "RAVE(x%% : y) for this move: "
+#msgstr "RAVE(x%% : y) für diesen Zug: "
 
 
 #10.21

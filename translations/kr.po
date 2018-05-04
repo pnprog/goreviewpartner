@@ -610,8 +610,8 @@ msgid "Evaluation for this variation: %s"
 msgstr "이 변화도에 대한 평가치: %s"
 
 #10.20
-msgid "RAVE(x%%: y) for this variation: %s"
-msgstr "이 변화도에서의 RAVE 값(x%%: y) : %s"
+msgid "RAVE(x%% : y) for this variation: %s"
+msgstr "이 변화도에서의 RAVE 값(x%% : y) : %s"
 
 #10.21
 msgid "Score estimation for this variation: %s"

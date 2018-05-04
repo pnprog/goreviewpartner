@@ -1843,7 +1843,7 @@ variation_data_formating["MCWR"]=_("Monte Carlo win probability for this variati
 variation_data_formating["VNWR"]=_("Value network black/white win probability for this variation: %s")
 variation_data_formating["PLYO"]=_("Number of playouts used to estimate this variation: %s")
 variation_data_formating["EVAL"]=_("Evaluation for this variation: %s")
-variation_data_formating["RAVE"]=_("RAVE(x%%: y) for this variation: %s")
+variation_data_formating["RAVE"]=_("RAVE(x%% : y) for this variation: %s")
 
 def save_position_data(node,sgf_property,value):
 	node.set(sgf_property,value)
