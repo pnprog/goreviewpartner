@@ -310,7 +310,8 @@ class Goban(Canvas):
 		r,g,b=self.wood_color
 		bg='#%02x%02x%02x' % (r, g, b)
 		
-		self.config(width=space*(1+dim+1), height=space*(1+dim+1))
+		if int(self.cget("width"))==10:
+			self.config(width=space*(dim+1+1+1), height=space*(dim+1+1+1))
 
 		for i in range(dim):
 			for j in range(dim):

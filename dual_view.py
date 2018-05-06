@@ -1036,7 +1036,7 @@ class OpenMove(Toplevel):
 		panel.grid(column=1,row=1,sticky=N+S)
 		
 		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
-		goban3.space=self.goban_size/(dim+1+1)
+		goban3.space=self.goban_size/(dim+1+1+1)
 		goban3.grid(column=2,row=1,sticky=N+S+E+W)
 		popup.grid_rowconfigure(1, weight=1)
 		popup.grid_columnconfigure(2, weight=1)
@@ -1156,7 +1156,7 @@ class OpenMove(Toplevel):
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
-		new_space=new_size/(self.dim+1+1)
+		new_space=new_size/(self.dim+1+1+1)
 		self.goban.space=new_space
 		
 		new_anchor_x=(event.width-new_size)/2.
