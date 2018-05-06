@@ -18,9 +18,9 @@ class gtp():
 		self.stdout_queue=Queue.Queue()
 		threading.Thread(target=self.consume_stderr).start()
 		self.free_handicap_stones=[]
-		
+		self.history=[]
+
 	####low level function####
-	
 	def consume_stderr(self):
 		while 1:
 			try:
@@ -82,26 +82,76 @@ class gtp():
 	def komi(self,k):
 		self.write("komi "+str(k))
 		answer=self.readline()
-		if answer[0]=="=":return True
+		if answer[0]=="=":
+			self.komi_value=k
+			return True
 		else:return False	
 
 	def place_black(self,move):
 		self.write("play black "+move)
 		answer=self.readline()
-		if answer[0]=="=":return True
+		if answer[0]=="=":
+			self.history.append(["b",move])
+			return True
 		else:return False	
+	
+	def place_white(self,move):
+		self.write("play white "+move)
+		answer=self.readline()
+		if answer[0]=="=":
+			self.history.append(["w",move])
+			return True
+		else:return False
+
+
+	def play_black(self):
+		self.write("genmove black")
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			self.history.append(["b",move])
+			return move
+		except Exception, e:
+			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
+
+		
+	def play_white(self):
+		self.write("genmove white")
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			self.history.append(["w",move])
+			return move
+		except Exception, e:
+			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
+
+
+	def undo(self):
+		self.reset()
+		self.komi(self.komi_value)
+		try:
+			#adding handicap stones
+			if len(self.free_handicap_stones)>0:
+				self.set_free_handicap(self.free_handicap_stones)
+			self.history.pop()
+			history=self.history[:]
+			self.history=[]
+			for color,move in history:
+				if color=="b":
+					if not self.place_black(move):
+						return False
+				else:
+					if not self.place_white(move):
+						return False
+			return True			
+		except Exception, e:
+			raise GtpException("GtpException in undo()\n"+str(e))
 	
 	def place(self,move,color):
 		if color==1:
 			return self.place_black(move)
 		else:
 			return self.place_white(move)
-	
-	def place_white(self,move):
-		self.write("play white "+move)
-		answer=self.readline()
-		if answer[0]=="=":return True
-		else:return False
 	
 	def name(self):
 		self.write("name")
@@ -119,22 +169,6 @@ class gtp():
 		except Exception,e:
 			raise GtpException("GtpException in version()\nanswer='"+answer+"'\n"+str(e))
 
-	def play_black(self):
-		self.write("genmove black")
-		answer=self.readline().strip()
-		try:
-			return answer.split(" ")[1]
-		except Exception, e:
-			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
-
-		
-	def play_white(self):
-		self.write("genmove white")
-		answer=self.readline().strip()
-		try:
-			return answer.split(" ")[1]
-		except Exception, e:
-			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
 	def set_free_handicap(self,positions):
 		self.free_handicap_stones=positions[:]
@@ -151,11 +185,7 @@ class gtp():
 		except Exception, e:
 			raise GtpException("GtpException in set_free_handicap()\nanswer='"+answer+"'\n"+str(e))
 	
-	def undo_resign(self):
-		#just do nothing
-		pass
-	
-	def undo(self):
+	def undo_standard(self):
 		self.write("undo")
 		answer=self.readline()
 		try:
@@ -165,7 +195,7 @@ class gtp():
 				return False			
 		except Exception, e:
 			raise GtpException("GtpException in undo()\nanswer='"+answer+"'\n"+str(e))
-
+	
 	def countlib(self,move):
 		self.write("countlib "+move)
 		answer=self.readline()

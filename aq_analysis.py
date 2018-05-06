@@ -120,11 +120,8 @@ class AQAnalysis():
 			aq.undo()
 		else:
 			log('adding "'+answer.lower()+'" to the sgf file')
-			# additional_comments+="\n"+_("For this position, %s would %s"%("AQ",answer.lower()))
-			if answer.lower()=="pass":
-				aq.undo()
-			elif answer.lower()=="resign":
-				aq.undo_resign()
+			aq.undo()
+
 
 		return answer
 
@@ -157,7 +154,6 @@ class AQ_gtp(gtp):
 
 	def __init__(self,command):
 		self.c=1
-
 		aq_working_directory=command[0][:-len(ntpath.basename(command[0]))]
 		
 		if aq_working_directory:
@@ -165,9 +161,7 @@ class AQ_gtp(gtp):
 			self.process=subprocess.Popen(command,cwd=aq_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		else:
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		
 		self.size=0
-
 		self.stderr_queue=Queue.Queue()
 		self.stdout_queue=Queue.Queue()
 		
@@ -176,85 +170,14 @@ class AQ_gtp(gtp):
 		self.history=[]
 		self.free_handicap_stones=[]
 
-	def place_black(self,move):
-		self.write("play black "+move)
-		answer=self.readline()
-		if answer[0]=="=":
-			self.history.append(["b",move])
-			return True
-		else:return False
-
-	def place_white(self,move):
-		self.write("play white "+move)
-		answer=self.readline()
-		if answer[0]=="=":
-			self.history.append(["w",move])
-			return True
-		else:return False
-
-
-	def play_black(self):
-		self.write("genmove black")
-		answer=self.readline().strip()
-		try:
-			move=answer.split(" ")[1]
-			if move.lower()!="resign":
-				self.history.append(["b",move])
-			return move
-		except Exception, e:
-			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
-
-
-	def play_white(self):
-		self.write("genmove white")
-		answer=self.readline().strip()
-		try:
-			move=answer.split(" ")[1]
-			if move.lower()!="resign":
-				self.history.append(["w",move])
-			return move
-		except Exception, e:
-			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
-
-
-	def undo(self):
-		self.write("clear_board")
-		answer=self.readline()
-		try:
-			if answer[0]!="=":
-				return False
-			#adding handicap stones
-			if len(self.free_handicap_stones)>0:
-				self.set_free_handicap(self.free_handicap_stones)
-			self.history.pop()
-			history=self.history[:]
-			self.history=[]
-			for color,move in history:
-				if color=="b":
-					if not self.place_black(move):
-						return False
-				else:
-					if not self.place_white(move):
-						return False
-			return True
-		except Exception, e:
-			raise GtpException("GtpException in undo()\n"+str(e))
-
 	def quick_evaluation(self,color):
 		if color==2:
 			answer=self.play_white()
 		else:
 			answer=self.play_black()
-		
 		all_moves=self.get_all_aq_moves()
+		self.undo()
 
-		if answer.lower()=="pass":
-			self.undo()
-		elif answer.lower()=="resign":
-			self.undo_resign()
-		else:
-			self.undo()
-		
 		txt=""
 		try:
 			if color==1:

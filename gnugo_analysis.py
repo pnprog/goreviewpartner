@@ -152,11 +152,7 @@ class GnuGoAnalysis():
 								current_color='w'
 
 		else:
-			if answer.lower()=="pass":
-				gnugo.undo()
-			elif answer.lower()=="resign":
-				gnugo.undo_resign()
-		
+			gnugo.undo()
 		#one_move.add_comment_text(additional_comments)
 		
 		log("Creating the influence map")

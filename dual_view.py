@@ -172,7 +172,6 @@ class OpenChart(Toplevel):
 	
 	def display_vertical_winrate_graduation(self,border,height,width):
 		#drawing vertical graduation
-		lpix=int(border/4)
 		graduations=[x*10 for x in range(10+1)]
 		y0=height+1000
 		x0=border/2
@@ -181,27 +180,31 @@ class OpenChart(Toplevel):
 			y1=height-border-g*(height-2*border)/100.
 			
 			if y0-y1>=border:
-				self.chart.create_text(x0,y1, text=str(g)+"%",fill='black',font=("Arial", str(lpix)))
-				self.chart.create_text(x1,y1, text=str(g)+"%",fill='black',font=("Arial", str(lpix)))
+				self.chart.create_text(x0,y1, text=str(g)+"%",fill='black',font=self.font)
+				self.chart.create_text(x1,y1, text=str(g)+"%",fill='black',font=self.font)
 				#self.chart.create_line(x0, y1, x1, y1, fill='black')
 				y0=y1
 	
 	def display_vertical_score_graduation(self,border,height,width,maximum):
 		#drawing vertical graduation
-		lpix=int(border/4)
-		graduations=[x*20 for x in range(int(-maximum/20.),int((maximum+20)/20.))]
-		y0=height+1000
+		graduations=[x*2 for x in range(0,int((maximum+2)/2.))]
 		x0=border/2
 		x1=width-border/2
 		middle=height-border-(height-2*border)/2
+		#placing 0 first
+		y0=middle
+		self.chart.create_text(x0,y0, text="0",fill='black',font=self.font)
+		self.chart.create_line(border-3, y0, border+3, y0, fill='black')
 		for g in graduations:
-			y1=height-border-g*(height-2*border)/100.
-			y1=g/2*(height-2*border)/maximum
-			y1=middle-y1
-			if y0-y1>=border:
-				self.chart.create_text(x0,y1, text=str(g),fill='black',font=("Arial", str(lpix)))
-				self.chart.create_text(x1,y1, text=str(g),fill='black',font=("Arial", str(lpix)))
-				#self.chart.create_line(x0, y1, x1, y1, fill='black')
+			y1=middle+g/2*(height-2*border)/maximum
+			y2=middle-g/2*(height-2*border)/maximum
+			if y1-y0>=border/2:
+				self.chart.create_text(x0,y1, text=str(-g),fill='black',font=self.font)
+				self.chart.create_text(x0,y2, text=str(g),fill='black',font=self.font)
+				self.chart.create_line(border-3, y1, border+3, y1, fill='black')
+				self.chart.create_line(width-border-3, y1, width-border+3, y1, fill='black')
+				self.chart.create_line(border-3, y2, border+3, y2, fill='black')
+				self.chart.create_line(width-border-3, y2, width-border+3, y2, fill='black')
 				y0=y1
 	
 	def change_graph(self,event=None):
@@ -222,13 +225,28 @@ class OpenChart(Toplevel):
 			height=event.height
 			self.width=width
 			self.height=height
+			
+			#let's estimate the ratio fontsize/pixel
+			offset=-1000000
+			idt=self.chart.create_text(offset,offset, text="0",font=("TkFixedFont", 1000))
+			x1,y1,x2,y2=self.chart.bbox(idt) 
+			ratio=max(x2-x1,y2-y1)/1000.
+			#let's measure one letter's size from a tkinter widget
+			police = tkFont.nametofont("TkFixedFont")
+			self.lpix = 2*police.measure("0")
+			#let's adjust the fontsize to match the letter's size
+			fontsize=int(round(self.lpix/ratio))
+			self.border=4.5*fontsize
+			self.font=("TkFixedFont",str(fontsize))
+			
+			
 		else:
 			width=self.width
 			height=self.height
 		
-		border=min(max(20,width/25),200)
-		space=1.0*(width-2*border)/self.nb_moves
-		lpix=int(border/4)
+		border=self.border
+		lpix=self.lpix
+		space=1.0*(width-2*border)/(self.nb_moves+1)
 		
 		for item in self.chart.find_all():
 			self.chart.delete(item)
@@ -241,7 +259,7 @@ class OpenChart(Toplevel):
 		y00=height-border
 		x0=border+(self.current_move-1)*space
 		x1=x0+space
-		y1=border
+		y1=border-5
 		self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')#yellow_bar
 		
 		mode=self.last_graph
@@ -437,9 +455,9 @@ class OpenChart(Toplevel):
 
 	def display_value_network_winrate_graph(self,border,height,width,lpix):
 		moves=[]
-		space=1.0*(width-2*border)/self.nb_moves
+		space=1.0*(width-2*border)/(self.nb_moves+1)
 		
-		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
+		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=self.font)
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
@@ -478,9 +496,9 @@ class OpenChart(Toplevel):
 		
 	def display_monte_carlo_winrate_graph(self,border,height,width,lpix):
 		moves=[]
-		space=1.0*(width-2*border)/self.nb_moves
+		space=1.0*(width-2*border)/(self.nb_moves+1)
 		
-		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
+		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=self.font)
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
@@ -520,9 +538,9 @@ class OpenChart(Toplevel):
 
 	def display_winrate_graph(self,border,height,width,lpix):
 		moves=[]
-		space=1.0*(width-2*border)/self.nb_moves
+		space=1.0*(width-2*border)/(self.nb_moves+1)
 		
-		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=("Arial", str(lpix)))
+		self.chart.create_text(len(_("Black win rate"))*lpix/2,border/2, text=_("Black win rate"),fill='black',font=self.font)
 		x00=border
 		y00=height-border-(height-2*border)/2.
 		for one_data in self.data:
@@ -560,8 +578,8 @@ class OpenChart(Toplevel):
 		return moves
 
 	def display_score_graph(self,border,height,width,lpix):
-		self.chart.create_text(border+len(_("Black win"))*lpix/2,border+lpix, text=_("Black win"),fill='black',font=("Arial", str(lpix)))
-		self.chart.create_text(border+len(_("White win"))*lpix/2,height-border-lpix, text=_("White win"),fill='black',font=("Arial", str(lpix)))
+		self.chart.create_text(border+len(_("Black win"))*lpix/2,border+lpix, text=_("Black win"),fill='black',font=self.font)
+		self.chart.create_text(border+len(_("White win"))*lpix/2,height-border-lpix, text=_("White win"),fill='black',font=self.font)
 		moves=[]
 		#checking graph limits
 		maximum=-1000
@@ -569,7 +587,7 @@ class OpenChart(Toplevel):
 			if "score_estimation" in one_data:
 				maximum=max(maximum,max([abs(x) for x in (one_data["upper_bound_score"],one_data["lower_bound_score"],one_data["score_estimation"])]))
 		maximum+=5
-		space=1.0*(width-2*border)/self.nb_moves
+		space=1.0*(width-2*border)/(self.nb_moves+1)
 		middle=height-border-(height-2*border)/2
 		x00=border
 		y00=middle
@@ -646,10 +664,10 @@ class OpenChart(Toplevel):
 		y0=height-border/2
 		y1=height-border
 		for g in graduations:
-			x1=border+(g)*(width-2*border)/self.nb_moves*1.0
+			x1=border+(g-0.5)*(width-2*border)/self.nb_moves*1.0
 			
-			if x1-x0>=border:
-				self.chart.create_text(x1,y0, text=str(g),fill='black',font=("Arial", str(lpix)))
+			if x1-x0>=border/1.5:
+				self.chart.create_text(x1,y0, text=str(g),fill='black',font=self.font)
 				self.chart.create_line(x1, y1, x1, (y0+y1)/2, fill='black')
 				x0=x1
 		
@@ -759,10 +777,7 @@ class OpenMove(Toplevel):
 			self.markup[i][j]=0
 			self.next_color=3-color
 		else:
-			if move.lower() == "resign":
-				bot.undo_resign()
-			else:
-				bot.undo()
+			bot.undo()
 			if color==1:
 				self.display_queue.put(bot.name+" ("+_("Black")+"): "+move.lower())
 			else:

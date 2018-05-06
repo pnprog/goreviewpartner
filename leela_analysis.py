@@ -31,7 +31,6 @@ class LeelaAnalysis():
 		log()
 		log("==============")
 		log("move",str(current_move))
-		
 		#additional_comments=""
 		if player_color in ('w',"W"):
 			log("leela play white")
@@ -52,10 +51,7 @@ class LeelaAnalysis():
 			save_position_data(one_move,"ES",position_evaluation["estimated score"])
 		if (answer.lower() in ["pass","resign"]):
 			bookmove=False
-			if answer.lower()=="pass":
-				leela.undo()
-			elif answer.lower()=="resign":
-				leela.undo_resign()
+			leela.undo()
 			nb_undos=0
 		else:
 			nb_undos=1 #let's remember to undo that move from Leela
@@ -262,7 +258,7 @@ class Variation(dict):
 	pass
 
 class Leela_gtp(gtp):
-	
+
 	def showboard(self):
 		self.write("showboard")
 		self.readline() #empty line
@@ -281,15 +277,9 @@ class Leela_gtp(gtp):
 			answer=self.play_white()
 		else:
 			answer=self.play_black()
-		
 		position_evaluation=self.get_all_leela_moves()
-
-		if answer.lower()=="pass":
-			self.undo()
-		elif answer.lower()=="resign":
-			self.undo_resign()
-		else:
-			self.undo()
+		self.undo()
+		
 		txt=""
 		try:
 			if color==1:
@@ -304,10 +294,7 @@ class Leela_gtp(gtp):
 			txt+=variation_data_formating["ES"]%self.get_leela_final_score()
 
 		return txt
-	def undo_resign(self):
-		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
-		self.undo()
-		
+	
 	def get_leela_final_score(self):
 		self.write("final_score")
 		answer=self.readline().strip()
@@ -346,12 +333,10 @@ class Leela_gtp(gtp):
 				buff.append(self.stderr_queue.get())
 			sleep(.01)
 		
-		buff.reverse()
-		
 		position_evaluation=Position()
 		
 		for err_line in buff:
-			#log(err_line)
+			#log(err_line[:-1])
 			
 			if "score=" in err_line:
 				position_evaluation["estimated score"]=err_line.split("score=")[1].strip()
@@ -362,7 +347,7 @@ class Leela_gtp(gtp):
 			
 			if " ->" in err_line:
 				variation=Variation()
-				#log(err_line)
+				#log(err_line[:-1])
 				one_answer=err_line.strip().split(" ")[0]
 				variation["first move"]=one_answer
 				one_score=err_line.split()[4][:-1]
@@ -391,8 +376,7 @@ class Leela_gtp(gtp):
 					variation["win rate"]=one_score
 					sequence=err_line.split("PV: ")[1].strip()
 					variation["sequence"]=sequence
-					position_evaluation['variations']=[variation]+position_evaluation['variations']
-		
+					position_evaluation['variations'].append(variation)
 		return position_evaluation
 
 

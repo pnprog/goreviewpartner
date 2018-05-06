@@ -22,7 +22,6 @@ import tkMessageBox
 
 
 class LeelaZeroAnalysis():
-
 	def run_analysis(self,current_move):
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color=guess_color_to_play(self.move_zero,current_move)
@@ -50,10 +49,7 @@ class LeelaZeroAnalysis():
 		position_evaluation=leela_zero.get_all_leela_zero_moves()
 		
 		if (answer.lower() in ["pass","resign"]):
-			if answer.lower()=="pass":
-				leela_zero.undo()
-			elif answer.lower()=="resign":
-				leela_zero.undo_resign()
+			leela_zero.undo()
 		else:
 			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			
@@ -216,15 +212,8 @@ class Leela_Zero_gtp(gtp):
 			answer=self.play_white()
 		else:
 			answer=self.play_black()
-		
 		position_evaluation=self.get_all_leela_zero_moves()
-		
-		if answer.lower()=="pass":
-			self.undo()
-		elif answer.lower()=="resign":
-			self.undo_resign()
-		else:
-			self.undo()
+		self.undo()
 		
 		if color==1:
 			black_win_rate=position_evaluation["variations"][0]["value network win rate"]
@@ -235,10 +224,6 @@ class Leela_Zero_gtp(gtp):
 		txt=variation_data_formating["VNWR"]%(black_win_rate+'/'+white_win_rate)
 		txt+="\n\n"+variation_data_formating["ES"]%self.get_leela_zero_final_score()
 		return txt
-	def undo_resign(self):
-		#apparently, Leela consider "resign" as a standard move that need to be undoed the same way as other move 
-		#self.undo()
-		pass #apparently, this has been "fixed" in v0.10, v0.11 or v0.12 :)
 		
 	def __init__(self,command):
 		self.c=1
@@ -288,7 +273,8 @@ class Leela_Zero_gtp(gtp):
 				log("Could not find out, abandoning")
 				break
 		
-		
+		self.free_handicap_stones=[]
+		self.history=[]
 
 	def consume_stderr(self):
 		while 1:
