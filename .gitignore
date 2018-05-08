@@ -1,0 +1,4 @@
+*.py[cod]
+*.sgf
+*.rsgf
+translations/en.po

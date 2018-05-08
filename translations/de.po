@@ -1,0 +1,966 @@
+
+############ Main panel
+#1.1
+msgid "This is GoReviewPartner"
+msgstr "Das ist Go Review Partner"
+
+#1.2
+msgid "Run a SGF file analysis"
+msgstr "Eine SGF-Datei analysieren"
+
+#1.3
+msgid "Run a live analysis"
+#translation missing:
+msgstr ""
+
+#1.4
+msgid "Open a RSGF file for review"
+msgstr "Eine RSGF-Datei öffnen"
+
+#1.5
+msgid "Convert RSGF file to SGF file"
+#translation missing:
+msgstr ""
+
+#1.6
+msgid "Download a SGF file for analysis"
+msgstr "Einen SGF-Link analysieren"
+
+#1.7
+msgid "Settings"
+msgstr "Einstellungen"
+
+#1.8
+msgid "The file %s as been converted to %s"
+#translation missing:
+msgstr ""
+
+############## Analysis setting
+#2.1
+msgid "Bot to use for analysis:"
+msgstr "Analyse-Programm:"
+
+#2.2
+msgid "Select variation to be analysed"
+msgstr "Zu analysierende Variation auswählen"
+
+#2.3
+msgid "Select moves to be analysed"
+msgstr "Zu analysierende Züge auswählen"
+
+#2.4
+msgid "Analyse all %i moves"
+msgstr "Alle %i Züge analysieren"
+
+#2.5
+msgid "Analyse only those moves:"
+msgstr "Nur diese Züge analysieren:"
+
+#2.6
+msgid "Select colors to be analysed"
+msgstr "Zu analysierende Farben auswählen"
+
+#2.7
+msgid "Black & white"
+msgstr "Schwarz & Weiß "
+
+#2.8
+msgid "Black only"
+msgstr "Nur Schwarz"
+
+#2.9
+msgid "White only"
+msgstr "Nur Weiß"
+
+#2.10
+msgid "Confirm the value of komi"
+msgstr "Komi bestätigen"
+
+#2.11
+msgid "Stop the analysis if the bot resigns"
+msgstr "Die Analyse abbrechen, wenn das Programm aufgeben würde"
+
+#2.12
+msgid "Variation %i (%i moves)"
+msgstr "Variation %i (%i Züge)"
+
+#2.13
+msgid "Start"
+msgstr "Start"
+
+#2.14
+msgid "Incorrect value for komi (%s), please double check."
+msgstr "Falsches Komi (%s), bitte überprüfen."
+
+#2.15
+msgid "Could not make sense of the moves range."
+msgstr "Unzulässiger Zug-Bereich."
+
+#2.16
+msgid "Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"
+msgstr "Bitte einen oder mehrere Zug-Bereiche angeben (z.B.: \"10-20, 40,50-51,63,67\")"
+
+#2.17
+msgid "Error while reading komi value, please check:"
+msgstr "Komi konnte nicht bestimmt werden, bitte überprüfen:"
+
+############## SGF download
+#3.1
+msgid "Paste the URL to the SGF file (http or https):"
+msgstr "Einen Link zu der SGF-Datei einfügen (http oder https):"
+
+#3.2
+msgid "Get"
+msgstr "Herunterladen"
+
+#3.3
+msgid "Could not download the URL"
+msgstr "Konnte die URL nicht öffnen"
+
+#3.4
+msgid "Not a SGF file!"
+msgstr "Keine gültige SGF-Datei!"
+
+############## Analysis running ###
+#4.1
+msgid "Analysis of: %s"
+msgstr "Analyse von: %s"
+
+#4.2
+msgid "Remaining time: %ih, %imn, %is"
+msgstr "Verbleibende Zeit: %ih, %im, %is"
+
+#4.3
+msgid "Currently at move %i/%i"
+msgstr "Zug %i/%i"
+
+#4.4
+msgid "Completed"
+msgstr "Analyse abgeschlossen"
+
+#4.5
+msgid "Start the review"
+#translation missing:
+msgstr ""
+#former english sentence and translation
+#msgid "Start review"
+#msgstr "Besprechung starten"
+
+#4.6
+msgid "Now closing, please wait..."
+msgstr "Wird geschlossen, bitte warten..."
+
+
+############## RSGF review
+#5.1
+msgid "Open position"
+msgstr "Position öffnen"
+
+#5.2
+msgid "Show territories"
+msgstr "Gebiete anzeigen"
+
+#5.3
+msgid "Graphs"
+msgstr "Grafen"
+
+#5.4
+msgid "Table"
+#translation missing:
+msgstr ""
+
+#5.5
+msgid "Open this position onto a third goban to play out variations."
+msgstr "Diese Position auf einem dritten Goban öffnen, um Variationen durchzuspielen."
+
+#5.6
+msgid "Keep pressed to show territories."
+msgstr "Gedrückt halten, um Gebiete anzuzeigen."
+
+#5.7
+msgid "Go to first move."
+msgstr "Zum Anfang der Partie gehen."
+
+#5.8
+msgid "Go back 10 moves."
+msgstr "10 Züge zurück."
+
+#5.9
+msgid "Go back one move. Shortcut: keyboard left key."
+msgstr "1 Zug züruck. Kürzel: Pfeiltaste links."
+
+#5.10
+msgid "Go forward one move. Shortcut: keyboard right key."
+msgstr "1 Zug vorwärts. Kürzel: Pfeiltaste rechts."
+
+#5.11
+msgid "Go forward 10 moves."
+msgstr "10 Züge vorwärts."
+
+#5.12
+msgid "Go to final move."
+msgstr "Ans Ende der Partie gehen."
+
+#5.13
+msgid "<Ctrl+Q> to save the goban as an image."
+msgstr "<Ctrl+Q>, um das Goban als Bild zu speichern."
+
+#5.14
+msgid "<Ctrl+W> to save the goban as an image."
+msgstr "<Ctrl+W>, um das Goban als Bild zu speichern"
+
+#5.15
+msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
+msgstr "Mit dem Mausrad oder Pfeiltasten oben/unten Schrittweise durch die Variation gehen."
+
+
+
+############## Open position
+#6.1
+msgid "Undo"
+msgstr "Rückgängig"
+
+#6.2
+msgid "Play one move"
+msgstr "Einen Zug spielen"
+
+#6.3
+msgid "Play as white"
+msgstr "Als Weiß spielen"
+
+#6.4
+msgid "Play as black"
+msgstr "Als Schwarz spielen"
+
+#6.5
+msgid "Self play"
+msgstr "Autom. Spiel"
+
+#6.6
+msgid "Quick evaluation"
+#translation missing:
+msgstr ""
+
+#6.7
+msgid "Undo last move. Shortcut: mouse middle button."
+msgstr "Zug rückgängig machen. Kürzel: Mittlere Maustaste."
+
+#6.8
+msgid "Select a bot."
+msgstr "Ein Programm auswählen"
+
+#6.9
+msgid "Ask the bot to play one move."
+msgstr "Das Programm einen Zug spielen lassen."
+
+#6.10
+msgid "Ask the bot to play as White."
+msgstr "Das Programm als Weiß spielen lassen."
+
+#6.11
+msgid "Ask the bot to play as Black."
+msgstr "Das Programm als Schwarz spielen lassen."
+
+#6.12
+msgid "Ask the bot to play alone."
+msgstr "Das Programm die Partie gegen sich selber ausspielen lassen."
+
+#6.13
+msgid "Ask the bot for a quick evaluation"
+#translation missing:
+msgstr ""
+
+#6.14
+msgid "Abort"
+msgstr "Abbrechen"
+
+#6.15
+msgid "White"
+msgstr "Weiß"
+
+#6.16
+msgid "Black"
+msgstr "Schwarz"
+
+
+
+
+############## Graphs
+#7.1
+msgid "Win rate"
+msgstr "Gewinnwahrscheinlichkeit"
+
+#7.2
+msgid "Black win rate delta"
+#translation missing:
+msgstr ""
+#7.3
+msgid "White win rate delta"
+#translation missing:
+msgstr ""
+#before, this was translated as bellow:
+#msgid "Black comparison"
+#msgstr "Schwarze Züge"
+#msgid "White comparison"
+#msgstr "Weiße Züge"
+
+#7.4
+msgid "Value Network win rate"
+#translation missing:
+msgstr ""
+
+#7.5
+msgid "Black Value Network win rate delta"
+#translation missing:
+msgstr ""
+
+#7.6
+msgid "White Value Network win rate delta"
+#translation missing:
+msgstr ""
+
+#7.7
+msgid "Monte Carlo win rate"
+#translation missing:
+msgstr ""
+
+#7.8
+msgid "Black Monte Carlo win rate delta"
+#translation missing:
+msgstr ""
+
+#7.9
+msgid "White Monte Carlo win rate delta"
+#translation missing:
+msgstr ""
+
+#7.10
+msgid "Score estimation"
+#translation missing:
+msgstr ""
+#old translation (before, only GnuGo has score estimation):
+#msgid "Gnugo score estimation before the move was played: "
+#msgstr "Punktestand laut GnuGo, vor dem Zug: "
+
+#7.11
+msgid "Black win rate"
+msgstr "Gewinnwahrscheinlichkeit für Schwarz"
+
+#7.12
+msgid "Move %i (%s), black/white win rate: "
+msgstr "Zug %i (%s), Gewinnwsl. für Schwarz/Weiß: "
+
+#7.13
+msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
+msgstr "Zug %i: Gewinnwsl. schwarzer Zug: %s, Gewinnwsl. Computer-Zug: %s"
+msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
+msgstr "Zug %i: Gewinnwsl. weißer Zug: %s, Gewinnwsl. Computer-Zug: %s"
+
+#7.14
+msgid "The computer believes the actual move is %.2fpp better than it's best move."
+msgstr "Das Programm schätzt den gespielten Zug um %.2f%% besser als den selber gefundenen ein."
+
+#7.15
+msgid "The computer believes it's own move win rate would be %.2fpp higher."
+msgstr "Das Programm schätzt seinen eigenen Zug als %.2f%% besser ein."
+
+#7.16
+msgid "Move %i (%s), estimated score: "
+#translation missing:
+msgstr ""
+
+#7.17
+msgid "White win"
+#translation missing:
+msgstr ""
+
+#7.18
+msgid "Black win"
+#translation missing:
+msgstr ""
+
+#7.19
+msgid "<Ctrl+Q> to save the graph as an image."
+msgstr "<Ctrl+Q>, um den Graphen als Bild zu speichern."
+
+############## GRP Settings
+#8.1
+msgid "%s settings"
+msgstr "Einstellungen von %s"
+
+#8.2
+msgid "General parameters"
+msgstr "Allgemeine Einstellungen"
+
+#8.3
+msgid "Language"
+msgstr "Sprache"
+
+#8.4
+msgid "Parameters for the analysis"
+msgstr "Einstellungen für die Analyse"
+
+#8.5
+msgid "Maximum number of variations to record during analysis"
+msgstr "Maximale Anzahl Variationen, die aufgezeichnet werden"
+
+#8.6
+msgid "Only keep variations when game move and bot move differ"
+#translation missing:
+msgstr ""
+
+#8.7
+msgid "Save bot command line into RSGF file"
+msgstr "Kommandozeilenbefehl des Programms in RSGF-Datei speichern"
+
+#8.8
+msgid "Parameters for the review"
+msgstr "Einstellungen für die Besprechung"
+
+#8.9
+msgid "Fuzzy Stone"
+msgstr "Natürliche Platzierung der Steine"
+
+#8.10
+msgid "Real game sequence deepness"
+msgstr "Variationstiefe"
+
+#8.11
+msgid "Goban/screen ratio"
+msgstr "Verhältnis Größe Goban zu Bildschirm"
+
+#8.12
+msgid "Maximum number of variations to display during review"
+msgstr "Maximale Anzahl Variationen, die bei der Besprechung angezeigt werden"
+
+#8.13
+msgid "Blue/red coloring of the variations"
+#translation missing:
+msgstr ""
+
+#8.14
+msgid "Labels for the variations"
+#translation missing:
+msgstr ""
+
+#8.15
+msgid "Inverted mouse wheel"
+#translation missing:
+msgstr ""
+
+#8.16
+msgid "Save settings"
+msgstr "Einstellungen speichern"
+
+#8.17
+msgid "The best variation in blue"
+#translation missing:
+msgstr ""
+
+#8.18
+msgid "Winning variations (>50%) only in blue"
+#translation missing:
+msgstr ""
+
+#8.19
+msgid "Variations better than actual game move in blue"
+#translation missing:
+msgstr ""
+
+#8.20
+msgid "Rates"
+#translation missing:
+msgstr ""
+
+#8.21
+msgid "Letters"
+#translation missing:
+msgstr ""
+
+
+
+
+
+############## Bots Settings
+#9.1
+msgid "Slow profile parameters"
+#translation missing:
+msgstr ""
+
+#9.2
+msgid "Command"
+msgstr "Befehl"
+
+#9.3
+msgid "Parameters"
+msgstr "Einstellungen"
+
+#9.4
+msgid "Time per move (s)"
+msgstr "Zeit pro Zug (s)"
+
+#9.5
+msgid "Test"
+#translation missing:
+msgstr ""
+
+#9.6
+msgid "Fast profile parameters"
+#translation missing:
+msgstr ""
+
+#9.7
+msgid "%s availability"
+#translation missing:
+msgstr ""
+
+#9.8
+msgid "Static analysis"
+#translation missing:
+msgstr ""
+
+#9.9
+msgid "Live analysis"
+#translation missing:
+msgstr ""
+
+#9.10
+msgid "Live analysis as black or white"
+#translation missing:
+msgstr ""
+
+#9.11
+msgid "When opening a position for manual play"
+#translation missing:
+msgstr ""
+
+#9.12
+msgid "Maximum number of variations"
+msgstr "Maximale Anzahl Variationen"
+
+#9.13
+msgid "Deepness for each variation"
+msgstr "Tiefe der Variationen"
+
+#9.14
+msgid "See AQ parameters in aq_config.txt"
+msgstr "Einstellungen von AQ sind in \"aq_config.txt\""
+
+#9.15
+msgid "Slow profile"
+#translation missing:
+msgstr ""
+
+#9.16
+msgid "Fast profile"
+#translation missing:
+msgstr ""
+
+#9.17
+msgid "Both profiles"
+#translation missing:
+msgstr ""
+
+#9.18
+msgid "None"
+#translation missing:
+msgstr ""
+
+
+
+############## Data description and display
+#10.1
+msgid "Move %i"
+msgstr "Zug %i"
+
+#10.2
+msgid "White to play, in the game, white played %s"
+msgstr "Weiß am Zug. Im Spiel wurde %s gespielt"
+msgid "Black to play, in the game, black played %s"
+msgstr "Schwarz am Zug. Im Spiel wurde %s gespielt"
+
+#10.3
+msgid "For this position, %s would play: %s"
+#ie: For this position, Leela would play: D16
+#translation missing:
+msgstr ""
+#old english sentence and translation:
+#msgid "For this position, %s would %s"
+#msgstr "In dieser Position würde %s %s spielen"
+
+#10.4
+msgid "Black win probability:"
+#translation missing:
+msgstr ""
+msgid "White win probability:"
+#translation missing:
+msgstr ""
+
+#10.5
+msgid "before %s"
+#translation missing:
+msgstr ""
+
+#10.6
+msgid "after %s"
+#translation missing:
+msgstr ""
+
+#10.7
+msgid "Black Value Network win probability:"
+#translation missing:
+msgstr ""
+msgid "White Value Network win probability:"
+#translation missing:
+msgstr ""
+#old english sentence and translation:
+#msgid "Value network black/white win probability for this move: "
+#msgstr "Gewinnwsl. laut \"value network\" für diesen Zug: "
+
+#10.8
+msgid "Black Monte Carlo win probability:"
+#translation missing:
+msgstr ""
+msgid "White Monte Carlo win probability:"
+#translation missing:
+msgstr ""
+#older english sentence and translation:
+#msgid "Monte Carlo win probability for this move: "
+#msgstr "Monte-Carlo-Gewinnwsl. für diesen Zug: "
+
+#10.9
+msgid "Move"
+#translation missing:
+msgstr ""
+
+#10.10
+msgid "Policy Network value"
+#translation missing:
+msgstr ""
+
+#10.11
+msgid "Playouts"
+msgstr "Simulationen"
+
+#10.12
+msgid "Evaluation"
+#translation missing:
+msgstr "Evaluation"
+
+#10.13
+msgid "RAVE"
+#translation missing:
+msgstr ""
+
+#10.14
+msgid "black/white win probability for this variation: %s"
+msgstr "Gewinnwsl. Schwarz/Weiß für diese Variation: %s"
+
+#10.15
+msgid "Policy network value for this variation: %s"
+#translation missing:
+msgstr ""
+#old english sentence and translation:
+#msgid "Policy network value for this move: "
+#msgstr "Gewinnwsl. laut \"policy network\" für diesen Zug: "
+
+#10.16
+msgid "Monte Carlo win probability for this variation: %s"
+#translation missing:
+msgstr ""
+
+#10.17
+msgid "Value network black/white win probability for this variation: %s"
+#translation missing:
+msgstr ""
+
+#10.18
+msgid "Number of playouts used to estimate this variation: %s"
+msgstr "Anzahl Simulationen für diese Variation: %"
+
+#10.19
+msgid "Evaluation for this variation: %s"
+#translation missing:
+msgstr ""
+
+#10.20
+msgid "RAVE(x%% : y) for this variation: %s"
+#translation missing:
+msgstr ""
+#old english sentence and translation:
+#msgid "RAVE(x%% : y) for this move: "
+#msgstr "RAVE(x%% : y) für diesen Zug: "
+
+
+#10.21
+msgid "Score estimation for this variation: %s"
+#translation missing:
+msgstr ""
+
+#10.22
+msgid "Analysis by GoReviewPartner"
+msgstr "Analysiert von Go Review Partner"
+
+#10.23
+msgid "Bot"
+#translation missing:
+msgstr ""
+
+#10.24
+msgid "Intervals"
+#translation missing:
+msgstr ""
+
+#10.25
+msgid "Command line"
+#translation missing:
+msgstr ""
+
+#10.26
+msgid "Book move"
+msgstr "Spielzug aus der Eröffnungsdatenbank"
+
+############## Live analysis settings
+#11.1
+msgid "Bot used for analysis"
+#translation missing:
+msgstr ""
+
+#11.2
+msgid "Black player"
+#translation missing:
+msgstr ""
+
+#11.3
+msgid "White player"
+#translation missing:
+msgstr ""
+
+#11.4
+msgid "No overlap thinking time"
+#translation missing:
+msgstr ""
+
+#11.5
+msgid "Board size"
+#translation missing:
+msgstr ""
+
+#11.6
+msgid "Komi"
+#translation missing:
+msgstr ""
+
+#11.7
+msgid "Handicap stones"
+#translation missing:
+msgstr ""
+
+#11.8
+msgid "SGF file name"
+#translation missing:
+msgstr ""
+
+#11.9
+msgid "Human"
+#translation missing:
+msgstr ""
+
+#11.10
+msgid "Place %i handicap stones on the board"
+#translation missing:
+msgstr ""
+
+#11.11
+msgid "The game is now starting"
+#translation missing:
+msgstr ""
+
+
+############## Live analysis
+#12.1
+msgid "Game"
+#translation missing:
+msgstr ""
+
+#12.2
+msgid "Currently at move %i"
+#translation missing:
+msgstr ""
+
+#12.3
+msgid "Pause"
+#translation missing:
+msgstr ""
+
+#12.4
+msgid "Analysis"
+#translation missing:
+msgstr ""
+
+#12.5
+msgid "Analysis by %s"
+#translation missing:
+msgstr ""
+
+#12.6
+msgid "Analysis status:"
+#translation missing:
+msgstr ""
+
+#12.7
+msgid "Ready to start"
+#translation missing:
+msgstr ""
+
+#12.8
+msgid "Resume"
+#translation missing:
+msgstr ""
+
+#12.9
+msgid "Pass"
+#translation missing:
+msgstr ""
+
+#12.10
+msgid "Waiting for next move"
+#translation missing:
+msgstr ""
+
+#12.11
+msgid "Pause the game"
+#translation missing:
+msgstr ""
+
+#12.12
+msgid "Pass for this move"
+#translation missing:
+msgstr ""
+
+#12.13
+msgid "Undo to previous move"
+#translation missing:
+msgstr ""
+
+############## GTP terminal
+#13.1
+msgid "Send GTP command"
+#translation missing:
+msgstr ""
+
+
+
+############## Popups
+#14.1
+msgid "Choose a filename"
+msgstr "Dateinamen auswählen"
+
+#14.2
+msgid "Select a file"
+msgstr "Datei auswählen"
+
+#14.3
+msgid "SGF file"
+msgstr "SGF-Datei"
+
+#14.4
+msgid "Reviewed SGF file"
+#translation missing:
+msgstr ""
+#former english sentence and translation:
+#msgid "SGF file reviewed"
+#msgstr "Analysierte SGF-Datei"
+
+
+#14.5
+msgid "PNG image"
+#translation missing:
+msgstr ""
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Information"
+msgstr "Information"
+
+############## error messages
+
+msgid "Could not save the RSGF file: "
+msgstr "Konnte die RSGF-Datei nicht speichern: "
+
+msgid "Could not save the SGF file: "
+msgstr "Konnte die SGF-Datei nicht speichern: "
+
+msgid "Could not open the SGF file: "
+#translation missing:
+msgstr ""
+
+msgid "Error while initializing the GTP bot:"
+msgstr "Fehler beim Starten des GTP-Programms:"
+
+msgid "Error while initializing the graphical interface:"
+msgstr "Fehler beim Starten der Benutzeroberfläche:"
+
+msgid "Aborted"
+msgstr "Abgebrochen"
+
+msgid "Analysis aborted:"
+msgstr "Analyse abgebrochen:"
+
+msgid "GnuGo thread failed:"
+msgstr "Der GnuGo-Prozess wurde beendet:"
+
+msgid "Could not run %s using the command from config.ini file:"
+#ie: Could not run Leela using the command from config.ini file:
+msgstr "Konnte %s mit dem in config.ini angegeben Befehl nicht ausführen:"
+
+msgid "%s did not replied as expected to the GTP name command:"
+#ie: Leela did not replied as exepected to the GTP name command:
+msgstr "%s hat nicht wie erwartet auf \"GTP name\"-Befehl reagiert:"
+
+msgid "%s did not identified itself as expected:"
+#ie: Leela did not identified itself as expected:
+msgstr "%s hat sich nicht wie erwartet identifiziert:"
+
+msgid "%s did not replied as expected to the GTP version command:"
+#ie: Leela did not replied as expected to the GTP version command:
+msgstr "%s hat nicht wie erwartet auf \"GTP version\"-Befehl reagiert:"
+
+msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
+#ie: Could not set the goboard size using the GTP command. Check that Leela is running in GTP mode.
+msgstr "Konnte die Brettgröße nicht über GTP einstellen. Bitte sicherstellen, dass %s im GTP-Modus läuft."
+
+msgid "%s rejected this board size (%ix%i)"
+#ie: Leela Zero rejected this board size (9x9)
+msgstr "%s hat diese Brettgröße zurückgewiesen (%ix%i)"
+
+msgid "Could not run the program:"
+#translation missing:
+msgstr ""
+
+msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
+#translation missing:
+msgstr ""
+
+msgid "The config.ini file does not contain %s entry for %s !"
+#ie: The config.ini file does not contain TimePerMove entry for Leela !
+#translation missing:
+msgstr ""
+#old english sentence and translation:
+#msgid "The config.ini file does not contain entry for %s command line!"
+#msgstr "Die config.ini-Datei enthält keinen Eintrag für %s!"
+
+msgid "The config.ini file %s entry for %s is empty!"
+#ie: The config.ini file TimePerMove entry for Leela is empty!
+#translation missing:
+msgstr ""
+#old english sentence and translation:
+#msgid "The config.ini file does not contain command line for %s!"
+#msgstr "Die config.ini-Datei enthält keinen Befehl für %s!"
+
+msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
+#ie: The SGF file contains white handicap stones! Leela cannot deal with that!
+#translation missing:
+msgstr ""
+

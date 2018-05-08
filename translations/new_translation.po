@@ -1,0 +1,838 @@
+
+############ Main panel
+#1.1
+msgid "This is GoReviewPartner"
+msgstr ""
+
+#1.2
+msgid "Run a SGF file analysis"
+msgstr ""
+
+#1.3
+msgid "Run a live analysis"
+msgstr ""
+
+#1.4
+msgid "Open a RSGF file for review"
+msgstr ""
+
+#1.5
+msgid "Convert RSGF file to SGF file"
+msgstr ""
+
+#1.6
+msgid "Download a SGF file for analysis"
+msgstr ""
+
+#1.7
+msgid "Settings"
+msgstr ""
+
+#1.8
+msgid "The file %s as been converted to %s"
+msgstr ""
+
+############## Analysis setting
+#2.1
+msgid "Bot to use for analysis:"
+msgstr ""
+
+#2.2
+msgid "Select variation to be analysed"
+msgstr ""
+
+#2.3
+msgid "Select moves to be analysed"
+msgstr ""
+
+#2.4
+msgid "Analyse all %i moves"
+msgstr ""
+
+#2.5
+msgid "Analyse only those moves:"
+msgstr ""
+
+#2.6
+msgid "Select colors to be analysed"
+msgstr ""
+
+#2.7
+msgid "Black & white"
+msgstr ""
+
+#2.8
+msgid "Black only"
+msgstr ""
+
+#2.9
+msgid "White only"
+msgstr ""
+
+#2.10
+msgid "Confirm the value of komi"
+msgstr ""
+
+#2.11
+msgid "Stop the analysis if the bot resigns"
+msgstr ""
+
+#2.12
+msgid "Variation %i (%i moves)"
+msgstr ""
+
+#2.13
+msgid "Start"
+msgstr ""
+
+#2.14
+msgid "Incorrect value for komi (%s), please double check."
+msgstr ""
+
+#2.15
+msgid "Could not make sense of the moves range."
+msgstr ""
+
+#2.16
+msgid "Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"
+msgstr ""
+
+#2.17
+msgid "Error while reading komi value, please check:"
+msgstr ""
+
+
+############## SGF download
+#3.1
+msgid "Paste the URL to the SGF file (http or https):"
+msgstr ""
+
+#3.2
+msgid "Get"
+msgstr ""
+
+#3.3
+msgid "Could not download the URL"
+msgstr ""
+
+#3.4
+msgid "Not a SGF file!"
+msgstr ""
+
+############## Analysis running ###
+#4.1
+msgid "Analysis of: %s"
+msgstr ""
+
+#4.2
+msgid "Remaining time: %ih, %imn, %is"
+msgstr ""
+
+#4.3
+msgid "Currently at move %i/%i"
+msgstr ""
+
+#4.4
+msgid "Completed"
+msgstr ""
+
+#4.5
+msgid "Start the review"
+msgstr ""
+
+#4.6
+msgid "Now closing, please wait..."
+msgstr ""
+
+
+############## RSGF review
+#5.1
+msgid "Open position"
+msgstr ""
+
+#5.2
+msgid "Show territories"
+msgstr ""
+
+#5.3
+msgid "Graphs"
+msgstr ""
+
+#5.4
+msgid "Table"
+msgstr ""
+
+#5.5
+msgid "Open this position onto a third goban to play out variations."
+msgstr ""
+
+#5.6
+msgid "Keep pressed to show territories."
+msgstr ""
+
+#5.7
+msgid "Go to first move."
+msgstr ""
+
+#5.8
+msgid "Go back 10 moves."
+msgstr ""
+
+#5.9
+msgid "Go back one move. Shortcut: keyboard left key."
+msgstr ""
+
+#5.10
+msgid "Go forward one move. Shortcut: keyboard right key."
+msgstr ""
+
+#5.11
+msgid "Go forward 10 moves."
+msgstr ""
+
+#5.12
+msgid "Go to final move."
+msgstr ""
+
+#5.13
+msgid "<Ctrl+Q> to save the goban as an image."
+msgstr ""
+
+#5.14
+msgid "<Ctrl+W> to save the goban as an image."
+msgstr ""
+
+#5.15
+msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
+msgstr ""
+
+
+
+############## Open position
+#6.1
+msgid "Undo"
+msgstr ""
+
+#6.2
+msgid "Play one move"
+msgstr ""
+
+#6.3
+msgid "Play as white"
+msgstr ""
+
+#6.4
+msgid "Play as black"
+msgstr ""
+
+#6.5
+msgid "Self play"
+msgstr ""
+
+#6.6
+msgid "Quick evaluation"
+msgstr ""
+
+#6.7
+msgid "Undo last move. Shortcut: mouse middle button."
+msgstr ""
+
+#6.8
+msgid "Select a bot."
+msgstr ""
+
+#6.9
+msgid "Ask the bot to play one move."
+msgstr ""
+
+#6.10
+msgid "Ask the bot to play as White."
+msgstr ""
+
+#6.11
+msgid "Ask the bot to play as Black."
+msgstr ""
+
+#6.12
+msgid "Ask the bot to play alone."
+msgstr ""
+
+#6.13
+msgid "Ask the bot for a quick evaluation"
+msgstr ""
+
+#6.14
+msgid "Abort"
+msgstr ""
+
+#6.15
+msgid "White"
+msgstr ""
+
+#6.16
+msgid "Black"
+msgstr ""
+
+
+
+
+############## Graphs
+#7.1
+msgid "Win rate"
+msgstr ""
+
+#7.2
+msgid "Black win rate delta"
+msgstr ""
+
+#7.3
+msgid "White win rate delta"
+msgstr ""
+
+#7.4
+msgid "Value Network win rate"
+msgstr ""
+
+#7.5
+msgid "Black Value Network win rate delta"
+msgstr ""
+
+#7.6
+msgid "White Value Network win rate delta"
+msgstr ""
+
+#7.7
+msgid "Monte Carlo win rate"
+msgstr ""
+
+#7.8
+msgid "Black Monte Carlo win rate delta"
+msgstr ""
+
+#7.9
+msgid "White Monte Carlo win rate delta"
+msgstr ""
+
+#7.10
+msgid "Score estimation"
+msgstr ""
+
+#7.11
+msgid "Black win rate"
+msgstr ""
+
+#7.12
+msgid "Move %i (%s), black/white win rate: "
+msgstr ""
+
+#7.13
+msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
+msgstr ""
+msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
+msgstr ""
+
+#7.14
+msgid "The computer believes the actual move is %.2fpp better than it's best move."
+msgstr ""
+
+#7.15
+msgid "The computer believes it's own move win rate would be %.2fpp higher."
+msgstr ""
+
+#7.16
+msgid "Move %i (%s), estimated score: "
+msgstr ""
+
+#7.17
+msgid "White win"
+msgstr ""
+
+#7.18
+msgid "Black win"
+msgstr ""
+
+#7.19
+msgid "<Ctrl+Q> to save the graph as an image."
+msgstr ""
+
+############## GRP Settings
+#8.1
+msgid "%s settings"
+msgstr ""
+
+#8.2
+msgid "General parameters"
+msgstr ""
+
+#8.3
+msgid "Language"
+msgstr ""
+
+#8.4
+msgid "Parameters for the analysis"
+msgstr ""
+
+#8.5
+msgid "Maximum number of variations to record during analysis"
+msgstr ""
+
+#8.6
+msgid "Only keep variations when game move and bot move differ"
+msgstr ""
+
+#8.7
+msgid "Save bot command line into RSGF file"
+msgstr ""
+
+#8.8
+msgid "Parameters for the review"
+msgstr ""
+
+#8.9
+msgid "Fuzzy Stone"
+msgstr ""
+
+#8.10
+msgid "Real game sequence deepness"
+msgstr ""
+
+#8.11
+msgid "Goban/screen ratio"
+msgstr ""
+
+#8.12
+msgid "Maximum number of variations to display during review"
+msgstr ""
+
+#8.13
+msgid "Blue/red coloring of the variations"
+msgstr ""
+
+#8.14
+msgid "Labels for the variations"
+msgstr ""
+
+#8.15
+msgid "Inverted mouse wheel"
+msgstr ""
+
+#8.16
+msgid "Save settings"
+msgstr ""
+
+#8.17
+msgid "The best variation in blue"
+msgstr ""
+
+#8.18
+msgid "Winning variations (>50%) only in blue"
+msgstr ""
+
+#8.19
+msgid "Variations better than actual game move in blue"
+msgstr ""
+
+#8.20
+msgid "Rates"
+msgstr ""
+
+#8.21
+msgid "Letters"
+msgstr ""
+
+
+
+
+
+############## Bots Settings
+#9.1
+msgid "Slow profile parameters"
+msgstr ""
+
+#9.2
+msgid "Command"
+msgstr ""
+
+#9.3
+msgid "Parameters"
+msgstr ""
+
+#9.4
+msgid "Time per move (s)"
+msgstr ""
+
+#9.5
+msgid "Test"
+msgstr ""
+
+#9.6
+msgid "Fast profile parameters"
+msgstr ""
+
+#9.7
+msgid "%s availability"
+msgstr ""
+
+#9.8
+msgid "Static analysis"
+msgstr ""
+
+#9.9
+msgid "Live analysis"
+msgstr ""
+
+#9.10
+msgid "Live analysis as black or white"
+msgstr ""
+
+#9.11
+msgid "When opening a position for manual play"
+msgstr ""
+
+#9.12
+msgid "Maximum number of variations"
+msgstr ""
+
+#9.13
+msgid "Deepness for each variation"
+msgstr ""
+
+#9.14
+msgid "See AQ parameters in aq_config.txt"
+msgstr ""
+
+#9.15
+msgid "Slow profile"
+msgstr ""
+
+#9.16
+msgid "Fast profile"
+msgstr ""
+
+#9.17
+msgid "Both profiles"
+msgstr ""
+
+#9.18
+msgid "None"
+msgstr ""
+
+
+
+############## Data description and display
+#10.1
+msgid "Move %i"
+#ie: Move 244
+msgstr ""
+
+#10.2
+msgid "White to play, in the game, white played %s"
+#ie: White to play, in the game, white played D16
+msgstr ""
+msgid "Black to play, in the game, black played %s"
+msgstr ""
+
+#10.3
+msgid "For this position, %s would play: %s"
+#ie: For this position, Leela would play: D16
+msgstr ""
+
+#10.4
+msgid "Black win probability:"
+msgstr ""
+msgid "White win probability:"
+msgstr ""
+
+#10.5
+msgid "before %s"
+msgstr ""
+
+#10.6
+msgid "after %s"
+msgstr ""
+
+#10.7
+msgid "Black Value Network win probability:"
+msgstr ""
+msgid "White Value Network win probability:"
+msgstr ""
+
+#10.8
+msgid "Black Monte Carlo win probability:"
+msgstr ""
+msgid "White Monte Carlo win probability:"
+msgstr ""
+
+#10.9
+msgid "Move"
+msgstr ""
+
+#10.10
+msgid "Policy Network value"
+msgstr ""
+
+#10.11
+msgid "Playouts"
+msgstr ""
+
+#10.12
+msgid "Evaluation"
+msgstr ""
+
+#10.13
+msgid "RAVE"
+msgstr ""
+
+#10.14
+msgid "black/white win probability for this variation: %s"
+msgstr ""
+
+#10.15
+msgid "Policy network value for this variation: %s"
+msgstr ""
+
+#10.16
+msgid "Monte Carlo win probability for this variation: %s"
+msgstr ""
+
+#10.17
+msgid "Value network black/white win probability for this variation: %s"
+msgstr ""
+
+#10.18
+msgid "Number of playouts used to estimate this variation: %s"
+msgstr ""
+
+#10.19
+msgid "Evaluation for this variation: %s"
+msgstr ""
+
+#10.20
+msgid "RAVE(x%% : y) for this variation: %s"
+msgstr ""
+
+#10.21
+msgid "Score estimation for this variation: %s"
+msgstr ""
+
+#10.22
+msgid "Analysis by GoReviewPartner"
+msgstr ""
+
+#10.23
+msgid "Bot"
+msgstr ""
+
+#10.24
+msgid "Intervals"
+msgstr ""
+
+#10.25
+msgid "Command line"
+msgstr ""
+
+#10.26
+msgid "Book move"
+msgstr ""
+
+############## Live analysis settings
+#11.1
+msgid "Bot used for analysis"
+msgstr ""
+
+#11.2
+msgid "Black player"
+msgstr ""
+
+#11.3
+msgid "White player"
+msgstr ""
+
+#11.4
+msgid "No overlap thinking time"
+msgstr ""
+
+#11.5
+msgid "Board size"
+msgstr ""
+
+#11.6
+msgid "Komi"
+msgstr ""
+
+#11.7
+msgid "Handicap stones"
+msgstr ""
+
+#11.8
+msgid "SGF file name"
+msgstr ""
+
+#11.9
+msgid "Human"
+msgstr ""
+
+#11.10
+msgid "Place %i handicap stones on the board"
+msgstr ""
+
+#11.11
+msgid "The game is now starting"
+msgstr ""
+
+
+############## Live analysis
+#12.1
+msgid "Game"
+msgstr ""
+
+#12.2
+msgid "Currently at move %i"
+msgstr ""
+
+#12.3
+msgid "Pause"
+msgstr ""
+
+#12.4
+msgid "Analysis"
+msgstr ""
+
+#12.5
+msgid "Analysis by %s"
+msgstr ""
+
+#12.6
+msgid "Analysis status:"
+msgstr ""
+
+#12.7
+msgid "Ready to start"
+msgstr ""
+
+#12.8
+msgid "Resume"
+msgstr ""
+
+#12.9
+msgid "Pass"
+msgstr ""
+
+#12.10
+msgid "Waiting for next move"
+msgstr ""
+
+#12.11
+msgid "Pause the game"
+msgstr ""
+
+#12.12
+msgid "Pass for this move"
+msgstr ""
+
+#12.13
+msgid "Undo to previous move"
+msgstr ""
+
+############## GTP terminal
+#13.1
+msgid "Send GTP command"
+msgstr ""
+
+
+
+############## Popups
+#14.1
+msgid "Choose a filename"
+msgstr ""
+
+#14.2
+msgid "Select a file"
+msgstr ""
+
+#14.3
+msgid "SGF file"
+msgstr ""
+
+#14.4
+msgid "Reviewed SGF file"
+msgstr ""
+
+#14.5
+msgid "PNG image"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+############## error messages
+
+msgid "Could not save the RSGF file: "
+msgstr ""
+
+msgid "Could not save the SGF file: "
+msgstr ""
+
+msgid "Could not open the SGF file: "
+msgstr ""
+
+msgid "Error while initializing the GTP bot:"
+msgstr ""
+
+msgid "Error while initializing the graphical interface:"
+msgstr ""
+
+msgid "Aborted"
+msgstr ""
+
+msgid "Analysis aborted:"
+msgstr ""
+
+msgid "GnuGo thread failed:"
+msgstr ""
+
+msgid "Could not run %s using the command from config.ini file:"
+#ie: Could not run Leela using the command from config.ini file:
+msgstr ""
+
+msgid "%s did not replied as expected to the GTP name command:"
+#ie: Leela did not replied as exepected to the GTP name command:
+msgstr ""
+
+msgid "%s did not identified itself as expected:"
+#ie: Leela did not identified itself as expected:
+msgstr ""
+
+msgid "%s did not replied as expected to the GTP version command:"
+#ie: Leela did not replied as expected to the GTP version command:
+msgstr ""
+
+msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
+#ie: Could not set the goboard size using the GTP command. Check that Leela is running in GTP mode.
+msgstr ""
+
+msgid "%s rejected this board size (%ix%i)"
+#ie: Leela Zero rejected this board size (9x9)
+msgstr ""
+
+msgid "Could not run the program:"
+msgstr ""
+
+msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
+msgstr ""
+
+msgid "The config.ini file does not contain %s entry for %s !"
+#ie: The config.ini file does not contain TimePerMove entry for Leela !
+msgstr ""
+
+msgid "The config.ini file %s entry for %s is empty!"
+#ie: The config.ini file TimePerMove entry for Leela is empty!
+msgstr ""
+
+msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
+#ie: The SGF file contains white handicap stones! Leela cannot deal with that!
+msgstr ""
+
