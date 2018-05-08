@@ -42,13 +42,13 @@ def rsgf2sgf(rsgf_file):
 		if not unicode_ok:
 			comments=comments.decode(errors='ignore')
 		
-		get_node(gameroot,current_move).set("C",comments)
+		get_node(gameroot,current_move).set("C",comments.encode("utf"))
 		parent=get_node(gameroot,current_move-1)
 		
 		for a in range(1,len(parent)):
 			one_alternative=parent[a]
 			comments=get_variation_comments(one_alternative)
-			one_alternative.set("C",comments)
+			one_alternative.set("C",comments.encode("utf"))
 		current_move+=1
 
 	write_sgf(rsgf_file+".sgf",g)

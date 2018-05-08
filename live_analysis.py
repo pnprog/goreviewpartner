@@ -124,7 +124,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.filename=Entry(self)
 		self.filename.grid(row=row,column=2,sticky=W)
 		self.filename.delete(0, END)
-		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_'+_('Human')+'_vs_'+_('Human')+'.sgf')
+		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_')+_('Human')+'_vs_'+_('Human')+'.sgf'
 		self.filename.insert(0, filename)
 		self.filename.bind("<Button-1>",self.change_filename)
 		row+=1
@@ -158,17 +158,17 @@ class LiveAnalysisLauncher(Toplevel):
 		self.white_selection.set(_("Human"))
 		
 		analyser=Config.get("Live","Analyser")
-		if analyser in self.analysis_bots_names:
+		if analyser.decode("utf") in self.analysis_bots_names:
 			self.bot_selection.set(analyser)
 		
 		self.change_parameters()
 		
 		black=Config.get("Live","black")
-		if black in self.black_options:
+		if black.decode("utf") in self.black_options:
 			self.black_selection.set(black)
 			
 		white=Config.get("Live","white")
-		if white in self.white_options:
+		if white.decode("utf") in self.white_options:
 			self.white_selection.set(white)
 		
 		self.bot_selection.trace("w", lambda a,b,c: self.change_parameters())
@@ -242,14 +242,14 @@ class LiveAnalysisLauncher(Toplevel):
 	def selected_black_index(self):
 		i=0
 		for bo in self.black_options:
-			if bo.decode("utf")==self.black_selection.get():
+			if bo==self.black_selection.get():
 				return i
 			i+=1
 
 	def selected_white_index(self):
 		i=0
 		for wo in self.white_options:
-			if wo.decode("utf")==self.white_selection.get():
+			if wo==self.white_selection.get():
 				return i
 			i+=1
 
@@ -279,7 +279,7 @@ class LiveAnalysisLauncher(Toplevel):
 			white=self.white_selection.get()
 			
 		self.filename.delete(0, END)
-		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_'+black+'_vs_'+white+'.sgf')
+		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_')+black+'_vs_'+white+'.sgf'
 		self.filename.insert(0, filename)
 
 	def change_parameters(self):

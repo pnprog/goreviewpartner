@@ -1,4 +1,4 @@
-* GNU gettext message catalogue, ISO-8859 text, with CRLF line terminators
+
 ############ Main panel
 #1.1
 msgid "This is GoReviewPartner"
@@ -79,7 +79,7 @@ msgstr "如果狗认输则停止分析"
 
 #2.12
 msgid "Variation %i (%i moves)"
-msgstr "变化分支 %i (%i 手)""
+msgstr "变化分支 %i (%i 手)"
 
 #2.13
 msgid "Start"
@@ -255,7 +255,7 @@ msgstr "狗执黑"
 
 #6.12
 msgid "Ask the bot to play alone."
-msgstr "狗左右互博""
+msgstr "狗左右互博"
 
 #6.13
 msgid "Ask the bot for a quick evaluation"
@@ -784,7 +784,7 @@ msgid "Error while initializing the GTP bot:"
 msgstr "初始化GTP程序时出错:"
 
 msgid "Error while initializing the graphical interface:"
-msgstr 初始化图形界面时出错:"
+msgstr "初始化图形界面时出错:"
 
 msgid "Aborted"
 msgstr "中断"

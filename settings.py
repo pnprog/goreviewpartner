@@ -203,11 +203,11 @@ class OpenSettings(Toplevel):
 		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		coloring={_("Winning variations (>50%) only in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
-		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get().encode("utf")])
+		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
 		Config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
 		Config.set("Analysis","NoVariationIfSameMove",self.NoVariationIfSameMove.get())
 		labeling={_("Letters"):"letter",_("Rates"):"rate"}
-		Config.set("Review","VariationsLabel",labeling[self.VariationsLabel.get().encode("utf")])
+		Config.set("Review","VariationsLabel",labeling[self.VariationsLabel.get()])
 		
 		Config.write(open(config_file,"w"))
 		

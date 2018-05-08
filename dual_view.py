@@ -131,10 +131,10 @@ class OpenChart(Toplevel):
 		
 		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
 		self.graph_selection.pack(side=LEFT, padx=5)
-		if self.last_graph in [mode.decode("utf") for mode in available_graphs]:
+		if self.last_graph in [mode for mode in available_graphs]:
 			self.graph_mode.set(self.last_graph)
 		else:
-			self.last_graph=available_graphs[0].decode("utf")
+			self.last_graph=available_graphs[0]
 			self.graph_mode.set(self.last_graph)
 			
 		self.graph_mode.trace("w", lambda a,b,c: self.change_graph())
@@ -212,9 +212,10 @@ class OpenChart(Toplevel):
 		Config.read(config_file)
 		
 		self.last_graph=_(self.graph_mode.get())
-		if type(self.last_graph)!=type(u"utf"):
-			self.last_graph=self.last_graph.decode("utf8")
 		
+		#if type(self.last_graph)!=type(u"utf"):
+		#	self.last_graph=self.last_graph.decode("utf")
+
 		Config.set("Review","LastGraph",self.last_graph.encode("utf"))
 		Config.write(open(config_file,"w"))
 		self.display()
@@ -264,19 +265,19 @@ class OpenChart(Toplevel):
 		
 		mode=self.last_graph
 
-		if mode in (_("Black win rate delta").decode("utf"),_("White win rate delta").decode("utf")):
+		if mode in (_("Black win rate delta"),_("White win rate delta")):
 			moves=self.display_winrate_delta(border,height,width)
-		elif mode==_("Win rate").decode("utf"):
+		elif mode==_("Win rate"):
 			moves=self.display_winrate_graph(border,height,width,lpix)
-		elif mode==_("Score estimation").decode("utf"):
+		elif mode==_("Score estimation"):
 			moves=self.display_score_graph(border,height,width,lpix)
-		elif mode==_("Monte Carlo win rate").decode("utf"):
+		elif mode==_("Monte Carlo win rate"):
 			moves=self.display_monte_carlo_winrate_graph(border,height,width,lpix)
-		elif mode==_("Value Network win rate").decode("utf"):
+		elif mode==_("Value Network win rate"):
 			moves=self.display_value_network_winrate_graph(border,height,width,lpix)
-		elif mode in (_("Black Monte Carlo win rate delta").decode("utf"),_("White Monte Carlo win rate delta").decode("utf")):
+		elif mode in (_("Black Monte Carlo win rate delta"),_("White Monte Carlo win rate delta")):
 			moves=self.display_monte_carlo_delta(border,height,width)
-		elif mode in (_("Black Value Network win rate delta").decode("utf"),_("White Value Network win rate delta").decode("utf")):
+		elif mode in (_("Black Value Network win rate delta"),_("White Value Network win rate delta")):
 			moves=self.display_value_network_delta(border,height,width)
 		
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
@@ -285,7 +286,7 @@ class OpenChart(Toplevel):
 	def display_value_network_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()==_("Black Value Network win rate delta").decode("utf"):
+		if self.graph_mode.get()==_("Black Value Network win rate delta"):
 			player_color='b'
 		else:
 			player_color='w'
@@ -342,7 +343,7 @@ class OpenChart(Toplevel):
 	def display_monte_carlo_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()==_("Black Monte Carlo win rate delta").decode("utf"):
+		if self.graph_mode.get()==_("Black Monte Carlo win rate delta"):
 			player_color='b'
 		else:
 			player_color='w'
@@ -399,7 +400,7 @@ class OpenChart(Toplevel):
 	def display_winrate_delta(self,border,height,width):
 		moves=[]
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		if self.graph_mode.get()==_("Black win rate delta").decode("utf"):
+		if self.graph_mode.get()==_("Black win rate delta"):
 			player_color='b'
 		else:
 			player_color='w'

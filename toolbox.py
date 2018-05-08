@@ -4,6 +4,7 @@ class AbortedException(Exception):
 	pass
 
 import threading
+import codecs
 
 loglock=threading.Lock()
 def log(*args):
@@ -254,7 +255,7 @@ def open_sgf(filename):
 	filelock.acquire()
 	try:
 		#log("Opening SGF file",filename)
-		txt = open(filename)
+		txt = open(filename,'r')
 		g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		filelock.release()
@@ -614,7 +615,6 @@ def guess_color_to_play(move_zero,move_number):
 		return player_color
 
 	if one_move is move_zero:
-		print 'move_zero.get("PL")=',move_zero.get("PL")
 		if move_zero.get("PL").lower()=="b":
 			return "w"
 		if move_zero.get("PL").lower()=="w":
@@ -708,7 +708,6 @@ class LiveAnalysisBase():
 				continue
 
 			if type(msg)==type("undo xxx"):
-				print "msg=",msg
 				move_to_undo=int(msg.split()[1])
 				#move_to_undo=int(priority+1)
 				log("received undo msg for move",move_to_undo,"and beyong")
@@ -847,16 +846,16 @@ class RunAnalysisBase(Toplevel):
 				self.abort()
 				return
 			self.root.after(500,self.follow_analysis)
-
+			
 		first_comment=_("Analysis by GoReviewPartner")
 		first_comment+="\n"+_("Bot")+(": %s/%s"%(self.bot.bot_name,self.bot.bot_version))
 		first_comment+="\n"+_("Komi")+(": %0.1f"%self.komi)
 		first_comment+="\n"+_("Intervals")+(": %s"%self.intervals)
-
+	
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+(_("Command line")+": %s"%self.bot.command_line)
 
-		self.move_zero.set("RSGF",first_comment+"\n")
+		self.move_zero.set("RSGF",first_comment.encode("utf")+"\n")
 		self.move_zero.set("BOT",self.bot.bot_name)
 		self.move_zero.set("BOTV",self.bot.bot_version)
 
@@ -1022,7 +1021,7 @@ class RunAnalysisBase(Toplevel):
 			display_factor=float(Config.get("Review", "GobanScreenRatio"))
 		except:
 			Config.set("Review", "GobanScreenRatio",display_factor)
-			Config.write(open("config.ini","w"))
+			Config.write(codes.open("config.ini","w","utf-8"))
 
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
@@ -1495,7 +1494,7 @@ log("Checking availability of config file")
 import ConfigParser
 Config = ConfigParser.ConfigParser()
 try:
-	Config.readfp(open(config_file))
+	Config.readfp(codecs.open(config_file,"rw","utf-8"))
 except Exception, e:
 	show_error("Could not open the config file of Go Review Partner"+"\n"+str(e)) #this cannot be translated
 	sys.exit()
@@ -1523,7 +1522,7 @@ if not lang:
 		lang="en"
 	log("Saving the lang parameter in config.ini")
 	Config.set("General","Language",lang)
-	Config.write(open(config_file,"w"))
+	Config.write(codecs.open(config_file,"w","utf-8"))
 else:
 	if lang in available_translations:
 		log("lang="+lang)
@@ -1533,9 +1532,10 @@ else:
 		lang="en"
 		log("Saving the lang parameter in config.ini")
 		Config.set("General","Language",lang)
-		Config.write(open(config_file,"w"))
+		Config.write(codecs.open(config_file,"w","utf-8"))
 
 translations={}
+
 def prepare_translations():
 	global translations
 
@@ -1545,7 +1545,7 @@ def prepare_translations():
 	data_file_url=os.path.join(os.path.abspath(pathname),"translations",lang+".po")
 	log("Loading translation file:",data_file_url)
 
-	data_file = open(data_file_url,"r")
+	data_file = codecs.open(data_file_url,"r","utf-8")
 	translation_data=data_file.read()
 	data_file.close()
 
@@ -1573,10 +1573,10 @@ prepare_translations()
 def _(txt=None):
 	global translations
 	if not translations:
-		return txt
+		return unicode(txt)
 	if translations.has_key(txt):
 		return translations[txt]
-	return txt
+	return unicode(txt)
 
 def batch_analysis(app,batch):
 	#there appears to be a Tk 8.6 regression bug that leads to random "Tcl_AsyncDelete: async handler deleted by the wrong thread Abandon (core dumped)"
@@ -1877,7 +1877,7 @@ class Application(Tk):
 			log("List of contributors")
 			
 			contributors_file_url=os.path.join(os.path.abspath(pathname),"AUTHORS")
-			contributors_file = open(contributors_file_url,"r")
+			contributors_file = codecs.open(contributors_file_url,"r","utf-8")
 			contributors=contributors_file.read()
 			contributors_file.close()
 
@@ -1922,7 +1922,7 @@ def get_position_comments(current_move,gameroot):
 	comments=""
 	if current_move==1:
 		if gameroot.has_property("RSGF"):
-			comments+=gameroot.get("RSGF")
+			comments+=gameroot.get("RSGF").decode("utf")
 		if gameroot.has_property("PB"):
 			comments+=_("Black")+": "+gameroot.get("PB")+"\n"
 		if gameroot.has_property("PW"):
