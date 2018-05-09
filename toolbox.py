@@ -250,16 +250,36 @@ def write_sgf(filename,sgf_content):
 		filelock.release()
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
 	
-
 def open_sgf(filename):
 	filelock.acquire()
 	try:
 		#log("Opening SGF file",filename)
 		txt = open(filename,'r')
-		g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
+		game = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		filelock.release()
-		return g
+		gameroot=game.get_root()
+		if gameroot.has_property("CA"):
+			ca=gameroot.get("CA")
+			if ca=="UTF-8":
+				#the sgf is already in UTF, so we accept it directly
+				return game
+			else:
+				log("Encoding for",filename,"is",ca)
+				log("Converting from",ca,"to UTF-8")
+				encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
+				content=game.serialise()
+				content=content.decode(encoding,errors='ignore').encode("utf-8")
+				content=content.replace("CA["+ca+"]","CA[UTF-8]")
+				game = sgf.Sgf_game.from_string(content)
+				return game
+		else:
+			#the sgf has no declared encoding, we will enforce UTF-8 encoding
+			content=game.serialise()
+			content=content.decode("utf").encode("utf") #let's check the content can be converted to UTF-8
+			game = sgf.Sgf_game.from_string(content,override_encoding="UTF-8")
+			return game
+		return game
 	except Exception,e:
 		log("Could not open the SGF file",filename)
 		log(e)
@@ -444,11 +464,11 @@ class RangeSelector(Toplevel):
 			white_player=''
 
 		row+=1
-		c1=Radiobutton(self,text=_("Black only")+black_player,variable=c, value="black")
+		c1=Radiobutton(self,text=_("Black only").encode("utf")+black_player,variable=c, value="black")
 		c1.grid(row=row,column=1,sticky=W)
 
 		row+=1
-		c2=Radiobutton(self,text=_("White only")+white_player,variable=c, value="white")
+		c2=Radiobutton(self,text=_("White only").encode("utf")+white_player,variable=c, value="white")
 		c2.grid(row=row,column=1,sticky=W)
 
 		row+=10
@@ -1922,30 +1942,30 @@ def get_position_comments(current_move,gameroot):
 	comments=""
 	if current_move==1:
 		if gameroot.has_property("RSGF"):
-			comments+=gameroot.get("RSGF").decode("utf")
+			comments+=gameroot.get("RSGF")
 		if gameroot.has_property("PB"):
-			comments+=_("Black")+": "+gameroot.get("PB")+"\n"
+			comments+=_("Black").encode("utf")+": "+gameroot.get("PB")+"\n"
 		if gameroot.has_property("PW"):
-			comments+=_("White")+": "+gameroot.get("PW")+"\n"
+			comments+=_("White").encode("utf")+": "+gameroot.get("PW")+"\n"
 		
 		if comments:
 			comments+="\n"
 	
-	comments+=_("Move %i")%current_move
+	comments+=_("Move %i").encode("utf")%current_move
 	game_move_color,game_move=get_node(gameroot,current_move).get_move()
 	
 	if not game_move_color:
 		game_move_color=guess_color_to_play(gameroot,current_move)
 	
 	if game_move_color.lower()=="w":
-		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["W"].encode("utf"))%ij2gtp(game_move).upper()
 	elif game_move_color.lower()=="b":
-		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["B"].encode("utf"))%ij2gtp(game_move).upper()
 	
 	node=get_node(gameroot,current_move)
 	if node.has_property("CBM"):
 		bot=gameroot.get("BOT")
-		comments+="\n"+(position_data_formating["CBM"])%(bot,node.get("CBM"))
+		comments+="\n"+(position_data_formating["CBM"].encode("utf"))%(bot,node.get("CBM"))
 		try:
 			if node[1].has_property("BKMV"):
 				if node[1].get("BKMV")=="yes":
@@ -1956,14 +1976,14 @@ def get_position_comments(current_move,gameroot):
 		if node.has_property("BWWR"):
 			if node[0].has_property("BWWR"):
 				if node.get_move()[0].lower()=="b":
-					comments+="\n\n"+_("Black win probability:")
-					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
-					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
+					comments+="\n\n"+_("Black win probability:").encode("utf")
+					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
+					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
 					comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
 				else:
-					comments+="\n\n"+_("White win probability:")
-					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
-					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
+					comments+="\n\n"+_("White win probability:").encode("utf")
+					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
+					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
 					comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
 	except:
 		pass
@@ -1972,14 +1992,14 @@ def get_position_comments(current_move,gameroot):
 		if node.has_property("VNWR"):
 			if node[0].has_property("VNWR"):
 				if node.get_move()[0].lower()=="b":
-					comments+="\n\n"+_("Black Value Network win probability:")
-					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[0]
-					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[0]
+					comments+="\n\n"+_("Black Value Network win probability:").encode("utf")
+					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[0]
+					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[0]
 					comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[0])-float(node.get("VNWR").split("%/")[0]))
 				else:
-					comments+="\n\n"+_("White Value Network win probability:")
-					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[1]
-					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[1]
+					comments+="\n\n"+_("White Value Network win probability:").encode("utf")
+					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[1]
+					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[1]
 					comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
 	except:
 		pass
@@ -1988,14 +2008,14 @@ def get_position_comments(current_move,gameroot):
 		if node.has_property("MCWR"):
 			if node[0].has_property("MCWR"):
 				if node.get_move()[0].lower()=="b":
-					comments+="\n\n"+_("Black Monte Carlo win probability:")
-					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[0]
-					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[0]
+					comments+="\n\n"+_("Black Monte Carlo win probability:").encode("utf")
+					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[0]
+					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[0]
 					comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[0])-float(node.get("MCWR").split("%/")[0]))
 				else:
-					comments+="\n\n"+_("White Monte Carlo win probability:")
-					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[1]
-					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[1]
+					comments+="\n\n"+_("White Monte Carlo win probability:").encode("utf")
+					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[1]
+					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[1]
 					comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[1][:-1])-float(node.get("MCWR").split("%/")[1][:-1]))
 	except:
 		pass
