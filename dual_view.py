@@ -1923,7 +1923,14 @@ class DualView(Toplevel):
 							displaycolor="red"
 					elif self.variation_color_mode=="blue_for_better":
 						try:
-							real_game_prob=float(the_move[0][0].get("BWR")[:-1])
+							if parent[0][0].has_property("BWWR"):
+								real_game_prob=float(parent[0][0].get("BWWR").split("%")[0])
+							elif parent[0][0].has_property("VNWR"):
+								real_game_prob=float(parent[0][0].get("VNWR").split("%")[0])
+							elif parent[0][0].has_property("MCWR"):
+								real_game_prob=float(parent[0][0].get("MCWR").split("%")[0])
+							else:
+								raise Exception()
 							if real_game_prob<black_prob:
 								displaycolor="blue"
 							elif real_game_prob>black_prob:
@@ -1943,7 +1950,14 @@ class DualView(Toplevel):
 							displaycolor="red"
 					elif self.variation_color_mode=="blue_for_better":
 						try:
-							real_game_prob=float(the_move[0][0].get("WWR")[:-1])
+							if parent[0][0].has_property("BWWR"):
+								real_game_prob=100-float(parent[0][0].get("BWWR").split("%")[0])
+							elif parent[0][0].has_property("VNWR"):
+								real_game_prob=100-float(parent[0][0].get("VNWR").split("%")[0])
+							elif parent[0][0].has_property("MCWR"):
+								real_game_prob=100-float(parent[0][0].get("MCWR").split("%")[0])
+							else:
+								raise Exception()
 							if real_game_prob<white_prob:
 								displaycolor="blue"
 							elif real_game_prob>white_prob:
