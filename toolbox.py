@@ -217,15 +217,22 @@ class WriteException(Exception):
 	pass
 
 filelock=threading.Lock()
+
 def write_rsgf(filename,sgf_content):
 	filelock.acquire()
 	try:
 		log("Saving RSGF file",filename)
-		new_file=open(filename,'w')
 		if type(sgf_content)==type("abc"):
-			new_file.write(sgf_content)
+			content=sgf_content
 		else:
-			new_file.write(sgf_content.serialise())
+			content=sgf_content.serialise()
+		try:
+			new_file=open(filename,'w')
+			new_file.write(content)
+		except:
+			new_file=codecs.open(filename,"w","utf-8")
+			new_file.write(content)
+		
 		new_file.close()
 		filelock.release()
 	except Exception,e:
@@ -233,15 +240,22 @@ def write_rsgf(filename,sgf_content):
 		log(e)
 		filelock.release()
 		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
+
 def write_sgf(filename,sgf_content):
 	filelock.acquire()
 	try:
 		log("Saving SGF file",filename)
-		new_file=open(filename,'w')
 		if type(sgf_content)==type("abc"):
-			new_file.write(sgf_content)
+			content=sgf_content
 		else:
-			new_file.write(sgf_content.serialise())
+			content=sgf_content.serialise()
+		try:
+			new_file=open(filename,'w')
+			new_file.write(content)
+		except:
+			new_file=codecs.open(filename,"w","utf-8")
+			new_file.write(content)
+		
 		new_file.close()
 		filelock.release()
 	except Exception,e:
@@ -249,7 +263,7 @@ def write_sgf(filename,sgf_content):
 		log(e)
 		filelock.release()
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
-	
+
 def open_sgf(filename):
 	filelock.acquire()
 	try:
