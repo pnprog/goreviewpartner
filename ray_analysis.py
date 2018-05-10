@@ -5,11 +5,6 @@ import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
 from Tkinter import *
-import sys
-import os
-
-import ConfigParser
-
 
 import os
 import threading
@@ -197,9 +192,6 @@ class RaySettings(Frame):
 		self.parent=parent
 		log("Initializing Ray setting interface")
 		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
 		bot="Ray"
 		
 		row=0
@@ -212,12 +204,12 @@ class RaySettings(Frame):
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		SlowCommand = StringVar() 
-		SlowCommand.set(Config.get(bot,"SlowCommand"))
+		SlowCommand.set(grp_config.get(bot,"SlowCommand"))
 		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		SlowParameters = StringVar() 
-		SlowParameters.set(Config.get(bot,"SlowParameters"))
+		SlowParameters.set(grp_config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(Ray_gtp,"slow")).grid(row=row,column=1,sticky=W)
@@ -231,12 +223,12 @@ class RaySettings(Frame):
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		FastCommand = StringVar() 
-		FastCommand.set(Config.get(bot,"FastCommand"))
+		FastCommand.set(grp_config.get(bot,"FastCommand"))
 		Entry(self, textvariable=FastCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		FastParameters = StringVar() 
-		FastParameters.set(Config.get(bot,"FastParameters"))
+		FastParameters.set(grp_config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(Ray_gtp,"fast")).grid(row=row,column=1,sticky=W)
@@ -252,25 +244,25 @@ class RaySettings(Frame):
 		
 		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
 		analysis_bot = StringVar()
-		analysis_bot.set(value[Config.get(bot,"AnalysisBot")])
+		analysis_bot.set(value[grp_config.get(bot,"AnalysisBot")])
 		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
 		liveanalysis_bot = StringVar()
-		liveanalysis_bot.set(value[Config.get(bot,"LiveAnalysisBot")])
+		liveanalysis_bot.set(value[grp_config.get(bot,"LiveAnalysisBot")])
 		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
 		liveplayer_bot = StringVar()
-		liveplayer_bot.set(value[Config.get(bot,"LivePlayerBot")])
+		liveplayer_bot.set(value[grp_config.get(bot,"LivePlayerBot")])
 		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
 		review_bot = StringVar()
-		review_bot.set(value[Config.get(bot,"ReviewBot")])
+		review_bot.set(value[grp_config.get(bot,"ReviewBot")])
 		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		
@@ -286,25 +278,21 @@ class RaySettings(Frame):
 	
 	def save(self):
 		log("Saving Ray settings")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		
 		bot="Ray"
 		
-		Config.set(bot,"SlowCommand",self.SlowCommand.get())
-		Config.set(bot,"SlowParameters",self.SlowParameters.get())
-		Config.set(bot,"FastCommand",self.FastCommand.get())
-		Config.set(bot,"FastParameters",self.FastParameters.get())
+		grp_config.set(bot,"SlowCommand",self.SlowCommand.get())
+		grp_config.set(bot,"SlowParameters",self.SlowParameters.get())
+		grp_config.set(bot,"FastCommand",self.FastCommand.get())
+		grp_config.set(bot,"FastParameters",self.FastParameters.get())
 		
 		value={_("Slow profile"):"slow",_("Fast profile"):"fast",_("Both profiles"):"both",_("None"):"none"}
 		
-		Config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
-		Config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
-		Config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
-		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
+		grp_config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
+		grp_config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
+		grp_config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
+		grp_config.set(bot,"ReviewBot",value[self.review_bot.get()])
 		
-		Config.write(open(config_file,"w"))
-
 		if self.parent.parent.refresh!=None:
 			self.parent.parent.refresh()
 

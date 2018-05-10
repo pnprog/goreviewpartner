@@ -5,10 +5,6 @@ import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
 from Tkinter import *
-import sys
-import os
-
-import ConfigParser
 
 from time import sleep
 import os
@@ -219,15 +215,12 @@ def leela_starting_procedure(sgf_g,profile="slow",silentfail=False):
 	elif profile=="fast":
 		timepermove_entry="FastTimePerMove"
 
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-
 	leela=bot_starting_procedure("Leela","Leela",Leela_gtp,sgf_g,profile,silentfail)
 	if not leela:
 		return False
 
 	try:
-		time_per_move=Config.get("Leela", timepermove_entry)
+		time_per_move=grp_config.get("Leela", timepermove_entry)
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
@@ -235,10 +228,9 @@ def leela_starting_procedure(sgf_g,profile="slow",silentfail=False):
 				leela.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 				#self.time_per_move=time_per_move #why is that needed???
 	except:
-		log("Wrong value for Leela thinking time:",Config.get("Leela", timepermove_entry))
+		log("Wrong value for Leela thinking time:",grp_config.get("Leela", timepermove_entry))
 		log("Erasing that value in the config file")
-		Config.set("Leela",timepermove_entry,"")
-		Config.write(open(config_file,"w"))
+		grp_config.set("Leela",timepermove_entry,"")
 	
 	return leela
 
@@ -392,9 +384,7 @@ class LeelaSettings(Frame):
 	def initialize(self):
 		bot=self.name
 		log("Initializing "+bot+" setting interface")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
+
 		bot=self.name
 		
 		row=0
@@ -407,17 +397,17 @@ class LeelaSettings(Frame):
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		SlowCommand = StringVar() 
-		SlowCommand.set(Config.get(bot,"SlowCommand"))
+		SlowCommand.set(grp_config.get(bot,"SlowCommand"))
 		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		SlowParameters = StringVar()
-		SlowParameters.set(Config.get(bot,"SlowParameters"))
+		SlowParameters.set(grp_config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
 		SlowTimePerMove = StringVar()
-		SlowTimePerMove.set(Config.get(bot,"SlowTimePerMove"))
+		SlowTimePerMove.set(grp_config.get(bot,"SlowTimePerMove"))
 		Entry(self, textvariable=SlowTimePerMove, width=30).grid(row=row,column=2)
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(self.gtp,"slow")).grid(row=row,column=1,sticky=W)
@@ -432,18 +422,18 @@ class LeelaSettings(Frame):
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		FastCommand = StringVar()
-		FastCommand.set(Config.get(bot,"FastCommand"))
+		FastCommand.set(grp_config.get(bot,"FastCommand"))
 		Entry(self, textvariable=FastCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		FastParameters = StringVar() 
-		FastParameters.set(Config.get(bot,"FastParameters"))
+		FastParameters.set(grp_config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
 		
 		row+=1
 		Label(self,text=_("Time per move (s)")).grid(row=row,column=1,sticky=W)
 		FastTimePerMove = StringVar() 
-		FastTimePerMove.set(Config.get(bot,"FastTimePerMove"))
+		FastTimePerMove.set(grp_config.get(bot,"FastTimePerMove"))
 		Entry(self, textvariable=FastTimePerMove, width=30).grid(row=row,column=2)
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(self.gtp,"fast")).grid(row=row,column=1,sticky=W)
@@ -459,25 +449,25 @@ class LeelaSettings(Frame):
 
 		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
 		analysis_bot = StringVar()
-		analysis_bot.set(value[Config.get(bot,"AnalysisBot")])
+		analysis_bot.set(value[grp_config.get(bot,"AnalysisBot")])
 		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
 		liveanalysis_bot = StringVar()
-		liveanalysis_bot.set(value[Config.get(bot,"LiveAnalysisBot")])
+		liveanalysis_bot.set(value[grp_config.get(bot,"LiveAnalysisBot")])
 		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
 		liveplayer_bot = StringVar()
-		liveplayer_bot.set(value[Config.get(bot,"LivePlayerBot")])
+		liveplayer_bot.set(value[grp_config.get(bot,"LivePlayerBot")])
 		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
 		review_bot = StringVar()
-		review_bot.set(value[Config.get(bot,"ReviewBot")])
+		review_bot.set(value[grp_config.get(bot,"ReviewBot")])
 		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 
@@ -496,25 +486,20 @@ class LeelaSettings(Frame):
 	def save(self):
 		bot=self.name
 		log("Saving "+bot+" settings")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		
-		Config.set(bot,"SlowCommand",self.SlowCommand.get())
-		Config.set(bot,"SlowParameters",self.SlowParameters.get())
-		Config.set(bot,"SlowTimePerMove",self.SlowTimePerMove.get())
-		Config.set(bot,"FastCommand",self.FastCommand.get())
-		Config.set(bot,"FastParameters",self.FastParameters.get())
-		Config.set(bot,"FastTimePerMove",self.FastTimePerMove.get())
+		grp_config.set(bot,"SlowCommand",self.SlowCommand.get())
+		grp_config.set(bot,"SlowParameters",self.SlowParameters.get())
+		grp_config.set(bot,"SlowTimePerMove",self.SlowTimePerMove.get())
+		grp_config.set(bot,"FastCommand",self.FastCommand.get())
+		grp_config.set(bot,"FastParameters",self.FastParameters.get())
+		grp_config.set(bot,"FastTimePerMove",self.FastTimePerMove.get())
 
 		value={_("Slow profile"):"slow",_("Fast profile"):"fast",_("Both profiles"):"both",_("None"):"none"}
 		
-		Config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
-		Config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
-		Config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
-		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
-		
-
-		Config.write(open(config_file,"w"))
+		grp_config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
+		grp_config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
+		grp_config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
+		grp_config.set(bot,"ReviewBot",value[self.review_bot.get()])
 
 		if self.parent.parent.refresh!=None:
 			self.parent.parent.refresh()

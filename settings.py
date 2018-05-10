@@ -1,13 +1,13 @@
 
 from Tkinter import *
-import ConfigParser
 from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
 from aq_analysis import AQSettings
 from leela_zero_analysis import LeelaZeroSettings
-from toolbox import log, config_file, _, available_translations, lang, Application
-
+#from toolbox import log, config_file, _, available_translations, lang, Application
+from toolbox import *
+from toolbox import _
 
 class OpenSettings(Toplevel):
 
@@ -33,9 +33,7 @@ class OpenSettings(Toplevel):
 	def display_GRP_settings(self,top_setting_frame):
 		
 		log("Initializing GRP setting interface")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
+
 		setting_frame=Frame(top_setting_frame)
 		
 		row=0
@@ -60,26 +58,25 @@ class OpenSettings(Toplevel):
 		row+=1
 		Label(setting_frame,text=_("Maximum number of variations to record during analysis")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToRecord = StringVar() 
-		MaxVariationsToRecord.set(Config.get("Analysis","MaxVariations"))
+		MaxVariationsToRecord.set(grp_config.get("Analysis","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row,column=2)
 		
 		row+=1
 		Label(setting_frame,text=_("Only keep variations when game move and bot move differ")).grid(row=row,column=1,sticky=W)
-		NoVariationIfSameMove = BooleanVar() 
-		NoVariationIfSameMove.set(Config.getboolean("Analysis","NoVariationIfSameMove"))
+		NoVariationIfSameMove = BooleanVar(value=grp_config.getboolean("Analysis","NoVariationIfSameMove")) 
 		NoVariationIfSameMoveCheckbutton=Checkbutton(setting_frame, text="", variable=NoVariationIfSameMove,onvalue=True,offvalue=False)
 		NoVariationIfSameMoveCheckbutton.grid(row=row,column=2,sticky=W)
 		NoVariationIfSameMoveCheckbutton.var=NoVariationIfSameMove
 		
 		row+=1
 		Label(setting_frame,text=_("Save bot command line into RSGF file")).grid(row=row,column=1,sticky=W)
-		SaveCommandLine = BooleanVar(value=Config.getboolean('Analysis', 'SaveCommandLine'))
+		SaveCommandLine = BooleanVar(value=grp_config.getboolean('Analysis', 'SaveCommandLine'))
 		SaveCommandLineCheckbutton=Checkbutton(setting_frame, text="", variable=SaveCommandLine,onvalue=True,offvalue=False)
 		SaveCommandLineCheckbutton.grid(row=row,column=2,sticky=W)
 		SaveCommandLineCheckbutton.var=SaveCommandLine
 		row+=1
 		Label(setting_frame,text=_("Stop the analysis if the bot resigns")).grid(row=row,column=1,sticky=W)
-		StopAtFirstResign = BooleanVar(value=Config.getboolean('Analysis', 'StopAtFirstResign'))
+		StopAtFirstResign = BooleanVar(value=grp_config.getboolean('Analysis', 'StopAtFirstResign'))
 		StopAtFirstResignCheckbutton=Checkbutton(setting_frame, text="", variable=StopAtFirstResign,onvalue=True,offvalue=False)
 		StopAtFirstResignCheckbutton.grid(row=row,column=2,sticky=W)
 		StopAtFirstResignCheckbutton.var=StopAtFirstResign
@@ -92,40 +89,40 @@ class OpenSettings(Toplevel):
 		row+=1
 		Label(setting_frame,text=_("Fuzzy Stone")).grid(row=row,column=1,sticky=W)
 		FuzzyStonePlacement = StringVar() 
-		FuzzyStonePlacement.set(Config.get("Review","FuzzyStonePlacement"))
+		FuzzyStonePlacement.set(grp_config.get("Review","FuzzyStonePlacement"))
 		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row,column=2)
 		row+=1
 		Label(setting_frame,text=_("Real game sequence deepness")).grid(row=row,column=1,sticky=W)
 		RealGameSequenceDeepness = StringVar() 
-		RealGameSequenceDeepness.set(Config.get("Review","RealGameSequenceDeepness"))
+		RealGameSequenceDeepness.set(grp_config.get("Review","RealGameSequenceDeepness"))
 		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row,column=2)
 		row+=1
 		Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row,column=1,sticky=W)
 		GobanScreenRatio = StringVar() 
-		GobanScreenRatio.set(Config.get("Review","GobanScreenRatio"))
+		GobanScreenRatio.set(grp_config.get("Review","GobanScreenRatio"))
 		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row,column=2)
 		row+=1
 		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToDisplay = StringVar() 
-		MaxVariationsToDisplay.set(Config.get("Review","MaxVariations"))
+		MaxVariationsToDisplay.set(grp_config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
 		row+=1
 		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
 		VariationsColoring = StringVar()
 		coloring={"blue_for_winning":_("Winning variations (>50%) only in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
-		VariationsColoring.set(coloring[Config.get("Review","VariationsColoring")])
+		VariationsColoring.set(coloring[grp_config.get("Review","VariationsColoring")])
 		OptionMenu(setting_frame,VariationsColoring,*tuple(coloring.values())).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(setting_frame,text=_("Labels for the variations")).grid(row=row,column=1,sticky=W)
 		values={"letter":_("Letters"),"rate":_("Rates")}
 		VariationsLabel = StringVar()
-		VariationsLabel.set(values[Config.get("Review","VariationsLabel")])
+		VariationsLabel.set(values[grp_config.get("Review","VariationsLabel")])
 		OptionMenu(setting_frame,VariationsLabel,*tuple(values.values())).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(setting_frame,text=_("Inverted mouse wheel")).grid(row=row,column=1,sticky=W)
-		InvertedMouseWheel = BooleanVar(value=Config.getboolean('Review', 'InvertedMouseWheel'))
+		InvertedMouseWheel = BooleanVar(value=grp_config.getboolean('Review', 'InvertedMouseWheel'))
 		InvertedMouseWheelCheckbutton=Checkbutton(setting_frame, text="", variable=InvertedMouseWheel,onvalue=True,offvalue=False)
 		InvertedMouseWheelCheckbutton.grid(row=row,column=2,sticky=W)
 		InvertedMouseWheelCheckbutton.var=InvertedMouseWheel
@@ -188,28 +185,26 @@ class OpenSettings(Toplevel):
 	def save(self):
 		global lang, translations
 		log("Saving GRP settings")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		for lang2, language in available_translations.iteritems():
 			if language==self.Language.get():
 				if lang!=lang2:
-					Config.set("General","Language",lang2)
+					grp_config.set("General","Language",lang2)
 				break
-		Config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
-		Config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
-		Config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
-		Config.set("Analysis","MaxVariations",self.MaxVariationsToRecord.get())
-		Config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
-		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
-		Config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
+		grp_config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
+		grp_config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
+		grp_config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
+		grp_config.set("Analysis","MaxVariations",self.MaxVariationsToRecord.get())
+		grp_config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
+		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
+		grp_config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
 		coloring={_("Winning variations (>50%) only in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
-		Config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
-		Config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
-		Config.set("Analysis","NoVariationIfSameMove",self.NoVariationIfSameMove.get())
+		grp_config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
+		grp_config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
+		grp_config.set("Analysis","NoVariationIfSameMove",self.NoVariationIfSameMove.get())
 		labeling={_("Letters"):"letter",_("Rates"):"rate"}
-		Config.set("Review","VariationsLabel",labeling[self.VariationsLabel.get()])
+		grp_config.set("Review","VariationsLabel",labeling[self.VariationsLabel.get()])
 		
-		Config.write(open(config_file,"w"))
+		
 		
 		if self.refresh!=None:
 			self.refresh()

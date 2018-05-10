@@ -5,10 +5,6 @@ import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
 from Tkinter import *
-import sys
-import os
-
-import ConfigParser
 
 from time import sleep
 import os
@@ -160,14 +156,11 @@ def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
 	elif profile=="fast":
 		timepermove_entry="FastTimePerMove"
 
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-
 	leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,sgf_g,profile,silentfail)
 	if not leela_zero:
 		return False
 	try:
-		time_per_move=Config.get("LeelaZero", timepermove_entry)
+		time_per_move=grp_config.get("LeelaZero", timepermove_entry)
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
@@ -175,10 +168,9 @@ def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
 				leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 				#self.time_per_move=time_per_move #why is that needed???
 	except:
-		log("Wrong value for Leela thinking time:",Config.get("LeelaZero", timepermove_entry))
+		log("Wrong value for Leela thinking time:",grp_config.get("LeelaZero", timepermove_entry))
 		log("Erasing that value in the config file")
-		Config.set("LeelaZero",timepermove_entry,"")
-		Config.write(open(config_file,"w"))
+		grp_config.set("LeelaZero",timepermove_entry,"")
 	
 	return leela_zero
 

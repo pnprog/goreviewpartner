@@ -5,12 +5,7 @@ import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
 from Tkinter import *
-import sys
 import os
-
-import ConfigParser
-
-
 import time, os
 
 import ttk
@@ -201,17 +196,15 @@ class GnuGoAnalysis():
 		
 		self.nb_variations=4
 		try:
-			self.nb_variations=int(Config.get("GnuGo", "variations"))
+			self.nb_variations=int(grp_config.get("GnuGo", "variations"))
 		except:
-			Config.set("GnuGo", "variations",self.nb_variations)
-			Config.write(open(config_file,"w"))
+			grp_config.set("GnuGo", "variations",self.nb_variations)
 		
 		self.deepness=4
 		try:
-			self.deepness=int(Config.get("GnuGo", "deepness"))
+			self.deepness=int(grp_config.get("GnuGo", "deepness"))
 		except:
-			Config.set("GnuGo", "deepness",self.deepness)
-			Config.write(open(config_file,"w"))
+			grp_config.set("GnuGo", "deepness",self.deepness)
 		
 		gnugo=gnugo_starting_procedure(self.g,self.profile)
 		self.nb_workers=self.nb_variations
@@ -324,8 +317,6 @@ class GnuGoSettings(Frame):
 		Frame.__init__(self,parent)
 		self.parent=parent
 		log("Initializing GnuGo setting interface")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		bot="GnuGo"
 		row=0
 		Label(self,text=_("%s settings")%bot, font="-weight bold").grid(row=row,column=1,sticky=W)
@@ -337,12 +328,12 @@ class GnuGoSettings(Frame):
 		row+=1
 		Label(self,text=_("Maximum number of variations")).grid(row=row,column=1,sticky=W)
 		Variations = StringVar()
-		Variations.set(Config.get(bot,"Variations"))
+		Variations.set(grp_config.get(bot,"Variations"))
 		Entry(self, textvariable=Variations, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Deepness for each variation")).grid(row=row,column=1,sticky=W)
 		Deepness = StringVar() 
-		Deepness.set(Config.get(bot,"Deepness"))
+		Deepness.set(grp_config.get(bot,"Deepness"))
 		Entry(self, textvariable=Deepness, width=30).grid(row=row,column=2)
 		
 		
@@ -353,12 +344,12 @@ class GnuGoSettings(Frame):
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		SlowCommand = StringVar() 
-		SlowCommand.set(Config.get(bot,"SlowCommand"))
+		SlowCommand.set(grp_config.get(bot,"SlowCommand"))
 		Entry(self, textvariable=SlowCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		SlowParameters = StringVar() 
-		SlowParameters.set(Config.get(bot,"SlowParameters"))
+		SlowParameters.set(grp_config.get(bot,"SlowParameters"))
 		Entry(self, textvariable=SlowParameters, width=30).grid(row=row,column=2)
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(GnuGo_gtp,"slow")).grid(row=row,column=1,sticky=W)
@@ -371,12 +362,12 @@ class GnuGoSettings(Frame):
 		row+=1
 		Label(self,text=_("Command")).grid(row=row,column=1,sticky=W)
 		FastCommand = StringVar() 
-		FastCommand.set(Config.get(bot,"FastCommand"))
+		FastCommand.set(grp_config.get(bot,"FastCommand"))
 		Entry(self, textvariable=FastCommand, width=30).grid(row=row,column=2)
 		row+=1
 		Label(self,text=_("Parameters")).grid(row=row,column=1,sticky=W)
 		FastParameters = StringVar() 
-		FastParameters.set(Config.get(bot,"FastParameters"))
+		FastParameters.set(grp_config.get(bot,"FastParameters"))
 		Entry(self, textvariable=FastParameters, width=30).grid(row=row,column=2)
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(GnuGo_gtp,"fast")).grid(row=row,column=1,sticky=W)
@@ -391,25 +382,25 @@ class GnuGoSettings(Frame):
 		
 		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
 		analysis_bot = StringVar()
-		analysis_bot.set(value[Config.get(bot,"AnalysisBot")])
+		analysis_bot.set(value[grp_config.get(bot,"AnalysisBot")])
 		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
 		liveanalysis_bot = StringVar()
-		liveanalysis_bot.set(value[Config.get(bot,"LiveAnalysisBot")])
+		liveanalysis_bot.set(value[grp_config.get(bot,"LiveAnalysisBot")])
 		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
 		liveplayer_bot = StringVar()
-		liveplayer_bot.set(value[Config.get(bot,"LivePlayerBot")])
+		liveplayer_bot.set(value[grp_config.get(bot,"LivePlayerBot")])
 		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
 		review_bot = StringVar()
-		review_bot.set(value[Config.get(bot,"ReviewBot")])
+		review_bot.set(value[grp_config.get(bot,"ReviewBot")])
 		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 
@@ -427,26 +418,23 @@ class GnuGoSettings(Frame):
 		
 	def save(self):
 		log("Saving GnuGo settings")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		
 		bot="GnuGo"
 		
-		Config.set(bot,"SlowCommand",self.SlowCommand.get())
-		Config.set(bot,"SlowParameters",self.SlowParameters.get())
-		Config.set(bot,"Variations",self.Variations.get())
-		Config.set(bot,"Deepness",self.Deepness.get())
-		Config.set(bot,"FastCommand",self.FastCommand.get())
-		Config.set(bot,"FastParameters",self.FastParameters.get())
+		grp_config.set(bot,"SlowCommand",self.SlowCommand.get())
+		grp_config.set(bot,"SlowParameters",self.SlowParameters.get())
+		grp_config.set(bot,"Variations",self.Variations.get())
+		grp_config.set(bot,"Deepness",self.Deepness.get())
+		grp_config.set(bot,"FastCommand",self.FastCommand.get())
+		grp_config.set(bot,"FastParameters",self.FastParameters.get())
 		
 		value={_("Slow profile"):"slow",_("Fast profile"):"fast",_("Both profiles"):"both",_("None"):"none"}
 		
-		Config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
-		Config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
-		Config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
-		Config.set(bot,"ReviewBot",value[self.review_bot.get()])
+		grp_config.set(bot,"AnalysisBot",value[self.analysis_bot.get()])
+		grp_config.set(bot,"LiveanalysisBot",value[self.liveanalysis_bot.get()])
+		grp_config.set(bot,"LivePlayerBot",value[self.liveplayer_bot.get()])
+		grp_config.set(bot,"ReviewBot",value[self.review_bot.get()])
 				
-		Config.write(open(config_file,"w"))
 
 		if self.parent.parent.refresh!=None:
 			self.parent.parent.refresh()

@@ -21,9 +21,6 @@ class LiveAnalysisLauncher(Toplevel):
 		
 		root = self
 		root.parent.title('GoReviewPartner')
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 
 		row=1
 		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
@@ -66,7 +63,7 @@ class LiveAnalysisLauncher(Toplevel):
 		
 		nooverlap=True
 		try:
-			nooverlap=Config.get("Live","NoOverlap")
+			nooverlap=grp_config.get("Live","NoOverlap")
 		except:
 			pass
 		self.no_overlap_thinking = BooleanVar(value=nooverlap)
@@ -81,9 +78,9 @@ class LiveAnalysisLauncher(Toplevel):
 		self.dim.delete(0, END)
 		size="19"
 		try:
-			size=Config.get("Live", "size")
+			size=grp_config.get("Live", "size")
 		except:
-			Config.set("Live", size)
+			grp_config.set("Live", size)
 		self.dim.insert(0, size)
 
 		row+=1
@@ -96,9 +93,9 @@ class LiveAnalysisLauncher(Toplevel):
 		self.komi.delete(0, END)
 		komi="7.5"
 		try:
-			komi=Config.get("Live", "komi")
+			komi=grp_config.get("Live", "komi")
 		except:
-			Config.set("Live", komi)
+			grp_config.set("Live", komi)
 		self.komi.insert(0, komi)	
 
 		row+=1
@@ -111,9 +108,9 @@ class LiveAnalysisLauncher(Toplevel):
 		self.handicap.delete(0, END)
 		handicap="0"
 		try:
-			handicap=Config.get("Live", "handicap")
+			handicap=grp_config.get("Live", "handicap")
 		except:
-			Config.set("Live", handicap)
+			grp_config.set("Live", handicap)
 		self.handicap.insert(0, handicap)
 
 		row+=1
@@ -157,17 +154,17 @@ class LiveAnalysisLauncher(Toplevel):
 		self.black_selection.set(_("Human"))
 		self.white_selection.set(_("Human"))
 		
-		analyser=Config.get("Live","Analyser")
+		analyser=grp_config.get("Live","Analyser")
 		if analyser.decode("utf") in self.analysis_bots_names:
 			self.bot_selection.set(analyser)
 		
 		self.change_parameters()
 		
-		black=Config.get("Live","black")
+		black=grp_config.get("Live","black")
 		if black.decode("utf") in self.black_options:
 			self.black_selection.set(black)
 			
-		white=Config.get("Live","white")
+		white=grp_config.get("Live","white")
 		if white.decode("utf") in self.white_options:
 			self.white_selection.set(white)
 		
@@ -216,23 +213,19 @@ class LiveAnalysisLauncher(Toplevel):
 		else:
 			white=bots[self.white_selection.get()]
 		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
 		komi=float(self.komi.get())
 		dim=int(self.dim.get())
 		handicap=int(self.handicap.get())
 		
-		Config.set("Live","komi",komi)
-		Config.set("Live","size",dim)
-		Config.set("Live","handicap",handicap)
+		grp_config.set("Live","komi",komi)
+		grp_config.set("Live","size",dim)
+		grp_config.set("Live","handicap",handicap)
 		
-		Config.set("Live","analyser",self.bot_selection.get().encode("utf"))
-		Config.set("Live","black",self.black_selection.get().encode("utf"))
-		Config.set("Live","white",self.white_selection.get().encode("utf"))
+		grp_config.set("Live","analyser",self.bot_selection.get().encode("utf"))
+		grp_config.set("Live","black",self.black_selection.get().encode("utf"))
+		grp_config.set("Live","white",self.white_selection.get().encode("utf"))
 		
-		Config.write(open(config_file,"w"))
-		filename=os.path.join(Config.get("General","livefolder"),self.filename.get().encode("utf-8"))
+		filename=os.path.join(grp_config.get("General","livefolder"),self.filename.get().encode("utf-8"))
 		self.withdraw()
 		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
 		self.parent.add_popup(popup)
@@ -356,9 +349,6 @@ class LiveAnalysis(Toplevel):
 		self.parent.add_popup(new_popup)
 
 	def initialize(self):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
 		popup=self
 		buttons_with_status=[]
 		dim=self.dim
@@ -372,10 +362,10 @@ class LiveAnalysis(Toplevel):
 		
 		display_factor=.5
 		try:
-			display_factor=float(Config.get("Review", "GobanScreenRatio"))
+			display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
 		except:
-			Config.set("Review", "GobanScreenRatio",display_factor)
-			Config.write(open(config_file,"w"))
+			grp_config.set("Review", "GobanScreenRatio",display_factor)
+			
 		
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
@@ -417,7 +407,7 @@ class LiveAnalysis(Toplevel):
 		first_comment+="\n"+("Bot: %s/%s"%(self.analyser.bot.bot_name,self.analyser.bot.bot_version))
 		first_comment+="\n"+("Komi: %0.1f"%self.komi)
 
-		if Config.getboolean('Analysis', 'SaveCommandLine'):
+		if grp_config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+("Command line: %s"%self.analyser.bot.command_line)
 
 		self.g.get_root().set("RSGF",first_comment+"\n")
@@ -614,16 +604,12 @@ class LiveAnalysis(Toplevel):
 		app=self.parent
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
-		
+			
 		display_factor=.5
 		try:
-			display_factor=float(Config.get("Review", "GobanScreenRatio"))
+			display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
 		except:
-			Config.set("Review", "GobanScreenRatio",display_factor)
-			Config.write(open("config.ini","w"))
+			grp_config.set("Review", "GobanScreenRatio",display_factor)
 		
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)

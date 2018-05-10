@@ -121,8 +121,6 @@ class Main(Toplevel):
 
 	def refresh(self):
 		log("refreshing")
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		if len(get_available("AnalysisBot"))==0:
 			self.analysis_bouton.config(state='disabled')
 			self.download_bouton.config(state='disabled')

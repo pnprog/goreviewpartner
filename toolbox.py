@@ -516,11 +516,8 @@ class RangeSelector(Toplevel):
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
 
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-
 		Label(self,text=_("Stop the analysis if the bot resigns")).grid(row=row,column=1,sticky=W)
-		StopAtFirstResign = BooleanVar(value=Config.getboolean('Analysis', 'StopAtFirstResign'))
+		StopAtFirstResign = BooleanVar(value=grp_config.getboolean('Analysis', 'StopAtFirstResign'))
 		StopAtFirstResignCheckbutton=Checkbutton(self, text="", variable=StopAtFirstResign,onvalue=True,offvalue=False)
 		StopAtFirstResignCheckbutton.grid(row=row,column=2,sticky=W)
 		StopAtFirstResignCheckbutton.var=StopAtFirstResign
@@ -616,14 +613,8 @@ class RangeSelector(Toplevel):
 		variation=int(self.variation_selection.get().split(" ")[1])-1
 		log(variation)
 
-		####################################
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
-		Config.write(open(config_file,"w"))
+		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 
-		####################################
-		
 		popup=RunAnalysis(self.parent,self.filename,move_selection,intervals,variation,komi,profile)
 		self.parent.add_popup(popup)
 		self.close()
@@ -633,7 +624,6 @@ class RangeSelector(Toplevel):
 
 import Queue
 import time
-import ConfigParser
 from Tkinter import *
 import ttk
 
@@ -679,12 +669,9 @@ class LiveAnalysisBase():
 		log("size of the tree:", size)
 		self.size=size
 
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
+		self.no_variation_if_same_move=grp_config.getboolean('Analysis', 'NoVariationIfSameMove')
 		
-		self.no_variation_if_same_move=Config.getboolean('Analysis', 'NoVariationIfSameMove')
-		
-		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
+		self.maxvariations=int(grp_config.get("Analysis", "maxvariations"))
 
 		self.stop_at_first_resign=False
 
@@ -837,10 +824,7 @@ class RunAnalysisBase(Toplevel):
 		self.current_move=None
 		self.time_per_move=None
 		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-		self.no_variation_if_same_move=self.no_variation_if_same_move=Config.getboolean('Analysis', 'NoVariationIfSameMove')
+		self.no_variation_if_same_move=self.no_variation_if_same_move=grp_config.getboolean('Analysis', 'NoVariationIfSameMove')
 		
 		self.error=None
 
@@ -886,17 +870,17 @@ class RunAnalysisBase(Toplevel):
 		first_comment+="\n"+_("Komi")+(": %0.1f"%self.komi)
 		first_comment+="\n"+_("Intervals")+(": %s"%self.intervals)
 	
-		if Config.getboolean('Analysis', 'SaveCommandLine'):
+		if grp_config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+(_("Command line")+": %s"%self.bot.command_line)
 
 		self.move_zero.set("RSGF",first_comment.encode("utf")+"\n")
 		self.move_zero.set("BOT",self.bot.bot_name)
 		self.move_zero.set("BOTV",self.bot.bot_version)
 
-		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
+		self.maxvariations=int(grp_config.get("Analysis", "maxvariations"))
 
 		try:
-			if Config.getboolean('Analysis', 'StopAtFirstResign'):
+			if grp_config.getboolean('Analysis', 'StopAtFirstResign'):
 				log("Stop_At_First_Resign is ON")
 				self.stop_at_first_resign=True
 			else:
@@ -1047,15 +1031,13 @@ class RunAnalysisBase(Toplevel):
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
 
-		Config = ConfigParser.ConfigParser()
-		Config.read("config.ini")
 
 		display_factor=.5
 		try:
-			display_factor=float(Config.get("Review", "GobanScreenRatio"))
+			display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
 		except:
-			Config.set("Review", "GobanScreenRatio",display_factor)
-			Config.write(codes.open("config.ini","w","utf-8"))
+			grp_config.set("Review", "GobanScreenRatio",display_factor)
+			grp_config.write(codes.open("config.ini","w","utf-8"))
 
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
@@ -1206,12 +1188,9 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 	size=sgf_g.get_size()
 
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-
 	try:
 		try:
-			bot_command_line=Config.get(bot_name, command_entry)
+			bot_command_line=grp_config.get(bot_name, command_entry)
 		except:
 			raise LaunchingException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
 
@@ -1221,10 +1200,10 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 		log("Starting "+bot_name+"...")
 		try:
-			bot_command_line=[Config.get(bot_name, command_entry)]+Config.get(bot_name, parameters_entry).split()
+			bot_command_line=[grp_config.get(bot_name, command_entry)]+grp_config.get(bot_name, parameters_entry).split()
 			bot=bot_gtp(bot_command_line)
 		except Exception,e:
-			raise LaunchingException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+Config.get(bot_name, command_entry)+" "+Config.get(bot_name, parameters_entry)+"\n"+str(e))
+			raise LaunchingException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+grp_config.get(bot_name, command_entry)+" "+grp_config.get(bot_name, parameters_entry)+"\n"+str(e))
 
 		log(bot_name+" started")
 		log(bot_name+" identification through GTP...")
@@ -1524,21 +1503,36 @@ log('GRP path:', os.path.abspath(pathname))
 config_file=os.path.join(os.path.abspath(pathname),"config.ini")
 log('Config file:', config_file)
 
-log("Checking availability of config file")
 import ConfigParser
-Config = ConfigParser.ConfigParser()
+log("Checking availability of config file")
+conf = ConfigParser.ConfigParser()
 try:
-	Config.readfp(codecs.open(config_file,"r","utf-8"))
+	conf.readfp(codecs.open(config_file,"r","utf-8"))
 except Exception, e:
 	show_error("Could not open the config file of Go Review Partner"+"\n"+str(e)) #this cannot be translated
 	sys.exit()
 
+class MyConfig():
+	def __init__(self,config_file):
+		self.config = ConfigParser.ConfigParser()
+		self.config.read(config_file)
+		self.config_file=config_file
+	
+	def set(self, section, key, value):
+		self.config.set(section,key,str(value))
+		self.config.write(open(self.config_file,"w"))
+	
+	def get(self,section,key):
+		return self.config.get(section,key)
 
+	def getboolean(self,section,key):
+		return self.config.getboolean(section,key)
+
+grp_config=MyConfig(config_file)
 
 log("Reading language setting from config file")
-Config = ConfigParser.ConfigParser()
-Config.read(config_file)
-lang=Config.get("General","Language")
+
+lang=grp_config.get("General","Language")
 
 
 available_translations={"en": u"English", "fr" : u"Français", "de" : u"Deutsch", "kr" : u"한국어", "zh": u"中文"}
@@ -1555,8 +1549,7 @@ if not lang:
 		log("Falling back on lang=en")
 		lang="en"
 	log("Saving the lang parameter in config.ini")
-	Config.set("General","Language",lang)
-	Config.write(codecs.open(config_file,"w","utf-8"))
+	grp_config.set("General","Language",lang)
 else:
 	if lang in available_translations:
 		log("lang="+lang)
@@ -1565,8 +1558,8 @@ else:
 		log("Falling back on lang=en")
 		lang="en"
 		log("Saving the lang parameter in config.ini")
-		Config.set("General","Language",lang)
-		Config.write(codecs.open(config_file,"w","utf-8"))
+		grp_config.set("General","Language",lang)
+
 
 translations={}
 
@@ -1653,14 +1646,9 @@ def slow_profile_bots():
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 
-	import ConfigParser
-
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
-		if Config.get(bot['name'],"SlowCommand")!="":
+		if grp_config.get(bot['name'],"SlowCommand")!="":
 			bots.append(bot)
 			bot['profile']="slow"
 	return bots
@@ -1672,14 +1660,9 @@ def fast_profile_bots():
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 
-	import ConfigParser
-
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
-		if Config.get(bot['name'],"FastReviewCommand")!="":
+		if grp_config.get(bot['name'],"FastReviewCommand")!="":
 			bots.append(bot)
 			bot['profile']="fast"
 	return bots
@@ -1692,29 +1675,24 @@ def get_available(use):
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 
-	import ConfigParser
-
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
-
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
 		slow=False
 		fast=False
-		if Config.get(bot['name'],use)=="slow":
+		if grp_config.get(bot['name'],use)=="slow":
 			slow=True
-		elif Config.get(bot['name'],use)=="fast":
+		elif grp_config.get(bot['name'],use)=="fast":
 			fast=True
-		elif Config.get(bot['name'],use)=="both":
+		elif grp_config.get(bot['name'],use)=="both":
 			slow=True
 			fast=True
 		if slow:
-			if Config.get(bot['name'],"SlowCommand")!="":
+			if grp_config.get(bot['name'],"SlowCommand")!="":
 				bot2=dict(bot)
 				bots.append(bot2)
 				bot2['profile']="slow"
 		if fast:
-			if Config.get(bot['name'],"FastCommand")!="":
+			if grp_config.get(bot['name'],"FastCommand")!="":
 				bot2=dict(bot)
 				bots.append(bot2)
 				bot2['profile']="fast"
@@ -1830,9 +1808,7 @@ try:
 	wxApp = wx.App(None)
 	
 	def open_all_file(parent,config,filetype):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get(config[0],config[1])
+		initialdir = grp_config.get(config[0],config[1])
 		dialog = wx.FileDialog(None,_('Select a file'), defaultDir=initialdir, wildcard=filetype[0]+" "+filetype[1], style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
 		filename = None
 		if dialog.ShowModal() == wx.ID_OK:
@@ -1840,8 +1816,7 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set(config[0],config[1],initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			grp_config.set(config[0],config[1],initialdir.encode("utf"))
 		return filename
 	
 	def open_sgf_file(parent=None):
@@ -1850,9 +1825,7 @@ try:
 		return open_all_file(parent,config=("General","rsgffolder"),filetype=(_("Reviewed SGF file"),"(*.rsgf;*.RSGF)|*.rsgf;*.RSGF"))
 
 	def save_all_file(filename, parent, config, filetype):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get(config[0],config[1])
+		initialdir = grp_config.get(config[0],config[1])
 		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=filetype[0]+" "+filetype[1], style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
 		filename = None
 		if dialog.ShowModal() == wx.ID_OK:
@@ -1860,8 +1833,7 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set(config[0],config[1],initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			grp_config.set(config[0],config[1],initialdir.encode("utf"))
 		return filename
 
 	def save_png_file(filename, parent=None):
@@ -1878,14 +1850,11 @@ except Exception, e:
 	
 	def open_all_file(parent,config,filetype):
 		import tkFileDialog
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
 		initialdir = Config.get(config[0],config[1])
 		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(filetype[0], filetype[1])])
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set(config[0],config[1],initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			grp_config.set(config[0],config[1],initialdir.encode("utf"))
 		return filename
 		
 	def open_sgf_file(parent=None):
@@ -1896,14 +1865,11 @@ except Exception, e:
 		
 	def save_all_file(filename, parent,config,filetype):
 		import tkFileDialog
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get(config[0],config[1])
+		initialdir = grp_config.get(config[0],config[1])
 		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(filetype[0], filetype[1])],initialfile=filename)
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set(config[0],config[1],initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			grp_config.set(config[0],config[1],initialdir.encode("utf"))
 		return filename
 		
 	def save_png_file(filename, parent=None):

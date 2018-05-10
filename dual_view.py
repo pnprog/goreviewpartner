@@ -11,7 +11,7 @@ from toolbox import _
 import os
 
 from gtp import gtp
-import ConfigParser
+
 
 import threading, Queue
 
@@ -34,9 +34,7 @@ class OpenChart(Toplevel):
 		popup_height=self.parent.winfo_height()/2+10
 		self.geometry(str(popup_width)+'x'+str(popup_height))
 		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		self.last_graph=Config.get("Review","LastGraph").decode("utf")
+		self.last_graph=grp_config.get("Review","LastGraph").decode("utf")
 		self.initialize()
 
 	def close(self):
@@ -208,16 +206,12 @@ class OpenChart(Toplevel):
 				y0=y1
 	
 	def change_graph(self,event=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
 		self.last_graph=_(self.graph_mode.get())
 		
 		#if type(self.last_graph)!=type(u"utf"):
 		#	self.last_graph=self.last_graph.decode("utf")
 
-		Config.set("Review","LastGraph",self.last_graph.encode("utf"))
-		Config.write(open(config_file,"w"))
+		grp_config.set("Review","LastGraph",self.last_graph.encode("utf"))
 		self.display()
 		
 	def display(self,event=None):
@@ -940,12 +934,7 @@ class OpenMove(Toplevel):
 		self.unlock()
 	
 	def initialize(self):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		
-
 		gameroot=self.sgf.get_root()
-		
 		popup=self
 		
 		dim=self.dim
@@ -1201,10 +1190,8 @@ class TableWidget:
 		self.parent=parent
 		self.widget=widget
 		self.gameroot=gameroot
-		
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		self.maxvariations=int(Config.get("Review", "MaxVariations"))
+
+		self.maxvariations=int(grp_config.get("Review", "MaxVariations"))
 		self.my_labels={}
 		self.dframe=None
 		self.table_frame=None
@@ -1364,13 +1351,11 @@ class DualView(Toplevel):
 		self.filename=filename
 		self.goban_size=goban_size
 		
-		global Config, goban
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
-		self.variation_color_mode=Config.get("Review", "VariationsColoring")
-		self.inverted_mouse_wheel=Config.getboolean('Review', 'InvertedMouseWheel')
-		self.variation_label=Config.get('Review', 'VariationsLabel')
+		global goban
+		goban.fuzzy=float(grp_config.get("Review", "FuzzyStonePlacement"))
+		self.variation_color_mode=grp_config.get("Review", "VariationsColoring")
+		self.inverted_mouse_wheel=grp_config.getboolean('Review', 'InvertedMouseWheel')
+		self.variation_label=grp_config.get('Review', 'VariationsLabel')
 		
 		self.initialize()
 		
@@ -2060,17 +2045,15 @@ class DualView(Toplevel):
 
 		self.realgamedeepness=5
 		try:
-			self.realgamedeepness=int(Config.get("Review", "RealGameSequenceDeepness"))
+			self.realgamedeepness=int(grp_config.get("Review", "RealGameSequenceDeepness"))
 		except:
-			Config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
-			Config.write(open(config_file,"w"))
+			grp_config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
 		
 		self.maxvariations=10
 		try:
-			self.maxvariations=int(Config.get("Review", "MaxVariations"))
+			self.maxvariations=int(grp_config.get("Review", "MaxVariations"))
 		except:
-			Config.set("Review", "MaxVariations",self.maxvariations)
-			Config.write(open(config_file,"w"))
+			grp_config.set("Review", "MaxVariations",self.maxvariations)
 		
 		self.sgf = open_sgf(self.filename)
 
@@ -2256,11 +2239,8 @@ class DualView(Toplevel):
 	
 from gomill import sgf, sgf_moves
 import goban
-#goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 
 if __name__ == "__main__":
-	Config = ConfigParser.ConfigParser()
-	Config.read(config_file)
 	if len(sys.argv)==1:
 		temp_root = Tk()
 		filename = open_rsgf_file(parent=temp_root)
@@ -2273,10 +2253,9 @@ if __name__ == "__main__":
 	top = Application()
 	display_factor=.5
 	try:
-		display_factor=float(Config.get("Review", "GobanScreenRatio"))
+		display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
 	except:
-		Config.set("Review", "GobanScreenRatio",display_factor)
-		Config.write(open(config_file,"w"))
+		grp_config.set("Review", "GobanScreenRatio",display_factor)
 	screen_width = top.winfo_screenwidth()
 	screen_height = top.winfo_screenheight()
 	width=int(display_factor*screen_width)
