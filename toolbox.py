@@ -1517,17 +1517,127 @@ class MyConfig():
 		self.config = ConfigParser.ConfigParser()
 		self.config.read(config_file)
 		self.config_file=config_file
-	
+		
+		self.default_values={}
+		self.default_values["general"]={}
+		self.default_values["general"]["language"]=""
+		self.default_values["general"]["sgffolder"]=""
+		self.default_values["general"]["rsgffolder"]=""
+		self.default_values["general"]["pngfolder"]=""
+		self.default_values["general"]["livefolder"]=""
+		
+		self.default_values["analysis"]={}
+		self.default_values["analysis"]["maxvariations"]="26"
+		self.default_values["analysis"]["savecommandline"]="False"
+		self.default_values["analysis"]["stopatfirstresign"]="False"
+		self.default_values["analysis"]["novariationifsamemove"]="False"
+		
+		self.default_values["review"]={}
+		self.default_values["review"]["fuzzystoneplacement"]="0.2"
+		self.default_values["review"]["realgamesequencedeepness"]="5"
+		self.default_values["review"]["gobanscreenratio"]="0.5"
+		self.default_values["review"]["maxvariations"]="26"
+		self.default_values["review"]["variationscoloring"]="blue_for_winning"
+		self.default_values["review"]["variationslabel"]="letter"
+		self.default_values["review"]["invertedmousewheel"]="False"
+		self.default_values["review"]["lastgraph"]=""
+		
+		self.default_values["live"]={}
+		self.default_values["live"]["size"]="19"
+		self.default_values["live"]["komi"]="7.5"
+		self.default_values["live"]["handicap"]="0"
+		self.default_values["live"]["nooverlap"]="False"
+		self.default_values["live"]["analyser"]=""
+		self.default_values["live"]["black"]=""
+		self.default_values["live"]["white"]=""
+		
+		self.default_values["leela"]={}
+		self.default_values["leela"]["slowcommand"]=""
+		self.default_values["leela"]["slowparameters"]="--gtp --noponder"
+		self.default_values["leela"]["slowtimepermove"]="15"
+		self.default_values["leela"]["fastcommand"]=""
+		self.default_values["leela"]["fastparameters"]="--gtp --noponder"
+		self.default_values["leela"]["fasttimepermove"]="5"
+		self.default_values["leela"]["analysisbot"]="slow"
+		self.default_values["leela"]["liveanalysisbot"]="both"
+		self.default_values["leela"]["liveplayerbot"]="fast"
+		self.default_values["leela"]["reviewbot"]="fast"
+		
+		self.default_values["gnugo"]={}
+		self.default_values["gnugo"]["slowcommand"]=""
+		self.default_values["gnugo"]["slowparameters"]="--mode=gtp --level=15"
+		self.default_values["gnugo"]["fastcommand"]=""
+		self.default_values["gnugo"]["fastparameters"]="--mode=gtp --level=10"
+		self.default_values["gnugo"]["variations"]="4"
+		self.default_values["gnugo"]["deepness"]="4"
+		self.default_values["gnugo"]["analysisbot"]="slow"
+		self.default_values["gnugo"]["liveanalysisbot"]="both"
+		self.default_values["gnugo"]["liveplayerbot"]="fast"
+		self.default_values["gnugo"]["reviewbot"]="fast"
+		
+		self.default_values["leelazero"]={}
+		self.default_values["leelazero"]["slowcommand"]=""
+		self.default_values["leelazero"]["slowparameters"]="--gtp --noponder --weights weights.txt"
+		self.default_values["leelazero"]["slowtimepermove"]="15"
+		self.default_values["leelazero"]["fastcommand"]=""
+		self.default_values["leelazero"]["fastparameters"]="--gtp --noponder --weights weights.txt"
+		self.default_values["leelazero"]["fasttimepermove"]="5"
+		self.default_values["leelazero"]["analysisbot"]="slow"
+		self.default_values["leelazero"]["liveanalysisbot"]="both"
+		self.default_values["leelazero"]["liveplayerbot"]="fast"
+		self.default_values["leelazero"]["reviewbot"]="fast"
+		
+		self.default_values["aq"]={}
+		self.default_values["aq"]["slowcommand"]=""
+		self.default_values["aq"]["slowparameters"]=""
+		self.default_values["aq"]["fastcommand"]=""
+		self.default_values["aq"]["fastparameters"]=""
+		self.default_values["aq"]["analysisbot"]="slow"
+		self.default_values["aq"]["liveanalysisbot"]="both"
+		self.default_values["aq"]["liveplayerbot"]="fast"
+		self.default_values["aq"]["reviewbot"]="fast"
+		
+		self.default_values["ray"]={}
+		self.default_values["ray"]["slowcommand"]=""
+		self.default_values["ray"]["slowparameters"]="--no-gpu --const-time 15"
+		self.default_values["ray"]["fastcommand"]=""
+		self.default_values["ray"]["fastparameters"]="--no-gpu --const-time 5"
+		self.default_values["ray"]["analysisbot"]="slow"
+		self.default_values["ray"]["liveanalysisbot"]="both"
+		self.default_values["ray"]["liveplayerbot"]="fast"
+		self.default_values["ray"]["reviewbot"]="fast"
+		
 	def set(self, section, key, value):
 		self.config.set(section,key,str(value))
 		self.config.write(open(self.config_file,"w"))
 	
 	def get(self,section,key):
-		return self.config.get(section,key)
-
+		try:
+			value=self.config.get(section,key)
+		except:
+			log("Could not read",str(section)+"/"+str(key),"from the config file")
+			log("Using default value")
+			value=self.default_values[section.lower()][key.lower()]
+			self.add_entry(section,key,value)
+		return value
 	def getboolean(self,section,key):
-		return self.config.getboolean(section,key)
-
+		try:
+			value=self.config.getboolean(section,key)
+		except:
+			log("Could not read",str(section)+"/"+str(key),"from the config file")
+			log("Using default value")
+			value=self.default_values[section.lower()][key.lower()]
+			self.add_entry(section,key,value)
+			value=self.config.getboolean(section,key)
+		return value
+	
+	def add_entry(self,section,key,value):
+		if not self.config.has_section(section):
+			log("Adding section",section,"in config file")
+			self.config.add_section(section)
+		log("Setting",str(section)+"/"+str(key),"in the config file")
+		self.config.set(section,key,value)
+		self.config.write(open(self.config_file,"w"))
 grp_config=MyConfig(config_file)
 
 log("Reading language setting from config file")
