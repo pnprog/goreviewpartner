@@ -1587,7 +1587,7 @@ def prepare_translations():
 	translation=""
 
 	for line in translation_data.split('\n'):
-
+		line=line.strip()
 		key="msgid"
 		if line[:len(key)+2]==key+' "':
 			entry=line[len(key)+2:-1]
