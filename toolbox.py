@@ -1514,7 +1514,7 @@ log("Checking availability of config file")
 import ConfigParser
 Config = ConfigParser.ConfigParser()
 try:
-	Config.readfp(codecs.open(config_file,"rw","utf-8"))
+	Config.readfp(codecs.open(config_file,"r","utf-8"))
 except Exception, e:
 	show_error("Could not open the config file of Go Review Partner"+"\n"+str(e)) #this cannot be translated
 	sys.exit()
