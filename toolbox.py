@@ -1720,118 +1720,7 @@ def get_available(use):
 				bot2['profile']="fast"
 	return bots
 
-try:
-	if sys.platform=="darwin":
-		raise Exception("wx and Tkinter do not work well together on MacOS")
-	import wx
-	wxApp = wx.App(None)
-	def open_sgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","sgffolder")
-		dialog = wx.FileDialog(None,_('Select a file'), defaultDir=initialdir, wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-		filename = None
-		if dialog.ShowModal() == wx.ID_OK:
-			filename = dialog.GetPath()
-		dialog.Destroy()
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","sgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
 
-	def open_rsgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","rsgffolder")
-		dialog = wx.FileDialog(None, _('Select a file'), defaultDir=initialdir, wildcard=_("Reviewed SGF file")+" (*.rsgf;*.RSGF)|*.rsgf;*.RSGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-		filename = None
-		if dialog.ShowModal() == wx.ID_OK:
-			filename = dialog.GetPath()
-		dialog.Destroy()
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","rsgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
-
-	def save_png_file(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","pngfolder")
-		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=_("PNG image")+" (*.png;*.PNG)|*.png;*.PNG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
-		filename = None
-		if dialog.ShowModal() == wx.ID_OK:
-			filename = dialog.GetPath()
-		dialog.Destroy()
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","pngfolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
-
-	def save_live_game(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","livefolder")
-		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
-		filename = None
-		if dialog.ShowModal() == wx.ID_OK:
-			filename = dialog.GetPath()
-		dialog.Destroy()
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","livefolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
-
-except Exception, e:
-	print "Could not import the WX GUI library, please double check it is installed:"
-	log(e)
-	log("=> Falling back to tkFileDialog")
-	import tkFileDialog
-	def open_sgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","sgffolder")
-		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","sgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
-	def open_rsgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","rsgffolder")
-		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_('Select a file'),filetypes = [(_('Reviewed SGF file'), '.rsgf')])
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","rsgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
-
-	def save_png_file(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","pngfolder")
-		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(_('PNG image'), '.png')],initialfile=filename)
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","pngfolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
-
-	def save_live_game(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
-		Config.read(config_file)
-		initialdir = Config.get("General","livefolder")
-		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(_('SGF file'), '.sgf')],initialfile=filename)
-		if filename:
-			initialdir=os.path.dirname(filename)
-			Config.set("General","livefolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
-		return filename
 		
 def opposite_rate(value):
 	return str(100-float(value[:-1]))+"%"
@@ -1880,7 +1769,6 @@ def save_position_data(node,sgf_property,value):
 
 def save_variation_data(node,sgf_property,value):
 	node.set(sgf_property,value)
-
 
 class Application(Tk):
 	def __init__(self):
@@ -1933,6 +1821,99 @@ class Application(Tk):
 			log("Adding new popup")
 			self.popups.append(popup)
 			log("Totally",len(self.popups),"popups")
+
+
+try:
+	if sys.platform=="darwin":
+		raise Exception("wx and Tkinter do not work well together on MacOS")
+	import wx
+	wxApp = wx.App(None)
+	
+	def open_all_file(parent,config,filetype):
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		initialdir = Config.get(config[0],config[1])
+		dialog = wx.FileDialog(None,_('Select a file'), defaultDir=initialdir, wildcard=filetype[0]+" "+filetype[1], style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+		filename = None
+		if dialog.ShowModal() == wx.ID_OK:
+			filename = dialog.GetPath()
+		dialog.Destroy()
+		if filename:
+			initialdir=os.path.dirname(filename)
+			Config.set(config[0],config[1],initialdir.encode("utf"))
+			Config.write(open(config_file,"w"))
+		return filename
+	
+	def open_sgf_file(parent=None):
+		return open_all_file(parent,config=("General","sgffolder"),filetype=(_("SGF file"),"(*.sgf;*.SGF)|*.sgf;*.SGF"))
+	def open_rsgf_file(parent=None):
+		return open_all_file(parent,config=("General","rsgffolder"),filetype=(_("Reviewed SGF file"),"(*.rsgf;*.RSGF)|*.rsgf;*.RSGF"))
+
+	def save_all_file(filename, parent, config, filetype):
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		initialdir = Config.get(config[0],config[1])
+		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=filetype[0]+" "+filetype[1], style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+		filename = None
+		if dialog.ShowModal() == wx.ID_OK:
+			filename = dialog.GetPath()
+		dialog.Destroy()
+		if filename:
+			initialdir=os.path.dirname(filename)
+			Config.set(config[0],config[1],initialdir.encode("utf"))
+			Config.write(open(config_file,"w"))
+		return filename
+
+	def save_png_file(filename, parent=None):
+		return save_all_file(filename, parent, config=("General","pngfolder"), filetype=(_("PNG image"),"(*.png;*.PNG)|*.png;*.PNG"))
+
+	def save_live_game(filename, parent=None):
+		return save_all_file(filename, parent, config=("General","livefolder"), filetype=(_("SGF file"),"(*.sgf;*.SGF)|*.sgf;*.SGF"))
+		
+
+except Exception, e:
+	print "Could not import the WX GUI library, please double check it is installed:"
+	log(e)
+	log("=> No problem, falling back to tkFileDialog")
+	
+	def open_all_file(parent,config,filetype):
+		import tkFileDialog
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		initialdir = Config.get(config[0],config[1])
+		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(filetype[0], filetype[1])])
+		if filename:
+			initialdir=os.path.dirname(filename)
+			Config.set(config[0],config[1],initialdir.encode("utf"))
+			Config.write(open(config_file,"w"))
+		return filename
+		
+	def open_sgf_file(parent=None):
+		return open_all_file(parent,config=("General","sgffolder"),filetype=((_('SGF file'), '.sgf')))
+	
+	def open_rsgf_file(parent=None):
+		return open_all_file(parent,config=("General","rsgffolder"),filetype=((_('Reviewed SGF file'), '.rsgf')))
+		
+	def save_all_file(filename, parent,config,filetype):
+		import tkFileDialog
+		Config = ConfigParser.ConfigParser()
+		Config.read(config_file)
+		initialdir = Config.get(config[0],config[1])
+		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(filetype[0], filetype[1])],initialfile=filename)
+		if filename:
+			initialdir=os.path.dirname(filename)
+			Config.set(config[0],config[1],initialdir.encode("utf"))
+			Config.write(open(config_file,"w"))
+		return filename
+		
+	def save_png_file(filename, parent=None):
+		return save_all_file(filename, parent, config=("General","pngfolder"), filetype=(_('PNG image'), '.png'))
+		
+	def save_live_game(filename, parent=None):
+		return save_all_file(filename, parent, config=("General","livefolder"), filetype=(_('SGF file'), '.sgf'))
+
+
+
 import mss
 import mss.tools
 def canvas2png(goban,filename):

@@ -81,10 +81,9 @@ class Main(Toplevel):
 
 	def launch_analysis(self):
 		filename = open_sgf_file(parent=self)
-		log(filename)
-		log("gamename:",filename[:-4])
 		if not filename:
 			return
+		
 		log("filename:",filename)
 		
 		new_popup=RangeSelector(self.parent,filename,bots=get_available("AnalysisBot"))
@@ -101,7 +100,6 @@ class Main(Toplevel):
 
 	def launch_review(self):
 		filename = open_rsgf_file(parent=self.parent)
-		log(filename)
 		if not filename:
 			return
 
