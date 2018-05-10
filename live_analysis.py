@@ -232,8 +232,7 @@ class LiveAnalysisLauncher(Toplevel):
 		Config.set("Live","white",self.white_selection.get().encode("utf"))
 		
 		Config.write(open(config_file,"w"))
-		 
-		filename=os.path.join(Config.get("General","livefolder"),self.filename.get())
+		filename=os.path.join(Config.get("General","livefolder"),self.filename.get().encode("utf-8"))
 		self.withdraw()
 		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
 		self.parent.add_popup(popup)
