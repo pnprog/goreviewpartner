@@ -1620,6 +1620,29 @@ class MyConfig():
 			value=self.default_values[section.lower()][key.lower()]
 			self.add_entry(section,key,value)
 		return value
+	
+	def getint(self,section,key):
+		try:
+			value=self.config.getint(section,key)
+		except:
+			log("Could not read",str(section)+"/"+str(key),"from the config file")
+			log("Using default value")
+			value=self.default_values[section.lower()][key.lower()]
+			self.add_entry(section,key,value)
+			value=self.config.getint(section,key)
+		return value
+	
+	def getfloat(self,section,key):
+		try:
+			value=self.config.getfloat(section,key)
+		except:
+			log("Could not read",str(section)+"/"+str(key),"from the config file")
+			log("Using default value")
+			value=self.default_values[section.lower()][key.lower()]
+			self.add_entry(section,key,value)
+			value=self.config.getfloat(section,key)
+		return value
+	
 	def getboolean(self,section,key):
 		try:
 			value=self.config.getboolean(section,key)
