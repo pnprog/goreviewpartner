@@ -742,11 +742,9 @@ class LiveAnalysisBase():
 						new_branch.set(p,old_branch.get(p))
 
 				old_branch.delete()
-
 				write_rsgf(self.filename[:-4]+".rsgf",self.g)
 				self.cpu_lock.release()
 				self.update_queue.put((0,"wait"))
-				write_rsgf(self.filename[:-4]+".rsgf",self.g)
 				continue
 
 			log("Analyser received msg to analyse move",msg)
@@ -1017,18 +1015,8 @@ class RunAnalysisBase(Toplevel):
 
 	def start_review(self):
 		import dual_view
-
 		app=self.parent
-		screen_width = app.winfo_screenwidth()
-		screen_height = app.winfo_screenheight()
-
-		display_factor=display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
-
-		width=int(display_factor*screen_width)
-		height=int(display_factor*screen_height)
-		#Toplevel()
-
-		popup=dual_view.DualView(app,self.filename[:-4]+".rsgf",min(width,height))
+		popup=dual_view.DualView(app,self.filename[:-4]+".rsgf")
 		self.parent.add_popup(popup)
 		if (self.pb["maximum"] == 100) and (self.pb["value"] == 100):
 			self.close()

@@ -28,8 +28,6 @@ class OpenChart(Toplevel):
 		self.data=data
 		self.current_move=current_move
 
-		
-		
 		popup_width=self.parent.winfo_width()
 		popup_height=self.parent.winfo_height()/2+10
 		self.geometry(str(popup_width)+'x'+str(popup_height))
@@ -669,14 +667,20 @@ class OpenChart(Toplevel):
 
 
 class OpenMove(Toplevel):
-	def __init__(self,parent,move,dim,sgf,goban_size=200):
+	def __init__(self,parent,move,dim,sgf):
 		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.move=move
 		self.dim=dim
 		self.sgf=sgf
-		self.goban_size=goban_size
 		
+		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		self.goban_size=min(width,height)
+
 		self.available_bots=[]
 		for bot in get_available("ReviewBot"):
 			self.available_bots.append(bot)
@@ -1341,11 +1345,17 @@ class TableWidget:
 				
 
 class DualView(Toplevel):
-	def __init__(self,parent,filename,goban_size=200):
+	def __init__(self,parent,filename):
 		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
-		self.goban_size=goban_size
+		
+		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		self.goban_size=min(width,height)
 		
 		global goban
 		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
@@ -1980,7 +1990,7 @@ class DualView(Toplevel):
 	def open_move(self):
 		log("Opening move",self.current_move)
 		
-		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf,self.goban_size)
+		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf)
 		new_popup.goban.mesh=self.goban1.mesh
 		new_popup.goban.wood=self.goban1.wood
 		new_popup.goban.black_stones=self.goban1.black_stones_style
@@ -2238,11 +2248,6 @@ if __name__ == "__main__":
 	else:
 		filename=sys.argv[1]
 	top = Application()
-	display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
-	screen_width = top.winfo_screenwidth()
-	screen_height = top.winfo_screenheight()
-	width=int(display_factor*screen_width)
-	height=int(display_factor*screen_height)
-	popup=DualView(top,filename,min(width,height))
+	popup=DualView(top,filename)
 	top.add_popup(popup)
 	top.mainloop()

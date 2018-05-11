@@ -164,8 +164,6 @@ class LiveAnalysisLauncher(Toplevel):
 		self.parent.remove_popup(self)
 		
 	def start(self):
-		#bots={bot['name']:bot for bot in bots_for_analysis}
-		#analyser=bots[self.bot_selection.get()]
 		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 		bots={bot['name']+value[bot['profile']]:bot for bot in get_available("LiveAnalysisBot")}
 		analyser=bots[self.bot_selection.get()]
@@ -178,9 +176,6 @@ class LiveAnalysisLauncher(Toplevel):
 		elif b==1:
 			black="analyser"
 		else:
-			print "=========="
-			print bots.keys()
-			print "=========="
 			black=bots[self.black_selection.get()]
 		
 		w=self.selected_white_index()
@@ -341,13 +336,10 @@ class LiveAnalysis(Toplevel):
 		panel.grid(column=1,row=1,sticky=N+S)
 		
 		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
-		
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
-		
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
-		
 		self.goban_size=min(width,height)
 		
 		goban = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
@@ -575,17 +567,8 @@ class LiveAnalysis(Toplevel):
 		
 	def start_review(self):
 		import dual_view
-		
 		app=self.parent
-		screen_width = app.winfo_screenwidth()
-		screen_height = app.winfo_screenheight()
-			
-		display_factor=grp_config.get("Review", "GobanScreenRatio")
-		
-		width=int(display_factor*screen_width)
-		height=int(display_factor*screen_height)
-		
-		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf",min(width,height))
+		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf")
 		self.parent.add_popup(new_popup)
 
 	def follow_analysis(self):
@@ -642,7 +625,6 @@ class LiveAnalysis(Toplevel):
 				else:
 					self.g.get_root().set("AB",self.handicap_stones)
 					write_rsgf(self.filename[:-4]+".rsgf",self.g)
-					print self.handicap_stones
 					if type(self.black)!=type("abc"):
 						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 					if type(self.white)!=type("abc"):
@@ -894,13 +876,12 @@ class LiveAnalysis(Toplevel):
 				self.black_to_play()
 		
 	def black_to_play(self):
-		write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		result=self.pause_lock.acquire(False)
 		if not result:
 			self.parent.after(250,self.black_to_play)
 			return
 		self.pause_lock.release()
-			
+		write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		log("======== move %i ========="%self.current_move)
 		log("black to play")
 		
@@ -933,13 +914,12 @@ class LiveAnalysis(Toplevel):
 			self.bot_to_play()
 	
 	def white_to_play(self):
-		write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		result=self.pause_lock.acquire(False)
 		if not result:
 			self.parent.after(250,self.white_to_play)
 			return
 		self.pause_lock.release()
-		
+		write_rsgf(self.filename[:-4]+".rsgf",self.g)
 		log("======== move %i ========="%self.current_move)
 		log("White to play")
 		
@@ -1087,7 +1067,6 @@ class LiveAnalysis(Toplevel):
 		i,j=self.goban.xy2ij(event.x,event.y)
 		color=self.next_color
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
-			print "<click>"
 			#inside the grid
 			#what is under the pointer ?
 			

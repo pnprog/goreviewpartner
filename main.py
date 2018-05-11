@@ -102,16 +102,8 @@ class Main(Toplevel):
 		filename = open_rsgf_file(parent=self.parent)
 		if not filename:
 			return
-
-		display_factor=.5
 		
-		screen_width = self.parent.winfo_screenwidth()
-		screen_height = self.parent.winfo_screenheight()
-		
-		width=int(display_factor*screen_width)
-		height=int(display_factor*screen_height)
-		
-		new_popup=dual_view.DualView(self.parent,filename,min(width,height))
+		new_popup=dual_view.DualView(self.parent,filename)
 		
 		self.parent.add_popup(new_popup)
 
