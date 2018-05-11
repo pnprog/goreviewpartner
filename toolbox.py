@@ -487,15 +487,6 @@ class RangeSelector(Toplevel):
 
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
-
-		board, unused = sgf_moves.get_setup_and_moves(self.g)
-		"""
-		if len(board.list_occupied_points())>0:
-			row+=1
-			Label(self,text=_("This is a %i stones handicap game.")%len(board.list_occupied_points())).grid(row=row,column=1,columnspan=2,sticky=W)
-			row+=1
-			Label(self,text=_("You may want to adjust the value of komi based on the rule set and the bot used.")).grid(row=row,column=1,columnspan=2,sticky=W)
-		"""
 		
 		row+=1
 		Label(self,text=_("Confirm the value of komi")).grid(row=row,column=1,sticky=W)
@@ -1983,7 +1974,7 @@ except Exception, e:
 	
 	def open_all_file(parent,config,filetype):
 		import tkFileDialog
-		initialdir = Config.get(config[0],config[1])
+		initialdir = grp_config.get(config[0],config[1])
 		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(filetype[0], filetype[1])])
 		if filename:
 			initialdir=os.path.dirname(filename)
