@@ -662,7 +662,7 @@ class LiveAnalysisBase():
 
 		self.no_variation_if_same_move=grp_config.getboolean('Analysis', 'NoVariationIfSameMove')
 		
-		self.maxvariations=int(grp_config.get("Analysis", "maxvariations"))
+		self.maxvariations=grp_config.getint("Analysis", "maxvariations")
 
 		self.stop_at_first_resign=False
 
@@ -868,7 +868,7 @@ class RunAnalysisBase(Toplevel):
 		self.move_zero.set("BOT",self.bot.bot_name)
 		self.move_zero.set("BOTV",self.bot.bot_version)
 
-		self.maxvariations=int(grp_config.get("Analysis", "maxvariations"))
+		self.maxvariations=grp_config.getint("Analysis", "maxvariations")
 
 		try:
 			if grp_config.getboolean('Analysis', 'StopAtFirstResign'):
@@ -1022,13 +1022,7 @@ class RunAnalysisBase(Toplevel):
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
 
-
-		display_factor=.5
-		try:
-			display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
-		except:
-			grp_config.set("Review", "GobanScreenRatio",display_factor)
-			grp_config.write(codes.open("config.ini","w","utf-8"))
+		display_factor=display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
 
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
@@ -1183,8 +1177,9 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		try:
 			bot_command_line=grp_config.get(bot_name, command_entry)
 		except:
+			#normaly, this should not happen anymore.
+			#to be deleted soon, or moved somewhere else
 			raise LaunchingException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
-
 
 		if not bot_command_line:
 			raise LaunchingException(_("The config.ini file %s entry for %s is empty!")%(command_entry, bot_name))

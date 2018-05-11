@@ -43,11 +43,7 @@ class OpenChart(Toplevel):
 		self.parent.remove_popup(self)
 		log("done")
 
-
-
 	def initialize(self):
-		
-		    
 		for widget in self.pack_slaves():
 			widget.destroy()
 		
@@ -1191,7 +1187,7 @@ class TableWidget:
 		self.widget=widget
 		self.gameroot=gameroot
 
-		self.maxvariations=int(grp_config.get("Review", "MaxVariations"))
+		self.maxvariations=grp_config.getint("Review", "MaxVariations")
 		self.my_labels={}
 		self.dframe=None
 		self.table_frame=None
@@ -1352,7 +1348,7 @@ class DualView(Toplevel):
 		self.goban_size=goban_size
 		
 		global goban
-		goban.fuzzy=float(grp_config.get("Review", "FuzzyStonePlacement"))
+		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
 		self.variation_color_mode=grp_config.get("Review", "VariationsColoring")
 		self.inverted_mouse_wheel=grp_config.getboolean('Review', 'InvertedMouseWheel')
 		self.variation_label=grp_config.get('Review', 'VariationsLabel')
@@ -2043,17 +2039,8 @@ class DualView(Toplevel):
 
 	def initialize(self):
 
-		self.realgamedeepness=5
-		try:
-			self.realgamedeepness=int(grp_config.get("Review", "RealGameSequenceDeepness"))
-		except:
-			grp_config.set("Review", "RealGameSequenceDeepness",self.realgamedeepness)
-		
-		self.maxvariations=10
-		try:
-			self.maxvariations=int(grp_config.get("Review", "MaxVariations"))
-		except:
-			grp_config.set("Review", "MaxVariations",self.maxvariations)
+		self.realgamedeepness=grp_config.getint("Review", "RealGameSequenceDeepness")
+		self.maxvariations=grp_config.getint("Review", "MaxVariations")
 		
 		self.sgf = open_sgf(self.filename)
 
@@ -2251,11 +2238,7 @@ if __name__ == "__main__":
 	else:
 		filename=sys.argv[1]
 	top = Application()
-	display_factor=.5
-	try:
-		display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
-	except:
-		grp_config.set("Review", "GobanScreenRatio",display_factor)
+	display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
 	screen_width = top.winfo_screenwidth()
 	screen_height = top.winfo_screenheight()
 	width=int(display_factor*screen_width)

@@ -61,12 +61,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.overlap_thinking_wrapper.grid(row=row,column=1,columnspan=2,sticky=W)
 		self.overlap_thinking_widgets=[]
 		
-		nooverlap=True
-		try:
-			nooverlap=grp_config.get("Live","NoOverlap")
-		except:
-			pass
-		self.no_overlap_thinking = BooleanVar(value=nooverlap)
+		self.no_overlap_thinking = BooleanVar(value=grp_config.getboolean("Live","NoOverlap"))
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -76,12 +71,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.dim=Entry(self)
 		self.dim.grid(row=row,column=2,sticky=W)
 		self.dim.delete(0, END)
-		size="19"
-		try:
-			size=grp_config.get("Live", "size")
-		except:
-			grp_config.set("Live", size)
-		self.dim.insert(0, size)
+		self.dim.insert(0, grp_config.get("Live", "size"))
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -91,12 +81,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.komi=Entry(self)
 		self.komi.grid(row=row,column=2,sticky=W)
 		self.komi.delete(0, END)
-		komi="7.5"
-		try:
-			komi=grp_config.get("Live", "komi")
-		except:
-			grp_config.set("Live", komi)
-		self.komi.insert(0, komi)	
+		self.komi.insert(0, grp_config.get("Live", "komi"))
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -106,13 +91,8 @@ class LiveAnalysisLauncher(Toplevel):
 		self.handicap=Entry(self)
 		self.handicap.grid(row=row,column=2,sticky=W)
 		self.handicap.delete(0, END)
-		handicap="0"
-		try:
-			handicap=grp_config.get("Live", "handicap")
-		except:
-			grp_config.set("Live", handicap)
-		self.handicap.insert(0, handicap)
-
+		self.handicap.insert(0, grp_config.get("Live", "handicap"))
+		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 
@@ -360,12 +340,7 @@ class LiveAnalysis(Toplevel):
 		
 		panel.grid(column=1,row=1,sticky=N+S)
 		
-		display_factor=.5
-		try:
-			display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
-		except:
-			grp_config.set("Review", "GobanScreenRatio",display_factor)
-			
+		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
 		
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
@@ -605,11 +580,7 @@ class LiveAnalysis(Toplevel):
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
 			
-		display_factor=.5
-		try:
-			display_factor=float(grp_config.get("Review", "GobanScreenRatio"))
-		except:
-			grp_config.set("Review", "GobanScreenRatio",display_factor)
+		display_factor=grp_config.get("Review", "GobanScreenRatio")
 		
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
