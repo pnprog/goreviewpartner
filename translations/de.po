@@ -71,7 +71,7 @@ msgstr "Nur Weiß"
 
 #2.10
 msgid "Confirm the value of komi"
-msgstr "Komi"
+msgstr "Komi bestätigen"
 
 #2.11
 msgid "Stop the analysis if the bot resigns"
@@ -179,7 +179,7 @@ msgstr "10 Züge zurück."
 
 #5.9
 msgid "Go back one move. Shortcut: keyboard left key."
-msgstr "1 Zug züruck. Kürzel: Pfeiltaste links."
+msgstr "1 Zug zurück. Kürzel: Pfeiltaste links."
 
 #5.10
 msgid "Go forward one move. Shortcut: keyboard right key."
@@ -203,7 +203,7 @@ msgstr "<Ctrl+W>, um das Goban als Bild zu speichern"
 
 #5.15
 msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
-msgstr "Mit dem Mausrad oder den Pfeiltasten oben/unten Schrittweise durch die Variation gehen."
+msgstr "Mit dem Mausrad oder den Pfeiltasten (oben/unten) schrittweise durch die Variation gehen."
 
 
 
@@ -290,7 +290,7 @@ msgstr "Abweichungen für Weiß"
 
 #7.4
 msgid "Value Network win rate"
-msgstr "Gewinnwsl. des Value-Networks"
+msgstr "Gewinnw.-kt. des Value-Networks"
 
 #7.5
 msgid "Black Value Network win rate delta"
@@ -302,7 +302,7 @@ msgstr "Abweichungen für Weiß, Value-Network"
 
 #7.7
 msgid "Monte Carlo win rate"
-msgstr "Monte-Carlo-Gewinnwsl."
+msgstr "Monte-Carlo-Gewinnw.-kt."
 
 #7.8
 msgid "Black Monte Carlo win rate delta"
@@ -318,25 +318,25 @@ msgstr "Punktestand"
 
 #7.11
 msgid "Black win rate"
-msgstr "Gewinnwahrscheinlichkeit für Schwarz"
+msgstr "Gewinnw.-kt. für Schwarz"
 
 #7.12
 msgid "Move %i (%s), black/white win rate: "
-msgstr "Zug %i (%s), Gewinnwsl. für Schwarz/Weiß: "
+msgstr "Zug %i (%s), Gewinnw.-kt. für Schwarz/Weiß: "
 
 #7.13
 msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
-msgstr "Zug %i: Gewinnwsl. schwarzer Zug: %s, Gewinnwsl. Computer-Zug: %s"
+msgstr "Zug %i: Gewinnw.-kt. schwarzer Zug: %s, Gewinnw.-kt. Computer-Zug: %s"
 msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
-msgstr "Zug %i: Gewinnwsl. weißer Zug: %s, Gewinnwsl. Computer-Zug: %s"
+msgstr "Zug %i: Gewinnw.-kt. weißer Zug: %s, Gewinnw.-kt. Computer-Zug: %s"
 
 #7.14
 msgid "The computer believes the actual move is %.2fpp better than it's best move."
-msgstr "Das Programm schätzt den gespielten Zug um %.2f% besser als den selber gefundenen ein."
+msgstr "Das Programm schätzt den gespielten Zug um %.2fpp besser als den selber gefundenen ein."
 
 #7.15
 msgid "The computer believes it's own move win rate would be %.2fpp higher."
-msgstr "Das Programm schätzt seinen eigenen Zug als %.2f% besser ein."
+msgstr "Das Programm schätzt seinen eigenen Zug als %.2fpp besser ein."
 
 #7.16
 msgid "Move %i (%s), estimated score: "
@@ -397,7 +397,7 @@ msgstr "Anzuzeigende Anzahl Züge der gespielten Variation"
 
 #8.11
 msgid "Goban/screen ratio"
-msgstr "Verhältnis Größe Goban zu Bildschirm"
+msgstr "Verhältnis Größe d. Gobans zu Bildschirm"
 
 #8.12
 msgid "Maximum number of variations to display during review"
@@ -425,7 +425,7 @@ msgstr "Die beste Variation in blau"
 
 #8.18
 msgid "Winning variations (>50%) only in blue"
-msgstr "Gewinnwsl. > 50% in blau"
+msgstr "Gewinnw.-kt. > 50% in blau"
 
 #8.19
 msgid "Variations better than actual game move in blue"
@@ -433,7 +433,7 @@ msgstr "Variationen, die besser als der gespielte Zug sind, in blau"
 
 #8.20
 msgid "Rates"
-msgstr "Gewinnwsl."
+msgstr "Gewinnw.-kt."
 
 #8.21
 msgid "Letters"
@@ -470,7 +470,7 @@ msgstr "Einstellungen für kurze Bedenkzeit"
 
 #9.7
 msgid "%s availability"
-msgstr "Verfügbar in %s"
+msgstr "%s zur Verfügung stellen für"
 
 #9.8
 msgid "Static analysis"
@@ -514,7 +514,7 @@ msgstr "Beide Profile"
 
 #9.18
 msgid "None"
-msgstr "Keines"
+msgstr "Nicht verfügbar"
 
 
 
@@ -535,9 +535,9 @@ msgstr "In dieser Position würde %s %s spielen"
 
 #10.4
 msgid "Black win probability:"
-msgstr "Gewinnwsl. für Schwarz"
+msgstr "Gewinnw.-kt. für Schwarz"
 msgid "White win probability:"
-msgstr "Gewinnwsl. für Weiß"
+msgstr "Gewinnw.-kt. für Weiß"
 
 #10.5
 msgid "before %s"
@@ -549,15 +549,15 @@ msgstr "nach %s"
 
 #10.7
 msgid "Black Value Network win probability:"
-msgstr "Gewinnwsl. für Schwarz, Value-Network"
+msgstr "Gewinnw.-kt. für Schwarz, Value-Network"
 msgid "White Value Network win probability:"
-msgstr "Gewinnwsl. für Weiß, Value-Network"
+msgstr "Gewinnw.-kt. für Weiß, Value-Network"
 
 #10.8
 msgid "Black Monte Carlo win probability:"
-msgstr "Monte-Carlo-Gewinnwsl. für Schwarz"
+msgstr "Monte-Carlo-Gewinnw.-kt. für Schwarz"
 msgid "White Monte Carlo win probability:"
-msgstr "Monte-Carlo-Gewinnwsl. für Weiß"
+msgstr "Monte-Carlo-Gewinnw.-kt. für Weiß"
 
 #10.9
 msgid "Move"
@@ -581,19 +581,19 @@ msgstr "RAVE"
 
 #10.14
 msgid "black/white win probability for this variation: %s"
-msgstr "Gewinnwsl. Schwarz/Weiß für diese Variation: %s"
+msgstr "Gewinnw.-kt. Schwarz/Weiß für diese Variation: %s"
 
 #10.15
 msgid "Policy network value for this variation: %s"
-msgstr "Gewinnwsl. laut Policy-Network für diese Variation: %s"
+msgstr "Gewinnw.-kt. laut Policy-Network für diese Variation: %s"
 
 #10.16
 msgid "Monte Carlo win probability for this variation: %s"
-msgstr "Monte-Carlo-Gewinnwsl. für diese Variation: %s"
+msgstr "Monte-Carlo-Gewinnw.-kt. für diese Variation: %s"
 
 #10.17
 msgid "Value network black/white win probability for this variation: %s"
-msgstr "Gewinnwsl. laut Value-Network für diese Variation: %s"
+msgstr "Gewinnw.-kt. laut Value-Network für diese Variation: %s"
 
 #10.18
 msgid "Number of playouts used to estimate this variation: %s"
@@ -647,7 +647,7 @@ msgstr "Weißer Spieler"
 
 #11.4
 msgid "No overlap thinking time"
-msgstr "Kein Berechnen während des gegn. Zuges"
+msgstr "Kein gleichz. Berechnen von Analyse und Spielzug"
 
 #11.5
 msgid "Board size"
