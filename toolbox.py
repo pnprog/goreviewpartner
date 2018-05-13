@@ -1878,7 +1878,7 @@ class Application(Tk):
 		if len(self.popups)==0:
 			time.sleep(2)
 			log("")
-			log("GoReviewPartner is leaving")
+			log("GoReviewPartner is closing")
 			log("Hope you enjoyed the experience!")
 			log("")
 			log("List of contributors")
@@ -1895,7 +1895,7 @@ class Application(Tk):
 					continue
 				log("\t",line)
 			log("")
-			log("You are welcomed to support GoReviewPartner (bug repports, code fixes, translations, ideas...). If you are interested, get in touch through Github Reddit, or Lifein19x19 !")
+			log("You are welcome to support GoReviewPartner (bug reports, code fixes, translations, ideas...). If you are interested, get in touch through Github, Reddit, or LifeIn19x19!")
 			if we_are_frozen():
 				#running from py2exe
 				raw_input()
