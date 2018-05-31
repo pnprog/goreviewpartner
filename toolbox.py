@@ -294,7 +294,7 @@ def open_sgf(filename):
 				game = sgf.Sgf_game.from_string(content.encode("utf-8")) #sgf.Sgf_game.from_string requires str object, not unicode
 				return game
 		else:
-			#the sgf has no declared encoding, we will enforce UTF-8 encoding
+			log("the sgf has no declared encoding, we will enforce UTF-8 encoding")
 			content=game.serialise()
 			content=content.decode("utf",errors="replace").encode("utf")
 			game = sgf.Sgf_game.from_string(content,override_encoding="UTF-8")
@@ -307,9 +307,11 @@ def open_sgf(filename):
 		except:
 			pass
 		raise WriteException(_("Could not open the SGF file: ")+filename+"\n"+str(e))
-def clean_sgf(txt):
-	return txt
 
+def clean_sgf(txt):
+	#txt is still of type str here....
+	txt=txt.replace(str(";B[  ])"),str(";B[])")).replace(str(";W[  ])"),str(";W[])")) #https://github.com/pnprog/goreviewpartner/issues/56
+	return txt
 def get_all_sgf_leaves(root,deep=0):
 
 	if len(root)==0:
