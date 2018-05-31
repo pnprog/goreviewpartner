@@ -218,10 +218,9 @@ def write_rsgf(filename,sgf_content):
 			content=sgf_content
 		else:
 			content=sgf_content.serialise()
-		#let's turn back filename into str type
-		#in case filename was already of type str (comming from command line args)
-		#this won't do anything harmful
-		filename2=filename.encode("utf-8")
+		filename2=filename
+		if type(filename2)==type(u"abc"):
+			filename2=filename2.encode(sys.getfilesystemencoding())
 		try:
 			new_file=open(filename2,'w') 
 			new_file.write(content)
@@ -245,10 +244,9 @@ def write_sgf(filename,sgf_content):
 			content=sgf_content
 		else:
 			content=sgf_content.serialise()
-		#let's turn back filename into str type
-		#in case filename was already of type str (comming from command line args)
-		#this won't do anything harmful
-		filename2=filename.encode("utf-8")
+		filename2=filename
+		if type(filename2)==type(u"abc"):
+			filename2=filename2.encode(sys.getfilesystemencoding())
 		try:
 			new_file=open(filename2,'w')
 			new_file.write(content)
@@ -268,11 +266,9 @@ def open_sgf(filename):
 	filelock.acquire()
 	try:
 		#log("Opening SGF file",filename)
-		
-		#let's turn back filename into str type
-		#in case filename was already of type str (comming from command line args)
-		#this won't do anything harmful
-		filename2=filename.encode("utf-8")
+		filename2=filename
+		if type(filename2)==type(u"abc"):
+			filename2=filename2.encode(sys.getfilesystemencoding())
 		txt = open(filename2,'r')
 		game = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()

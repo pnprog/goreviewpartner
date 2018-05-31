@@ -150,7 +150,9 @@ class AQ_gtp(gtp):
 	def __init__(self,command):
 		self.c=1
 		aq_working_directory=command[0][:-len(ntpath.basename(command[0]))]
-		
+		self.command_line=command[0]+" "+" ".join(command[1:])
+		command=[c.encode(sys.getfilesystemencoding()) for c in command]
+		aq_working_directory=aq_working_directory.encode(sys.getfilesystemencoding())
 		if aq_working_directory:
 			log("AQ working directory:",aq_working_directory)
 			self.process=subprocess.Popen(command,cwd=aq_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

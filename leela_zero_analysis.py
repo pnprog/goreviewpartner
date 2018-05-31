@@ -219,8 +219,10 @@ class Leela_Zero_gtp(gtp):
 	def __init__(self,command):
 		self.c=1
 		self.command_line=command[0]+" "+" ".join(command[1:])
-		leela_zero_working_directory=command[0][:-len(ntpath.basename(command[0]))]
 		
+		leela_zero_working_directory=command[0][:-len(ntpath.basename(command[0]))]
+		command=[c.encode(sys.getfilesystemencoding()) for c in command]
+		leela_zero_working_directory=leela_zero_working_directory.encode(sys.getfilesystemencoding())
 		if leela_zero_working_directory:
 			log("Leela Zero working directory:",leela_zero_working_directory)
 			self.process=subprocess.Popen(command,cwd=leela_zero_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import subprocess
+import subprocess,sys
 import threading, Queue
 
 from time import sleep,time
@@ -14,9 +14,10 @@ class GtpException(Exception):
 class gtp():
 	def __init__(self,command):
 		self.c=1
+		self.command_line=command[0]+" "+" ".join(command[1:])
+		command=[c.encode(sys.getfilesystemencoding()) for c in command]
 		self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
-		self.command_line=command[0]+" "+" ".join(command[1:])
 		self.stderr_queue=Queue.Queue()
 		self.stdout_queue=Queue.Queue()
 		threading.Thread(target=self.consume_stderr).start()
@@ -257,7 +258,3 @@ class gtp():
 		self.quitting_thread=threading.Thread(target=self.quit)
 		self.quitting_thread.start()
 		threading.Thread(target=self.terminate).start()
-
-
-
-
