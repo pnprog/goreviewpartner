@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from Tkinter import *
 from ScrolledText import *
@@ -32,7 +33,7 @@ class OpenChart(Toplevel):
 		popup_height=self.parent.winfo_height()/2+10
 		self.geometry(str(popup_width)+'x'+str(popup_height))
 		
-		self.last_graph=grp_config.get("Review","LastGraph").decode("utf")
+		self.last_graph=grp_config.get("Review","LastGraph")
 		self.initialize()
 
 	def close(self):
@@ -201,11 +202,7 @@ class OpenChart(Toplevel):
 	
 	def change_graph(self,event=None):
 		self.last_graph=_(self.graph_mode.get())
-		
-		#if type(self.last_graph)!=type(u"utf"):
-		#	self.last_graph=self.last_graph.decode("utf")
-
-		grp_config.set("Review","LastGraph",self.last_graph.encode("utf"))
+		grp_config.set("Review","LastGraph",self.last_graph)
 		self.display()
 		
 	def display(self,event=None):
@@ -1241,8 +1238,8 @@ class TableWidget:
 			c=0
 			
 			for key in columns_sgf_properties:
-				if one_alternative.has_property(key):
-					value=one_alternative.get(key)
+				if node_has(one_alternative,key):
+					value=node_get(one_alternative,key)
 					if "%/" in value:
 						if color=="b":
 							value=value.split("/")[0]
@@ -1259,8 +1256,8 @@ class TableWidget:
 			one_alternative=parent[0][1]
 			c=0
 			for key in columns_sgf_properties:
-				if one_alternative.has_property(key):
-					value=one_alternative.get(key)
+				if node_has(one_alternative,key):
+					value=node_get(one_alternative,key)
 					if "%/" in value:
 						if parent[0].get_move()[0].lower()=="b":
 							value=value.split("/")[0]
@@ -1585,7 +1582,7 @@ class DualView(Toplevel):
 				pass
 			
 			try:
-				es=one_move.get('ES')
+				es=node_get(one_move,'ES')
 				if es[0]=="B":	
 					one_data['score_estimation']=float(es[1:])
 				else:
@@ -1598,7 +1595,7 @@ class DualView(Toplevel):
 				pass
 			
 			try:
-				ubs=one_move.get('UBS')
+				ubs=node_get(one_move,'UBS')
 				if ubs[0]=="B":	
 					one_data['upper_bound_score']=float(ubs[1:])
 				else:
@@ -1607,7 +1604,7 @@ class DualView(Toplevel):
 				pass
 			
 			try:
-				lbs=one_move.get('LBS')
+				lbs=node_get(one_move,'LBS')
 				if lbs[0]=="B":	
 					one_data['lower_bound_score']=float(lbs[1:])
 				else:
@@ -1616,7 +1613,7 @@ class DualView(Toplevel):
 				pass
 			
 			try:
-				winrate=one_move.get('MCWR')
+				winrate=node_get(one_move,'MCWR')
 				if player_color in ('b',"B"):
 					one_data['monte_carlo_win_rate']=float(winrate.split("%")[0])
 				else:
@@ -1625,7 +1622,7 @@ class DualView(Toplevel):
 				pass
 			
 			try:
-				winrate=one_move.get('VNWR')
+				winrate=node_get(one_move,'VNWR')
 				if player_color in ('b',"B"):
 					one_data['value_network_win_rate']=float(winrate.split("%")[0])
 				else:
@@ -1637,7 +1634,7 @@ class DualView(Toplevel):
 			#so it is the win rate of the best move by the computer for this position
 			#because we consider the bot plays perfectly
 			try:
-				winrate=one_move.get('BWWR')
+				winrate=node_get(one_move,'BWWR')
 				if player_color in ('w',"W"):
 					current_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
@@ -1654,12 +1651,12 @@ class DualView(Toplevel):
 			# negative delta means the game evolves better when the computer move is played
 			try:
 				next_move=get_node(self.gameroot,m+1)
-				winrate=next_move.get('BWWR')
+				winrate=node_get(next_move,'BWWR')
 				if player_color in ('w',"W"):
 					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
-				computer_move=one_move.get('CBM')
+				computer_move=node_get(one_move,'CBM')
 				if player_move==computer_move:
 					# in case the computer best move is the actual game move then:
 					# 1/ normally delta=0
@@ -1674,12 +1671,12 @@ class DualView(Toplevel):
 			#delta for monte carlo win rate
 			try:
 				next_move=get_node(self.gameroot,m+1)
-				winrate=next_move.get('MCWR')
+				winrate=node_get(next_move,'MCWR')
 				if player_color in ('w',"W"):
 					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
-				computer_move=one_move.get('CBM')
+				computer_move=node_get(one_move,'CBM')
 				if player_move==computer_move:
 					current_position_win_rate=next_position_win_rate
 					one_data['monte_carlo_win_rate']=next_position_win_rate
@@ -1691,12 +1688,12 @@ class DualView(Toplevel):
 			#delta for value network win rate
 			try:
 				next_move=get_node(self.gameroot,m+1)
-				winrate=next_move.get('VNWR')
+				winrate=node_get(next_move,'VNWR')
 				if player_color in ('w',"W"):
 					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
-				computer_move=one_move.get('CBM')
+				computer_move=node_get(one_move,'CBM')
 				if player_move==computer_move:
 					current_position_win_rate=next_position_win_rate
 					one_data['value_network_win_rate']=next_position_win_rate
@@ -1812,10 +1809,10 @@ class DualView(Toplevel):
 		self.territories=[[],[]]
 		if m>0:
 			the_move=one_move
-			if one_move.has_property("TB"):
-				self.territories[0]=one_move.get("TB")
-			if one_move.has_property("TW"):
-				self.territories[1]=one_move.get("TW")
+			if node_has(one_move,"TB"):
+				self.territories[0]=node_get(one_move,"TB")
+			if node_has(one_move,"TW"):
+				self.territories[1]=node_get(one_move,"TW")
 		if self.territories!=[[],[]]:
 			self.territory_button.config(state=NORMAL)
 		else:
@@ -1827,8 +1824,8 @@ class DualView(Toplevel):
 		self.comment_box2.delete(1.0, END)
 		if m>=0:
 			left_comments=get_position_comments(self.current_move,self.gameroot)
-			if get_node(self.gameroot,m+1).has_property("C"):
-				left_comments+="\n\n==========\n"+get_node(self.gameroot,m+1).get("C")
+			if node_has(get_node(self.gameroot,m+1),"C"):
+				left_comments+="\n\n==========\n"+node_get(get_node(self.gameroot,m+1),"C")
 			self.game_comments=left_comments
 			self.comment_box2.insert(END,self.game_comments)
 			
@@ -1890,15 +1887,15 @@ class DualView(Toplevel):
 			else: c=2
 			black_prob=None
 			white_prob=None
-			if one_alternative.has_property("BWWR") or one_alternative.has_property("VNWR") or one_alternative.has_property("MCWR"):
-				if one_alternative.has_property("BWWR"):
-					black_prob=float(one_alternative.get("BWWR").split("%")[0])
+			if node_has(one_alternative,"BWWR") or node_has(one_alternative,"VNWR") or node_has(one_alternative,"MCWR"):
+				if node_has(one_alternative,"BWWR"):
+					black_prob=float(node_get(one_alternative,"BWWR").split("%")[0])
 					white_prob=100-black_prob
-				elif one_alternative.has_property("VNWR"):
-					black_prob=float(one_alternative.get("VNWR").split("%")[0])
+				elif node_has(one_alternative,"VNWR"):
+					black_prob=float(node_get(one_alternative,"VNWR").split("%")[0])
 					white_prob=100-black_prob
-				elif one_alternative.has_property("MCWR"):
-					black_prob=float(one_alternative.get("MCWR").split("%")[0])
+				elif node_has(one_alternative,"MCWR"):
+					black_prob=float(node_get(one_alternative,"MCWR").split("%")[0])
 					white_prob=100-black_prob
 				
 				if c==1:
@@ -1914,12 +1911,12 @@ class DualView(Toplevel):
 							displaycolor="red"
 					elif self.variation_color_mode=="blue_for_better":
 						try:
-							if parent[0][0].has_property("BWWR"):
-								real_game_prob=float(parent[0][0].get("BWWR").split("%")[0])
-							elif parent[0][0].has_property("VNWR"):
-								real_game_prob=float(parent[0][0].get("VNWR").split("%")[0])
-							elif parent[0][0].has_property("MCWR"):
-								real_game_prob=float(parent[0][0].get("MCWR").split("%")[0])
+							if node_has(parent[0][0],"BWWR"):
+								real_game_prob=float(node_get(parent[0][0],"BWWR").split("%")[0])
+							elif node_has(parent[0][0],"VNWR"):
+								real_game_prob=float(node_get(parent[0][0],"VNWR").split("%")[0])
+							elif node_has(parent[0][0],"MCWR"):
+								real_game_prob=float(node_get(parent[0][0],"MCWR").split("%")[0])
 							else:
 								raise Exception()
 							if real_game_prob<black_prob:
@@ -1941,12 +1938,12 @@ class DualView(Toplevel):
 							displaycolor="red"
 					elif self.variation_color_mode=="blue_for_better":
 						try:
-							if parent[0][0].has_property("BWWR"):
-								real_game_prob=100-float(parent[0][0].get("BWWR").split("%")[0])
-							elif parent[0][0].has_property("VNWR"):
-								real_game_prob=100-float(parent[0][0].get("VNWR").split("%")[0])
-							elif parent[0][0].has_property("MCWR"):
-								real_game_prob=100-float(parent[0][0].get("MCWR").split("%")[0])
+							if node_has(parent[0][0],"BWWR"):
+								real_game_prob=100-float(node_get(parent[0][0],"BWWR").split("%")[0])
+							elif node_has(parent[0][0],"VNWR"):
+								real_game_prob=100-float(node_get(parent[0][0],"VNWR").split("%")[0])
+							elif node_has(parent[0][0],"MCWR"):
+								real_game_prob=100-float(node_get(parent[0][0],"MCWR").split("%")[0])
 							else:
 								raise Exception()
 							if real_game_prob<white_prob:
@@ -1957,8 +1954,8 @@ class DualView(Toplevel):
 							pass	
 			
 			comments=get_variation_comments(one_alternative)
-			if one_alternative.has_property("C"):
-				comments+=one_alternative.get("C")
+			if node_has(one_alternative,"C"):
+				comments+=node_get(one_alternative,"C")
 
 			if ij==real_game_ij: #in case the variation first move is the same as the game actual move, keep the label in black
 				letter_color="black"

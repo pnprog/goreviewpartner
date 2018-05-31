@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from gtp import gtp, GtpException
 import sys
@@ -26,7 +27,7 @@ class RayAnalysis():
 		
 		log()
 		log("==============")
-		log("move",str(current_move))
+		log("move",current_move)
 		
 		#additional_comments=""
 		if player_color in ('w',"W"):
@@ -38,8 +39,7 @@ class RayAnalysis():
 
 		if current_move>2:
 			es=ray.final_score()
-			#one_move.set("ES",es)
-			save_position_data(one_move,"ES",es)
+			node_set(one_move,"ES",es)
 			
 		log(len(answer),"sequences")
 
@@ -49,7 +49,7 @@ class RayAnalysis():
 				log("Adding sequence starting from",sequence_first_move)
 				if best_move:
 					best_answer=sequence_first_move
-					save_position_data(one_move,"CBM",best_answer)
+					node_set(one_move,"CBM",best_answer)
 					
 				previous_move=one_move.parent
 				current_color=player_color
@@ -69,7 +69,7 @@ class RayAnalysis():
 					if one_deep_move.lower()!="pass":
 						i,j=gtp2ij(one_deep_move)
 						new_child=previous_move.new_child()
-						new_child.set_move(current_color,(i,j))
+						node_set(new_child,current_color,(i,j))
 						if first_variation_move:
 							first_variation_move=False
 							if win:
@@ -77,12 +77,12 @@ class RayAnalysis():
 									winrate=str(float(win))+'%/'+str(100-float(win))+'%'
 								else:
 									winrate=str(100-float(win))+'%/'+str(win)+'%'
-								save_variation_data(new_child,"BWWR",winrate)
+								node_set(new_child,"BWWR",winrate)
 								if best_move:
-									save_position_data(one_move,"BWWR",winrate)
+									node_set(one_move,"BWWR",winrate)
 							
 							if count:
-								save_variation_data(new_child,"PLYO",count)
+								node_set(new_child,"PLYO",count)
 								
 							if simulation:
 								simulation+="%"
@@ -93,13 +93,13 @@ class RayAnalysis():
 									white_value=simulation
 									black_value=opposite_rate(white_value)
 
-								save_variation_data(new_child,"MCWR",black_value+'/'+white_value)
+								node_set(new_child,"MCWR",black_value+'/'+white_value)
 								if best_move:
-									save_position_data(one_move,"MCWR",black_value+'/'+white_value)
+									node_set(one_move,"MCWR",black_value+'/'+white_value)
 									
 								
 							if policy:
-								save_variation_data(new_child,"PNV",policy+"%")
+								node_set(new_child,"PNV",policy+"%")
 								
 							if value:
 								if player_color=='b':
@@ -108,9 +108,9 @@ class RayAnalysis():
 								else:
 									white_value=value+"%"
 									black_value=opposite_rate(white_value)
-								save_variation_data(new_child,"VNWR",black_value+'/'+white_value)
+								node_set(new_child,"VNWR",black_value+'/'+white_value)
 								if best_move:
-									save_position_data(one_move,"VNWR",black_value+'/'+white_value)
+									node_set(one_move,"VNWR",black_value+'/'+white_value)
 							
 							if best_move:
 								best_move=False

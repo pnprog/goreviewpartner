@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 
 from gtp import gtp, GtpException
 import sys
@@ -51,10 +51,10 @@ class AQAnalysis():
 		if current_move>1:
 			es=aq.final_score()
 			#one_move.set("ES",es)
-			save_position_data(one_move,"ES",es)
+			node_set(one_move,"ES",es)
 
 		log("AQ preferred move:",answer)
-		save_position_data(one_move,"CBM",answer) #Computer Best Move
+		node_set(one_move,"CBM",answer) #Computer Best Move
 
 		all_moves=aq.get_all_aq_moves()
 
@@ -79,7 +79,7 @@ class AQAnalysis():
 						break
 					i,j=gtp2ij(one_deep_move)
 					new_child=previous_move.new_child()
-					new_child.set_move(current_color,(i,j))
+					node_set(new_child,current_color,(i,j))
 
 
 					if player_color=='b':
@@ -93,19 +93,18 @@ class AQAnalysis():
 
 					if first_variation_move:
 						first_variation_move=False
-						save_variation_data(new_child,"BWWR",bwwr)
-						save_variation_data(new_child,"PLYO",str(count))
-						save_variation_data(new_child,"VNWR",vnwr)
-						save_variation_data(new_child,"MCWR",mcwr)
-						save_variation_data(new_child,"PNV",str(prob)+"%")
+						node_set(new_child,"BWWR",bwwr)
+						node_set(new_child,"PLYO",str(count))
+						node_set(new_child,"VNWR",vnwr)
+						node_set(new_child,"MCWR",mcwr)
+						node_set(new_child,"PNV",str(prob)+"%")
 
 
 					if best_move:
 						best_move=False
-
-						save_position_data(one_move,"BWWR",bwwr)
-						save_position_data(one_move,"MCWR",mcwr)
-						save_position_data(one_move,"VNWR",vnwr)
+						node_set(one_move,"BWWR",bwwr)
+						node_set(one_move,"MCWR",mcwr)
+						node_set(one_move,"VNWR",vnwr)
 						
 					previous_move=new_child
 					if current_color in ('w','W'):

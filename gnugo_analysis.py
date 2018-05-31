@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from gtp import gtp, GtpException
 import sys
@@ -70,9 +71,9 @@ class GnuGoAnalysis():
 			ubs="W%+d"%(float(final_score.split()[3][:-1]))
 			lbs="W%+d"%(float(final_score.split()[5][:-1]))
 		
-		save_position_data(one_move,"ES",es)
-		save_position_data(one_move,"UBS",ubs)
-		save_position_data(one_move,"LBS",lbs)
+		node_set(one_move,"ES",es)
+		node_set(one_move,"UBS",ubs)
+		node_set(one_move,"LBS",lbs)
 		
 
 		if player_color in ('w',"W"):
@@ -85,7 +86,7 @@ class GnuGoAnalysis():
 			answer=gnugo.play_black()
 
 		log("====","Gnugo answer:",answer)
-		save_position_data(one_move,"CBM",answer)
+		node_set(one_move,"CBM",answer)
 		
 		log("==== Gnugo top moves")
 		for one_top_move in top_moves:
@@ -136,10 +137,10 @@ class GnuGoAnalysis():
 						if one_deep_move.lower() not in ['resign','pass']:
 							i,j=gtp2ij(one_deep_move)
 							new_child=previous_move.new_child()
-							new_child.set_move(current_color,(i,j))
+							node_set(new_child,current_color,(i,j))
 							if first_move:
 								first_move=False
-								save_variation_data(new_child,"ES",es)
+								node_set(new_child,"ES",es)
 							previous_move=new_child
 							if current_color in ('w','W'):
 								current_color='b'
@@ -163,10 +164,10 @@ class GnuGoAnalysis():
 					white_influence_points.append([i,j])
 
 		if black_influence_points!=[]:
-			one_move.parent.set("TB",black_influence_points)
+			node_set(one_move.parent,"TB",black_influence_points)
 		
 		if white_influence_points!=[]:
-			one_move.parent.set("TW",white_influence_points)
+			node_set(one_move.parent,"TW",white_influence_points)
 		
 		return answer #returning the best move, necessary for live analysis
 	

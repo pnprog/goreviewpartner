@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from gtp import gtp, GtpException
 import sys
@@ -37,14 +38,13 @@ class LeelaAnalysis():
 		
 		
 		best_answer=answer
-		save_position_data(one_move,"CBM",answer) #Computer Best Move
+		node_set(one_move,"CBM",answer) #Computer Best Move
 		
 		#all_moves=leela.get_all_leela_moves()
 		position_evaluation=leela.get_all_leela_moves()
 
 		if "estimated score" in position_evaluation:
-			#one_move.set("ES",position_evaluation["estimated score"])
-			save_position_data(one_move,"ES",position_evaluation["estimated score"])
+			node_set(one_move,"ES",position_evaluation["estimated score"])
 		if (answer.lower() in ["pass","resign"]):
 			bookmove=False
 			leela.undo()
@@ -115,7 +115,7 @@ class LeelaAnalysis():
 
 				i,j=gtp2ij(one_deep_move)
 				new_child=previous_move.new_child()
-				new_child.set_move(current_color,(i,j))
+				node_set(new_child,current_color,(i,j))
 				
 				if first_variation_move==True:
 					first_variation_move=False
@@ -128,9 +128,9 @@ class LeelaAnalysis():
 						else:
 							white_value=variation['win rate']
 							black_value=opposite_rate(white_value)
-						save_variation_data(new_child,"BWWR",black_value+'/'+white_value)
+						node_set(new_child,"BWWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,"BWWR",black_value+'/'+white_value)
+							node_set(one_move,"BWWR",black_value+'/'+white_value)
 					
 					if 'monte carlo win rate' in variation:
 						if player_color=='b':
@@ -139,9 +139,9 @@ class LeelaAnalysis():
 						else:
 							white_value=variation['monte carlo win rate']
 							black_value=opposite_rate(white_value)
-						save_variation_data(new_child,"MCWR",black_value+'/'+white_value)
+						node_set(new_child,"MCWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,"MCWR",black_value+'/'+white_value)
+							node_set(one_move,"MCWR",black_value+'/'+white_value)
 					
 					if 'value network win rate' in variation:
 						if player_color=='b':
@@ -150,25 +150,25 @@ class LeelaAnalysis():
 						else:
 							white_value=variation['value network win rate']
 							black_value=opposite_rate(white_value)
-						save_variation_data(new_child,"VNWR",black_value+'/'+white_value)
+						node_set(new_child,"VNWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,"VNWR",black_value+'/'+white_value)
+							node_set(one_move,"VNWR",black_value+'/'+white_value)
 					
 					if 'move evaluation' in variation:
-						save_variation_data(new_child,"EVAL",variation['move evaluation'])
+						node_set(new_child,"EVAL",variation['move evaluation'])
 						
 					if 'rapid action value estimation' in variation:
-						save_variation_data(new_child,"RAVE",variation['rapid action value estimation'])
+						node_set(new_child,"RAVE",variation['rapid action value estimation'])
 						
 					if 'policy network value' in variation:
-						save_variation_data(new_child,"PNV",variation['policy network value'])
+						node_set(new_child,"PNV",variation['policy network value'])
 					
 					if 'playouts' in variation:
-						save_variation_data(new_child,"PLYO",variation['playouts'])
+						node_set(new_child,"PLYO",variation['playouts'])
 						
 					if bookmove:
 						bookmove=False
-						save_variation_data(new_child,"BKMV","yes")
+						node_set(new_child,"BKMV","yes")
 					
 					if best_move:
 						best_move=False
@@ -193,11 +193,10 @@ class LeelaAnalysis():
 					white_influence_points.append([i,j])
 
 		if black_influence_points!=[]:
-			one_move.parent.set("TB",black_influence_points)
-		
+			node_set(one_move.parent,"TB",black_influence_points)
 		if white_influence_points!=[]:
-			one_move.parent.set("TW",white_influence_points)	
-		
+			node_set(one_move.parent,"TW",white_influence_points)
+			
 		for u in range(nb_undos):
 			leela.undo()
 

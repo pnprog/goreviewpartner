@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from Tkinter import *
 from gnugo_analysis import GnuGoSettings
@@ -9,9 +11,9 @@ from leela_zero_analysis import LeelaZeroSettings
 from toolbox import *
 from toolbox import _
 
+
+
 class OpenSettings(Toplevel):
-
-
 	def display_settings(self):
 		if self.setting_frame:
 			self.setting_frame.pack_forget()

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from toolbox import *
 from toolbox import _
 
@@ -14,17 +16,13 @@ def rsgf2sgf(rsgf_file):
 	current_move=1
 	while current_move<=max_move:
 		comments=get_position_comments(current_move,gameroot)
-		if type(comments)==type(u"abc"):
-				comments=comments.encode("utf")
-		get_node(gameroot,current_move).set("C",comments)
+		node_set(get_node(gameroot,current_move),"C",comments)
 		parent=get_node(gameroot,current_move-1)
 		
 		for a in range(1,len(parent)):
 			one_alternative=parent[a]
 			comments=get_variation_comments(one_alternative)
-			if type(comments)==type(u"abc"):
-				comments=comments.encode("utf")
-			one_alternative.set("C",comments)
+			node_set(one_alternative,"C",comments)
 		current_move+=1
 
 	write_sgf(rsgf_file+".sgf",g)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 class AbortedException(Exception):
 	pass
@@ -10,49 +11,38 @@ loglock=threading.Lock()
 def log(*args):
 	global loglock
 	loglock.acquire()
+	encoding=sys.stdout.encoding
 	for arg in args:
 		try:
-			try:
-				arg=unicode(arg,errors='replace')
-			except:
-				pass
-			try:
-				arg=arg.encode(sys.stdout.encoding, 'replace')
-			except:
-				pass
-			try:
-				print arg,
-			except:
-				print "?"*len(arg),
+			if type(arg)!=type(u'abc'):
+				arg=str(arg)
+				arg=arg.decode('utf-8')
+			arg=arg.encode(encoding, errors='replace')
+			print arg,
 		except:
-			print "["+str(type(arg))+"]",
+			print "?"*len(arg),
 	print
 	loglock.release()
 
 def linelog(*args):
 	global loglock
 	loglock.acquire()
+	encoding=sys.stdout.encoding
 	for arg in args:
 		try:
-			try:
-				arg=unicode(arg,errors='replace')
-			except:
-				pass
-			try:
-				arg=arg.encode(sys.stdout.encoding, 'replace')
-			except:
-				pass
-			try:
-				print arg,
-			except:
-				print "?"*len(arg),
+			if type(arg)!=type(u'abc'):
+				arg=str(arg)
+				arg=arg.decode('utf-8')
+			arg=arg.encode(encoding, errors='replace')
+			print arg,
 		except:
-			print "["+str(type(arg))+"]",
+			print "?"*len(arg),
 	loglock.release()
 
 import tkMessageBox
 
 def show_error(txt,parent=None):
+	txt=unicode(txt)
 	try:
 		tkMessageBox.showerror(_("Error"),txt,parent=parent)
 		log("ERROR: "+txt)
@@ -60,9 +50,10 @@ def show_error(txt,parent=None):
 		log("ERROR: "+txt)
 
 def show_info(txt,parent=None):
+	txt=unicode(txt)
 	try:
-		log("INFO: "+txt)
 		tkMessageBox.showinfo(_("Information"),txt,parent=parent)
+		log("INFO: "+txt)
 	except:
 		log("INFO: "+txt)
 
@@ -217,20 +208,25 @@ class WriteException(Exception):
 	pass
 
 filelock=threading.Lock()
-
+c=0
 def write_rsgf(filename,sgf_content):
 	filelock.acquire()
+	global c
 	try:
-		log("Saving RSGF file",filename)
+		#log("Saving RSGF file",filename)
 		if type(sgf_content)==type("abc"):
 			content=sgf_content
 		else:
 			content=sgf_content.serialise()
+		#let's turn back filename into str type
+		#in case filename was already of type str (comming from command line args)
+		#this won't do anything harmful
+		filename2=filename.encode("utf-8")
 		try:
-			new_file=open(filename,'w')
+			new_file=open(filename2,'w') 
 			new_file.write(content)
 		except:
-			new_file=codecs.open(filename,"w","utf-8")
+			new_file=codecs.open(filename2,"w","utf-8")
 			new_file.write(content)
 		
 		new_file.close()
@@ -239,7 +235,7 @@ def write_rsgf(filename,sgf_content):
 		log("Could not save the RSGF file",filename)
 		log(e)
 		filelock.release()
-		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
+		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+unicode(e))
 
 def write_sgf(filename,sgf_content):
 	filelock.acquire()
@@ -249,11 +245,15 @@ def write_sgf(filename,sgf_content):
 			content=sgf_content
 		else:
 			content=sgf_content.serialise()
+		#let's turn back filename into str type
+		#in case filename was already of type str (comming from command line args)
+		#this won't do anything harmful
+		filename2=filename.encode("utf-8")
 		try:
-			new_file=open(filename,'w')
+			new_file=open(filename2,'w')
 			new_file.write(content)
 		except:
-			new_file=codecs.open(filename,"w","utf-8")
+			new_file=codecs.open(filename2,"w","utf-8")
 			new_file.write(content)
 		
 		new_file.close()
@@ -268,13 +268,18 @@ def open_sgf(filename):
 	filelock.acquire()
 	try:
 		#log("Opening SGF file",filename)
-		txt = open(filename,'r')
+		
+		#let's turn back filename into str type
+		#in case filename was already of type str (comming from command line args)
+		#this won't do anything harmful
+		filename2=filename.encode("utf-8")
+		txt = open(filename2,'r')
 		game = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		filelock.release()
 		gameroot=game.get_root()
-		if gameroot.has_property("CA"):
-			ca=gameroot.get("CA")
+		if node_has(gameroot,"CA"):
+			ca=node_get(gameroot,"CA")
 			if ca=="UTF-8":
 				#the sgf is already in UTF, so we accept it directly
 				return game
@@ -283,9 +288,9 @@ def open_sgf(filename):
 				log("Converting from",ca,"to UTF-8")
 				encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
 				content=game.serialise()
-				content=content.decode(encoding,errors='ignore').encode("utf-8")
+				content=content.decode(encoding,errors='ignore') #transforming content into a unicode object
 				content=content.replace("CA["+ca+"]","CA[UTF-8]")
-				game = sgf.Sgf_game.from_string(content)
+				game = sgf.Sgf_game.from_string(content.encode("utf-8")) #sgf.Sgf_game.from_string requires str object, not unicode
 				return game
 		else:
 			#the sgf has no declared encoding, we will enforce UTF-8 encoding
@@ -297,7 +302,10 @@ def open_sgf(filename):
 	except Exception,e:
 		log("Could not open the SGF file",filename)
 		log(e)
-		filelock.release()
+		try:
+			filelock.release()
+		except:
+			pass
 		raise WriteException(_("Could not open the SGF file: ")+filename+"\n"+str(e))
 def clean_sgf(txt):
 	return txt
@@ -352,20 +360,17 @@ def check_selection(selection,nb_moves):
 	return move_selection
 
 def check_selection_for_color(move_zero,move_selection,color):
-
 	if color=="black":
 		new_move_selection=[]
 		for m in move_selection:
-			one_move=go_to_move(move_zero,m)
-			player_color,unused=one_move.get_move()
+			player_color=guess_color_to_play(move_zero,m)
 			if player_color.lower()=='b':
 				new_move_selection.append(m)
 		return new_move_selection
 	elif color=="white":
 		new_move_selection=[]
 		for m in move_selection:
-			one_move=go_to_move(move_zero,m)
-			player_color,unused=one_move.get_move()
+			player_color=guess_color_to_play(move_zero,m)
 			if player_color.lower()=='w':
 				new_move_selection.append(m)
 		return new_move_selection
@@ -458,9 +463,9 @@ class RangeSelector(Toplevel):
 		c0=Radiobutton(self,text=_("Black & white"),variable=c, value="both")
 		c0.grid(row=row,column=1,sticky=W)
 		self.after(0,c0.select)
-
-		if 'PB[' in content:
-			black_player=content.split('PB[')[1].split(']')[0]
+		
+		if node_has(self.move_zero,'PB'):
+			black_player=node_get(self.move_zero,'PB')
 			if black_player.lower().strip() in ['black','']:
 				black_player=''
 			else:
@@ -468,8 +473,8 @@ class RangeSelector(Toplevel):
 		else:
 			black_player=''
 
-		if 'PW[' in content:
-			white_player=content.split('PW[')[1].split(']')[0]
+		if node_has(self.move_zero,'PW'):
+			white_player=node_get(self.move_zero,'PW')
 			if white_player.lower().strip() in ['white','']:
 				white_player=''
 			else:
@@ -478,11 +483,11 @@ class RangeSelector(Toplevel):
 			white_player=''
 
 		row+=1
-		c1=Radiobutton(self,text=_("Black only").encode("utf")+black_player,variable=c, value="black")
+		c1=Radiobutton(self,text=_("Black only")+black_player,variable=c, value="black")
 		c1.grid(row=row,column=1,sticky=W)
 
 		row+=1
-		c2=Radiobutton(self,text=_("White only").encode("utf")+white_player,variable=c, value="white")
+		c2=Radiobutton(self,text=_("White only")+white_player,variable=c, value="white")
 		c2.grid(row=row,column=1,sticky=W)
 
 		row+=10
@@ -630,9 +635,9 @@ def guess_color_to_play(move_zero,move_number):
 		return player_color
 
 	if one_move is move_zero:
-		if move_zero.get("PL").lower()=="b":
+		if node_get(move_zero,"PL").lower()=="b":
 			return "w"
-		if move_zero.get("PL").lower()=="w":
+		if node_get(move_zero,"PL").lower()=="w":
 			return "b"
 
 	previous_move_color=guess_color_to_play(move_zero,move_number-1)
@@ -738,8 +743,8 @@ class LiveAnalysisBase():
 				old_branch=parent[1]
 
 				for p in ["ES","CBM","BWWR","VNWR", "MCWR","UBS","LBS","C"]:
-					if old_branch.has_property(p):
-						new_branch.set(p,old_branch.get(p))
+					if node_has(old_branch,p):
+						node_set(new_branch,p,node_get(old_branch,p))
 
 				old_branch.delete()
 				write_rsgf(self.filename[:-4]+".rsgf",self.g)
@@ -830,7 +835,7 @@ class RunAnalysisBase(Toplevel):
 
 		log("Setting new komi")
 		self.move_zero=self.g.get_root()
-		self.g.get_root().set("KM", self.komi)
+		node_set(self.g.get_root(),"KM",self.komi)
 
 		try:
 			self.bot=self.initialize_bot()
@@ -861,11 +866,13 @@ class RunAnalysisBase(Toplevel):
 	
 		if grp_config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+(_("Command line")+": %s"%self.bot.command_line)
-
-		self.move_zero.set("RSGF",first_comment.encode("utf")+"\n")
-		self.move_zero.set("BOT",self.bot.bot_name)
-		self.move_zero.set("BOTV",self.bot.bot_version)
-
+		
+		first_comment+="\n"
+		
+		node_set(self.move_zero,"RSGF",first_comment)
+		node_set(self.move_zero,"BOT",self.bot.bot_name)
+		node_set(self.move_zero,"BOTV",self.bot.bot_version)
+		
 		self.maxvariations=grp_config.getint("Analysis", "maxvariations")
 
 		try:
@@ -1214,8 +1221,8 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		
 		log("Checking for existing stones or handicap stones on the board")
 		gameroot=sgf_g.get_root()
-		if gameroot.has_property("HA"):
-			nb_handicap=gameroot.get("HA")
+		if node_has(gameroot,"HA"):
+			nb_handicap=node_get(gameroot,"HA")
 			log("The SGF indicates",nb_handicap,"stone(s)")
 		else:
 			nb_handicap=0
@@ -1333,6 +1340,7 @@ def parse_command_line(filename,argv):
 	leaves=get_all_sgf_leaves(move_zero)
 
 	found=False
+	argv=[(unicode(p,errors="replace"),unicode(v,errors="replace")) for p,v in argv] #ok, this is maybe overkill...
 	for p,v in argv:
 		if p=="--variation":
 			try:
@@ -1582,12 +1590,26 @@ class MyConfig():
 		self.default_values["ray"]["reviewbot"]="fast"
 		
 	def set(self, section, key, value):
-		self.config.set(section,key,str(value))
+		if type(value) in (type(1), type(0.5), type(True)):
+			value=unicode(value)
+		
+		
+		if type(section)!=type(u"abc"):
+			print section, "Warning: A non utf section string sent to my config:",section
+		if type(key)!=type(u"abc"):
+			print key,"A non utf key string sent to my config:", key
+		if type(value)!=type(u"abc"):
+			print value,"A non utf value string sent to my config:",value
+		section=unicode(section)
+		key=unicode(key)
+		value=unicode(value)
+		self.config.set(section.encode("utf-8"),key.encode("utf-8"),value.encode("utf-8"))
 		self.config.write(open(self.config_file,"w"))
 	
 	def get(self,section,key):
 		try:
 			value=self.config.get(section,key)
+			value=value.decode("utf-8")
 		except:
 			log("Could not read",str(section)+"/"+str(key),"from the config file")
 			log("Using default value")
@@ -1642,7 +1664,7 @@ log("Reading language setting from config file")
 lang=grp_config.get("General","Language")
 
 
-available_translations={"en": u"English", "fr" : u"Français", "de" : u"Deutsch", "kr" : u"한국어", "zh": u"中文"}
+available_translations={"en": "English", "fr" : "Français", "de" : "Deutsch", "kr" : "한국어", "zh": "中文"}
 if not lang:
 	log("No language setting in the config file")
 	log("System language detection:")
@@ -1850,10 +1872,12 @@ variation_data_formating["EVAL"]=_("Evaluation for this variation: %s")
 variation_data_formating["RAVE"]=_("RAVE(x%% : y) for this variation: %s")
 
 def save_position_data(node,sgf_property,value):
-	node.set(sgf_property,value)
+	log("WARNING: save_position_data() still in used...")
+	node_set(node,sgf_property,value)
 
 def save_variation_data(node,sgf_property,value):
-	node.set(sgf_property,value)
+	log("WARNING: save_variation_data() still in used...")
+	node_set(node,sgf_property,value)
 
 class Application(Tk):
 	def __init__(self):
@@ -1923,7 +1947,7 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			grp_config.set(config[0],config[1],initialdir.encode("utf"))
+			grp_config.set(config[0],config[1],initialdir)
 		return filename
 	
 	def open_sgf_file(parent=None):
@@ -1940,7 +1964,7 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			grp_config.set(config[0],config[1],initialdir.encode("utf"))
+			grp_config.set(config[0],config[1],initialdir)
 		return filename
 
 	def save_png_file(filename, parent=None):
@@ -1961,7 +1985,8 @@ except Exception, e:
 		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(filetype[0], filetype[1])])
 		if filename:
 			initialdir=os.path.dirname(filename)
-			grp_config.set(config[0],config[1],initialdir.encode("utf"))
+			grp_config.set(config[0],config[1],initialdir)
+		filename=unicode(filename)
 		return filename
 		
 	def open_sgf_file(parent=None):
@@ -1976,7 +2001,7 @@ except Exception, e:
 		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(filetype[0], filetype[1])],initialfile=filename)
 		if filename:
 			initialdir=os.path.dirname(filename)
-			grp_config.set(config[0],config[1],initialdir.encode("utf"))
+			grp_config.set(config[0],config[1],initialdir)
 		return filename
 		
 	def save_png_file(filename, parent=None):
@@ -2002,89 +2027,89 @@ def canvas2png(goban,filename):
 def get_variation_comments(one_variation):
 	comments=''
 	for sgf_property in ("BWWR","PNV","MCWR","VNWR","PLYO","EVAL","RAVE","ES","BKMV"):
-		if one_variation.has_property(sgf_property):
-			comments+=format_data(sgf_property,variation_data_formating,one_variation.get(sgf_property))+"\n"
+		if node_has(one_variation,sgf_property):
+			comments+=format_data(sgf_property,variation_data_formating,node_get(one_variation,sgf_property))+"\n"
 	return comments
 	
 def get_position_comments(current_move,gameroot):
 	comments=""
 	if current_move==1:
-		if gameroot.has_property("RSGF"):
-			comments+=gameroot.get("RSGF")
-		if gameroot.has_property("PB"):
-			comments+=_("Black").encode("utf")+": "+gameroot.get("PB")+"\n"
-		if gameroot.has_property("PW"):
-			comments+=_("White").encode("utf")+": "+gameroot.get("PW")+"\n"
+		if node_has(gameroot,"RSGF"):
+			comments+=node_get(gameroot,"RSGF")
+		if node_has(gameroot,"PB"):
+			comments+=_("Black")+": "+node_get(gameroot,"PB")+"\n"
+		if node_has(gameroot,"PW"):
+			comments+=_("White")+": "+node_get(gameroot,"PW")+"\n"
 		
 		if comments:
 			comments+="\n"
 	
-	comments+=_("Move %i").encode("utf")%current_move
+	comments+=_("Move %i")%current_move
 	game_move_color,game_move=get_node(gameroot,current_move).get_move()
 	
 	if not game_move_color:
 		game_move_color=guess_color_to_play(gameroot,current_move)
 	
 	if game_move_color.lower()=="w":
-		comments+="\n"+(position_data_formating["W"].encode("utf"))%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move).upper()
 	elif game_move_color.lower()=="b":
-		comments+="\n"+(position_data_formating["B"].encode("utf"))%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move).upper()
 	
 	node=get_node(gameroot,current_move)
-	if node.has_property("CBM"):
-		bot=gameroot.get("BOT")
-		comments+="\n"+(position_data_formating["CBM"].encode("utf"))%(bot,node.get("CBM"))
+	if node_has(node,"CBM"):
+		bot=node_get(gameroot,"BOT")
+		comments+="\n"+(position_data_formating["CBM"])%(bot,node_get(node,"CBM"))
 		try:
-			if node[1].has_property("BKMV"):
-				if node[1].get("BKMV")=="yes":
+			if node_has(node[1],"BKMV"):
+				if node_get(node[1],"BKMV")=="yes":
 					comments+=" ("+variation_data_formating["BKMV"]+")"
 		except:
 			pass
 	try:
-		if node.has_property("BWWR"):
-			if node[0].has_property("BWWR"):
+		if node_has(node,"BWWR"):
+			if node_has(node[0],"BWWR"):
 				if node.get_move()[0].lower()=="b":
-					comments+="\n\n"+_("Black win probability:").encode("utf")
-					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[0]
-					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[0]
-					comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[0])-float(node.get("BWWR").split("%/")[0]))
+					comments+="\n\n"+_("Black win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node_get(node,"BWWR").split("/")[0]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node_get(node[0],"BWWR").split("/")[0]
+					comments+=" (%+.2fpp)"%(float(node_get(node[0],"BWWR").split("%/")[0])-float(node_get(node,"BWWR").split("%/")[0]))
 				else:
-					comments+="\n\n"+_("White win probability:").encode("utf")
-					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("BWWR").split("/")[1]
-					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("BWWR").split("/")[1]
-					comments+=" (%+.2fpp)"%(float(node[0].get("BWWR").split("%/")[1][:-1])-float(node.get("BWWR").split("%/")[1][:-1]))
+					comments+="\n\n"+_("White win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node_get(node,"BWWR").split("/")[1]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node_get(node[0],"BWWR").split("/")[1]
+					comments+=" (%+.2fpp)"%(float(node_get(node[0],"BWWR").split("%/")[1][:-1])-float(node_get(node,"BWWR").split("%/")[1][:-1]))
 	except:
 		pass
 	
 	try:
-		if node.has_property("VNWR"):
-			if node[0].has_property("VNWR"):
+		if node_has(node,"VNWR"):
+			if node_has(node[0],"VNWR"):
 				if node.get_move()[0].lower()=="b":
-					comments+="\n\n"+_("Black Value Network win probability:").encode("utf")
-					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[0]
-					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[0]
-					comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[0])-float(node.get("VNWR").split("%/")[0]))
+					comments+="\n\n"+_("Black Value Network win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node_get(node,"VNWR").split("/")[0]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node_get(node[0],"VNWR").split("/")[0]
+					comments+=" (%+.2fpp)"%(float(node_get(node[0],"VNWR").split("%/")[0])-float(node_get(node,"VNWR").split("%/")[0]))
 				else:
-					comments+="\n\n"+_("White Value Network win probability:").encode("utf")
-					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("VNWR").split("/")[1]
-					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("VNWR").split("/")[1]
-					comments+=" (%+.2fpp)"%(float(node[0].get("VNWR").split("%/")[1][:-1])-float(node.get("VNWR").split("%/")[1][:-1]))
+					comments+="\n\n"+_("White Value Network win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node_get(node,"VNWR").split("/")[1]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node_get(node[0],"VNWR").split("/")[1]
+					comments+=" (%+.2fpp)"%(float(node_get(node[0],"VNWR").split("%/")[1][:-1])-float(node_get(node,"VNWR").split("%/")[1][:-1]))
 	except:
 		pass
 	
 	try:
-		if node.has_property("MCWR"):
-			if node[0].has_property("MCWR"):
+		if node_has(node,"MCWR"):
+			if node_has(node[0],"MCWR"):
 				if node.get_move()[0].lower()=="b":
-					comments+="\n\n"+_("Black Monte Carlo win probability:").encode("utf")
-					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[0]
-					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[0]
-					comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[0])-float(node.get("MCWR").split("%/")[0]))
+					comments+="\n\n"+_("Black Monte Carlo win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node_get(node,"MCWR").split("/")[0]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node_get(node[0],"MCWR").split("/")[0]
+					comments+=" (%+.2fpp)"%(float(node_get(node[0],"MCWR").split("%/")[0])-float(node_get(node,"MCWR").split("%/")[0]))
 				else:
-					comments+="\n\n"+_("White Monte Carlo win probability:").encode("utf")
-					comments+="\n • "+(_("before %s").encode("utf")%ij2gtp(game_move))+": "+node.get("MCWR").split("/")[1]
-					comments+="\n • "+(_("after %s").encode("utf")%ij2gtp(game_move))+": "+node[0].get("MCWR").split("/")[1]
-					comments+=" (%+.2fpp)"%(float(node[0].get("MCWR").split("%/")[1][:-1])-float(node.get("MCWR").split("%/")[1][:-1]))
+					comments+="\n\n"+_("White Monte Carlo win probability:")
+					comments+="\n • "+(_("before %s")%ij2gtp(game_move))+": "+node_get(node,"MCWR").split("/")[1]
+					comments+="\n • "+(_("after %s")%ij2gtp(game_move))+": "+node_get(node[0],"MCWR").split("/")[1]
+					comments+=" (%+.2fpp)"%(float(node_get(node[0],"MCWR").split("%/")[1][:-1])-float(node_get(node,"MCWR").split("%/")[1][:-1]))
 	except:
 		pass
 	
@@ -2102,12 +2127,12 @@ def get_position_short_comments(current_move,gameroot):
 
 	comments+=_("%s%i/%i: %s ")%(game_move_color.upper(),current_move,get_node_number(gameroot),ij2gtp(game_move).upper())
 
-	if node.has_property("CBM"):
-		bot=gameroot.get("BOT")
-		comments+="(%s => %s"%(bot,node.get("CBM"))
+	if node_has(node,"CBM"):
+		bot=node_get(gameroot,"BOT")
+		comments+="(%s => %s"%(bot,node_get(node,"CBM"))
 		try:
-			if node[1].has_property("BKMV"):
-				if node[1].get("BKMV")=="yes":
+			if node_has(node[1],"BKMV"):
+				if node_get(node[1],"BKMV")=="yes":
 					comments+=_(": Book")
 		except:
 			pass
@@ -2136,3 +2161,27 @@ def get_node(root,number=0):
 		node=node[0]
 		k+=1
 	return node
+
+def node_set(node, property_name, value):
+	if type(value)==type(u"abc"):
+		value=value.encode("utf-8")
+	if property_name.lower() in ("w","b"):
+		node.set_move(property_name.encode("utf-8"),value)
+	else:
+		if type(property_name)==type(u"abc"):
+			property_name=property_name.encode("utf-8")
+		node.set(property_name,value)
+
+
+def node_get(node, property_name):
+	if type(property_name)==type(u"abc"):
+		property_name=property_name.encode("utf-8")
+	value=node.get(property_name)
+	if type(value)==type(str("abc")):
+		value=value.decode("utf-8")
+	return value
+
+def node_has(node, property_name):
+	if type(property_name)==type(u"abc"):
+		property_name=property_name.encode("utf-8")
+	return node.has_property(property_name)

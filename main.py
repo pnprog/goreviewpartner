@@ -1,4 +1,5 @@
-# -*- coding:Utf-8 -*-
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import sys, os
 print "STDIN encoding:",sys.stdin.encoding

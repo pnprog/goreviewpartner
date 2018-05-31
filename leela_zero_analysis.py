@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from gtp import gtp, GtpException
 import sys
@@ -37,18 +38,16 @@ class LeelaZeroAnalysis():
 		
 		if current_move>1:
 			es=leela_zero.get_leela_zero_final_score()
-			save_position_data(one_move,"ES",es)
+			node_set(one_move,"ES",es)
 			
 		best_answer=answer
-		save_position_data(one_move,"CBM",answer) #Computer Best Move
+		node_set(one_move,"CBM",answer) #Computer Best Move
 
 		position_evaluation=leela_zero.get_all_leela_zero_moves()
 		
 		if (answer.lower() in ["pass","resign"]):
 			leela_zero.undo()
 		else:
-			#one_move.set("CBM",answer.lower()) #Computer Best Move
-			
 			#let's make sure there is at least one variation available
 			if len(position_evaluation['variations'])==0:
 				position_evaluation['variations'].append({'sequence':answer})
@@ -106,7 +105,7 @@ class LeelaZeroAnalysis():
 
 				i,j=gtp2ij(one_deep_move)
 				new_child=previous_move.new_child()
-				new_child.set_move(current_color,(i,j))
+				node_set(new_child,current_color,(i,j))
 				
 				if first_variation_move==True:
 					first_variation_move=False
@@ -119,15 +118,15 @@ class LeelaZeroAnalysis():
 						else:
 							white_value=variation['value network win rate']
 							black_value=opposite_rate(white_value)	
-						save_variation_data(new_child,"VNWR",black_value+'/'+white_value)
+						node_set(new_child,"VNWR",black_value+'/'+white_value)
 						if best_move:
-							save_position_data(one_move,"VNWR",black_value+'/'+white_value)
+							node_set(one_move,"VNWR",black_value+'/'+white_value)
 
 					if 'policy network value' in variation:
-						save_variation_data(new_child,"PNV",variation['policy network value'])
+						node_set(new_child,"PNV",variation['policy network value'])
 
 					if 'playouts' in variation:
-						save_variation_data(new_child,"PLYO",variation['playouts'])
+						node_set(new_child,"PLYO",variation['playouts'])
 					
 					#new_child.add_comment_text(variation_comment)
 					

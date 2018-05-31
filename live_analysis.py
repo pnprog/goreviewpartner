@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from toolbox import *
 from toolbox import _
@@ -135,17 +136,19 @@ class LiveAnalysisLauncher(Toplevel):
 		self.white_selection.set(_("Human"))
 		
 		analyser=grp_config.get("Live","Analyser")
-		if analyser.decode("utf") in self.analysis_bots_names:
+		if analyser in self.analysis_bots_names:
 			self.bot_selection.set(analyser)
 		
 		self.change_parameters()
 		
 		black=grp_config.get("Live","black")
-		if black.decode("utf") in self.black_options:
+		print black,type(black)
+		print self.black_options
+		if black in self.black_options:
 			self.black_selection.set(black)
 			
 		white=grp_config.get("Live","white")
-		if white.decode("utf") in self.white_options:
+		if white in self.white_options:
 			self.white_selection.set(white)
 		
 		self.bot_selection.trace("w", lambda a,b,c: self.change_parameters())
@@ -196,11 +199,11 @@ class LiveAnalysisLauncher(Toplevel):
 		grp_config.set("Live","size",dim)
 		grp_config.set("Live","handicap",handicap)
 		
-		grp_config.set("Live","analyser",self.bot_selection.get().encode("utf"))
-		grp_config.set("Live","black",self.black_selection.get().encode("utf"))
-		grp_config.set("Live","white",self.white_selection.get().encode("utf"))
+		grp_config.set("Live","analyser",self.bot_selection.get())
+		grp_config.set("Live","black",self.black_selection.get())
+		grp_config.set("Live","white",self.white_selection.get())
 		
-		filename=os.path.join(grp_config.get("General","livefolder"),self.filename.get().encode("utf-8"))
+		filename=os.path.join(grp_config.get("General","livefolder"),self.filename.get())
 		self.withdraw()
 		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
 		self.parent.add_popup(popup)
@@ -363,7 +366,7 @@ class LiveAnalysis(Toplevel):
 		self.history=[]
 
 		self.g = sgf.Sgf_game(size=self.dim)
-		self.g.get_root().set("KM", self.komi)
+		node_set(self.g.get_root(),"KM", self.komi)
 		self.g_lock=Lock()
 		self.g.lock=self.g_lock
 		
@@ -377,9 +380,9 @@ class LiveAnalysis(Toplevel):
 		if grp_config.getboolean('Analysis', 'SaveCommandLine'):
 			first_comment+="\n"+("Command line: %s"%self.analyser.bot.command_line)
 
-		self.g.get_root().set("RSGF",first_comment+"\n")
-		self.g.get_root().set("BOT",self.analyser.bot.bot_name)
-		self.g.get_root().set("BOTV",self.analyser.bot.bot_version)
+		node_set(self.g.get_root(),"RSGF",first_comment+"\n")
+		node_set(self.g.get_root(),"BOT",self.analyser.bot.bot_name)
+		node_set(self.g.get_root(),"BOTV",self.analyser.bot.bot_version)
 		
 		self.cpu_lock=Lock()
 		if not self.overlap_thinking:
@@ -423,7 +426,7 @@ class LiveAnalysis(Toplevel):
 			
 		self.game_label=Label(panel,text=_("Black")+": "+player_black)
 		self.game_label.grid(column=1,row=row,sticky=W)
-		self.g.get_root().set("PB",player_black)
+		node_set(self.g.get_root(),"PB",player_black)
 		
 		row+=1
 		if self.white=="human":
@@ -437,7 +440,7 @@ class LiveAnalysis(Toplevel):
 			
 		self.game_label=Label(panel,text=_("White")+": "+player_white)
 		self.game_label.grid(column=1,row=row,sticky=W)
-		self.g.get_root().set("PW",player_white)
+		node_set(self.g.get_root(),"PW",player_white)
 		
 		row+=1
 		self.game_label=Label(panel,text=_("Komi")+": "+str(self.komi))
@@ -512,7 +515,7 @@ class LiveAnalysis(Toplevel):
 		else:
 			self.next_color=1		
 			self.current_move=1
-			self.g.get_root().set("PL", "b")
+			node_set(self.g.get_root(),"PL", "b")
 			write_rsgf(self.filename[:-4]+".rsgf",self.g)
 			self.black_to_play()
 		
@@ -623,7 +626,7 @@ class LiveAnalysis(Toplevel):
 				if handicap>1:
 					self.goban.bind("<Button-1>",lambda e: self.place_handicap(e,handicap-1))
 				else:
-					self.g.get_root().set("AB",self.handicap_stones)
+					node_set(self.g.get_root(),"AB",self.handicap_stones)
 					write_rsgf(self.filename[:-4]+".rsgf",self.g)
 					if type(self.black)!=type("abc"):
 						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
@@ -634,7 +637,7 @@ class LiveAnalysis(Toplevel):
 					self.next_color=2
 					#self.goban.bind("<Button-1>",self.click)
 					
-					self.g.get_root().set("PL", "w")
+					node_set(self.g.get_root(),"PL", "w")
 					
 					self.current_move=1
 					self.white_to_play()
@@ -754,7 +757,7 @@ class LiveAnalysis(Toplevel):
 		self.goban.display(self.grid,self.markup)
 		if color==1:
 			self.g.lock.acquire()
-			self.latest_node.set_move('b',None)
+			node_set(self.latest_node,'b',None)
 			self.g.lock.release()
 			self.black_just_passed=True
 			if type(self.white)!=type("abc"):
@@ -764,7 +767,7 @@ class LiveAnalysis(Toplevel):
 			self.white_to_play()
 		else:
 			self.g.lock.acquire()
-			self.latest_node.set_move('w',None)
+			node_set(self.latest_node,'w',None)
 			self.g.lock.release()
 			self.white_just_passed=True
 			if type(self.black)!=type("abc"):
@@ -818,7 +821,7 @@ class LiveAnalysis(Toplevel):
 			self.goban.display(self.grid,self.markup,freeze=True)
 			if color==1:
 				self.g.lock.acquire()
-				self.latest_node.set_move('b',None)
+				node_set(self.latest_node,'b',None)
 				self.g.lock.release()
 				self.black_just_passed=True
 				if type(self.white)!=type("abc"):
@@ -828,7 +831,7 @@ class LiveAnalysis(Toplevel):
 				self.white_to_play()
 			else:
 				self.g.lock.acquire()
-				self.latest_node.set_move('w',None)
+				node_set(self.latest_node,'w',None)
 				self.g.lock.release()
 				self.white_just_passed=True
 				if type(self.black)!=type("abc"):
@@ -855,7 +858,7 @@ class LiveAnalysis(Toplevel):
 			if color==1:
 				#black juste played
 				self.g.lock.acquire()
-				self.latest_node.set_move('b',(i,j))
+				node_set(self.latest_node,'b',(i,j))
 				self.g.lock.release()
 				self.black_just_passed=False
 				if type(self.white)!=type("abc"):
@@ -867,7 +870,7 @@ class LiveAnalysis(Toplevel):
 			else:
 				#white just played
 				self.g.lock.acquire()
-				self.latest_node.set_move('w',(i,j))
+				node_set(self.latest_node,'w',(i,j))
 				self.g.lock.release()
 				self.white_just_passed=False
 				if (type(self.black)!=type("abc")) and (self.white!="black"):
@@ -1002,7 +1005,7 @@ class LiveAnalysis(Toplevel):
 				self.goban.display(self.grid,self.markup,freeze=True)
 				if color==1:
 					self.g.lock.acquire()
-					self.latest_node.set_move('b',None)
+					node_set(self.latest_node,'b',None)
 					self.g.lock.release()
 					self.black_just_passed=True
 					if type(self.white)!=type("abc"):
@@ -1012,7 +1015,7 @@ class LiveAnalysis(Toplevel):
 					self.white_to_play()
 				else:
 					self.g.lock.acquire()
-					self.latest_node.set_move('w',None)
+					node_set(self.latest_node,'w',None)
 					self.g.lock.release()
 					self.white_just_passed=True
 					if type(self.black)!=type("abc"):
@@ -1035,7 +1038,7 @@ class LiveAnalysis(Toplevel):
 				
 				if color==1:
 					self.g.lock.acquire()
-					self.latest_node.set_move('b',(i,j))
+					node_set(self.latest_node,'b',(i,j))
 					self.g.lock.release()
 					self.black_just_passed=False
 					if type(self.white)!=type("abc"):
@@ -1045,7 +1048,7 @@ class LiveAnalysis(Toplevel):
 					self.white_to_play()
 				else:
 					self.g.lock.acquire()
-					self.latest_node.set_move('w',(i,j))
+					node_set(self.latest_node,'w',(i,j))
 					self.g.lock.release()
 					self.white_just_passed=False
 					if type(self.black)!=type("abc"):
@@ -1091,9 +1094,9 @@ class LiveAnalysis(Toplevel):
 				self.g.lock.acquire()
 				node = self.latest_node
 				if color==1:
-					node.set_move("b", (i,j))
+					node_set(node,"b", (i,j))
 				else:
-					node.set_move("w", (i,j))
+					node_set(node,"w", (i,j))
 				self.g.lock.release()
 				
 				
