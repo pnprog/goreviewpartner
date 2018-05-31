@@ -278,6 +278,7 @@ def open_sgf(filename):
 		txt.close()
 		filelock.release()
 		gameroot=game.get_root()
+		sgf_moves.indicate_first_player(game) #adding the PL property on the root
 		if node_has(gameroot,"CA"):
 			ca=node_get(gameroot,"CA")
 			if ca=="UTF-8":
@@ -295,10 +296,9 @@ def open_sgf(filename):
 		else:
 			#the sgf has no declared encoding, we will enforce UTF-8 encoding
 			content=game.serialise()
-			content=content.decode("utf").encode("utf") #let's check the content can be converted to UTF-8
+			content=content.decode("utf",errors="replace").encode("utf")
 			game = sgf.Sgf_game.from_string(content,override_encoding="UTF-8")
 			return game
-		return game
 	except Exception,e:
 		log("Could not open the SGF file",filename)
 		log(e)
@@ -823,7 +823,7 @@ class RunAnalysisBase(Toplevel):
 		self.error=None
 
 		self.g=open_sgf(self.filename)
-		sgf_moves.indicate_first_player(self.g)
+		
 
 		leaves=get_all_sgf_leaves(self.g.get_root())
 		log("keeping only variation",self.variation)
