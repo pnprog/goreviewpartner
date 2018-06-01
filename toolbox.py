@@ -410,8 +410,10 @@ class RangeSelector(Toplevel):
 			row+=1
 			Label(self,text="").grid(row=row,column=1)
 
+
 		row+=1
-		Label(self,text=_("Select variation to be analysed")).grid(row=row,column=1,sticky=W)
+		variation_label_widget=Label(self,text=_("Select variation to be analysed"))
+		
 		self.leaves=get_all_sgf_leaves(self.move_zero)
 		self.variation_selection=StringVar()
 		self.variation_selection.trace("w", self.variation_changed)
@@ -423,7 +425,31 @@ class RangeSelector(Toplevel):
 			v+=1
 		self.variation_selection.set(options[0])
 
-		apply(OptionMenu,(self,self.variation_selection)+tuple(options)).grid(row=row,column=2,sticky=W)
+		variation_menu_widget=apply(OptionMenu,(self,self.variation_selection)+tuple(options))
+
+		existing_variations = StringVar()
+		existing_variations.set("remove_everything")
+		
+		if node_has(self.move_zero,"RSGF"):
+			existing_variations.set("keep")
+			row+=10
+			Label(self,text=_("This analysis will be performed on an already analysed SGF file.")).grid(row=row,column=1,columnspan=2,sticky=W)
+			row+=1
+			Label(self,text=_("What to do with the existing variations?")).grid(row=row,column=1,columnspan=2,sticky=W)
+			
+			row+=1
+			d1=Radiobutton(self,text=_("Keep existing variations"),variable=existing_variations, value="keep")
+			d1.grid(row=row,column=1,sticky=W)
+
+			row+=1
+			d2=Radiobutton(self,text=_("Replace existing variations"),variable=existing_variations, value="replace")
+			d2.grid(row=row,column=1,sticky=W)
+			
+		else:
+			variation_label_widget.grid(row=row,column=1,sticky=W)
+			variation_menu_widget.grid(row=row,column=2,sticky=W)
+			
+		self.rsgf_filename=".".join(self.filename.split(".")[:-1])+".rsgf"
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -523,6 +549,7 @@ class RangeSelector(Toplevel):
 		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
 		self.mode=s
 		self.color=c
+		self.existing_variations=existing_variations
 		self.nb_moves=nb_moves
 		self.only_entry=only_entry
 		self.komi_entry=komi_entry
@@ -609,7 +636,7 @@ class RangeSelector(Toplevel):
 
 		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 
-		popup=RunAnalysis(self.parent,self.filename,move_selection,intervals,variation,komi,profile)
+		popup=RunAnalysis(self.parent,(self.filename,self.rsgf_filename),move_selection,intervals,variation,komi,profile,self.existing_variations.get())
 		self.parent.add_popup(popup)
 		self.close()
 
@@ -799,11 +826,12 @@ class LiveAnalysisBase():
 
 
 class RunAnalysisBase(Toplevel):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
+	def __init__(self,parent,filenames,move_range,intervals,variation,komi,profile="slow",existing_variations="remove_everything"):
 		if parent!="no-gui":
 			Toplevel.__init__(self,parent)
 		self.parent=parent
-		self.filename=filename
+		self.filename=filenames[0]
+		self.rsgf_filename=filenames[1]
 		self.move_range=move_range
 		self.update_queue=Queue.Queue(1)
 		self.intervals=intervals
@@ -812,27 +840,46 @@ class RunAnalysisBase(Toplevel):
 		self.profile=profile
 		self.g=None
 		self.move_zero=None
-
 		self.current_move=None
 		self.time_per_move=None
+		self.existing_variations=existing_variations
 		
 		self.no_variation_if_same_move=self.no_variation_if_same_move=grp_config.getboolean('Analysis', 'NoVariationIfSameMove')
 		
 		self.error=None
 
 		self.g=open_sgf(self.filename)
+		self.move_zero=self.g.get_root()
+		self.max_move=get_moves_number(self.move_zero)
 		
-
-		leaves=get_all_sgf_leaves(self.g.get_root())
-		log("keeping only variation",self.variation)
-		keep_only_one_leaf(leaves[self.variation][0])
-
+		if existing_variations=="remove_everything":
+			leaves=get_all_sgf_leaves(self.g.get_root())
+			log("keeping only variation",self.variation)
+			keep_only_one_leaf(leaves[self.variation][0])
+		else:
+			log("analysis will be performed on first variation")
+			if existing_variations=="keep":
+				move=1
+				log("checking for moves already analysed")
+				already_analysed=[]
+				while move<=self.max_move:
+					if move in self.move_range:
+						node=go_to_move(self.move_zero,move)
+						if len(node.parent)>1:
+							already_analysed.append(move)
+					move+=1
+				log("The following moves are already analysed and will be skipped")
+				log(already_analysed)
+				for move in already_analysed:
+					self.move_range.remove(move)
+				if not self.move_range:
+					self.move_range=["empty"]
+		
 		size=self.g.get_size()
 		log("size of the tree:", size)
 		self.size=size
 
 		log("Setting new komi")
-		self.move_zero=self.g.get_root()
 		node_set(self.g.get_root(),"KM",self.komi)
 
 		try:
@@ -845,7 +892,7 @@ class RunAnalysisBase(Toplevel):
 		if not self.bot:
 			return
 
-		self.max_move=get_moves_number(self.move_zero)
+		
 		self.total_done=0
 
 		if parent!="no-gui":
@@ -918,9 +965,14 @@ class RunAnalysisBase(Toplevel):
 		while self.current_move<=self.max_move:
 			answer=""
 			if self.current_move in self.move_range:
+				parent=go_to_move(self.move_zero,self.current_move-1)
+				if len(parent)>1:
+					log("Removing existing",len(parent)-1,"variations")
+					for other_leaf in parent[1:]:
+						other_leaf.delete()
 				answer=self.run_analysis(self.current_move)
 				self.total_done+=1
-				write_rsgf(self.filename[:-4]+".rsgf",self.g)
+				write_rsgf(self.rsgf_filename,self.g)
 				log("For this position,",self.bot.bot_name,"would play:",answer)
 				log("Analysis for this move is completed")
 			elif self.move_range:
@@ -935,7 +987,7 @@ class RunAnalysisBase(Toplevel):
 							parent=go_to_move(self.move_zero,self.current_move-1)
 							for child in parent[1:]:
 								child.delete()
-							write_rsgf(self.filename[:-4]+".rsgf",self.g)
+							write_rsgf(self.rsgf_filename,self.g)
 			except:
 				#what could possibly go wrong with this?
 				pass
@@ -1021,7 +1073,7 @@ class RunAnalysisBase(Toplevel):
 	def start_review(self):
 		import dual_view
 		app=self.parent
-		popup=dual_view.DualView(app,self.filename[:-4]+".rsgf")
+		popup=dual_view.DualView(app,self.rsgf_filename)
 		self.parent.add_popup(popup)
 		if (self.pb["maximum"] == 100) and (self.pb["value"] == 100):
 			self.close()
@@ -1084,7 +1136,7 @@ class RunAnalysisBase(Toplevel):
 
 
 		try:
-			write_rsgf(self.filename[:-4]+".rsgf",self.g)
+			write_rsgf(self.rsgf_filename,self.g)
 		except Exception,e:
 			show_error(str(e),parent=self)
 			self.lab1.config(text=_("Aborted"))
@@ -1938,7 +1990,7 @@ try:
 	
 	def open_all_file(parent,config,filetype):
 		initialdir = grp_config.get(config[0],config[1])
-		dialog = wx.FileDialog(None,_('Select a file'), defaultDir=initialdir, wildcard=filetype[0]+" "+filetype[1], style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+		dialog = wx.FileDialog(None,_('Select a file'), defaultDir=initialdir, wildcard=filetype, style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
 		filename = None
 		if dialog.ShowModal() == wx.ID_OK:
 			filename = dialog.GetPath()
@@ -1949,9 +2001,11 @@ try:
 		return filename
 	
 	def open_sgf_file(parent=None):
-		return open_all_file(parent,config=("General","sgffolder"),filetype=(_("SGF file"),"(*.sgf;*.SGF)|*.sgf;*.SGF"))
+		wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF;|"+_("Reviewed SGF file")+" (*.rsgf;*.RSGF)|*.rsgf;*.RSGF"
+		return open_all_file(parent,config=("General","sgffolder"),filetype= wildcard)
 	def open_rsgf_file(parent=None):
-		return open_all_file(parent,config=("General","rsgffolder"),filetype=(_("Reviewed SGF file"),"(*.rsgf;*.RSGF)|*.rsgf;*.RSGF"))
+		wildcard=_("Reviewed SGF file")+" (*.rsgf;*.RSGF)|*.rsgf;*.RSGF"
+		return open_all_file(parent,config=("General","rsgffolder"),filetype=wildcard)
 
 	def save_all_file(filename, parent, config, filetype):
 		initialdir = grp_config.get(config[0],config[1])
@@ -1980,7 +2034,7 @@ except Exception, e:
 	def open_all_file(parent,config,filetype):
 		import tkFileDialog
 		initialdir = grp_config.get(config[0],config[1])
-		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(filetype[0], filetype[1])])
+		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes =filetype )
 		if filename:
 			initialdir=os.path.dirname(filename)
 			grp_config.set(config[0],config[1],initialdir)
@@ -1988,10 +2042,10 @@ except Exception, e:
 		return filename
 		
 	def open_sgf_file(parent=None):
-		return open_all_file(parent,config=("General","sgffolder"),filetype=((_('SGF file'), '.sgf')))
+		return open_all_file(parent,config=("General","sgffolder"),filetype=[(_('SGF file'), '.sgf'),(_('Reviewed SGF file'), '.rsgf')])
 	
 	def open_rsgf_file(parent=None):
-		return open_all_file(parent,config=("General","rsgffolder"),filetype=((_('Reviewed SGF file'), '.rsgf')))
+		return open_all_file(parent,config=("General","rsgffolder"),filetype=[(_('Reviewed SGF file'), '.rsgf')])
 		
 	def save_all_file(filename, parent,config,filetype):
 		import tkFileDialog

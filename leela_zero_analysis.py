@@ -176,8 +176,8 @@ def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
 
 
 class RunAnalysis(LeelaZeroAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow"):
-		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile)
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow",existing_variations="remove_everything"):
+		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations)
 
 class LiveAnalysis(LeelaZeroAnalysis,LiveAnalysisBase):
 	def __init__(self,g,filename,profile="slow"):
