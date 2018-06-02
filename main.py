@@ -11,7 +11,7 @@ try:
 	from Tkinter import * 
 except Exception, e:
 	print "Could not import the Tkinter librairy, please double check it is installed:"
-	print str(e)
+	print unicode(e)
 	raw_input()
 	sys.exit()
 

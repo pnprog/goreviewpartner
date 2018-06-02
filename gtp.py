@@ -6,10 +6,7 @@ import threading, Queue
 
 from time import sleep,time
 
-from toolbox import log
-
-class GtpException(Exception):
-	pass
+from toolbox import log,GRPException
 
 class gtp():
 	def __init__(self,command):
@@ -59,7 +56,7 @@ class gtp():
 		try:
 			self.process.stdin.write(txt+"\n")
 		except Exception, e:
-			log("Error while writting to stdin\n"+str(e))
+			log("Error while writting to stdin\n"+unicode(e))
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
 		self.c+=1
 
@@ -116,7 +113,7 @@ class gtp():
 			self.history.append(["b",move])
 			return move
 		except Exception, e:
-			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in genmove_black()\nanswer='"+answer+"'\n"+unicode(e))
 
 		
 	def play_white(self):
@@ -127,7 +124,7 @@ class gtp():
 			self.history.append(["w",move])
 			return move
 		except Exception, e:
-			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in genmove_white()\nanswer='"+answer+"'\n"+unicode(e))
 
 
 	def undo(self):
@@ -149,7 +146,7 @@ class gtp():
 						return False
 			return True			
 		except Exception, e:
-			raise GtpException("GtpException in undo()\n"+str(e))
+			raise GRPException("GRPException in undo()\n"+unicode(e))
 	
 	def place(self,move,color):
 		if color==1:
@@ -163,7 +160,7 @@ class gtp():
 		try:
 			return " ".join(answer.split(" ")[1:])
 		except Exception, e:
-			raise GtpException("GtpException in name()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in name()\nanswer='"+answer+"'\n"+unicode(e))
 	
 	def version(self):
 		self.write("version")
@@ -171,7 +168,7 @@ class gtp():
 		try:
 			return answer.split(" ")[1]
 		except Exception,e:
-			raise GtpException("GtpException in version()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in version()\nanswer='"+answer+"'\n"+unicode(e))
 
 
 	def set_free_handicap(self,positions):
@@ -187,7 +184,7 @@ class gtp():
 			else:
 				return False	
 		except Exception, e:
-			raise GtpException("GtpException in set_free_handicap()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in set_free_handicap()\nanswer='"+answer+"'\n"+unicode(e))
 	
 	def undo_standard(self):
 		self.write("undo")
@@ -198,7 +195,7 @@ class gtp():
 			else:
 				return False			
 		except Exception, e:
-			raise GtpException("GtpException in undo()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in undo()\nanswer='"+answer+"'\n"+unicode(e))
 	
 	def countlib(self,move):
 		self.write("countlib "+move)
@@ -225,7 +222,7 @@ class gtp():
 			if answer[0]=="=":return True
 			else:return False
 		except Exception, e:
-			raise GtpException("GtpException in set_time()\nanswer='"+answer+"'\n"+str(e))
+			raise GRPException("GRPException in set_time()\nanswer='"+answer+"'\n"+unicode(e))
 
 	def quit(self):
 		self.write("quit")

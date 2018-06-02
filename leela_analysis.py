@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from gtp import gtp, GtpException
+from gtp import gtp
 import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
@@ -292,7 +292,7 @@ class Leela_gtp(gtp):
 		try:
 			return answer.split(" ")[1]
 		except:
-			raise GtpException("GtpException in Get_leela_final_score()")
+			raise GRPException("GRPException in Get_leela_final_score()")
 
 	def get_leela_influence(self):
 		self.write("influence")
@@ -546,7 +546,7 @@ if __name__ == "__main__":
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])
 		except Exception, e:
-			show_error(str(e)+"\n"+usage)
+			show_error(unicode(e)+"\n"+usage)
 			sys.exit()
 		
 		if not parameters[1]:

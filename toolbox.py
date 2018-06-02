@@ -1,8 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-class AbortedException(Exception):
-	pass
+class GRPException(Exception):
+	def __init__(self,msg):
+		if type(msg)==type(u"abc"):
+			print "converting GRPException error message from unicode to str"
+			self.utf_msg=msg
+			self.str_msg=msg.encode("utf-8",errors='replace')
+		else:
+			self.str_msg=msg
+			self.utf_msg=msg.decode("utf-8",errors='replace')
+		Exception.__init__(self,self.str_msg)
+	
+	def __unicode__(self):
+		return self.utf_msg
 
 import threading
 import codecs
@@ -14,9 +25,14 @@ def log(*args):
 	encoding=sys.stdout.encoding
 	for arg in args:
 		try:
-			if type(arg)!=type(u'abc'):
-				arg=str(arg)
-				arg=arg.decode('utf-8')
+			if type(arg)==type(str('abc')):
+				arg=arg.decode('utf-8',errors='replace')
+			elif type(arg)!=type(u'abc'):
+				try:
+					arg=str(arg)
+				except:
+					arg=unicode(arg,errors='replace')
+				arg=arg.decode('utf-8',errors='replace')
 			arg=arg.encode(encoding, errors='replace')
 			print arg,
 		except:
@@ -30,9 +46,14 @@ def linelog(*args):
 	encoding=sys.stdout.encoding
 	for arg in args:
 		try:
-			if type(arg)!=type(u'abc'):
-				arg=str(arg)
-				arg=arg.decode('utf-8')
+			if type(arg)==type(str('abc')):
+				arg=arg.decode('utf-8',errors='replace')
+			elif type(arg)!=type(u'abc'):
+				try:
+					arg=str(arg)
+				except:
+					arg=unicode(arg,errors='replace')
+				arg=arg.decode('utf-8',errors='replace')
 			arg=arg.encode(encoding, errors='replace')
 			print arg,
 		except:
@@ -42,7 +63,8 @@ def linelog(*args):
 import tkMessageBox
 
 def show_error(txt,parent=None):
-	txt=unicode(txt)
+	if type(txt)==type(str('abc')):
+		txt=txt.decode('utf-8',errors='replace')
 	try:
 		tkMessageBox.showerror(_("Error"),txt,parent=parent)
 		log("ERROR: "+txt)
@@ -50,7 +72,8 @@ def show_error(txt,parent=None):
 		log("ERROR: "+txt)
 
 def show_info(txt,parent=None):
-	txt=unicode(txt)
+	if type(txt)==type(str('abc')):
+		txt=txt.decode('utf-8',errors='replace')
 	try:
 		tkMessageBox.showinfo(_("Information"),txt,parent=parent)
 		log("INFO: "+txt)
@@ -85,7 +108,7 @@ def gtp2ij(move):
 		letters="abcdefghjklmnopqrstuvwxyz"
 		return int(move[1:])-1,letters.index(move[0].lower())
 	except:
-		raise AbortedException("Cannot convert GTP coordinates "+str(move)+" to grid coordinates!")
+		raise GRPException("Cannot convert GTP coordinates "+str(move)+" to grid coordinates!")
 
 
 
@@ -100,7 +123,7 @@ def ij2gtp(m):
 		letters="abcdefghjklmnopqrstuvwxyz"
 		return letters[j]+str(i+1)
 	except:
-		raise AbortedException("Cannot convert grid coordinates "+str(m)+" to GTP coordinates!")
+		raise GRPException("Cannot convert grid coordinates "+str(m)+" to GTP coordinates!")
 
 
 def ij2sgf(m):
@@ -112,7 +135,7 @@ def ij2sgf(m):
 		letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
 		return letters[j]+letters[i]
 	except:
-		raise AbortedException("Cannot convert grid coordinates "+str(m)+" to SGF coordinates!")
+		raise GRPException("Cannot convert grid coordinates "+str(m)+" to SGF coordinates!")
 
 from gomill import sgf, sgf_moves
 from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu
@@ -203,10 +226,6 @@ class DownloadFromURL(Toplevel):
 		self.destroy()
 
 
-
-class WriteException(Exception):
-	pass
-
 filelock=threading.Lock()
 c=0
 def write_rsgf(filename,sgf_content):
@@ -230,11 +249,16 @@ def write_rsgf(filename,sgf_content):
 		
 		new_file.close()
 		filelock.release()
-	except Exception,e:
-		log("Could not save the RSGF file",filename)
-		log(e)
+	except IOError, e:
 		filelock.release()
-		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+unicode(e))
+		log("Could not save the RSGF file",filename)
+		log("=>", e.errno,e.strerror)
+		raise GRPException(_("Could not save the RSGF file: ")+filename+"\n"+e.strerror)
+	except Exception,e:
+		filelock.release()
+		log("Could not save the RSGF file",filename)
+		log("=>",e)
+		raise GRPException(_("Could not save the RSGF file: ")+filename+"\n"+unicode(e))
 
 def write_sgf(filename,sgf_content):
 	filelock.acquire()
@@ -256,11 +280,16 @@ def write_sgf(filename,sgf_content):
 		
 		new_file.close()
 		filelock.release()
-	except Exception,e:
-		log("Could not save the SGF file",filename)
-		log(e)
+	except IOError, e:
 		filelock.release()
-		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
+		log("Could not save the SGF file",filename)
+		log("=>", e.errno,e.strerror)
+		raise GRPException(_("Could not save the RSGF file: ")+filename+"\n"+e.strerror)
+	except Exception,e:
+		filelock.release()
+		log("Could not save the RSGF file",filename)
+		log("=>",e)
+		raise GRPException(_("Could not save the SGF file: ")+filename+"\n"+unicode(e))
 
 def open_sgf(filename):
 	filelock.acquire()
@@ -295,14 +324,19 @@ def open_sgf(filename):
 			content=content.decode("utf",errors="replace").encode("utf")
 			game = sgf.Sgf_game.from_string(content,override_encoding="UTF-8")
 			return game
+	except IOError, e:
+		filelock.release()
+		log("Could not open the SGF file",filename)
+		log("=>", e.errno,e.strerror)
+		raise GRPException(_("Could not open the RSGF file: ")+filename+"\n"+e.strerror)
 	except Exception,e:
 		log("Could not open the SGF file",filename)
-		log(e)
+		log("=>",e)
 		try:
 			filelock.release()
 		except:
 			pass
-		raise WriteException(_("Could not open the SGF file: ")+filename+"\n"+str(e))
+		raise GRPException(_("Could not open the SGF file: ")+filename+"\n"+unicode(e))
 
 def clean_sgf(txt):
 	#txt is still of type str here....
@@ -528,8 +562,8 @@ class RangeSelector(Toplevel):
 			komi=self.g.get_komi()
 			komi_entry.insert(0, str(komi))
 		except Exception, e:
-			log("Error while reading komi value, please check:\n"+str(e))
-			show_error(_("Error while reading komi value, please check:")+"\n"+str(e),parent=self)
+			log("Error while reading komi value, please check:\n"+unicode(e))
+			show_error(_("Error while reading komi value, please check:")+"\n"+unicode(e),parent=self)
 			komi_entry.insert(0, "0")
 
 		row+=10
@@ -844,48 +878,53 @@ class RunAnalysisBase(Toplevel):
 		self.time_per_move=None
 		self.existing_variations=existing_variations
 		
-		self.no_variation_if_same_move=self.no_variation_if_same_move=grp_config.getboolean('Analysis', 'NoVariationIfSameMove')
+		self.no_variation_if_same_move=grp_config.getboolean('Analysis', 'NoVariationIfSameMove')
 		
 		self.error=None
+		try:
+			self.g=open_sgf(self.filename)
+			self.move_zero=self.g.get_root()
+			self.max_move=get_moves_number(self.move_zero)
+			
+			if existing_variations=="remove_everything":
+				leaves=get_all_sgf_leaves(self.g.get_root())
+				log("keeping only variation",self.variation)
+				keep_only_one_leaf(leaves[self.variation][0])
+			else:
+				log("analysis will be performed on first variation")
+				if existing_variations=="keep":
+					move=1
+					log("checking for moves already analysed")
+					already_analysed=[]
+					while move<=self.max_move:
+						if move in self.move_range:
+							node=go_to_move(self.move_zero,move)
+							if len(node.parent)>1:
+								already_analysed.append(move)
+						move+=1
+					log("The following moves are already analysed and will be skipped")
+					log(already_analysed)
+					for move in already_analysed:
+						self.move_range.remove(move)
+					if not self.move_range:
+						self.move_range=["empty"]
+			
+			size=self.g.get_size()
+			log("size of the tree:", size)
+			self.size=size
 
-		self.g=open_sgf(self.filename)
-		self.move_zero=self.g.get_root()
-		self.max_move=get_moves_number(self.move_zero)
+			log("Setting new komi")
+			node_set(self.g.get_root(),"KM",self.komi)
+		except Exception,e:
+			self.error=unicode(e)
+			self.abort()
+			return
 		
-		if existing_variations=="remove_everything":
-			leaves=get_all_sgf_leaves(self.g.get_root())
-			log("keeping only variation",self.variation)
-			keep_only_one_leaf(leaves[self.variation][0])
-		else:
-			log("analysis will be performed on first variation")
-			if existing_variations=="keep":
-				move=1
-				log("checking for moves already analysed")
-				already_analysed=[]
-				while move<=self.max_move:
-					if move in self.move_range:
-						node=go_to_move(self.move_zero,move)
-						if len(node.parent)>1:
-							already_analysed.append(move)
-					move+=1
-				log("The following moves are already analysed and will be skipped")
-				log(already_analysed)
-				for move in already_analysed:
-					self.move_range.remove(move)
-				if not self.move_range:
-					self.move_range=["empty"]
 		
-		size=self.g.get_size()
-		log("size of the tree:", size)
-		self.size=size
-
-		log("Setting new komi")
-		node_set(self.g.get_root(),"KM",self.komi)
-
 		try:
 			self.bot=self.initialize_bot()
 		except Exception,e:
-			self.error=_("Error while initializing the GTP bot:")+"\n"+str(e)
+			self.error=_("Error while initializing the GTP bot:")+"\n"+unicode(e)
 			self.abort()
 			return
 
@@ -899,7 +938,7 @@ class RunAnalysisBase(Toplevel):
 			try:
 				self.initialize_UI()
 			except Exception,e:
-				self.error=_("Error while initializing the graphical interface:")+"\n"+str(e)
+				self.error=_("Error while initializing the graphical interface:")+"\n"+unicode(e)
 				self.abort()
 				return
 			self.root.after(500,self.follow_analysis)
@@ -1134,14 +1173,12 @@ class RunAnalysisBase(Toplevel):
 		self.pb = ttk.Progressbar(right_frame, orient="horizontal", length=250,maximum=self.max_move+1, mode="determinate")
 		self.pb.pack()
 
-
 		try:
 			write_rsgf(self.rsgf_filename,self.g)
 		except Exception,e:
-			show_error(str(e),parent=self)
 			self.lab1.config(text=_("Aborted"))
 			self.lab2.config(text="")
-			return
+			raise e
 
 		self.t0=time.time()
 		
@@ -1201,10 +1238,6 @@ class BotOpenMove():
 			log("killing",self.name)
 			self.bot.close()
 
-
-class LaunchingException(Exception):
-	pass
-
 def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",silentfail=False):
 	log("Bot starting procedure started with profile =",profile)
 	log("\tbot name:",bot_name)
@@ -1224,28 +1257,28 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		except:
 			#normaly, this should not happen anymore.
 			#to be deleted soon, or moved somewhere else
-			raise LaunchingException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
+			raise GRPException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
 
 		if not bot_command_line:
-			raise LaunchingException(_("The config.ini file %s entry for %s is empty!")%(command_entry, bot_name))
+			raise GRPException(_("The config.ini file %s entry for %s is empty!")%(command_entry, bot_name))
 
 		log("Starting "+bot_name+"...")
 		try:
 			bot_command_line=[grp_config.get(bot_name, command_entry)]+grp_config.get(bot_name, parameters_entry).split()
 			bot=bot_gtp(bot_command_line)
 		except Exception,e:
-			raise LaunchingException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+grp_config.get(bot_name, command_entry)+" "+grp_config.get(bot_name, parameters_entry)+"\n"+str(e))
+			raise GRPException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+grp_config.get(bot_name, command_entry)+" "+grp_config.get(bot_name, parameters_entry)+"\n"+unicode(e))
 
 		log(bot_name+" started")
 		log(bot_name+" identification through GTP...")
 		try:
 			answer=bot.name()
 		except Exception, e:
-			raise LaunchingException((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+str(e))
+			raise GRPException((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+unicode(e))
 
 
 		if answer!=bot_gtp_name:
-			raise LaunchingException((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
+			raise GRPException((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
 
 
 		log(bot_name+" identified itself properly")
@@ -1253,17 +1286,17 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		try:
 			bot_version=bot.version()
 		except Exception, e:
-			raise LaunchingException((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+str(e))
+			raise GRPException((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+unicode(e))
 
 		log("Version: "+bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
 		try:
 			ok=bot.boardsize(size)
 		except:
-			raise LaunchingException((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%bot_name))
+			raise GRPException((_("Could not set the goboard size using GTP command. Check that %s is running in GTP mode.")%bot_name))
 
 		if not ok:
-			raise LaunchingException(_("%s rejected this board size (%ix%i)")%(bot_name,size,size))
+			raise GRPException(_("%s rejected this board size (%ix%i)")%(bot_name,size,size))
 
 
 		log("Clearing the board")
@@ -1318,11 +1351,11 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 		bot.bot_name=bot_gtp_name
 		bot.bot_version=bot_version
-	except LaunchingException,e:
+	except Exception,e:
 		if silentfail:
 			log(e)
 		else:
-			show_error(e)
+			show_error(unicode(e))
 		return False
 	return bot
 
@@ -1476,7 +1509,7 @@ def parse_command_line(filename,argv):
 		try:
 			komi=g.get_komi()
 		except Exception, e:
-			msg="Error while reading komi value, please check:\n"+str(e)
+			msg="Error while reading komi value, please check:\n"+unicode(e)
 			msg+="\nPlease indicate komi using --komi parameter"
 			log(msg)
 			show_error(msg)
@@ -1541,7 +1574,7 @@ conf = ConfigParser.ConfigParser()
 try:
 	conf.readfp(codecs.open(config_file,"r","utf-8"))
 except Exception, e:
-	show_error("Could not open the config file of Go Review Partner"+"\n"+str(e)) #this cannot be translated
+	show_error("Could not open the config file of Go Review Partner"+"\n"+unicode(e)) #this cannot be translated
 	sys.exit()
 
 class MyConfig():

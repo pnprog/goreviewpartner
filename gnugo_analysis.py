@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from gtp import gtp, GtpException
+from gtp import gtp
 import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
@@ -124,7 +124,7 @@ class GnuGoAnalysis():
 					
 				for one_thread in all_threads:
 					if type(one_thread.sequence)!=type(["list"]):
-						raise AbortedException(_("GnuGo thread failed:")+"\n"+str(one_thread.sequence))
+						raise GRPException(_("GnuGo thread failed:")+"\n"+str(one_thread.sequence))
 					
 					one_sequence=one_thread.one_top_move+" "+one_thread.sequence[0]
 					es=one_thread.sequence[1]
@@ -273,7 +273,7 @@ class GnuGo_gtp(gtp):
 		try:
 			return answer[2:]
 		except:
-			raise GtpException("GtpException in get_gnugo_estimate_score()")
+			raise GRPException("GRPException in get_gnugo_estimate_score()")
 	
 	def gnugo_top_moves_black(self):
 		self.write("top_moves_black")
@@ -281,7 +281,7 @@ class GnuGo_gtp(gtp):
 		try:
 			answer=answer.split(" ")[1:-1]
 		except:
-			raise GtpException("GtpException in get_gnugo_top_moves_black()")
+			raise GRPException("GRPException in get_gnugo_top_moves_black()")
 		answers_list=[]
 		for value in answer:
 			try:
@@ -296,7 +296,7 @@ class GnuGo_gtp(gtp):
 		try:
 			answer=answer.split(" ")[1:-1]
 		except:
-			raise GtpException("GtpException in get_gnugo_top_moves_white()")
+			raise GRPException("GRPException in get_gnugo_top_moves_white()")
 		answers_list=[]
 		for value in answer:
 			try:
@@ -484,7 +484,7 @@ if __name__ == "__main__":
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])
 		except Exception, e:
-			show_error(str(e)+"\n"+usage)
+			show_error(unicode(e)+"\n"+usage)
 			sys.exit()
 		
 		if not parameters[1]:
