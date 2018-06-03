@@ -169,9 +169,9 @@ class AQ_gtp(gtp):
 
 	def quick_evaluation(self,color):
 		if color==2:
-			answer=self.play_white()
+			self.play_white()
 		else:
-			answer=self.play_black()
+			self.play_black()
 		all_moves=self.get_all_aq_moves()
 		self.undo()
 

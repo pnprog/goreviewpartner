@@ -182,7 +182,6 @@ class OpenChart(Toplevel):
 		#drawing vertical graduation
 		graduations=[x*2 for x in range(0,int((maximum+2)/2.))]
 		x0=border/2
-		x1=width-border/2
 		middle=height-border-(height-2*border)/2
 		#placing 0 first
 		y0=middle
@@ -1571,7 +1570,7 @@ class DualView(Toplevel):
 
 			try:
 				one_data['player_color']=guess_color_to_play(self.gameroot,m) #which turn it is to play
-			except Exception, e:
+			except:
 				pass
 			
 			try:
@@ -1808,7 +1807,6 @@ class DualView(Toplevel):
 		
 		self.territories=[[],[]]
 		if m>0:
-			the_move=one_move
 			if node_has(one_move,"TB"):
 				self.territories[0]=node_get(one_move,"TB")
 			if node_has(one_move,"TW"):
@@ -2075,7 +2073,6 @@ class DualView(Toplevel):
 		gobans_frame = PanedWindow(central_frame,relief=SUNKEN, orient=HORIZONTAL) #one paned frame for gobans, so that they resize at the same ratio
 		
 		# Such frames
-		buttons_bar=Frame(self)
 		self.buttons_bar2=Frame(self)
 		self.lists_frame=Frame(central_frame,relief=SUNKEN)
 		self.table_frame = None

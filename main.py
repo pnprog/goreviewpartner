@@ -33,7 +33,7 @@ class Main(Toplevel):
 
 		self.popups=[]
 
-		self.control_frame = Frame(self);
+		self.control_frame = Frame(self)
 		
 		label = Label(self.control_frame, text=_("This is GoReviewPartner"), font="-weight bold")
 		label.pack(padx=5, pady=5)

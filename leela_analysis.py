@@ -265,9 +265,9 @@ class Leela_gtp(gtp):
 		
 	def quick_evaluation(self,color):
 		if color==2:
-			answer=self.play_white()
+			self.play_white()
 		else:
-			answer=self.play_black()
+			self.play_black()
 		position_evaluation=self.get_all_leela_moves()
 		self.undo()
 		

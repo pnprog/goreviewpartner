@@ -200,9 +200,9 @@ class Leela_Zero_gtp(gtp):
 
 	def quick_evaluation(self,color):
 		if color==2:
-			answer=self.play_white()
+			self.play_white()
 		else:
-			answer=self.play_black()
+			self.play_black()
 		position_evaluation=self.get_all_leela_zero_moves()
 		self.undo()
 		
@@ -362,7 +362,7 @@ from leela_analysis import LeelaSettings
 
 class LeelaZeroSettings(LeelaSettings):
 	def __init__(self,parent):
-		Frame.__init__(self,parent)
+		LeelaSettings.__init__(self,parent)
 		self.name="LeelaZero"
 		self.parent=parent
 		self.gtp=Leela_Zero_gtp

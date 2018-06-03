@@ -806,7 +806,7 @@ class LiveAnalysisBase():
 						node_set(new_branch,p,node_get(old_branch,p))
 
 				old_branch.delete()
-				write_rsgf(self.filename[:-4]+".rsgf",self.g)
+				write_rsgf(self.rsgf_filename,self.g)
 				self.cpu_lock.release()
 				self.update_queue.put((0,"wait"))
 				continue
@@ -849,7 +849,7 @@ class LiveAnalysisBase():
 			
 			if self.update_queue.empty():
 				self.label_queue.put("")
-			write_rsgf(self.filename[:-4]+".rsgf",self.g)
+			write_rsgf(self.rsgf_filename,self.g)
 			self.cpu_lock.release()
 			#self.current_move+=1
 			time.sleep(.1) #enought time for Live analysis to grap the lock
@@ -2228,15 +2228,7 @@ def get_position_short_comments(current_move,gameroot):
 
 def get_node_number(node):
 	return get_moves_number(node)
-	k=0
-	while node:
-		node=node[0]
-		if (node.get_move()[0]!=None) and (node.get_move()[1]!=None):
-			k+=1
-		else:
-			break
-	return k
-
+	
 def get_node(root,number=0):
 	if number==0:return root
 	node=root

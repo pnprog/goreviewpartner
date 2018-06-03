@@ -270,7 +270,7 @@ class LiveAnalysisLauncher(Toplevel):
 			nb_bots=3
 		
 		for widget in self.overlap_thinking_widgets:
-				widget.grid_forget()
+			widget.grid_forget()
 		self.overlap_thinking_widgets=[]
 		
 		if nb_bots>1:
@@ -296,6 +296,7 @@ class LiveAnalysis(Toplevel):
 		self.komi=komi
 		self.handicap=handicap
 		self.filename=filename
+		self.rsgf_filename=".".join(filename.split(".")[:-1])+".rsgf"
 		self.overlap_thinking=overlap_thinking
 		self.color=color
 		
@@ -516,7 +517,7 @@ class LiveAnalysis(Toplevel):
 			self.next_color=1		
 			self.current_move=1
 			node_set(self.g.get_root(),"PL", "b")
-			write_rsgf(self.filename[:-4]+".rsgf",self.g)
+			write_rsgf(self.rsgf_filename,self.g)
 			self.black_to_play()
 		
 		self.status_bar=Label(self,text='',background=bg)
@@ -570,8 +571,7 @@ class LiveAnalysis(Toplevel):
 		
 	def start_review(self):
 		import dual_view
-		app=self.parent
-		new_popup=dual_view.DualView(self.parent,self.filename[:-4]+".rsgf")
+		new_popup=dual_view.DualView(self.parent,self.rsgf_filename)
 		self.parent.add_popup(new_popup)
 
 	def follow_analysis(self):
@@ -627,7 +627,7 @@ class LiveAnalysis(Toplevel):
 					self.goban.bind("<Button-1>",lambda e: self.place_handicap(e,handicap-1))
 				else:
 					node_set(self.g.get_root(),"AB",self.handicap_stones)
-					write_rsgf(self.filename[:-4]+".rsgf",self.g)
+					write_rsgf(self.rsgf_filename,self.g)
 					if type(self.black)!=type("abc"):
 						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 					if type(self.white)!=type("abc"):
@@ -719,7 +719,7 @@ class LiveAnalysis(Toplevel):
 		self.current_move-=2
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
 		self.parent.after(100,self.after_undo) #enough time for analyser to grab the process lock and process the queue
-		write_rsgf(self.filename[:-4]+".rsgf",self.g)
+		write_rsgf(self.rsgf_filename,self.g)
 		
 	def after_undo(self):
 		self.pass_button.config(state='normal')
@@ -884,7 +884,7 @@ class LiveAnalysis(Toplevel):
 			self.parent.after(250,self.black_to_play)
 			return
 		self.pause_lock.release()
-		write_rsgf(self.filename[:-4]+".rsgf",self.g)
+		write_rsgf(self.rsgf_filename,self.g)
 		log("======== move %i ========="%self.current_move)
 		log("black to play")
 		
@@ -922,7 +922,7 @@ class LiveAnalysis(Toplevel):
 			self.parent.after(250,self.white_to_play)
 			return
 		self.pause_lock.release()
-		write_rsgf(self.filename[:-4]+".rsgf",self.g)
+		write_rsgf(self.rsgf_filename,self.g)
 		log("======== move %i ========="%self.current_move)
 		log("White to play")
 		
