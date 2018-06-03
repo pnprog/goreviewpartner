@@ -432,17 +432,20 @@ class RangeSelector(Toplevel):
 		Label(self,text="").grid(row=row,column=1)
 
 		row+=1
-		if bots!=None:
-			Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
-			value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-			bot_names=[bot['name']+value[bot['profile']] for bot in bots]
-			self.bot_selection=StringVar()
+		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
+		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		bot_names=[bot['name']+value[bot['profile']] for bot in bots]
+		self.bot_selection=StringVar()
 
-			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
-			self.bot_selection.set(bot_names[0])
-
-			row+=1
-			Label(self,text="").grid(row=row,column=1)
+		apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
+		self.bot_selection.set(bot_names[0])
+		
+		analyser=grp_config.get("Analysis","analyser")
+		if analyser in bot_names:
+			self.bot_selection.set(analyser)
+		
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
 
 
 		row+=1
@@ -667,7 +670,8 @@ class RangeSelector(Toplevel):
 		log("========= variation")
 		variation=int(self.variation_selection.get().split(" ")[1])-1
 		log(variation)
-
+		
+		grp_config.set("Analysis","analyser",self.bot_selection.get())
 		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 
 		popup=RunAnalysis(self.parent,(self.filename,self.rsgf_filename),move_selection,intervals,variation,komi,profile,self.existing_variations.get())
@@ -1596,6 +1600,7 @@ class MyConfig():
 		self.default_values["analysis"]["savecommandline"]="False"
 		self.default_values["analysis"]["stopatfirstresign"]="False"
 		self.default_values["analysis"]["novariationifsamemove"]="False"
+		self.default_values["analysis"]["analyser"]=""
 		
 		self.default_values["review"]={}
 		self.default_values["review"]["fuzzystoneplacement"]="0.2"
