@@ -1839,7 +1839,8 @@ def batch_analysis(app,batch):
 				app.after(1,lambda: batch_analysis(app,batch))
 		else:
 			run,filename,move_selection,intervals,variation,komi,profil=one_analysis
-			log("File to analyse:",filename)
+			log("File to analyse:",filename[0])
+			log("Output file:",filename[1])
 			popup=run(app,filename,move_selection,intervals,variation,komi,profil)
 			app.add_popup(popup)
 			popup.end_of_analysis=popup.close
