@@ -1757,13 +1757,19 @@ if not lang:
 	log("No language setting in the config file")
 	log("System language detection:")
 	import locale
-	lang=locale.getdefaultlocale()[0].split('_')[0]
-	log("System language:",lang,"("+locale.getdefaultlocale()[0]+")")
-	if lang in available_translations:
-		log("There is a translation available for lang="+lang)
-	else:
-		log("No translation available for lang="+lang)
-		log("Falling back on lang=en")
+	try:
+		lang=locale.getdefaultlocale()[0].split('_')[0]
+		log("System language:",lang,"("+locale.getdefaultlocale()[0]+")")
+		if lang in available_translations:
+			log("There is a translation available for lang="+lang)
+		else:
+			log("No translation available for lang="+lang)
+			log("Falling back on lang=en")
+			lang="en"
+	except Exception, e:
+		log("Could not determine the system language")
+		log(e)
+		log("Falling back to english")
 		lang="en"
 	log("Saving the lang parameter in config.ini")
 	grp_config.set("General","Language",lang)
