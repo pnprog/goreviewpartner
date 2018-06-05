@@ -697,7 +697,7 @@ class OpenMove(Toplevel):
 		self.goban.bind("<Button-2>",self.do_nothing)
 		self.locked=True
 
-	def do_nothing(self):
+	def do_nothing(self,event=None):
 		pass
 
 	def unlock(self):
@@ -742,7 +742,7 @@ class OpenMove(Toplevel):
 
 	def click_button(self,bot):
 		dim=self.dim
-		self.lock()
+		self.display_queue.put(3)
 		self.display_queue.put(2)
 		color=self.next_color
 		move=bot.click(color)
@@ -784,12 +784,12 @@ class OpenMove(Toplevel):
 			else:
 				log("End of SELF PLAY")
 				self.click_selfplay()
+				self.display_queue.put(4)
 				self.display_queue.put(1)
-				self.unlock()
 				return
 		else:
+			self.display_queue.put(4)
 			self.display_queue.put(1)
-			self.unlock()
 			return
 		
 		
@@ -916,19 +916,22 @@ class OpenMove(Toplevel):
 	
 	def click_evaluation(self):
 		log("Asking",self.selected_bot.get(),"for quick estimation")
-		self.lock()
+		print "3"
+		self.display_queue.put(3)
+		print "2"
 		self.display_queue.put(2)
+		print "ok"
 		threading.Thread(target=self.evaluation,args=(self.menu_bots[self.selected_bot.get()],)).start()
 	
 	def evaluation(self,bot):
 		color=self.next_color
 		result=bot.quick_evaluation(color)
+		self.display_queue.put(4)
 		if color==1:
 			self.display_queue.put(result)
 		else:
 			self.display_queue.put(result)
-		self.unlock()
-	
+		
 	def initialize(self):
 		gameroot=self.sgf.get_root()
 		popup=self
@@ -1111,7 +1114,7 @@ class OpenMove(Toplevel):
 		self.goban.bind("<Configure>",self.redraw)
 		popup.focus()
 		
-		self.display_queue=Queue.Queue(1)
+		self.display_queue=Queue.Queue(2)
 		self.parent.after(100,self.wait_for_display)
 	
 	def wait_for_display(self):
@@ -1125,17 +1128,23 @@ class OpenMove(Toplevel):
 			elif msg==2:
 				self.goban.display(self.grid,self.markup,True)
 				self.parent.after(100,self.wait_for_display)
+			elif msg==3:
+				self.lock()
+				self.wait_for_display()
+			elif msg==4:
+				self.unlock()
+				self.wait_for_display()
 			elif type(msg)==type((1,1)):
 				i,j=msg
 				if self.grid[i][j]==1:
 					self.goban.black_stones[i][j].shine()
 				else:
 					self.goban.white_stones[i][j].shine()
-				self.parent.after(0,self.wait_for_display)
+				self.wait_for_display()
 			else:
 				show_info(msg,self)
 				self.goban.display(self.grid,self.markup)
-				self.parent.after(0,self.wait_for_display)
+				self.wait_for_display()
 		except:
 			self.parent.after(250,self.wait_for_display)
 		
