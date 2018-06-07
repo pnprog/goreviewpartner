@@ -1680,8 +1680,6 @@ class MyConfig():
 	def set(self, section, key, value):
 		if type(value) in (type(1), type(0.5), type(True)):
 			value=unicode(value)
-		
-		
 		if type(section)!=type(u"abc"):
 			print section, "Warning: A non utf section string sent to my config:",section
 		if type(key)!=type(u"abc"):
@@ -1739,12 +1737,22 @@ class MyConfig():
 		return value
 	
 	def add_entry(self,section,key,value):
+		#normally section/key/value should all be unicode here
+		#but just to be sure:
+		section=unicode(section)
+		key=unicode(key)
+		value=unicode(value)
+		#then, let's turn every thing in str
+		section=section.encode("utf-8")
+		key=key.encode("utf-8")
+		value=value.encode("utf-8")
 		if not self.config.has_section(section):
 			log("Adding section",section,"in config file")
 			self.config.add_section(section)
-		log("Setting",str(section)+"/"+str(key),"in the config file")
+		log("Setting",section,"/",key,"in the config file")
 		self.config.set(section,key,value)
 		self.config.write(open(self.config_file,"w"))
+
 grp_config=MyConfig(config_file)
 
 log("Reading language setting from config file")
