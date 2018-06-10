@@ -340,7 +340,14 @@ def open_sgf(filename):
 
 def clean_sgf(txt):
 	#txt is still of type str here....
-	txt=txt.replace(str(";B[  ])"),str(";B[])")).replace(str(";W[  ])"),str(";W[])")) #https://github.com/pnprog/goreviewpartner/issues/56
+	
+	#https://github.com/pnprog/goreviewpartner/issues/56
+	txt=txt.replace(str(";B[  ])"),str(";B[])")).replace(str(";W[  ])"),str(";W[])"))
+	
+	#https://github.com/pnprog/goreviewpartner/issues/71
+	txt=txt.replace(str("KM[]"),str(""))
+	txt=txt.replace(str("B[**];"),str("B[];")).replace(str("W[**];"),str("W[];"))
+	
 	return txt
 def get_all_sgf_leaves(root,deep=0):
 
@@ -1314,7 +1321,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		else:
 			nb_handicap=0
 			log("The SGF does not indicate handicap stone")
-		
+		#import pdb; pdb.set_trace()
 		board, unused = sgf_moves.get_setup_and_moves(sgf_g)
 		nb_occupied_points=len(board.list_occupied_points())
 		log("The SGF indicates",nb_occupied_points,"occupied point(s)")
@@ -2225,24 +2232,48 @@ def get_position_short_comments(current_move,gameroot):
 	comments=""
 
 	node=get_node(gameroot,current_move)
-
 	game_move_color,game_move=node.get_move()
+	
 	if not game_move_color:
 		game_move_color=guess_color_to_play(gameroot,current_move)
-
-	comments+=_("%s%i/%i: %s ")%(game_move_color.upper(),current_move,get_node_number(gameroot),ij2gtp(game_move).upper())
+	comments+="%i/%i: "%(current_move,get_node_number(gameroot))
+	
+	if node_has(node,"BWWR"):
+		comments+=node_get(node,"BWWR")+"\n"
+	elif node_has(node,"VNWR"):
+		comments+=node_get(node,"VNWR")+"\n"
+	elif node_has(node,"MCWR"):
+		comments+=node_get(node,"MCWR")+"\n"
+	elif node_has(node,"ES"):
+		comments+=node_get(node,"ES")+"\n"
+	else:
+		comments+="\n"
+	
+	comments+="\n"
+	if game_move_color.lower()=="b":
+		if node_has(gameroot,"PB"):
+			player=node_get(gameroot,"PB")
+		else:
+			player=_("Black")
+	else:
+		if node_has(gameroot,"PW"):
+			player=node_get(gameroot,"PW")
+		else:
+			player=_("White")
+	
+	comments+="%s: %s"%(player,ij2gtp(game_move).upper())
 
 	if node_has(node,"CBM"):
 		bot=node_get(gameroot,"BOT")
-		comments+="(%s => %s"%(bot,node_get(node,"CBM"))
+		comments+="\n%s: %s"%(bot,node_get(node,"CBM"))
 		try:
 			if node_has(node[1],"BKMV"):
 				if node_get(node[1],"BKMV")=="yes":
 					comments+=_(": Book")
 		except:
 			pass
-		comments+=")"
-	print comments
+	else:
+		comments+="\n"
 	return comments
 
 def get_node_number(node):
