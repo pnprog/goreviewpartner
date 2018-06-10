@@ -916,11 +916,8 @@ class OpenMove(Toplevel):
 	
 	def click_evaluation(self):
 		log("Asking",self.selected_bot.get(),"for quick estimation")
-		print "3"
 		self.display_queue.put(3)
-		print "2"
 		self.display_queue.put(2)
-		print "ok"
 		threading.Thread(target=self.evaluation,args=(self.menu_bots[self.selected_bot.get()],)).start()
 	
 	def evaluation(self,bot):
@@ -1232,7 +1229,6 @@ class TableWidget:
 		one_label=self.get_label("node comments",self.widget) #get or create that label widget
 		one_label.config(text=comments)
 		
-		
 		columns_header=["MOVE",'nothing here',"WR","MCWR","VNWR","PNV","PO","EV","RAVE","SCORE"]
 		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
@@ -1295,25 +1291,25 @@ class TableWidget:
 		deltas_strings = ["WR","BWWR","MC", "MCWR","VN","VNWR"]
 		for i in range(0,len(deltas_strings),2):
 			idx = columns_sgf_properties.index(deltas_strings[i+1])
-			if( columns_header[idx] and columns[idx][0] and columns[idx][1] ):
+			if columns[1][0]==columns[1][1]:
+				delta = 0
+				dtext = "+0pp"
+			elif( columns_header[idx] and columns[idx][0] and columns[idx][1] ):
 				delta = float(columns[idx][0].split("%")[0]) - float(columns[idx][1].split("%")[0])
 				dtext = "%+.2fpp"%delta
 			else:
 				delta = None
 				dtext = "NA"
-			#Label(dframe,text=deltas_strings[i]+":").grid(row=0,column=c,sticky=W)
 			one_label=self.get_label((0,c),self.dframe)
 			one_label.config(text=deltas_strings[i]+":")
-			
 			another_label=self.get_label((0,c+1),self.dframe)
 			another_label.config(text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen")
-			#Label(dframe,text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen" ).grid(row=0,column=c+1,sticky=W)
 			c = c + 2
 		
 		if not self.table_frame:
 			row=10
 			self.table_frame=LabelFrame(new_popup)
-			self.table_frame.grid(row=row,column=10,sticky=W+N)
+			self.table_frame.grid(row=row,column=10,sticky=W+N,pady=10)
 		row=10
 		c=0
 		for header in columns_header:
