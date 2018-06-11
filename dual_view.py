@@ -1021,7 +1021,7 @@ class OpenMove(Toplevel):
 		
 		panel.grid(column=1,row=1,sticky=N+S)
 		
-		goban3 = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		goban3 = Goban(dim,self.goban_size,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban3.space=self.goban_size/(dim+1+1+1)
 		goban3.grid(column=2,row=1,sticky=N+S+E+W)
 		popup.grid_rowconfigure(1, weight=1)
@@ -2090,16 +2090,14 @@ class DualView(Toplevel):
 		
 
 		# Such widgets for main window
-		self.goban1 = Goban(self.dim,master=gobans_frame,relief=SUNKEN,bd=2) #bg
-		self.goban2 = Goban(self.dim, master=gobans_frame,relief=SUNKEN,bd=2)
+		self.goban1 = Goban(self.dim,self.goban_size,master=gobans_frame,relief=SUNKEN,bd=2) #bg
+		self.goban2 = Goban(self.dim,self.goban_size,master=gobans_frame,relief=SUNKEN,bd=2)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
 		self.goban2.black_stones_style=self.goban1.black_stones_style
 		self.goban2.white_stones_style=self.goban1.white_stones_style
 		self.goban1.space=self.goban_size/(self.dim+1+1+1)
 		self.goban2.space=self.goban_size/(self.dim+1+1+1)
-
-
 		self.status_bar=Label(self,text='',anchor=W,justify=LEFT)
 
 		# Such widgets for the buttons_bar - game navigation
@@ -2200,6 +2198,12 @@ class DualView(Toplevel):
 
 	def redraw_left(self, event):
 		new_size=min(event.width,event.height)
+		print "self.goban_size:",self.goban_size
+		print "new_size:",new_size
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		print "screen:",screen_width,"x",screen_height
+		print "ratio:",1.0*new_size/screen_width,1.0*new_size/screen_height,max(1.0*new_size/screen_width,1.0*new_size/screen_height)
 		new_space=new_size/(self.dim+1+1+1)
 		if new_space==self.goban1.space:
 			return
@@ -2213,6 +2217,8 @@ class DualView(Toplevel):
 
 	def redraw_right(self, event):
 		new_size=min(event.width,event.height)
+		print "self.goban_size:",self.goban_size
+		print "new_size:",new_size
 		new_space=new_size/(self.dim+1+1+1)
 		if new_space==self.goban2.space:
 			return

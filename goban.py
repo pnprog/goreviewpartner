@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from functools import partial
 from copy import deepcopy as copy
 
-space=10
+#space=10
 
 fuzzy=0.0
 
@@ -110,11 +110,14 @@ class Stone():
 
 
 class Goban(Canvas):
-	def __init__(self,dim,**kwargs):
-		
+	def __init__(self,dim,size,**kwargs):
+		self.space=size/(dim+1+1+1)
 		self.dim=dim
-		self.space=space
 		self.wood_color=(214,174,114) #same as gogui
+		if "width" not in kwargs:
+			kwargs["width"]=size
+		if "height" not in kwargs:
+			kwargs["height"]=size
 		Canvas.__init__(self,**kwargs)
 		
 		self.anchor_x=0
@@ -175,7 +178,7 @@ class Goban(Canvas):
 	
 	def create_goban(self):
 		space=self.space
-		
+		print "create_goban => space:",space
 		if space<4:
 			return
 		

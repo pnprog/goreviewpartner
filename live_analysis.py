@@ -346,7 +346,7 @@ class LiveAnalysis(Toplevel):
 		height=int(display_factor*screen_height)
 		self.goban_size=min(width,height)
 		
-		goban = Goban(dim,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		goban = Goban(dim,self.goban_size,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
 		goban.space=self.goban_size/(dim+1+1+1)
 		goban.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
 		goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
