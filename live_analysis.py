@@ -372,7 +372,7 @@ class LiveAnalysis(Toplevel):
 		self.g.lock=self.g_lock
 		
 		#self.analyser=self.analyser[0](self.g,self.filename)
-		self.analyser=self.analyser["liveanalysis"](self.g,self.filename,self.analyser["profile"])
+		self.analyser=self.analyser["liveanalysis"](self.g,self.rsgf_filename,self.analyser["profile"])
 		
 		first_comment=_("Analysis by GoReviewPartner")
 		first_comment+="\n"+("Bot: %s/%s"%(self.analyser.bot.bot_name,self.analyser.bot.bot_version))

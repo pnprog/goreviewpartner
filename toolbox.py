@@ -718,9 +718,9 @@ def guess_color_to_play(move_zero,move_number):
 		return "b"
 
 class LiveAnalysisBase():
-	def __init__(self,g,filename,profile="slow"):
+	def __init__(self,g,rsgf_filename,profile="slow"):
 		self.g=g
-		self.filename=filename
+		self.rsgf_filename=rsgf_filename
 		self.profile=profile
 		self.bot=self.initialize_bot()
 		self.update_queue=Queue.PriorityQueue()
