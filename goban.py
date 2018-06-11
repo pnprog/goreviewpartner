@@ -178,7 +178,6 @@ class Goban(Canvas):
 	
 	def create_goban(self):
 		space=self.space
-		print "create_goban => space:",space
 		if space<4:
 			return
 		

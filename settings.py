@@ -99,11 +99,11 @@ class OpenSettings(Toplevel):
 		RealGameSequenceDeepness.set(grp_config.get("Review","RealGameSequenceDeepness"))
 		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row,column=2)
 		row+=1
-		Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row,column=1,sticky=W)
+		"""Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row,column=1,sticky=W)
 		GobanScreenRatio = StringVar() 
 		GobanScreenRatio.set(grp_config.get("Review","GobanScreenRatio"))
 		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row,column=2)
-		row+=1
+		row+=1"""
 		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(grp_config.get("Review","MaxVariations"))
@@ -134,7 +134,7 @@ class OpenSettings(Toplevel):
 		self.Language=Language
 		self.FuzzyStonePlacement=FuzzyStonePlacement
 		self.RealGameSequenceDeepness=RealGameSequenceDeepness
-		self.GobanScreenRatio=GobanScreenRatio
+		#self.GobanScreenRatio=GobanScreenRatio
 		self.MaxVariationsToRecord=MaxVariationsToRecord
 		self.SaveCommandLine=SaveCommandLine
 		self.StopAtFirstResign=StopAtFirstResign
@@ -194,7 +194,7 @@ class OpenSettings(Toplevel):
 				break
 		grp_config.set("Review","FuzzyStonePlacement",self.FuzzyStonePlacement.get())
 		grp_config.set("Review","RealGameSequenceDeepness",self.RealGameSequenceDeepness.get())
-		grp_config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
+		#grp_config.set("Review","GobanScreenRatio",self.GobanScreenRatio.get())
 		grp_config.set("Analysis","MaxVariations",self.MaxVariationsToRecord.get())
 		grp_config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
 		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())

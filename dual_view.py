@@ -670,7 +670,7 @@ class OpenMove(Toplevel):
 		self.dim=dim
 		self.sgf=sgf
 		
-		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
+		display_factor=grp_config.getfloat("Review", "OpenGobanRatio")
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		width=int(display_factor*screen_width)
@@ -1148,6 +1148,12 @@ class OpenMove(Toplevel):
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
+		
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		ratio=1.0*new_size/min(screen_width,screen_height)
+		grp_config.set("Review", "OpenGobanRatio",ratio)
+		
 		new_space=new_size/(self.dim+1+1+1)
 		self.goban.space=new_space
 		
@@ -1351,12 +1357,7 @@ class DualView(Toplevel):
 		self.parent=parent
 		self.filename=filename
 		
-		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
-		screen_width = self.parent.winfo_screenwidth()
-		screen_height = self.parent.winfo_screenheight()
-		width=int(display_factor*screen_width)
-		height=int(display_factor*screen_height)
-		self.goban_size=min(width,height)
+
 		
 		global goban
 		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
@@ -2090,14 +2091,21 @@ class DualView(Toplevel):
 		
 
 		# Such widgets for main window
-		self.goban1 = Goban(self.dim,self.goban_size,master=gobans_frame,relief=SUNKEN,bd=2) #bg
-		self.goban2 = Goban(self.dim,self.goban_size,master=gobans_frame,relief=SUNKEN,bd=2)
+		
+		left_display_factor=grp_config.getfloat("Review", "LeftGobanRatio")
+		right_display_factor=grp_config.getfloat("Review", "RightGobanRatio")
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		self.left_goban_size=min(left_display_factor*screen_width,left_display_factor*screen_height)
+		self.right_goban_size=min(right_display_factor*screen_width,right_display_factor*screen_height)
+		self.goban1 = Goban(self.dim,self.left_goban_size,master=gobans_frame,relief=SUNKEN,bd=2) #bg
+		self.goban2 = Goban(self.dim,self.right_goban_size,master=gobans_frame,relief=SUNKEN,bd=2)
 		self.goban2.mesh=self.goban1.mesh
 		self.goban2.wood=self.goban1.wood
 		self.goban2.black_stones_style=self.goban1.black_stones_style
 		self.goban2.white_stones_style=self.goban1.white_stones_style
-		self.goban1.space=self.goban_size/(self.dim+1+1+1)
-		self.goban2.space=self.goban_size/(self.dim+1+1+1)
+		self.goban1.space=self.left_goban_size/(self.dim+1+1+1)
+		self.goban2.space=self.right_goban_size/(self.dim+1+1+1)
 		self.status_bar=Label(self,text='',anchor=W,justify=LEFT)
 
 		# Such widgets for the buttons_bar - game navigation
@@ -2124,10 +2132,12 @@ class DualView(Toplevel):
 		police = tkFont.nametofont("TkFixedFont")
 		lpix = police.measure("a")
 		self.lpix=lpix
-		self.comment_lines = int(self.goban_size / police.metrics('linespace') - 2)
-		self.comment_chars = int(self.goban_size/2/lpix) #half the size of one goban
-		self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
-		
+		right_panel_ratio=grp_config.getfloat("Review", "RightPanelRatio")
+		right_panel_width=right_panel_ratio*screen_width
+		#self.comment_lines = int(right_panel_width / police.metrics('linespace') - 2) #no need to give a vertical height
+		self.comment_chars = int(right_panel_width/lpix)
+		#self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
+		self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",width=self.comment_chars,foreground='black')
 		
 		#Place widgets in button_bar
 		first_move_button.grid(column=1,row=1)
@@ -2191,6 +2201,7 @@ class DualView(Toplevel):
 		
 		self.goban1.bind("<Configure>",self.redraw_left)
 		self.goban2.bind("<Configure>",self.redraw_right)
+		self.comment_box2.bind("<Configure>",self.redraw_panel)
 		
 		self.after(10000,self.update_from_file)
 		goban.show_variation=self.show_variation
@@ -2198,12 +2209,10 @@ class DualView(Toplevel):
 
 	def redraw_left(self, event):
 		new_size=min(event.width,event.height)
-		print "self.goban_size:",self.goban_size
-		print "new_size:",new_size
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
-		print "screen:",screen_width,"x",screen_height
-		print "ratio:",1.0*new_size/screen_width,1.0*new_size/screen_height,max(1.0*new_size/screen_width,1.0*new_size/screen_height)
+		ratio=1.0*new_size/min(screen_width,screen_height)
+		grp_config.set("Review", "LeftGobanRatio",ratio)
 		new_space=new_size/(self.dim+1+1+1)
 		if new_space==self.goban1.space:
 			return
@@ -2217,8 +2226,10 @@ class DualView(Toplevel):
 
 	def redraw_right(self, event):
 		new_size=min(event.width,event.height)
-		print "self.goban_size:",self.goban_size
-		print "new_size:",new_size
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		ratio=1.0*new_size/min(screen_width,screen_height)
+		grp_config.set("Review", "RightGobanRatio",ratio)
 		new_space=new_size/(self.dim+1+1+1)
 		if new_space==self.goban2.space:
 			return
@@ -2229,7 +2240,11 @@ class DualView(Toplevel):
 		self.goban2.anchor_y=new_anchor_y
 		self.goban2.reset()
 		
-
+	def redraw_panel(self, event):
+		new_size=event.width
+		screen_width = self.parent.winfo_screenwidth()
+		ratio=1.0*new_size/screen_width
+		grp_config.set("Review", "RightPanelRatio",ratio)
 
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)

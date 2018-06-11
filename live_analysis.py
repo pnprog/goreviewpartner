@@ -142,8 +142,6 @@ class LiveAnalysisLauncher(Toplevel):
 		self.change_parameters()
 		
 		black=grp_config.get("Live","black")
-		print black,type(black)
-		print self.black_options
 		if black in self.black_options:
 			self.black_selection.set(black)
 			
@@ -339,7 +337,7 @@ class LiveAnalysis(Toplevel):
 		
 		panel.grid(column=1,row=1,sticky=N+S)
 		
-		display_factor=grp_config.getfloat("Review", "GobanScreenRatio")
+		display_factor=grp_config.getfloat("Live", "LiveGobanRatio")
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		width=int(display_factor*screen_width)
@@ -1120,6 +1118,12 @@ class LiveAnalysis(Toplevel):
 	
 	def redraw(self, event):
 		new_size=min(event.width,event.height)
+		
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		ratio=1.0*new_size/min(screen_width,screen_height)
+		grp_config.set("Live", "LiveGobanRatio",ratio)
+		
 		new_space=new_size/(self.dim+1+1+1)
 		self.goban.space=new_space
 		
