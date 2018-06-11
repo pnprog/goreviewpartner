@@ -2042,6 +2042,12 @@ class DualView(Toplevel):
 						popup.data=self.data_for_chart
 						popup.initialize()
 						popup.display()
+				log("Updating data for table")
+				try:
+					self.table_widget.gameroot=self.gameroot
+				except:
+					pass
+				
 		except:
 			pass
 		
