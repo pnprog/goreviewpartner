@@ -1517,11 +1517,11 @@ class DualView(Toplevel):
 		self.bind("<Down>", self.show_variation_prev)
 		self.bind("<MouseWheel>", self.mouse_wheel)
 		if not self.inverted_mouse_wheel:
-			goban.tag_bind(local_area,"<Button-4>", self.show_variation_next)
-			goban.tag_bind(local_area,"<Button-5>", self.show_variation_prev)
+			self.bind("<Button-4>", self.show_variation_next)
+			self.bind("<Button-5>", self.show_variation_prev)
 		else:
-			goban.tag_bind(local_area,"<Button-5>", self.show_variation_next)
-			goban.tag_bind(local_area,"<Button-4>", self.show_variation_prev)
+			self.bind("<Button-5>", self.show_variation_next)
+			self.bind("<Button-4>", self.show_variation_prev)
 		self.set_status(_("Use mouse wheel or keyboard up/down keys to display the sequence move by move."))
 	
 	def mouse_wheel(self,event):
