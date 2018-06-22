@@ -1623,7 +1623,7 @@ class MyConfig():
 		self.default_values["review"]["lastgraph"]=""
 		
 		self.default_values["live"]={}
-		self.default_values["review"]["livegobanratio"]="0.4"
+		self.default_values["live"]["livegobanratio"]="0.4"
 		self.default_values["live"]["size"]="19"
 		self.default_values["live"]["komi"]="7.5"
 		self.default_values["live"]["handicap"]="0"
