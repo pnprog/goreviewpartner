@@ -1254,9 +1254,13 @@ class TableWidget:
 					value=node_get(one_alternative,key)
 					if "%/" in value:
 						if color=="b":
-							value=value.split("/")[0]
+							value=float(value.split("%/")[0])
+							value=round(value,2)
+							value=str(value)+"%"
 						else:
-							value=value.split("/")[1]
+							value=float(value.split("/")[1][:-1])
+							value=round(value,2)
+							value=str(value)+"%"
 					columns[c][a]=value
 				c+=1
 			columns[0][a]="ABCDEFGHIJKLMNOPQRSTUVWXYZ"[a-1]
@@ -1272,9 +1276,13 @@ class TableWidget:
 					value=node_get(one_alternative,key)
 					if "%/" in value:
 						if parent[0].get_move()[0].lower()=="b":
-							value=value.split("/")[0]
+							value=float(value.split("%/")[0])
+							value=round(value,2)
+							value=str(value)+"%"
 						else:
-							value=value.split("/")[1]
+							value=float(value.split("/")[1][:-1])
+							value=round(value,2)
+							value=str(value)+"%"
 					columns[c][0]=value
 				c+=1
 		except:
