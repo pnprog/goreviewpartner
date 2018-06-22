@@ -6,15 +6,15 @@ msgstr "GoReviewPartner欢迎您"
 
 #1.2
 msgid "Run a SGF file analysis"
-msgstr "分析一个SGF文件"
+msgstr "分析SGF/RSGF文件"
 
 #1.3
 msgid "Run a live analysis"
-msgstr "实时分析"
+msgstr "对战实时分析"
 
 #1.4
 msgid "Open a RSGF file for review"
-msgstr "回顾一个RSGF文件"
+msgstr "回顾RSGF文件"
 
 #1.5
 msgid "Convert RSGF file to SGF file"
@@ -836,5 +836,18 @@ msgstr "config.ini文件 %s 的 %s 接口是空的!"
 msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
 #ie: The SGF file contains white handicap stones! Leela cannot deal with that!
 msgstr "这个SGF文件包含白棋让子的内容! %s 不能搞定它!"
+
+
+msgid "This analysis will be performed on an already analysed SGF file."
+msgstr "对旧的RSGF文件进行分析!"
+
+msgid "What to do with the existing variations?"
+msgstr "以前的分析成果还要么？"
+
+msgid "Keep existing variations"
+msgstr "继续以前的分析"
+
+msgid "Replace existing variations"
+msgstr "重新开始分析"
 
 

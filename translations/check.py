@@ -79,7 +79,7 @@ print
 
 english=get_translations("en",True)
 
-available_translations=["fr","de","kr","new_translation"]
+available_translations=["fr","de","kr","zh","new_translation"]
 
 from sys import argv
 if len(argv)==2:
