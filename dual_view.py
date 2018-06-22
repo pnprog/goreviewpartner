@@ -1228,6 +1228,7 @@ class TableWidget:
 		
 		for widget in self.my_labels.values():
 			widget.config(text="")
+			widget.unbind("<Enter>")
 		
 		self.current_move=current_move
 		
@@ -1236,6 +1237,7 @@ class TableWidget:
 		one_label.config(text=comments)
 		
 		columns_header=["MOVE",'nothing here',"WR","MCWR","VNWR","PNV","PO","EV","RAVE","SCORE"]
+		columns_header_status_msg=[_("Move"),_("Move"),_("Win rate"),_("Monte Carlo win rate"),_("Value Network win rate"),_("Policy Network value"),_("Playouts"),_("Evaluation"),_("RAVE"),_("Score Estimation")]
 		columns_sgf_properties=["nothing here","nothing here","BWWR","MCWR","VNWR","PNV","PLYO","EVAL","RAVE","ES"]
 		parent=get_node(self.gameroot,self.current_move-1)
 		nb_variations=min(len(parent),self.maxvariations+1)
@@ -1295,21 +1297,32 @@ class TableWidget:
 
 		c=0
 		deltas_strings = ["WR","BWWR","MC", "MCWR","VN","VNWR"]
+		deltas_strings_status_msg=[_("Win Rate"),"",_("Monte Carlo win rate"), "",_("Value Network win rate"),""]
 		for i in range(0,len(deltas_strings),2):
 			idx = columns_sgf_properties.index(deltas_strings[i+1])
 			if columns[1][0]==columns[1][1]:
 				delta = 0
 				dtext = "+0pp"
+				status_msg=""
 			elif( columns_header[idx] and columns[idx][0] and columns[idx][1] ):
 				delta = float(columns[idx][0].split("%")[0]) - float(columns[idx][1].split("%")[0])
 				dtext = "%+.2fpp"%delta
+				if delta > 0:
+					status_msg="The computer believes the actual move is %.2fpp better than it's best move."%delta
+				else:
+					status_msg="The computer believes it's own move win rate would be %.2fpp higher."%(-delta)
 			else:
 				delta = None
 				dtext = "NA"
+				status_msg=_("Not available")
 			one_label=self.get_label((0,c),self.dframe)
 			one_label.config(text=deltas_strings[i]+":")
+			one_label.bind("<Enter>",partial(self.set_status,msg=deltas_strings_status_msg[i]))
+			one_label.bind("<Leave>",lambda e: self.clear_status())
 			another_label=self.get_label((0,c+1),self.dframe)
 			another_label.config(text=dtext+" ",fg="black" if delta is None or delta == 0 else "red" if delta < 0 else "darkgreen")
+			another_label.bind("<Enter>",partial(self.set_status,msg=status_msg))
+			another_label.bind("<Leave>",lambda e: self.clear_status())
 			c = c + 2
 		
 		if not self.table_frame:
@@ -1318,7 +1331,7 @@ class TableWidget:
 			self.table_frame.grid(row=row,column=10,sticky=W+N,pady=10)
 		row=10
 		c=0
-		for header in columns_header:
+		for header,status_msg in zip(columns_header,columns_header_status_msg):
 			if header:
 				if c==0:
 					one_label=self.get_label((row,10+c),self.table_frame)
@@ -1329,6 +1342,8 @@ class TableWidget:
 				else:
 					one_label=self.get_label((row,10+c),self.table_frame)
 					one_label.config(text=header,relief=RIDGE,bd=2,width=7)
+				one_label.bind("<Enter>",partial(self.set_status,msg=status_msg))
+				one_label.bind("<Leave>",lambda e: self.clear_status())
 			c+=1
 		row+=2
 		
@@ -1349,7 +1364,12 @@ class TableWidget:
 						one_label.config(width=2)
 					elif c==1:
 						one_label.config(width=4)
-				
+	def clear_status(self):
+		self.parent.clear_status()
+	
+	def set_status(self,event,msg):
+		self.parent.set_status(msg)
+
 
 class DualView(Toplevel):
 	def __init__(self,parent,filename):
