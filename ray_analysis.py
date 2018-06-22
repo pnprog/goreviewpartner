@@ -132,7 +132,7 @@ class RayAnalysis():
 		return ray
 
 def ray_starting_procedure(sgf_g,profile="slow",silentfail=False):
-	return bot_starting_procedure("Ray","Rayon",Ray_gtp,sgf_g,profile,silentfail)
+	return bot_starting_procedure("Ray","RLO",Ray_gtp,sgf_g,profile,silentfail)
 
 
 class RunAnalysis(RayAnalysis,RunAnalysisBase):
@@ -305,7 +305,7 @@ class RayOpenMove(BotOpenMove):
 
 Ray={}
 Ray['name']="Ray"
-Ray['gtp_name']="Rayon"
+Ray['gtp_name']="RLO"
 Ray['analysis']=RayAnalysis
 Ray['openmove']=RayOpenMove
 Ray['settings']=RaySettings
