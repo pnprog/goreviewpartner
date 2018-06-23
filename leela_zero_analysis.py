@@ -237,12 +237,12 @@ class Leela_Zero_gtp(gtp):
 		threading.Thread(target=self.consume_stderr).start()
 		
 		log("Checking Leela Zero stderr to check for OpenCL SGEMM tuner running")
-		delay=10
+		delay=60
 		while 1:
 			try:
 				err_line=self.stderr_starting_queue.get(True,delay)
 				
-				delay=1
+				delay=10
 				if "Started OpenCL SGEMM tuner." in err_line:
 					log("OpenCL SGEMM tuner is running")
 					show_info(_("Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."))
