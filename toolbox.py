@@ -2047,8 +2047,9 @@ class Application(Tk):
 
 
 try:
-	if sys.platform=="darwin":
-		raise Exception("wx and Tkinter do not work well together on MacOS")
+	
+	if "linux" not in sys.platform:
+		raise Exception("Avoiding wx")
 	import wx
 	wxApp = wx.App(None)
 	
