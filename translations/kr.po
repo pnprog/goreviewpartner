@@ -28,7 +28,7 @@ msgid "Settings"
 msgstr "설정"
 
 #1.8
-msgid "The file %s as been converted to %s"
+msgid "The file %s has been converted to %s"
 msgstr "%s 파일을 %s 파일로 변환 완료"
 
 ############## Analysis setting
@@ -93,7 +93,7 @@ msgid "Could not make sense of the moves range."
 msgstr "분석할 구간을 파악할 수 없습니다."
 
 #2.16
-msgid "Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"
+msgid "Please indicate one or more move intervals (e.g. \"10-20, 40,50-51,63,67\")"
 msgstr "한개 또는 이상의 착수번호 간격을 지정하세요 (예: \"10-20, 40,50-51,63,67\")"
 
 #2.17
@@ -111,11 +111,11 @@ msgid "Get"
 msgstr "가져오기"
 
 #3.3
-msgid "Could not download the URL"
+msgid "Could not open the URL"
 msgstr "해당 URL을 다운로드할 수 없습니다"
 
 #3.4
-msgid "Not a SGF file!"
+msgid "Not a valid SGF file!"
 msgstr "SGF파일이 아닙니다!"
 
 ############## Analysis running ###
@@ -124,7 +124,7 @@ msgid "Analysis of: %s"
 msgstr "%s 분석"
 
 #4.2
-msgid "Remaining time: %ih, %imn, %is"
+msgid "Remaining time: %ih, %im, %is"
 msgstr "남은 시간: %i시간, %i분, %i초"
 
 #4.3
@@ -253,7 +253,7 @@ msgid "Ask the bot to play as Black."
 msgstr "인공지능이 흑으로 둡니다."
 
 #6.12
-msgid "Ask the bot to play alone."
+msgid "Let the bot take both sides and play against itself."
 msgstr "인공지능이 혼자서 둡니다."
 
 #6.13
@@ -325,9 +325,9 @@ msgid "Move %i (%s), black/white win rate: "
 msgstr "%i수(%s), 흑/백 승률: "
 
 #7.13
-msgid "Move %i: Black's move win rate: %s, computer's move win rate: %s"
+msgid "Move %i: win rate of Black's move: %s; win rate of computer move: %s"
 msgstr "%i수: 흑의 승률: %s, 인공지능의 승률: %s"
-msgid "Move %i: White's move win rate: %s, computer's move win rate: %s"
+msgid "Move %i: win rate of White's move: %s; win rate of computer move: %s"
 msgstr "%i수: 백의 승률: %s, 인공지능의 승률: %s"
 
 #7.14
@@ -343,11 +343,11 @@ msgid "Move %i (%s), estimated score: "
 msgstr "%i수(%s), 승부예측: "
 
 #7.17
-msgid "White win"
+msgid "Win for White"
 msgstr "백 승리"
 
 #7.18
-msgid "Black win"
+msgid "Win for Black"
 msgstr "흑 승리"
 
 #7.19
@@ -376,7 +376,7 @@ msgid "Maximum number of variations to record during analysis"
 msgstr "분석하는 동안 기록할 최대 변화도의 수"
 
 #8.6
-msgid "Only keep variations when game move and bot move differ"
+msgid "Only keep variations where game move and bot move differ"
 msgstr "실제 둔 수와 인공지능이 생각한 수가 다른 경우만 변화도 저장"
 
 #8.7
@@ -388,7 +388,7 @@ msgid "Parameters for the review"
 msgstr "- 검토 조건 -"
 
 #8.9
-msgid "Fuzzy Stone"
+msgid "Natural stone placement"
 msgstr "바둑돌 삐뚤게 표시하는 정도"
 
 #8.10
@@ -424,7 +424,7 @@ msgid "The best variation in blue"
 msgstr "가장 좋은 위치를 파랑색으로 표시"
 
 #8.18
-msgid "Winning variations (>50%) only in blue"
+msgid "Win rate > 50% in blue"
 msgstr "승률 50% 이상인 위치를 파랑색으로 표시"
 
 #8.19
@@ -432,7 +432,7 @@ msgid "Variations better than actual game move in blue"
 msgstr "실제 두어진 수보다 좋은 위치를 파랑색으로 표시"
 
 #8.20
-msgid "Rates"
+msgid "Percentages"
 msgstr "승률로 표시"
 
 #8.21
@@ -497,7 +497,7 @@ msgid "Deepness for each variation"
 msgstr "각 변화도의 최대 수읽기 수"
 
 #9.14
-msgid "See AQ parameters in aq_config.txt"
+msgid "See AQ parameters in \"aq_config.txt\""
 msgstr "\"aq_config.txt\"에서 AQ 파라미터를 확인하세요"
 
 #9.15
@@ -521,19 +521,19 @@ msgstr "선택 안함"
 ############## Data description and display
 #10.1
 msgid "Move %i"
-#ie: Move 244
+#e.g. Move 244
 msgstr "착수번호 %i"
 
 #10.2
-msgid "White to play, in the game, white played %s"
-#ie: White to play, in the game, white played D16
+msgid "White to play. In the game, white played %s"
+#e.g. White to play. In the game, white played D16
 msgstr "현재 백이 둘 차례, 실제로 백은 %s 에 두었음"
-msgid "Black to play, in the game, black played %s"
+msgid "Black to play. In the game, black played %s"
 msgstr "현재 흑이 둘 차례, 실제로 흑은 %s 에 두었음"
 
 #10.3
 msgid "For this position, %s would play: %s"
-#ie: For this position, Leela would play: D16
+#e.g. For this position, Leela would play: D16
 msgstr "이번 수에서 %s 라면 %s 에 두었을 것입니다"
 
 #10.4
@@ -671,15 +671,15 @@ msgid "SGF file name"
 msgstr "SGF파일명"
 
 #11.9
-msgid "Human"
+msgid "Human player"
 msgstr "사람"
 
 #11.10
-msgid "Place %i handicap stones on the board"
+msgid "Please place %i handicap stones on the board."
 msgstr "바둑판에 %i점을 깝니다"
 
 #11.11
-msgid "The game is now starting"
+msgid "The game is now starting!"
 msgstr "대국을 시작합니다"
 
 
@@ -705,7 +705,7 @@ msgid "Analysis by %s"
 msgstr "%s 로 분석"
 
 #12.6
-msgid "Analysis status:"
+msgid "Status:"
 msgstr "분석 상태"
 
 #12.7
@@ -797,27 +797,27 @@ msgid "GnuGo thread failed:"
 msgstr "Gnugo 실행 실패:"
 
 msgid "Could not run %s using the command from config.ini file:"
-#ie: Could not run Leela using the command from config.ini file:
+#e.g. Could not run Leela using the command from config.ini file:
 msgstr "config.ini 파일의 명령어를 실행할 수 없음:"
 
-msgid "%s did not replied as expected to the GTP name command:"
-#ie: Leela did not replied as exepected to the GTP name command:
+msgid "%s did not reply as expected to the GTP name command:"
+#e.g. Leela did not replied as exepected to the GTP name command:
 msgstr "%s 이(가) \"GTP name\" 명령어에 제대로 응답하지 않음:"
 
-msgid "%s did not identified itself as expected:"
-#ie: Leela did not identified itself as expected:
+msgid "%s did not identify itself as expected:"
+#e.g. Leela did not identify itself as expected:
 msgstr "%s 이(가) 제대로 인식되지 않음:"
 
-msgid "%s did not replied as expected to the GTP version command:"
-#ie: Leela did not replied as expected to the GTP version command:
+msgid "%s did not reply as expected to the GTP version command:"
+#e.g. Leela did not replied as expected to the GTP version command:
 msgstr "%s 이(가) \"GTP version\" 명령어에 제대로 응답하지 않음:"
 
 msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
-#ie: Could not set the goboard size using the GTP command. Check that Leela is running in GTP mode.
+#e.g. Could not set the goboard size using the GTP command. Check that Leela is running in GTP mode.
 msgstr "GTP 명령어로 바둑판 크기를 정할 수 없음. %s 이(가) GTP모드에서 동작하는지 확인 바람."
 
 msgid "%s rejected this board size (%ix%i)"
-#ie: Leela Zero rejected this board size (9x9)
+#e.g. Leela Zero rejected this board size (9x9)
 msgstr "%s 이(가) 바둑판 크기를 거부함 (%ix%i)"
 
 msgid "Could not run the program:"
@@ -827,14 +827,14 @@ msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take sever
 msgstr "릴라제로가 OpenCL SGEMM 튜닝중. 준비될 때까지 몇 분이 걸릴 수 있음."
 
 msgid "The config.ini file does not contain %s entry for %s !"
-#ie: The config.ini file does not contain TimePerMove entry for Leela !
+#e.g. The config.ini file does not contain TimePerMove entry for Leela !
 msgstr "config.ini 파일에 %s 항목(%s 용)이 없음!"
 
 msgid "The config.ini file %s entry for %s is empty!"
-#ie: The config.ini file TimePerMove entry for Leela is empty!
+#e.g. The config.ini file TimePerMove entry for Leela is empty!
 msgstr "config.ini 파일의 %s 항목(%s 용)이 비어있음!"
 
 msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
-#ie: The SGF file contains white handicap stones! Leela cannot deal with that!
+#e.g. The SGF file contains white handicap stones! Leela cannot deal with that!
 msgstr "SGF 파일이 백돌이 접바둑으로 깔려 있어서 %s 이(가) 처리할 수 없음!"
 

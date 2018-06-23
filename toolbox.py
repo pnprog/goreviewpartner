@@ -178,7 +178,7 @@ class DownloadFromURL(Toplevel):
 		try:
 			h=urllib2.urlopen(r)
 		except:
-			show_error(_("Could not download the URL"),parent=self)
+			show_error(_("Could not open the URL"),parent=self)
 			return
 		filename=""
 
@@ -186,7 +186,7 @@ class DownloadFromURL(Toplevel):
 
 		if sgf[:7]!="(;FF[4]":
 			log("not a sgf file")
-			show_error(_("Not a SGF file!"),parent=self)
+			show_error(_("Not a valid SGF file!"),parent=self)
 			log(sgf[:7])
 			return
 
@@ -657,7 +657,7 @@ class RangeSelector(Toplevel):
 			intervals="moves "+selection
 			move_selection=check_selection(selection,self.nb_moves)
 			if move_selection==False:
-				show_error(_("Could not make sense of the moves range.")+"\n"+_("Please indicate one or more move intervals (ie: \"10-20, 40,50-51,63,67\")"),parent=self)
+				show_error(_("Could not make sense of the moves range.")+"\n"+_("Please indicate one or more move intervals (e.g. \"10-20, 40,50-51,63,67\")"),parent=self)
 				return
 
 		if self.color.get()=="black":
@@ -1091,7 +1091,7 @@ class RunAnalysisBase(Toplevel):
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
 			if self.time_per_move!=0:
-				self.lab2.config(text=_("Remaining time: %ih, %imn, %is")%(remaining_h,remaining_m,remaining_s))
+				self.lab2.config(text=_("Remaining time: %ih, %im, %is")%(remaining_h,remaining_m,remaining_s))
 			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
 			self.pb.step()
 			
@@ -1285,11 +1285,11 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		try:
 			answer=bot.name()
 		except Exception, e:
-			raise GRPException((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+unicode(e))
+			raise GRPException((_("%s did not reply as expected to the GTP name command:")%bot_name)+"\n"+unicode(e))
 
 
 		if answer!=bot_gtp_name:
-			raise GRPException((_("%s did not identified itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
+			raise GRPException((_("%s did not identify itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
 
 
 		log(bot_name+" identified itself properly")
@@ -1297,7 +1297,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		try:
 			bot_version=bot.version()
 		except Exception, e:
-			raise GRPException((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+unicode(e))
+			raise GRPException((_("%s did not reply as expected to the GTP version command:")%bot_name)+"\n"+unicode(e))
 
 		log("Version: "+bot_version)
 		log("Setting goban size as "+str(size)+"x"+str(size))
@@ -1948,8 +1948,8 @@ def opposite_rate(value):
 
 position_data_formating={}
 position_data_formating["CBM"]=_("For this position, %s would play: %s")
-position_data_formating["B"]=_("Black to play, in the game, black played %s")
-position_data_formating["W"]=_("White to play, in the game, white played %s")
+position_data_formating["B"]=_("Black to play. In the game, black played %s")
+position_data_formating["W"]=_("White to play. In the game, white played %s")
 
 def format_data(sgf_property,formating,value="",bot="Bot"):
 	txt=formating[sgf_property]

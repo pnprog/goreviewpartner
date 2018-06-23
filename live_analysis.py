@@ -40,7 +40,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.black_selection=StringVar()	
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
-		self.black_options=[_("Human"),_("Bot used for analysis")]+self.bots_names
+		self.black_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
 
@@ -53,7 +53,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.white_selection=StringVar()
 		self.white_selection_wrapper=Frame(self)
 		self.white_selection_wrapper.grid(row=row,column=2,sticky=W)
-		self.white_options=[_("Human"),_("Bot used for analysis")]+self.bots_names
+		self.white_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names
 		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
 		self.white_menu.pack()
 		
@@ -132,8 +132,8 @@ class LiveAnalysisLauncher(Toplevel):
 		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
 
 		self.bot_selection.set(self.analysis_bots_names[0])
-		self.black_selection.set(_("Human"))
-		self.white_selection.set(_("Human"))
+		self.black_selection.set(_("Human player"))
+		self.white_selection.set(_("Human player"))
 		
 		analyser=grp_config.get("Live","Analyser")
 		if analyser in self.analysis_bots_names:
@@ -223,14 +223,14 @@ class LiveAnalysisLauncher(Toplevel):
 
 	def update_black_white_options(self):
 		i=self.selected_black_index()
-		self.black_options=[_("Human"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
+		self.black_options=[_("Human player"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
 		self.black_menu.pack_forget()
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
 		self.black_selection.set(self.black_options[i])
 
 		j=self.selected_white_index()
-		self.white_options=[_("Human"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
+		self.white_options=[_("Human player"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
 		self.white_menu.pack_forget()
 		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
 		self.white_menu.pack()
@@ -417,7 +417,7 @@ class LiveAnalysis(Toplevel):
 
 		row+=1
 		if self.black=="human":
-			player_black=_("Human")
+			player_black=_("Human player")
 		elif self.black=="analyser":
 			player_black=self.analyser.bot.bot_name
 		else:
@@ -429,7 +429,7 @@ class LiveAnalysis(Toplevel):
 		
 		row+=1
 		if self.white=="human":
-			player_white=_("Human")
+			player_white=_("Human player")
 		elif self.white=="analyser":
 			player_white=self.analyser.bot.bot_name
 		elif self.white=="black":
@@ -481,7 +481,7 @@ class LiveAnalysis(Toplevel):
 		Label(panel,text=_("Analysis by %s")%self.analyser.bot.bot_name).grid(column=1,row=row,sticky=W)
 		
 		row+=1
-		Label(panel,text=_("Analysis status:")).grid(column=1,row=row,sticky=W)
+		Label(panel,text=_("Status:")).grid(column=1,row=row,sticky=W)
 		
 		row+=1
 		self.analysis_label=Label(panel,text=_("Ready to start"))
@@ -508,7 +508,7 @@ class LiveAnalysis(Toplevel):
 		if self.handicap>0:
 			self.handicap_stones=[]
 			self.history.append(None)
-			show_info(_("Place %i handicap stones on the board")%self.handicap,self)
+			show_info(_("Please place %i handicap stones on the board.")%self.handicap,self)
 			goban.bind("<Button-1>",lambda e: self.place_handicap(e,self.handicap))
 			
 		else:
@@ -631,7 +631,7 @@ class LiveAnalysis(Toplevel):
 					if type(self.white)!=type("abc"):
 						self.white.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 						
-					show_info(_("The game is now starting"),self)
+					show_info(_("The game is now starting!"),self)
 					self.next_color=2
 					#self.goban.bind("<Button-1>",self.click)
 					

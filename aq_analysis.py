@@ -322,7 +322,7 @@ class AQSettings(Frame):
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("See AQ parameters in aq_config.txt")).grid(row=row,column=1,columnspan=2,sticky=W)
+		Label(self,text=_("See AQ parameters in \"aq_config.txt\"")).grid(row=row,column=1,columnspan=2,sticky=W)
 
 		self.SlowCommand=SlowCommand
 		self.SlowParameters=SlowParameters

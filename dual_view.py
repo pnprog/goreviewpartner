@@ -293,9 +293,9 @@ class OpenChart(Toplevel):
 				delta=one_data["vnwr_delta"]
 				
 				if player_color.lower()=="b":
-					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+					msg=_("Move %i: win rate of Black's move: %s; win rate of computer move: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
 				else:
-					msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+					msg=_("Move %i: win rate of White's move: %s; win rate of computer move: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
 				
 				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
@@ -350,9 +350,9 @@ class OpenChart(Toplevel):
 				delta=one_data["mcwr_delta"]
 				
 				if player_color.lower()=="b":
-					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+					msg=_("Move %i: win rate of Black's move: %s; win rate of computer move: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
 				else:
-					msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+					msg=_("Move %i: win rate of White's move: %s; win rate of computer move: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
 				
 				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
@@ -407,9 +407,9 @@ class OpenChart(Toplevel):
 				delta=one_data["winrate_delta"]
 				
 				if player_color.lower()=="b":
-					msg=_("Move %i: Black's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+					msg=_("Move %i: win rate of Black's move: %s; win rate of computer move: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
 				else:
-					msg=_("Move %i: White's move win rate: %s, computer's move win rate: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
+					msg=_("Move %i: win rate of White's move: %s; win rate of computer move: %s")%(move,str(position_win_rate+delta)+"%",str(position_win_rate)+"%")
 				
 				self.chart.tag_bind(grey_bar, "<Enter>", partial(self.set_status,msg=msg))
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
@@ -563,8 +563,8 @@ class OpenChart(Toplevel):
 		return moves
 
 	def display_score_graph(self,border,height,width,lpix):
-		self.chart.create_text(border+len(_("Black win"))*lpix/2,border+lpix, text=_("Black win"),fill='black',font=self.font)
-		self.chart.create_text(border+len(_("White win"))*lpix/2,height-border-lpix, text=_("White win"),fill='black',font=self.font)
+		self.chart.create_text(border+len(_("Win for Black"))*lpix/2,border+lpix, text=_("Win for Black"),fill='black',font=self.font)
+		self.chart.create_text(border+len(_("Win for White"))*lpix/2,height-border-lpix, text=_("Win for White"),fill='black',font=self.font)
 		moves=[]
 		#checking graph limits
 		maximum=-1000
@@ -1004,7 +1004,7 @@ class OpenMove(Toplevel):
 			row+=1
 			self.selfplay_button=Button(panel, text=_('Self play'),command=self.click_selfplay)
 			self.selfplay_button.grid(column=0,row=row,sticky=E+W)
-			self.selfplay_button.bind("<Enter>",lambda e: self.set_status(_("Ask the bot to play alone.")))
+			self.selfplay_button.bind("<Enter>",lambda e: self.set_status(_("Let the bot take both sides and play against itself.")))
 			self.selfplay_button.bind("<Leave>",lambda e: self.clear_status())
 		
 			row+=1

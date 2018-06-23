@@ -64,7 +64,7 @@ class OpenSettings(Toplevel):
 		Entry(setting_frame, textvariable=MaxVariationsToRecord, width=30).grid(row=row,column=2)
 		
 		row+=1
-		Label(setting_frame,text=_("Only keep variations when game move and bot move differ")).grid(row=row,column=1,sticky=W)
+		Label(setting_frame,text=_("Only keep variations where game move and bot move differ")).grid(row=row,column=1,sticky=W)
 		NoVariationIfSameMove = BooleanVar(value=grp_config.getboolean("Analysis","NoVariationIfSameMove")) 
 		NoVariationIfSameMoveCheckbutton=Checkbutton(setting_frame, text="", variable=NoVariationIfSameMove,onvalue=True,offvalue=False)
 		NoVariationIfSameMoveCheckbutton.grid(row=row,column=2,sticky=W)
@@ -89,7 +89,7 @@ class OpenSettings(Toplevel):
 		Label(setting_frame,text=_("Parameters for the review")).grid(row=row,column=1,sticky=W)
 		
 		row+=1
-		Label(setting_frame,text=_("Fuzzy Stone")).grid(row=row,column=1,sticky=W)
+		Label(setting_frame,text=_("Natural stone placement")).grid(row=row,column=1,sticky=W)
 		FuzzyStonePlacement = StringVar() 
 		FuzzyStonePlacement.set(grp_config.get("Review","FuzzyStonePlacement"))
 		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row,column=2)
@@ -111,13 +111,13 @@ class OpenSettings(Toplevel):
 		row+=1
 		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
 		VariationsColoring = StringVar()
-		coloring={"blue_for_winning":_("Winning variations (>50%) only in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
+		coloring={"blue_for_winning":_("Win rate > 50% in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
 		VariationsColoring.set(coloring[grp_config.get("Review","VariationsColoring")])
 		OptionMenu(setting_frame,VariationsColoring,*tuple(coloring.values())).grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(setting_frame,text=_("Labels for the variations")).grid(row=row,column=1,sticky=W)
-		values={"letter":_("Letters"),"rate":_("Rates")}
+		values={"letter":_("Letters"),"rate":_("Percentages")}
 		VariationsLabel = StringVar()
 		VariationsLabel.set(values[grp_config.get("Review","VariationsLabel")])
 		OptionMenu(setting_frame,VariationsLabel,*tuple(values.values())).grid(row=row,column=2,sticky=W)
@@ -199,11 +199,11 @@ class OpenSettings(Toplevel):
 		grp_config.set("Analysis","SaveCommandLine",self.SaveCommandLine.get())
 		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 		grp_config.set("Review","MaxVariations",self.MaxVariationsToDisplay.get())
-		coloring={_("Winning variations (>50%) only in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
+		coloring={_("Win rate > 50% in blue"):"blue_for_winning",_("The best variation in blue"):"blue_for_best",_("Variations better than actual game move in blue"):"blue_for_better"}
 		grp_config.set("Review","VariationsColoring",coloring[self.VariationsColoring.get()])
 		grp_config.set("Review","InvertedMouseWheel",self.InvertedMouseWheel.get())
 		grp_config.set("Analysis","NoVariationIfSameMove",self.NoVariationIfSameMove.get())
-		labeling={_("Letters"):"letter",_("Rates"):"rate"}
+		labeling={_("Letters"):"letter",_("Percentages"):"rate"}
 		grp_config.set("Review","VariationsLabel",labeling[self.VariationsLabel.get()])
 		
 		

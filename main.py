@@ -72,7 +72,7 @@ class Main(Toplevel):
 		if not filename:
 			return
 		rsgf2sgf(filename)
-		show_info(_("The file %s as been converted to %s")%(os.path.basename(filename),os.path.basename(filename)+".sgf"),parent=self.parent)
+		show_info(_("The file %s has been converted to %s")%(os.path.basename(filename),os.path.basename(filename)+".sgf"),parent=self.parent)
 	def close(self):
 		for popup in self.popups[:]:
 			popup.close()
