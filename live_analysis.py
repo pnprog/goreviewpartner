@@ -344,7 +344,7 @@ class LiveAnalysis(Toplevel):
 		height=int(display_factor*screen_height)
 		self.goban_size=min(width,height)
 		
-		goban = Goban(dim,self.goban_size,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		goban = Goban(dim,self.goban_size,master=popup,bg=bg,bd=0, borderwidth=0)
 		goban.space=self.goban_size/(dim+1+1+1)
 		goban.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
 		goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
@@ -405,12 +405,8 @@ class LiveAnalysis(Toplevel):
 			#self.white=bot_starting_procedure(self.white[2],self.white[3],self.white[1],self.g,profil="fast")
 			self.white=self.white["starting"](self.g,profile=self.white["profile"])
 			log("White bot started")
-			
-		goban.display(grid,markup)
-		self.goban.bind("<Configure>",self.redraw)
-		popup.focus()
-		self.display_queue=Queue.Queue(1)
-		self.locked=False
+		
+
 		
 		row=1
 		Label(panel,text=_("Game"), font="-weight bold").grid(column=1,row=row,sticky=W)
@@ -528,6 +524,14 @@ class LiveAnalysis(Toplevel):
 		self.parent.after(500,self.follow_analysis)
 	
 		self.bind('<Control-q>', self.save_as_png)
+	
+		self.update_idletasks()
+		goban.reset()
+		goban.display(grid,markup)
+		self.goban.bind("<Configure>",self.redraw)
+		popup.focus()
+		self.display_queue=Queue.Queue(1)
+		self.locked=False
 	
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
@@ -1116,16 +1120,28 @@ class LiveAnalysis(Toplevel):
 						self.white.place_black(ij2gtp((i,j)))
 					self.white_to_play()
 	
-	def redraw(self, event):
-		new_size=min(event.width,event.height)
+	def redraw(self, event, redrawing=None):		
+		if not redrawing:
+			redrawing=time.time()
+			self.redrawing=redrawing
+			self.after(100,lambda: self.redraw(event,redrawing))
+			return
+		if redrawing<self.redrawing:
+			return
 		
+		new_size=min(event.width,event.height)
+		new_size=new_size-new_size%int((0.1*self.dim*self.goban.space))
+		
+		new_space=int(new_size/(self.dim+1+1+1))
+		
+
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
 		grp_config.set("Live", "LiveGobanRatio",ratio)
-		
-		new_space=new_size/(self.dim+1+1+1)
+			
 		self.goban.space=new_space
+		
 		
 		new_anchor_x=(event.width-new_size)/2.
 		self.goban.anchor_x=new_anchor_x

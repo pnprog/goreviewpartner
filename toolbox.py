@@ -2136,7 +2136,11 @@ def canvas2png(goban,filename):
 	left = goban.winfo_rootx()
 	width = goban.winfo_width()
 	height = goban.winfo_height()
-	monitor = {'top': top, 'left': left, 'width': width, 'height': height}
+	v_center=top+height/2
+	h_center=left+width/2
+	dim=goban.dim
+	space=goban.space
+	monitor = {'top': int(v_center-space*(dim+3)/2)+1, 'left': int(h_center-space*(dim+3)/2)+1, 'width': int(space*(dim+3))-2, 'height': int(space*(dim+3))-2}
 	sct_img = mss.mss().grab(monitor)
 	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
 

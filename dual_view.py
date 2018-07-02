@@ -1021,7 +1021,7 @@ class OpenMove(Toplevel):
 		
 		panel.grid(column=1,row=1,sticky=N+S)
 		
-		goban3 = Goban(dim,self.goban_size,master=popup, width=10, height=10,bg=bg,bd=0, borderwidth=0)
+		goban3 = Goban(dim,self.goban_size,master=popup,bg=bg,bd=0, borderwidth=0)
 		goban3.space=self.goban_size/(dim+1+1+1)
 		goban3.grid(column=2,row=1,sticky=N+S+E+W)
 		popup.grid_rowconfigure(1, weight=1)
@@ -1107,7 +1107,8 @@ class OpenMove(Toplevel):
 		#goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
 		
 		self.history=[]
-
+		self.update_idletasks()
+		self.goban.reset()
 		self.goban.bind("<Configure>",self.redraw)
 		popup.focus()
 		
@@ -1144,17 +1145,28 @@ class OpenMove(Toplevel):
 				self.wait_for_display()
 		except:
 			self.parent.after(250,self.wait_for_display)
-		
 	
-	def redraw(self, event):
-		new_size=min(event.width,event.height)
+	
+	def redraw(self, event, redrawing=None):		
+		if not redrawing:
+			redrawing=time.time()
+			self.redrawing=redrawing
+			self.after(100,lambda: self.redraw(event,redrawing))
+			return
+		if redrawing<self.redrawing:
+			return
 		
+		new_size=min(event.width,event.height)
+		new_size=new_size-new_size%int((0.1*self.dim*self.goban.space))
+		
+		new_space=int(new_size/(self.dim+1+1+1))
+		
+
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
 		grp_config.set("Review", "OpenGobanRatio",ratio)
-		
-		new_space=new_size/(self.dim+1+1+1)
+			
 		self.goban.space=new_space
 		
 		new_anchor_x=(event.width-new_size)/2.
@@ -2126,6 +2138,10 @@ class DualView(Toplevel):
 		screen_height = self.parent.winfo_screenheight()
 		self.left_goban_size=min(left_display_factor*screen_width,left_display_factor*screen_height)
 		self.right_goban_size=min(right_display_factor*screen_width,right_display_factor*screen_height)
+		print "R left->",left_display_factor
+		print "left ->",self.left_goban_size,"x",self.left_goban_size
+		print "R right->",right_display_factor
+		print "right ->",self.right_goban_size,"x",self.right_goban_size
 		self.goban1 = Goban(self.dim,self.left_goban_size,master=gobans_frame,relief=SUNKEN,bd=2) #bg
 		self.goban2 = Goban(self.dim,self.right_goban_size,master=gobans_frame,relief=SUNKEN,bd=2)
 		self.goban2.mesh=self.goban1.mesh
@@ -2227,6 +2243,13 @@ class DualView(Toplevel):
 		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
+		self.update_idletasks()
+		self.goban1.anchor_y=(gobans_frame.winfo_height()-self.left_goban_size)/2
+		self.goban2.anchor_y=(gobans_frame.winfo_height()-self.right_goban_size)/2
+		
+		self.goban1.reset()
+		self.goban2.reset()
+		
 		self.goban1.bind("<Configure>",self.redraw_left)
 		self.goban2.bind("<Configure>",self.redraw_right)
 		self.comment_box2.bind("<Configure>",self.redraw_panel)
@@ -2235,15 +2258,30 @@ class DualView(Toplevel):
 		goban.show_variation=self.show_variation
 		
 
-	def redraw_left(self, event):
+	def redraw_left(self, event, redrawing=None):	
+		if not redrawing:
+			redrawing=time.time()
+			self.redrawing_left=redrawing
+			self.after(100,lambda: self.redraw_left(event,redrawing))
+			return
+		if redrawing<self.redrawing_left:
+			return
+		
 		new_size=min(event.width,event.height)
+
+		print "left -->",new_size,"x",new_size
+		new_size=new_size-new_size%int((0.1*self.dim*self.goban2.space))
+		print "left --->",new_size,"x",new_size
+		
+		new_space=int(new_size/(self.dim+1+1+1))
+
+		#if new_space!=self.goban1.space:
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
+		print "R left-->",ratio
 		grp_config.set("Review", "LeftGobanRatio",ratio)
-		new_space=new_size/(self.dim+1+1+1)
-		if new_space==self.goban1.space:
-			return
+		
 		self.goban1.space=new_space
 		new_anchor_x=(event.width-new_size)/2
 		self.goban1.anchor_x=new_anchor_x
@@ -2252,15 +2290,29 @@ class DualView(Toplevel):
 		self.goban1.reset()
 		
 
-	def redraw_right(self, event):
+	def redraw_right(self, event, redrawing=None):
+		
+		if not redrawing:
+			redrawing=time.time()
+			self.redrawing_right=redrawing
+			self.after(100,lambda: self.redraw_right(event,redrawing))
+			return
+		if redrawing<self.redrawing_right:
+			return
+		
 		new_size=min(event.width,event.height)
+		print "right -->",new_size,"x",new_size
+		new_size=new_size-new_size%int((0.1*self.dim*self.goban2.space))
+		print "right --->",new_size,"x",new_size
+		new_space=int(new_size/(self.dim+1+1+1))
+		
+		#if new_space!=self.goban2.space:
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
+		print "R right-->",ratio
 		grp_config.set("Review", "RightGobanRatio",ratio)
-		new_space=new_size/(self.dim+1+1+1)
-		if new_space==self.goban2.space:
-			return
+		
 		self.goban2.space=new_space
 		new_anchor_x=(event.width-new_size)/2
 		self.goban2.anchor_x=new_anchor_x

@@ -277,6 +277,14 @@ class Goban(Canvas):
 		for item in self.find_all():
 			self.delete(item)
 		self.create_goban()
+		
+		try:
+			self.grid
+			self.markup
+		except:
+			self.grid=[[0 for row in range(self.dim)] for col in range(self.dim)]
+			self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
+		
 		self.display(self.grid,self.markup)
 
 	def display(self,grid,markup,freeze=False):
