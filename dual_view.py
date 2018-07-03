@@ -1575,6 +1575,8 @@ class DualView(Toplevel):
 		elif d<0:
 			self.show_variation_prev()
 	
+
+	
 	def show_variation_next(self,event=None):
 		if self.current_variation_sequence==None:
 			return
@@ -1808,7 +1810,7 @@ class DualView(Toplevel):
 		markup2=[["" for row in range(dim)] for col in range(dim)]
 		board, unused = sgf_moves.get_setup_and_moves(self.sgf)
 		self.left_variation_index=0
-		
+		self.history=[]
 		self.current_grid=grid1
 		self.current_markup=markup1
 
@@ -2100,41 +2102,62 @@ class DualView(Toplevel):
 		i,j=self.goban1.xy2ij(event.x,event.y)
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
 			if (self.goban1.grid[i][j] not in (1,2)) or (type(self.goban1.markup[i][j])==type(123)):
+				
 				if guess_color_to_play(self.gameroot,self.current_move+self.left_variation_index)=="b":
 					color=1
 				else:
 					color=2
+
 				if self.left_variation_index==0:
 					self.history=[[copy(self.current_grid),copy(self.current_markup)]]
 					updated_markup=[["" for row in range(dim)] for col in range(dim)]
 					updated_grid=copy(self.current_grid)
 				else:
-					self.history.append([copy(self.goban1.grid),copy(self.goban1.markup)])
+					self.history=self.history[:self.left_variation_index+1]
 					updated_markup=copy(self.goban1.markup)
 					updated_grid=copy(self.goban1.grid)
 				updated_markup[i][j]=unicode(self.left_variation_index+1)
 				place(updated_grid,i,j,color)
+				self.history.append([copy(updated_grid),copy(updated_markup)])
 				self.goban1.display(copy(updated_grid),updated_markup)
 				self.left_variation_index+=1
 			
-			#self.bind("<Button-2>", self.undo)
-			
-			
-			"""self.bind("<Up>", self.show_variation_next)
-			self.bind("<Button-4>", self.show_variation_prev)
-			self.bind("<MouseWheel>", self.mouse_wheel)
-			if not self.inverted_mouse_wheel:
-				self.bind("<Button-4>", self.show_variation_next)
-				self.bind("<Button-5>", self.show_variation_prev)
-			else:
-				self.bind("<Button-5>", self.show_variation_next)
-				self.bind("<Button-4>", self.show_variation_prev)"""
-			self.set_status(_("Use mouse middle click or wheel to undo move."))
+				self.set_status(_("Use mouse middle click or wheel to undo move."))
 				
-				
+	def left_mouse_wheel(self,event):
+		print "."
+		d = event.delta
+		if self.inverted_mouse_wheel:
+			d*=-1
+		if d>0:
+			self.show_left_variation_next()
+		elif d<0:
+			self.show_left_variation_prev()
+	
+	def show_left_variation_next(self,event=None):
+		if len(self.history)<=1:
+			return
+		if self.left_variation_index>=len(self.history)-1:
+			return
+		updated_grid, updated_markup =self.history[self.left_variation_index+1]
+		self.goban1.display(copy(updated_grid),updated_markup)
+		self.left_variation_index+=1
+
+	def show_left_variation_prev(self,event=None):
+		if len(self.history)<=1:
+			return
+		print self.left_variation_index,"/",len(self.history)
+		if self.left_variation_index==0:
+			return
+		updated_grid, updated_markup =self.history[self.left_variation_index-1]
+		self.goban1.display(copy(updated_grid),updated_markup)
+		self.left_variation_index-=1
+
+		
 	def undo(self,event=None):
 		if self.left_variation_index>0:
-			grid,markup=self.history.pop()
+			self.history.pop()
+			grid,markup=self.history[-1]
 			self.goban1.display(grid,markup)
 			self.left_variation_index-=1
 		
@@ -2297,6 +2320,16 @@ class DualView(Toplevel):
 		self.goban1.bind("<Button-1>",self.click)
 		self.goban1.bind("<Button-2>",self.undo)
 		
+		self.goban1.bind("<Up>", self.show_left_variation_next)
+		self.goban1.bind("<Button-4>", self.show_left_variation_prev)
+		self.goban1.bind("<MouseWheel>", self.left_mouse_wheel)
+		if not self.inverted_mouse_wheel:
+			self.goban1.bind("<Button-4>", self.show_left_variation_next)
+			self.goban1.bind("<Button-5>", self.show_left_variation_prev)
+		else:
+			self.goban1.bind("<Button-5>", self.show_left_variation_next)
+			self.goban1.bind("<Button-4>", self.show_left_variation_prev)
+		
 		self.after(10000,self.update_from_file)
 		goban.show_variation=self.show_variation
 		
@@ -2355,6 +2388,9 @@ class DualView(Toplevel):
 		new_anchor_y=(event.height-new_size)/2
 		self.goban2.anchor_y=new_anchor_y
 		self.goban2.reset()
+		
+
+		
 		
 	def redraw_panel(self, event):
 		new_size=event.width
