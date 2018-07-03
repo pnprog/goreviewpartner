@@ -1807,7 +1807,8 @@ class DualView(Toplevel):
 		grid2=[[0 for row in range(dim)] for col in range(dim)]
 		markup2=[["" for row in range(dim)] for col in range(dim)]
 		board, unused = sgf_moves.get_setup_and_moves(self.sgf)
-
+		self.left_variation_index=0
+		
 		self.current_grid=grid1
 		self.current_markup=markup1
 
@@ -2093,7 +2094,50 @@ class DualView(Toplevel):
 			pass
 		
 		self.after(period*1000,self.update_from_file)
-
+	
+	def click(self,event):
+		dim=self.dim
+		i,j=self.goban1.xy2ij(event.x,event.y)
+		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
+			if (self.goban1.grid[i][j] not in (1,2)) or (type(self.goban1.markup[i][j])==type(123)):
+				if guess_color_to_play(self.gameroot,self.current_move+self.left_variation_index)=="b":
+					color=1
+				else:
+					color=2
+				if self.left_variation_index==0:
+					self.history=[[copy(self.current_grid),copy(self.current_markup)]]
+					updated_markup=[["" for row in range(dim)] for col in range(dim)]
+					updated_grid=copy(self.current_grid)
+				else:
+					self.history.append([copy(self.goban1.grid),copy(self.goban1.markup)])
+					updated_markup=copy(self.goban1.markup)
+					updated_grid=copy(self.goban1.grid)
+				updated_markup[i][j]=unicode(self.left_variation_index+1)
+				place(updated_grid,i,j,color)
+				self.goban1.display(copy(updated_grid),updated_markup)
+				self.left_variation_index+=1
+			
+			#self.bind("<Button-2>", self.undo)
+			
+			
+			"""self.bind("<Up>", self.show_variation_next)
+			self.bind("<Button-4>", self.show_variation_prev)
+			self.bind("<MouseWheel>", self.mouse_wheel)
+			if not self.inverted_mouse_wheel:
+				self.bind("<Button-4>", self.show_variation_next)
+				self.bind("<Button-5>", self.show_variation_prev)
+			else:
+				self.bind("<Button-5>", self.show_variation_next)
+				self.bind("<Button-4>", self.show_variation_prev)"""
+			self.set_status(_("Use mouse middle click or wheel to undo move."))
+				
+				
+	def undo(self,event=None):
+		if self.left_variation_index>0:
+			grid,markup=self.history.pop()
+			self.goban1.display(grid,markup)
+			self.left_variation_index-=1
+		
 	def initialize(self):
 
 		self.realgamedeepness=grp_config.getint("Review", "RealGameSequenceDeepness")
@@ -2138,10 +2182,6 @@ class DualView(Toplevel):
 		screen_height = self.parent.winfo_screenheight()
 		self.left_goban_size=min(left_display_factor*screen_width,left_display_factor*screen_height)
 		self.right_goban_size=min(right_display_factor*screen_width,right_display_factor*screen_height)
-		print "R left->",left_display_factor
-		print "left ->",self.left_goban_size,"x",self.left_goban_size
-		print "R right->",right_display_factor
-		print "right ->",self.right_goban_size,"x",self.right_goban_size
 		self.goban1 = Goban(self.dim,self.left_goban_size,master=gobans_frame,relief=SUNKEN,bd=2) #bg
 		self.goban2 = Goban(self.dim,self.right_goban_size,master=gobans_frame,relief=SUNKEN,bd=2)
 		self.goban2.mesh=self.goban1.mesh
@@ -2254,6 +2294,9 @@ class DualView(Toplevel):
 		self.goban2.bind("<Configure>",self.redraw_right)
 		self.comment_box2.bind("<Configure>",self.redraw_panel)
 		
+		self.goban1.bind("<Button-1>",self.click)
+		self.goban1.bind("<Button-2>",self.undo)
+		
 		self.after(10000,self.update_from_file)
 		goban.show_variation=self.show_variation
 		
@@ -2268,10 +2311,7 @@ class DualView(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-
-		print "left -->",new_size,"x",new_size
 		new_size=new_size-new_size%int((0.1*self.dim*self.goban2.space))
-		print "left --->",new_size,"x",new_size
 		
 		new_space=int(new_size/(self.dim+1+1+1))
 
@@ -2279,7 +2319,6 @@ class DualView(Toplevel):
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
-		print "R left-->",ratio
 		grp_config.set("Review", "LeftGobanRatio",ratio)
 		
 		self.goban1.space=new_space
@@ -2301,16 +2340,13 @@ class DualView(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-		print "right -->",new_size,"x",new_size
 		new_size=new_size-new_size%int((0.1*self.dim*self.goban2.space))
-		print "right --->",new_size,"x",new_size
 		new_space=int(new_size/(self.dim+1+1+1))
 		
 		#if new_space!=self.goban2.space:
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
-		print "R right-->",ratio
 		grp_config.set("Review", "RightGobanRatio",ratio)
 		
 		self.goban2.space=new_space

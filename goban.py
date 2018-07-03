@@ -364,10 +364,18 @@ class Goban(Canvas):
 						x,y=self.ij2xy(u,v)
 						self.temporary_shapes.append(self.create_text(x,y, text=str(markup[i][j]),font=self.font,fill=markup_color))
 						
-				elif markup[i][j]=="":
-					#do nothing
-					pass
-				else:
+				elif type(markup[i][j])==type("abc"):
+					
+					if markup[i][j]!="":
+						number_color="black"
+						if grid[i][j]==1:
+							number_color="white"
+						elif grid[i][j]==0:
+							self.temporary_shapes.append(self.draw_point(u,v,0.8,color=bg,outline=""))
+						
+						x,y=self.ij2xy(u,v)
+						self.temporary_shapes.append(self.create_text(x,y, text=markup[i][j],font=self.font,fill=number_color))
+				elif type(markup[i][j])==type([]):
 					sequence=markup[i][j]
 					markup_color=sequence[0][4]
 					letter_color=sequence[0][5]
