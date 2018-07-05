@@ -1147,7 +1147,7 @@ class LiveAnalysis(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%int((0.1*self.dim*self.goban.space))
+		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban.space)),1)
 		
 		new_space=int(new_size/(self.dim+1+1+1))
 		

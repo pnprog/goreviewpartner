@@ -1169,7 +1169,7 @@ class OpenMove(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%int((0.1*self.dim*self.goban.space))
+		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban.space)),1)
 		
 		new_space=int(new_size/(self.dim+1+1+1))
 		
@@ -2139,7 +2139,15 @@ class DualView(Toplevel):
 					self.goban1.white_stones[i][j].shine()
 				
 				self.left_variation_index+=1
-			
+				
+				self.bind("<MouseWheel>", self.left_mouse_wheel)
+				if not self.inverted_mouse_wheel:
+					self.bind("<Button-4>", self.show_left_variation_next)
+					self.bind("<Button-5>", self.show_left_variation_prev)
+				else:
+					self.bind("<Button-5>", self.show_left_variation_next)
+					self.bind("<Button-4>", self.show_left_variation_prev)
+				
 				self.set_status(_("Use mouse middle click or wheel to undo move."))
 
 
@@ -2168,7 +2176,6 @@ class DualView(Toplevel):
 				self.goban2.intersections[i][j].shine(100)
 
 	def left_mouse_wheel(self,event):
-		print "."
 		d = event.delta
 		if self.inverted_mouse_wheel:
 			d*=-1
@@ -2189,7 +2196,6 @@ class DualView(Toplevel):
 	def show_left_variation_prev(self,event=None):
 		if len(self.history)<=1:
 			return
-		print self.left_variation_index,"/",len(self.history)
 		if self.left_variation_index==0:
 			return
 		updated_grid, updated_markup =self.history[self.left_variation_index-1]
@@ -2366,16 +2372,6 @@ class DualView(Toplevel):
 		self.goban1.bind("<Button-3>",self.shine_left)
 		self.goban2.bind("<Button-3>",self.shine_right)
 		
-		self.goban1.bind("<Up>", self.show_left_variation_next)
-		self.goban1.bind("<Button-4>", self.show_left_variation_prev)
-		self.goban1.bind("<MouseWheel>", self.left_mouse_wheel)
-		if not self.inverted_mouse_wheel:
-			self.goban1.bind("<Button-4>", self.show_left_variation_next)
-			self.goban1.bind("<Button-5>", self.show_left_variation_prev)
-		else:
-			self.goban1.bind("<Button-5>", self.show_left_variation_next)
-			self.goban1.bind("<Button-4>", self.show_left_variation_prev)
-		
 		self.after(10000,self.update_from_file)
 		goban.show_variation=self.show_variation
 		
@@ -2390,7 +2386,7 @@ class DualView(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%int((0.1*self.dim*self.goban2.space))
+		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban2.space)),1)
 		
 		new_space=int(new_size/(self.dim+1+1+1))
 
@@ -2419,7 +2415,7 @@ class DualView(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%int((0.1*self.dim*self.goban2.space))
+		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban2.space)),1)
 		new_space=int(new_size/(self.dim+1+1+1))
 		
 		#if new_space!=self.goban2.space:
