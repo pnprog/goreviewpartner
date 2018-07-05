@@ -793,7 +793,17 @@ class OpenMove(Toplevel):
 			self.display_queue.put(1)
 			return
 		
-		
+	def shine(self,event):
+		dim=self.dim
+		i,j=self.goban.xy2ij(event.x,event.y)
+		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
+			color=self.goban.grid[i][j]
+			if color==1:
+				self.goban.black_stones[i][j].shine(100)
+			elif color==2:
+				self.goban.white_stones[i][j].shine(100)
+			else:
+				self.goban.intersections[i][j].shine(100)
 		
 	def click(self,event):
 		dim=self.dim
@@ -825,7 +835,7 @@ class OpenMove(Toplevel):
 							self.selfplay_button.config(state='disabled')
 							
 				self.history.append([copy(self.grid),copy(self.markup)])
-					
+				
 				place(self.grid,i,j,color)
 				self.grid[i][j]=color
 					
@@ -1105,6 +1115,7 @@ class OpenMove(Toplevel):
 		popup.protocol("WM_DELETE_WINDOW", self.close)
 		goban3.bind("<Button-1>",self.click)
 		goban3.bind("<Button-2>",self.undo)
+		goban3.bind("<Button-3>",self.shine)
 		#goban3.bind("<Button-3>",lambda event: click_on_undo(popup))
 		
 		self.history=[]
@@ -2042,7 +2053,7 @@ class DualView(Toplevel):
 		new_popup.goban.white_stones=self.goban1.white_stones_style
 		
 		new_popup.goban.reset()
-		new_popup.goban.display(new_popup.grid,new_popup.markup)
+		#new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
 		self.add_popup(new_popup)
 
@@ -2121,10 +2132,41 @@ class DualView(Toplevel):
 				place(updated_grid,i,j,color)
 				self.history.append([copy(updated_grid),copy(updated_markup)])
 				self.goban1.display(copy(updated_grid),updated_markup)
+				
+				if color==1:
+					self.goban1.black_stones[i][j].shine()
+				else:
+					self.goban1.white_stones[i][j].shine()
+				
 				self.left_variation_index+=1
 			
 				self.set_status(_("Use mouse middle click or wheel to undo move."))
+
+
+	def shine_left(self,event):
+		dim=self.dim
+		i,j=self.goban1.xy2ij(event.x,event.y)
+		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
+			color=self.goban1.grid[i][j]
+			if color==1:
+				self.goban1.black_stones[i][j].shine(100)
+			elif color==2:
+				self.goban1.white_stones[i][j].shine(100)
+			else:
+				self.goban1.intersections[i][j].shine(100)
 				
+	def shine_right(self,event):
+		dim=self.dim
+		i,j=self.goban2.xy2ij(event.x,event.y)
+		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
+			color=self.goban2.grid[i][j]
+			if color==1:
+				self.goban2.black_stones[i][j].shine(100)
+			elif color==2:
+				self.goban2.white_stones[i][j].shine(100)
+			else:
+				self.goban2.intersections[i][j].shine(100)
+
 	def left_mouse_wheel(self,event):
 		print "."
 		d = event.delta
@@ -2157,7 +2199,7 @@ class DualView(Toplevel):
 		
 	def undo(self,event=None):
 		if self.left_variation_index>0:
-			self.history.pop()
+			self.history=self.history[:self.left_variation_index]
 			grid,markup=self.history[-1]
 			self.goban1.display(grid,markup)
 			self.left_variation_index-=1
@@ -2320,6 +2362,9 @@ class DualView(Toplevel):
 		
 		self.goban1.bind("<Button-1>",self.click)
 		self.goban1.bind("<Button-2>",self.undo)
+		
+		self.goban1.bind("<Button-3>",self.shine_left)
+		self.goban2.bind("<Button-3>",self.shine_right)
 		
 		self.goban1.bind("<Up>", self.show_left_variation_next)
 		self.goban1.bind("<Button-4>", self.show_left_variation_prev)

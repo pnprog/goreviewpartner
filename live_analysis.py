@@ -318,8 +318,10 @@ class LiveAnalysis(Toplevel):
 		new_popup=OpenMove(self.parent,self.current_move,self.dim,self.g)
 		new_popup.goban.mesh=self.goban.mesh
 		new_popup.goban.wood=self.goban.wood
-		new_popup.goban.black_stones=self.goban.black_stones
-		new_popup.goban.white_stones=self.goban.white_stones
+		new_popup.goban.black_stones=self.goban.black_stones_style
+		new_popup.goban.white_stones=self.goban.white_stones_style
+		
+		new_popup.goban.reset()
 		
 		self.parent.after(100,lambda :new_popup.goban.display(new_popup.grid,new_popup.markup))
 		
@@ -357,7 +359,7 @@ class LiveAnalysis(Toplevel):
 		markup=[["" for r in range(dim)] for c in range(dim)]
 		
 		
-				
+		print "[",goban,"]"
 		self.goban=goban
 		self.grid=grid
 		self.markup=markup
@@ -532,6 +534,8 @@ class LiveAnalysis(Toplevel):
 		popup.focus()
 		self.display_queue=Queue.Queue(1)
 		self.locked=False
+		
+		self.goban.bind("<Button-3>",self.shine)
 	
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
@@ -1062,7 +1066,20 @@ class LiveAnalysis(Toplevel):
 			
 	def do_nothing(self,event):
 		pass
-	
+
+	def shine(self,event):
+		dim=self.dim
+		i,j=self.goban.xy2ij(event.x,event.y)
+		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
+			color=self.goban.grid[i][j]
+			if color==1:
+				print "[",self.goban,"]"
+				self.goban.black_stones[i][j].shine(100)
+			elif color==2:
+				self.goban.white_stones[i][j].shine(100)
+			else:
+				self.goban.intersections[i][j].shine(100)
+
 	def click(self,event):
 		if self.locked:
 			return

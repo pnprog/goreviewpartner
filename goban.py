@@ -15,6 +15,72 @@ from Tkinter import Canvas
 from toolbox import log
 from math import sin, pi
 
+class Intersection():
+	def __init__(self,i,j,dim,space,anchor_x, anchor_y, offset, canvas):
+		self.i=i
+		self.j=j
+		self.dim=dim
+		self.space=space
+		self.anchor_x=anchor_x
+		self.anchor_y=anchor_y
+		self.offset=offset
+		self.canvas=canvas
+		self.hidden=True
+		
+		x1=i+0.4
+		y1=j
+		x2=i-0.4
+		y2=j
+		self.s1=self.draw_line(x1,y1,x2,y2,color="black")
+		
+		x1=i
+		y1=j+0.4
+		x2=i
+		y2=j-0.4
+		self.s2=self.draw_line(x1,y1,x2,y2,color="black")
+
+	def shine(self,remaining=100):
+		if remaining==100:
+			self.show()
+		s=abs(sin((25-remaining)*(8*pi/100.))*5.)
+		self.canvas.itemconfig(self.s1,width=int(s*self.space/22))
+		self.canvas.itemconfig(self.s2,width=int(s*self.space/22))
+		remaining-=1
+		if remaining==0:
+			self.hide()
+		else:
+			self.canvas.after(30,lambda: self.shine(remaining))
+
+	def show(self):
+		if self.hidden:
+			self.canvas.move(self.s1,self.offset,self.offset)
+			self.canvas.move(self.s2,self.offset,self.offset)
+			self.hidden=False
+	
+	def hide(self):
+		if not self.hidden:
+			self.canvas.move(self.s1,-self.offset,-self.offset)
+			self.canvas.move(self.s2,-self.offset,-self.offset)
+			self.hidden=True
+
+	def draw_line(self,i1,j1,i2,j2,color="black",width=1):
+		x1,y1=self.ij2xy(i1,j1)
+		x2,y2=self.ij2xy(i2,j2)
+		
+		if self.hidden:
+			x1-=self.offset
+			y1-=self.offset
+			x2-=self.offset
+			y2-=self.offset
+		return self.canvas.create_line(x1,y1,x2,y2,fill=color,width=width)
+
+	def ij2xy(self,i,j):
+		space=self.space
+		dim=self.dim
+		y=(0.5+0.5+dim-i)*space+self.anchor_y
+		x=(0.5+0.5+1.+j)*space+self.anchor_x
+		return x,y
+
 class Stone():
 	def __init__(self,color,i,j,dim,space,anchor_x, anchor_y, offset, canvas, mesh, style):
 		self.i=i
@@ -231,6 +297,7 @@ class Goban(Canvas):
 		#creating the stones
 		self.black_stones=[[None for d in range(dim)] for dd in range(dim)]
 		self.white_stones=[[None for d in range(dim)] for dd in range(dim)]
+		self.intersections=[[None for d in range(dim)] for dd in range(dim)]
 		for i in range(dim):
 			for j in range(dim):
 				style=self.black_stones_style[i][j]
@@ -239,7 +306,8 @@ class Goban(Canvas):
 				style=self.white_stones_style[i][j]
 				self.white_stones[i][j]=Stone("white",i,j,dim,self.space,self.anchor_x, self.anchor_y, offset, self, self.mesh,style)
 				
-	
+				self.intersections[i][j]=Intersection(i,j,dim,self.space,self.anchor_x, self.anchor_y, offset, self)
+				
 	def ij2xy(self,i,j):
 		space=self.space
 		dim=self.dim
