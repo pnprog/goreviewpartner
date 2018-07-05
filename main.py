@@ -22,6 +22,7 @@ from toolbox import *
 from toolbox import _
 from live_analysis import LiveAnalysisLauncher
 from r2sgf import rsgf2sgf
+from r2csv import rsgf2csv
 
 class Main(Toplevel):
 	def __init__(self,parent):
@@ -53,6 +54,9 @@ class Main(Toplevel):
 		r2sgf_bouton=Button(self.control_frame, text=_("Convert RSGF file to SGF file"), command=self.r2sgf)
 		r2sgf_bouton.pack(fill=X,padx=5, pady=5)
 		
+		r2csv_bouton=Button(self.control_frame, text=_("Convert RSGF file to CSV file"), command=self.r2csv)
+		r2csv_bouton.pack(fill=X,padx=5, pady=5)
+		
 		bouton=Button(self.control_frame, text=_("Settings"), command=self.launch_settings)
 		bouton.pack(fill=X,padx=5, pady=5)
 
@@ -73,6 +77,14 @@ class Main(Toplevel):
 			return
 		rsgf2sgf(filename)
 		show_info(_("The file %s has been converted to %s")%(os.path.basename(filename),os.path.basename(filename)+".sgf"),parent=self.parent)
+
+	def r2csv(self):
+		filename = open_rsgf_file(parent=self.parent)
+		if not filename:
+			return
+		rsgf2csv(filename)
+		show_info(_("The file %s has been converted to %s")%(os.path.basename(filename),os.path.basename(filename)+".csv"),parent=self.parent)
+
 	def close(self):
 		for popup in self.popups[:]:
 			popup.close()
