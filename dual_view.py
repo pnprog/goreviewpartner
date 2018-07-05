@@ -245,7 +245,8 @@ class OpenChart(Toplevel):
 		x0=border+(self.current_move-1)*space
 		x1=x0+space
 		y1=border-5
-		self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')#yellow_bar
+		yellow=grp_config.get("Review","YellowBar")
+		self.chart.create_rectangle(x0, y00, x1, y1, fill=yellow,outline=yellow)#yellow_bar
 		
 		mode=self.last_graph
 

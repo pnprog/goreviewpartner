@@ -1621,6 +1621,7 @@ class MyConfig():
 		self.default_values["review"]["variationslabel"]="letter"
 		self.default_values["review"]["invertedmousewheel"]="False"
 		self.default_values["review"]["lastgraph"]=""
+		self.default_values["review"]["yellowbar"]="#F39C12"
 		
 		self.default_values["live"]={}
 		self.default_values["live"]["livegobanratio"]="0.4"
