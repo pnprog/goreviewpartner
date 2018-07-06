@@ -20,14 +20,18 @@ msgid "Convert RSGF file to SGF file"
 msgstr "파일 변환(RSGF→SGF)"
 
 #1.6
+msgid "Convert RSGF file to CSV file"
+msgstr "파일 변환(RSGF→CSV)"
+
+#1.7
 msgid "Download a SGF file for analysis"
 msgstr "분석할 SGF파일 다운로드"
 
-#1.7
+#1.8
 msgid "Settings"
 msgstr "설정"
 
-#1.8
+#1.9
 msgid "The file %s has been converted to %s"
 msgstr "%s 파일을 %s 파일로 변환 완료"
 
@@ -70,7 +74,7 @@ msgstr "백만 분석"
 
 #2.10
 msgid "Confirm the value of komi"
-msgstr "덤 값"
+msgstr "덤 치수"
 
 #2.11
 msgid "Stop the analysis if the bot resigns"
@@ -86,7 +90,7 @@ msgstr "시작"
 
 #2.14
 msgid "Incorrect value for komi (%s), please double check."
-msgstr "덤 값 (%s) 오류, 다시 확인해 주세요."
+msgstr "덤 치수 (%s) 오류, 다시 확인해 주세요."
 
 #2.15
 msgid "Could not make sense of the moves range."
@@ -98,7 +102,7 @@ msgstr "한개 또는 이상의 착수번호 간격을 지정하세요 (예: \"1
 
 #2.17
 msgid "Error while reading komi value, please check:"
-msgstr "덤 값 읽기 실패, 다음을 확인해 주세요:"
+msgstr "덤 치수 읽기 실패, 다음을 확인해 주세요:"
 
 
 ############## SGF download
@@ -147,7 +151,7 @@ msgstr "닫는 중, 잠시 기다리세요..."
 ############## RSGF review
 #5.1
 msgid "Open position"
-msgstr "현위치에서 따로 놓아보기"
+msgstr "현상태에서 따로 놓아보기"
 
 #5.2
 msgid "Show territories"
@@ -466,7 +470,7 @@ msgstr "연결테스트"
 
 #9.6
 msgid "Fast profile parameters"
-msgstr "빠른 프로파일 설정"
+msgstr "- 빠른 프로파일 설정 -"
 
 #9.7
 msgid "%s availability"
@@ -534,7 +538,7 @@ msgstr "현재 흑이 둘 차례, 실제로 흑은 %s 에 두었음"
 #10.3
 msgid "For this position, %s would play: %s"
 #e.g. For this position, Leela would play: D16
-msgstr "이번 수에서 %s 라면 %s 에 두었을 것입니다"
+msgstr "이번 수에서 저(%s)라면 %s 에 두었을 것입니다"
 
 #10.4
 msgid "Black win probability:"
