@@ -95,9 +95,7 @@ def go_to_move(move_zero,move_number=0):
 	k=0
 	while k!=move_number:
 		if not move:
-			log("The end of the sgf tree was reached before getting to move_number =",move_number)
-			log("Returning False")
-			return False
+			return False #The end of the sgf tree was reached before getting to move_number 
 		move=move[0]
 		k+=1
 	return move
@@ -697,9 +695,15 @@ import ttk
 def guess_color_to_play(move_zero,move_number):
 
 	one_move=go_to_move(move_zero,move_number)
+	
+	if one_move==False:
+		previous_move_color=guess_color_to_play(move_zero,move_number-1)
+		if previous_move_color.lower()=='b':
+			return "w"
+		else:
+			return "b"
 
-
-
+	
 	player_color,unused=one_move.get_move()
 	if player_color != None:
 		return player_color

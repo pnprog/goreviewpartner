@@ -830,7 +830,7 @@ msgstr "Die SGF-Datei enthält Vorgabesteine für Weiß! Leider kann %s damit ni
 msgid "%s%i/%i: %s "
 msgstr "%s%i/%i: %s"
 
-msgid "Comment"
+msgid "Comments"
 msgstr "Kommentare"
 
 msgid ": Book"

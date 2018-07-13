@@ -1420,6 +1420,7 @@ class DualView(Toplevel):
 		self.initialize()
 		
 		self.current_move=1
+		self.current_view=-1
 		self.display_move(self.current_move)
 
 		self.pressed=0
@@ -1792,7 +1793,7 @@ class DualView(Toplevel):
 			# It was created and hidden already
 			self.table_frame.grid()
 
-		self.table_button["text"] = _("Comment")
+		self.table_button["text"] = _("Comments")
 		self.table_button["command"] = self.close_table
 
 
@@ -1809,129 +1810,95 @@ class DualView(Toplevel):
 		self.goban1.display(self.current_grid,self.current_markup)
 	
 	
-	def display_move(self,move=1):
+	def update_view(self,move):
+		if self.current_view==move:
+			return
 		dim=self.dim
-		goban1=self.goban1
-		goban2=self.goban2
-		self.move_number.config(text=str(move)+'/'+str(self.nb_moves))
-		log("========================")
-		log("displaying move",move)
-		grid1=[[0 for row in range(dim)] for col in range(dim)]
-		markup1=[["" for row in range(dim)] for col in range(dim)]
-		grid2=[[0 for row in range(dim)] for col in range(dim)]
-		markup2=[["" for row in range(dim)] for col in range(dim)]
-		board, unused = sgf_moves.get_setup_and_moves(self.sgf)
-		self.left_variation_index=0
-		self.history=[]
-		self.current_grid=grid1
-		self.current_markup=markup1
 
+		self.current_grid=[[0 for row in range(dim)] for col in range(dim)]
+		board, unused = sgf_moves.get_setup_and_moves(self.sgf)
+		
+		#placing handicap stones
 		for colour, move0 in board.list_occupied_points():
 			if move0 is None:
 				continue
 			row, col = move0
 			if colour=='b':
-				place(grid1,row,col,1)
-				place(grid2,row,col,1)
+				place(self.current_grid,row,col,1)
 			else:
-				place(grid1,row,col,2)
-				place(grid2,row,col,2)
+				place(self.current_grid,row,col,2)
 		
-		
-		m=0
+		#placing all previous stones
 		for m in range(1,move):
 			one_move=get_node(self.gameroot,m)
-			if one_move==False:
-				log("(2)leaving because one_move==False")
-				return
-			
 			ij=one_move.get_move()[1]
-			
 			if ij==None:
-				log("(3)skipping because ij==None",ij)
-				continue
-
-			
-			if one_move.get_move()[0]=='b':color=1
-			else:color=2
+				continue #pass or resign move
+			if one_move.get_move()[0]=='b':
+				color=1
+			else:
+				color=2
 			i,j=list(ij)
-			place(grid1,i,j,color)
-			place(grid2,i,j,color)
-			
-			if len(one_move)==0:
-				log("(4)leaving because len(one_move)==0")
-				goban1.display(grid1,markup1)
-				goban2.display(grid2,markup2)
-				return
+			place(self.current_grid,i,j,color)
 		
+		self.current_markup=[["" for row in range(dim)] for col in range(dim)]
+		try:
+			#indicating last play with delta
+			i,j=one_move.parent.get_move()[1]
+			self.current_markup[i][j]=0
+		except:
+			pass #no previous move available
 
+	def update_left_goban(self,move):
 		
-		self.territories=[[],[]]
-		if m>0:
-			if node_has(one_move,"TB"):
-				self.territories[0]=node_get(one_move,"TB")
-			if node_has(one_move,"TW"):
-				self.territories[1]=node_get(one_move,"TW")
-		if self.territories!=[[],[]]:
-			self.territory_button.config(state=NORMAL)
-		else:
-			self.territory_button.config(state=DISABLED)
-		
-		#indicating last play with delta
-		
-		self.game_comments=""
-		self.comment_box2.delete(1.0, END)
-		if m>=0:
-			left_comments=get_position_comments(self.current_move,self.gameroot)
-			if node_has(get_node(self.gameroot,m+1),"C"):
-				left_comments+="\n\n==========\n"+node_get(get_node(self.gameroot,m+1),"C")
-			self.game_comments=left_comments
-			self.comment_box2.insert(END,self.game_comments)
-			
-		if m>0:
-			markup1[i][j]=0
-			markup2[i][j]=0
-
-		
-		#next sequence in current game ############################################################################
+		grid1=copy(self.current_grid)
+		markup1=copy(self.current_markup)
+		self.left_variation_index=0
+		self.history=[]
 		main_sequence=[]
-		real_game_ij=(-1,-1)
+		
 		for m in range(self.realgamedeepness):
-			one_move=get_node(self.gameroot,move+m)
-			if one_move==False:
-				log("(5)leaving because one_move==False")
-				break
+			one_move=get_node(self.gameroot,move+m)			
 			ij=one_move.get_move()[1]
 			if ij==None:
-				log("(6)skipping because ij==None",ij)
-				break
-			if one_move.get_move()[0]=='b':	c=1
-			else: c=2
+				break #pass or resign move
+			
+			if guess_color_to_play(self.gameroot,move+m)=='b':
+				c=1
+			else:
+				c=2
+			
 			if m==0:
-				real_game_ij=ij
 				main_sequence.append([c,ij,"A",None,"black","black"])
 			else:
 				main_sequence.append([c,ij])
-		
-		
 		try:
 			i,j=list(get_node(self.gameroot,move).get_move()[1])
 			if main_sequence:
 				markup1[i][j]=main_sequence
 		except:
-			#self.prev_move()
-			#return
 			pass
-		#alternative sequences ####################################################################################
+		
+		self.goban1.display(grid1,markup1)
+	
+	def update_right_goban(self, move):
+		grid2=copy(self.current_grid)
+		markup2=copy(self.current_markup)
+		
+		real_game_ij=(-1,-1)
+		try:
+			ij=one_move[0].get_move()[1]
+			if ij:
+				real_game_ij=ij
+			else:
+				pass #no next move available
+		except:
+			pass #no next move available
+		
 		parent=get_node(self.gameroot,move-1)
-		if parent==False:
-			log("(7)leaving because one_move==False")
-			return
 		if len(parent)<=1:
 			log("no alternative move")
-			goban1.display(grid1,markup1)
-			goban2.display(grid2,markup2)
-			#self.table_button.config(state='disabled')
+			self.goban2.display(grid2,markup2)
 			return
 		else:
 			self.table_button.config(state='normal')
@@ -2040,8 +2007,46 @@ class DualView(Toplevel):
 			i,j=parent[a].get_move()[1]
 			markup2[i][j]=alternative_sequence
 			
-		goban1.display(grid1,markup1)
-		goban2.display(grid2,markup2)
+		
+		self.goban2.display(grid2,markup2)
+		
+	
+	def update_territory(self,move):
+		one_move=get_node(self.gameroot,move)
+		self.territories=[[],[]]
+		if node_has(one_move,"TB"):
+			self.territories[0]=node_get(one_move,"TB")
+		if node_has(one_move,"TW"):
+			self.territories[1]=node_get(one_move,"TW")
+		
+		if self.territories!=[[],[]]:
+			self.territory_button.config(state=NORMAL)
+		else:
+			self.territory_button.config(state=DISABLED)
+	
+	def update_comments(self,move):
+		one_move=get_node(self.gameroot,move)
+		self.game_comments=""
+		self.comment_box2.delete(1.0, END)
+		left_comments=get_position_comments(move,self.gameroot)
+		if node_has(one_move.parent,"C"):
+			left_comments+="\n\n==========\n"+node_get(one_move.parent,"C")
+		self.game_comments=left_comments
+		self.comment_box2.insert(END,self.game_comments)
+	
+	def display_move(self,move=1):
+		dim=self.dim
+		
+		self.move_number.config(text=str(move)+'/'+str(self.nb_moves))
+		log("========================")
+		log("displaying move",move)
+		
+		self.update_view(move)
+		self.update_comments(move)
+		self.update_territory(move)
+		self.update_left_goban(move)
+		self.update_right_goban(move)
+		
 		
 	def open_move(self):
 		log("Opening move",self.current_move)
