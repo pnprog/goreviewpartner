@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+
 from Tkinter import *
+from Tix import Tk, NoteBook
+from Tkconstants import *
+
 from ScrolledText import *
 import tkFont
 import sys,time
@@ -953,7 +957,6 @@ class OpenMove(Toplevel):
 		panel=Frame(popup, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
 		panel.configure(background=bg)
 		
-		
 		undo_button=Button(panel, text=_('Undo'),command=self.undo)
 		undo_button.grid(column=0,row=1,sticky=E+W)
 		undo_button.config(state='disabled')
@@ -1104,7 +1107,8 @@ class OpenMove(Toplevel):
 		except:
 			log("error when trying to figure out next color to play, so black is selected")
 			self.next_color=1
-		goban3.display(grid3,markup3)
+		
+		#goban3.display(grid3,markup3)
 		
 		self.goban=goban3
 		self.grid=grid3
@@ -1192,28 +1196,6 @@ class OpenMove(Toplevel):
 	def save_as_png(self,event=None):
 		filename = save_png_file(parent=self,filename='variation_move'+str(self.move)+'.png')
 		canvas2png(self.goban,filename)
-
-class Table(Toplevel):
-
-	def close(self):
-		log("closing popup")
-		self.destroy()
-		self.parent.remove_popup(self)
-		log("done")
-
-	def __init__(self,parent,gameroot,current_move,grid,markup):
-		Toplevel.__init__(self,parent)
-		log("opening table for move",current_move)
-		
-		self.protocol("WM_DELETE_WINDOW", self.close)
-
-		self.parent=parent
-
-		self.table = TableWidget(self,parent,gameroot,current_move,grid,markup)
-
-	def display_move(self,current_move,grid,markup):
-		self.table.display_move(current_move,grid,markup)
-
 
 class TableWidget:
 	def __init__(self,widget,parent,gameroot,current_move,grid,markup):
@@ -1387,8 +1369,18 @@ class TableWidget:
 					
 					if r>0:
 						i,j=gtp2ij(columns[1][r])
-						one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.goban2,grid=grid,markup=markup,i=i,j=j))
-						one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.goban2,grid,markup))
+						
+						one_label.bind("<Enter>",partial(self.show_variation,one_label=one_label,i=i,j=j))
+						"""
+						if self.parent.right_notebook.raised()=="bot":
+							grid, markup=self.parent.right_bot_goban.grid, self.parent.right_bot_goban.markup
+							one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.right_bot_goban,grid=grid,markup=markup,i=i,j=j))
+							one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.right_bot_goban,grid,markup))
+						elif self.parent.left_notebook.raised()=="bot":
+							grid, markup=self.parent.left_bot_goban.grid, self.parent.left_bot_goban.markup
+							one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.left_bot_goban,grid=grid,markup=markup,i=i,j=j))
+							one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.left_bot_goban,grid,markup))
+						"""
 					else:
 						one_label.config(bd=2)
 					
@@ -1396,6 +1388,17 @@ class TableWidget:
 						one_label.config(width=2)
 					elif c==1:
 						one_label.config(width=4)
+	
+	def show_variation(self,event,one_label,i,j):
+		if self.parent.right_notebook.raised()=="bot":
+			grid, markup=self.parent.right_bot_goban.grid, self.parent.right_bot_goban.markup
+			self.parent.show_variation(event=event,goban=self.parent.right_bot_goban,grid=grid,markup=markup,i=i,j=j)
+			one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.right_bot_goban,grid,markup))
+		elif self.parent.left_notebook.raised()=="bot":
+			grid, markup=self.parent.left_bot_goban.grid, self.parent.left_bot_goban.markup
+			self.parent.show_variation(event=event,goban=self.parent.left_bot_goban,grid=grid,markup=markup,i=i,j=j)
+			one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.left_bot_goban,grid,markup))
+	
 	def clear_status(self):
 		self.parent.clear_status()
 	
@@ -1408,21 +1411,20 @@ class DualView(Toplevel):
 		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
-		
-
-		
 		global goban
 		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
-		self.variation_color_mode=grp_config.get("Review", "VariationsColoring")
+		goban.show_variation=self.show_variation
+		
+		#self.variation_color_mode=grp_config.get("Review", "VariationsColoring")
 		self.inverted_mouse_wheel=grp_config.getboolean('Review', 'InvertedMouseWheel')
-		self.variation_label=grp_config.get('Review', 'VariationsLabel')
+		#self.variation_label=grp_config.get('Review', 'VariationsLabel')
 		
 		self.initialize()
 		
 		self.current_move=1
 		self.current_view=-1
-		self.display_move(self.current_move)
-
+		
+		self.after(500,lambda: self.display_move(self.current_move))
 		self.pressed=0
 		self.parent.focus()
 	
@@ -1490,11 +1492,9 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-				elif isinstance(popup,Table):
-					popup.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
 			# if the table is docked
 			if self.table_frame and self.table_frame.grid_info() :
-				self.table_widget.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
+				self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
 
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
@@ -1503,12 +1503,9 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-				elif isinstance(popup,Table):
-					popup.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
 			# if the table is docked
 			if self.table_frame and self.table_frame.grid_info() :
-				self.table_widget.display_move(self.current_move,self.goban2.grid,self.goban2.markup)
-
+				self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
 		self.update_idletasks()
 		
 	def leave_variation(self,goban,grid,markup):
@@ -1520,6 +1517,12 @@ class DualView(Toplevel):
 		self.clear_status()
 		goban.display(grid,markup)
 
+	def show_both_goban_variation(self,event,goban1,grid1,markup1,goban2,grid2,markup2,i,j):
+		sequence=markup1[i][j]
+		self.show_variation_move(goban1,grid1,markup1,i,j,len(sequence))
+		sequence=markup2[i][j]
+		self.show_variation_move(goban2,grid2,markup2,i,j,len(sequence))
+		
 	def show_variation(self,event,goban,grid,markup,i,j):
 		sequence=markup[i][j]
 		self.show_variation_move(goban,grid,markup,i,j,len(sequence))
@@ -1607,20 +1610,20 @@ class DualView(Toplevel):
 		
 		self.show_variation_move(self.current_variation_goban,self.current_variation_grid,self.current_variation_markup,self.current_variation_i,self.current_variation_j,move)
 
-	def show_territories(self,event=None):
+	def show_territories(self,goban):
+		
+		goban.variation_index=0
+		goban.history=[]
+		
 		black_t=self.territories[0]
 		white_t=self.territories[1]
-		
 		dim=self.dim
 		markup=[["" for r in range(dim)] for c in range(dim)]
-		
 		for i,j in black_t:
 			markup[i][j]=-1
-		
 		for i,j in white_t:
 			markup[i][j]=-2
-		
-		self.goban1.display(self.current_grid,markup)
+		goban.display(self.current_grid,markup)
 	
 	def prepare_data_for_chart(self):
 		data=[]
@@ -1788,7 +1791,7 @@ class DualView(Toplevel):
 		if self.table_frame == None:
 			self.table_frame=Frame(self.lists_frame,background=bg)
 			self.table_frame.grid(column=1,row=2,sticky=N+W, padx=10, pady=10)
-			self.table_widget = TableWidget(self.table_frame,self,self.gameroot,self.current_move,self.goban2.grid,self.goban2.markup)
+			self.table_widget = TableWidget(self.table_frame,self,self.gameroot,self.current_move,self.current_grid, self.current_markup)
 		else:
 			# It was created and hidden already
 			self.table_frame.grid()
@@ -1806,9 +1809,8 @@ class DualView(Toplevel):
 		self.table_button["text"] = _("Table")
 		self.table_button["command"] = self.open_table
 
-	def hide_territories(self,event=None):
-		self.goban1.display(self.current_grid,self.current_markup)
-	
+	def hide_territories(self,goban):
+		goban.display(self.current_grid,self.current_game_markup)
 	
 	def update_view(self,move):
 		if self.current_view==move:
@@ -1849,12 +1851,10 @@ class DualView(Toplevel):
 		except:
 			pass #no previous move available
 
-	def update_left_goban(self,move):
+	def update_game_gobans(self,move):
 		
 		grid1=copy(self.current_grid)
 		markup1=copy(self.current_markup)
-		self.left_variation_index=0
-		self.history=[]
 		main_sequence=[]
 		
 		for m in range(self.realgamedeepness):
@@ -1879,11 +1879,32 @@ class DualView(Toplevel):
 		except:
 			pass
 		
-		self.goban1.display(grid1,markup1)
+		self.current_game_markup=markup1
+		
+		self.left_game_goban.left_variation_index=0
+		self.left_game_goban.history=[]
+		self.left_game_goban.display(grid1,markup1)
+		
+		self.right_game_goban.left_variation_index=0
+		self.right_game_goban.history=[]
+		self.right_game_goban.display(grid1,markup1)
+		
+	def update_both_bot_gobans(self, move):
+		parent=get_node(self.gameroot,move-1)
+		if len(parent)<=1:
+			self.table_button.config(state='normal')
+		
+		coloring=self.left_coloring_selection.get()
+		labeling=self.left_labeling_selection.get()
+		self.update_one_bot_goban(move, self.left_bot_goban, labeling, coloring)
+		
+		coloring=self.right_coloring_selection.get()
+		labeling=self.right_labeling_selection.get()
+		self.update_one_bot_goban(move, self.right_bot_goban, labeling, coloring)
 	
-	def update_right_goban(self, move):
-		grid2=copy(self.current_grid)
-		markup2=copy(self.current_markup)
+	def update_one_bot_goban(self, move, goban, labeling, coloring):
+		grid=copy(self.current_grid)
+		markup=copy(self.current_markup)
 		
 		real_game_ij=(-1,-1)
 		try:
@@ -1898,10 +1919,8 @@ class DualView(Toplevel):
 		parent=get_node(self.gameroot,move-1)
 		if len(parent)<=1:
 			log("no alternative move")
-			self.goban2.display(grid2,markup2)
+			goban.display(grid,markup)
 			return
-		else:
-			self.table_button.config(state='normal')
 
 		for a in range(1,min(len(parent),self.maxvariations+1)):
 			one_alternative=parent[a]
@@ -1925,17 +1944,17 @@ class DualView(Toplevel):
 					white_prob=100-black_prob
 				
 				if c==1:
-					if self.variation_color_mode=="blue_for_winning":
+					if coloring=="blue_for_winning":
 						if black_prob>=50:
 							displaycolor="blue"
 						else:
 							displaycolor="red"
-					elif self.variation_color_mode=="blue_for_best":
+					elif coloring=="blue_for_best":
 						if a==1:
 							displaycolor="blue"
 						else:
 							displaycolor="red"
-					elif self.variation_color_mode=="blue_for_better":
+					elif coloring=="blue_for_better":
 						try:
 							if node_has(parent[0][0],"BWWR"):
 								real_game_prob=float(node_get(parent[0][0],"BWWR").split("%")[0])
@@ -1952,17 +1971,17 @@ class DualView(Toplevel):
 						except:
 							pass							
 				else:
-					if self.variation_color_mode=="blue_for_winning":
+					if coloring=="blue_for_winning":
 						if black_prob>50:
 							displaycolor="red"
 						else:
 							displaycolor="blue"
-					elif self.variation_color_mode=="blue_for_best":
+					elif coloring=="blue_for_best":
 						if a==1:
 							displaycolor="blue"
 						else:
 							displaycolor="red"
-					elif self.variation_color_mode=="blue_for_better":
+					elif coloring=="blue_for_better":
 						try:
 							if node_has(parent[0][0],"BWWR"):
 								real_game_prob=100-float(node_get(parent[0][0],"BWWR").split("%")[0])
@@ -1988,7 +2007,7 @@ class DualView(Toplevel):
 			else:
 				letter_color=displaycolor
 			
-			if self.variation_label=="letter":
+			if labeling=="letter":
 				alternative_sequence=[[c,ij,chr(64+a),comments,displaycolor,letter_color]]
 			else:
 				if (c==1) and (black_prob):
@@ -2005,10 +2024,10 @@ class DualView(Toplevel):
 				else:c=2
 				alternative_sequence.append([c,ij])
 			i,j=parent[a].get_move()[1]
-			markup2[i][j]=alternative_sequence
+			markup[i][j]=alternative_sequence
 			
-		
-		self.goban2.display(grid2,markup2)
+		goban.display(grid,markup)
+
 		
 	
 	def update_territory(self,move):
@@ -2044,18 +2063,18 @@ class DualView(Toplevel):
 		self.update_view(move)
 		self.update_comments(move)
 		self.update_territory(move)
-		self.update_left_goban(move)
-		self.update_right_goban(move)
+		self.update_game_gobans(move)
+		self.update_both_bot_gobans(move)
 		
 		
 	def open_move(self):
 		log("Opening move",self.current_move)
 		
 		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf)
-		new_popup.goban.mesh=self.goban1.mesh
-		new_popup.goban.wood=self.goban1.wood
-		new_popup.goban.black_stones=self.goban1.black_stones_style
-		new_popup.goban.white_stones=self.goban1.white_stones_style
+		new_popup.goban.mesh=self.left_game_goban.mesh
+		new_popup.goban.wood=self.left_game_goban.wood
+		new_popup.goban.black_stones=self.left_game_goban.black_stones_style
+		new_popup.goban.white_stones=self.left_game_goban.white_stones_style
 		
 		new_popup.goban.reset()
 		#new_popup.goban.display(new_popup.grid,new_popup.markup)
@@ -2114,36 +2133,37 @@ class DualView(Toplevel):
 		
 		self.after(period*1000,self.update_from_file)
 	
-	def click(self,event):
+	def click_game_goban(self,event):
+		goban=event.widget
 		dim=self.dim
-		i,j=self.goban1.xy2ij(event.x,event.y)
+		i,j=goban.xy2ij(event.x,event.y)
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
-			if (self.goban1.grid[i][j] not in (1,2)) or (type(self.goban1.markup[i][j])==type(123)):
+			if (goban.grid[i][j] not in (1,2)) or (type(goban.markup[i][j])==type(123)):
 				
-				if guess_color_to_play(self.gameroot,self.current_move+self.left_variation_index)=="b":
+				if guess_color_to_play(self.gameroot,self.current_move+goban.left_variation_index)=="b":
 					color=1
 				else:
 					color=2
 
-				if self.left_variation_index==0:
-					self.history=[[copy(self.current_grid),copy(self.current_markup)]]
+				if goban.left_variation_index==0:
+					goban.history=[[copy(self.current_grid),copy(self.current_markup)]]
 					updated_markup=[["" for row in range(dim)] for col in range(dim)]
 					updated_grid=copy(self.current_grid)
 				else:
-					self.history=self.history[:self.left_variation_index+1]
-					updated_markup=copy(self.goban1.markup)
-					updated_grid=copy(self.goban1.grid)
-				updated_markup[i][j]=unicode(self.left_variation_index+1)
+					goban.history=goban.history[:goban.left_variation_index+1]
+					updated_markup=copy(goban.markup)
+					updated_grid=copy(goban.grid)
+				updated_markup[i][j]=unicode(goban.left_variation_index+1)
 				place(updated_grid,i,j,color)
-				self.history.append([copy(updated_grid),copy(updated_markup)])
-				self.goban1.display(copy(updated_grid),updated_markup)
+				goban.history.append([copy(updated_grid),copy(updated_markup)])
+				goban.display(copy(updated_grid),updated_markup)
 				
 				if color==1:
-					self.goban1.black_stones[i][j].shine()
+					goban.black_stones[i][j].shine()
 				else:
-					self.goban1.white_stones[i][j].shine()
+					goban.white_stones[i][j].shine()
 				
-				self.left_variation_index+=1
+				goban.left_variation_index+=1
 				
 				self.bind("<MouseWheel>", self.left_mouse_wheel)
 				if not self.inverted_mouse_wheel:
@@ -2156,67 +2176,71 @@ class DualView(Toplevel):
 				self.set_status(_("Use mouse middle click or wheel to undo move."))
 
 
-	def shine_left(self,event):
+	def shine(self,event):
+		goban=event.widget
 		dim=self.dim
-		i,j=self.goban1.xy2ij(event.x,event.y)
+		i,j=goban.xy2ij(event.x,event.y)
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
-			color=self.goban1.grid[i][j]
+			color=goban.grid[i][j]
 			if color==1:
-				self.goban1.black_stones[i][j].shine(100)
+				goban.black_stones[i][j].shine(100)
 			elif color==2:
-				self.goban1.white_stones[i][j].shine(100)
+				goban.white_stones[i][j].shine(100)
 			else:
-				self.goban1.intersections[i][j].shine(100)
+				goban.intersections[i][j].shine(100)
 				
-	def shine_right(self,event):
-		dim=self.dim
-		i,j=self.goban2.xy2ij(event.x,event.y)
-		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
-			color=self.goban2.grid[i][j]
-			if color==1:
-				self.goban2.black_stones[i][j].shine(100)
-			elif color==2:
-				self.goban2.white_stones[i][j].shine(100)
-			else:
-				self.goban2.intersections[i][j].shine(100)
-
 	def left_mouse_wheel(self,event):
 		d = event.delta
 		if self.inverted_mouse_wheel:
 			d*=-1
 		if d>0:
-			self.show_left_variation_next()
+			self.show_left_variation_next(event)
 		elif d<0:
-			self.show_left_variation_prev()
+			self.show_left_variation_prev(event)
 	
-	def show_left_variation_next(self,event=None):
-		if len(self.history)<=1:
+	def show_left_variation_next(self,event):
+		goban=event.widget
+		if len(goban.history)<=1:
 			return
-		if self.left_variation_index>=len(self.history)-1:
+		if goban.left_variation_index>=len(goban.history)-1:
 			return
-		updated_grid, updated_markup =self.history[self.left_variation_index+1]
-		self.goban1.display(copy(updated_grid),updated_markup)
-		self.left_variation_index+=1
+		updated_grid, updated_markup =goban.history[goban.left_variation_index+1]
+		goban.display(copy(updated_grid),updated_markup)
+		goban.left_variation_index+=1
 
-	def show_left_variation_prev(self,event=None):
-		if len(self.history)<=1:
+	def show_left_variation_prev(self,event):
+		goban=event.widget
+		if len(goban.history)<=1:
 			return
-		if self.left_variation_index==0:
+		if goban.left_variation_index==0:
 			return
-		updated_grid, updated_markup =self.history[self.left_variation_index-1]
-		self.goban1.display(copy(updated_grid),updated_markup)
-		self.left_variation_index-=1
+		updated_grid, updated_markup =goban.history[goban.left_variation_index-1]
+		goban.display(copy(updated_grid),updated_markup)
+		goban.left_variation_index-=1
 
-		
 	def undo(self,event=None):
-		if self.left_variation_index>0:
-			self.history=self.history[:self.left_variation_index]
-			grid,markup=self.history[-1]
-			self.goban1.display(grid,markup)
-			self.left_variation_index-=1
+		goban=event.widget
+		if goban.left_variation_index>0:
+			goban.history=goban.history[:goban.left_variation_index]
+			grid,markup=goban.history[-1]
+			goban.display(grid,markup)
+			goban.left_variation_index-=1
+
+	def change_left_display(self):
+		coloring=self.left_coloring_selection.get()
+		labeling=self.left_labeling_selection.get()
+		grp_config.set("Review","VariationsColoring",coloring)
+		grp_config.set("Review","VariationsLabel",labeling)
+		self.update_one_bot_goban(self.current_move, self.left_bot_goban, labeling, coloring)
+		
+	def change_right_display(self):
+		coloring=self.right_coloring_selection.get()
+		labeling=self.right_labeling_selection.get()
+		grp_config.set("Review","VariationsColoring",coloring)
+		grp_config.set("Review","VariationsLabel",labeling)
+		self.update_one_bot_goban(self.current_move, self.right_bot_goban, labeling, coloring)
 		
 	def initialize(self):
-
 		self.realgamedeepness=grp_config.getint("Review", "RealGameSequenceDeepness")
 		self.maxvariations=grp_config.getint("Review", "MaxVariations")
 		
@@ -2259,14 +2283,116 @@ class DualView(Toplevel):
 		screen_height = self.parent.winfo_screenheight()
 		self.left_goban_size=min(left_display_factor*screen_width,left_display_factor*screen_height)
 		self.right_goban_size=min(right_display_factor*screen_width,right_display_factor*screen_height)
-		self.goban1 = Goban(self.dim,self.left_goban_size,master=gobans_frame,relief=SUNKEN,bd=2) #bg
-		self.goban2 = Goban(self.dim,self.right_goban_size,master=gobans_frame,relief=SUNKEN,bd=2)
-		self.goban2.mesh=self.goban1.mesh
-		self.goban2.wood=self.goban1.wood
-		self.goban2.black_stones_style=self.goban1.black_stones_style
-		self.goban2.white_stones_style=self.goban1.white_stones_style
-		self.goban1.space=self.left_goban_size/(self.dim+1+1+1)
-		self.goban2.space=self.right_goban_size/(self.dim+1+1+1)
+		
+		left_notebook=NoteBook(gobans_frame)
+		
+		left_notebook.add("game", label=_("Game"))
+		left_notebook.add("bot", label=_("Bot"))
+		#left_notebook.add("+", label="+")
+		left_game_tab=left_notebook.subwidget_list["game"]
+		left_bot_tab=left_notebook.subwidget_list["bot"]
+		
+		right_notebook=NoteBook(gobans_frame)
+		right_notebook.add("game", label=_("Game"))
+		right_notebook.add("bot", label=_("Bot"))
+		#right_notebook.add("+", label="+")
+		right_game_tab=right_notebook.subwidget_list["game"]
+		right_bot_tab=right_notebook.subwidget_list["bot"]
+		
+		gobans_frame.add(left_notebook, stretch="always") #https://mail.python.org/pipermail/tkinter-discuss/2012-May/003146.html
+		gobans_frame.add(right_notebook, stretch="always")
+		
+		#######################
+		toolbar=Frame(left_game_tab)
+		toolbar.pack(fill=X)
+		left_territory_button=Button(toolbar,text=_("Show territories"))
+		left_territory_button.pack(side=LEFT)
+		self.left_game_goban = Goban(self.dim,self.left_goban_size,master=left_game_tab)
+		self.left_game_goban.pack(fill=BOTH,expand=True)
+		
+		#######################
+		toolbar=Frame(left_bot_tab)
+		toolbar.pack(fill=X)
+		
+		filter_button=Button(toolbar,text="Filter", state="disable")
+		filter_button.pack(side=LEFT)
+		
+		mb=Menubutton(toolbar, text=_("Display"), relief=RAISED)
+		mb.pack(side=LEFT,fill=Y)
+		mb.menu = Menu(mb,tearoff=0)
+		mb["menu"]= mb.menu
+
+		coloring_selection = StringVar()
+		self.left_coloring_selection=coloring_selection
+		coloring={"blue_for_winning":_("Win rate > 50% in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
+		coloring_selection.set(grp_config.get("Review","VariationsColoring"))
+		for value, label in coloring.items():
+			mb.menu.add_radiobutton(label=label, value=value, variable=coloring_selection, command=self.change_left_display)
+		
+		mb.menu.add_separator()
+		labeling_selection = StringVar()
+		self.left_labeling_selection=labeling_selection
+		labeling={"letter":_("Letters"),"rate":_("Percentages")}
+		labeling_selection.set(grp_config.get("Review","VariationsLabel"))
+		for value, label in labeling.items():
+			mb.menu.add_radiobutton(label=label, value=value, variable=labeling_selection, command=self.change_left_display)
+		
+		self.left_bot_goban = Goban(self.dim,self.left_goban_size,master=left_bot_tab)
+		self.left_bot_goban.pack(fill=BOTH,expand=True)
+		
+		#######################
+		toolbar=Frame(right_game_tab)
+		toolbar.pack(fill=X)
+		right_territory_button=Button(toolbar,text=_("Show territories"))
+		right_territory_button.pack(side=LEFT)
+		self.right_game_goban = Goban(self.dim,self.right_goban_size,master=right_game_tab)
+		self.right_game_goban.pack(fill=BOTH,expand=True)
+		
+		#######################
+		toolbar=Frame(right_bot_tab)
+		toolbar.pack(fill=X)
+		filter_button=Button(toolbar,text="Filter", state="disable")
+		filter_button.pack(side=LEFT)
+		
+		mb=Menubutton(toolbar, text=_("Display"), relief=RAISED)
+		mb.pack(side=LEFT,fill=Y)
+		mb.menu = Menu(mb,tearoff=0)
+		mb["menu"]= mb.menu
+
+		coloring_selection = StringVar()
+		self.right_coloring_selection=coloring_selection
+		coloring={"blue_for_winning":_("Win rate > 50% in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
+		coloring_selection.set(grp_config.get("Review","VariationsColoring"))
+		for value, label in coloring.items():
+			mb.menu.add_radiobutton(label=label, value=value, variable=coloring_selection, command=self.change_right_display)
+		
+		mb.menu.add_separator()
+		labeling_selection = StringVar()
+		self.right_labeling_selection=labeling_selection
+		labeling={"letter":_("Letters"),"rate":_("Percentages")}
+		labeling_selection.set(grp_config.get("Review","VariationsLabel"))
+		for value, label in labeling.items():
+			mb.menu.add_radiobutton(label=label, value=value, variable=labeling_selection, command=self.change_right_display)
+		
+		self.right_bot_goban = Goban(self.dim,self.right_goban_size,master=right_bot_tab)
+		self.right_bot_goban.pack(fill=BOTH,expand=True)
+		
+		for goban in [self.right_bot_goban, self.left_bot_goban, self.right_game_goban]:
+			goban.mesh=self.left_game_goban.mesh
+			goban.wood=self.left_game_goban.wood
+			goban.black_stones_style=self.left_game_goban.black_stones_style
+			goban.white_stones_style=self.left_game_goban.white_stones_style
+		
+		for goban in [self.left_bot_goban, self.left_game_goban]:
+			goban.space=self.left_goban_size/(self.dim+1+1+1)
+		
+		for goban in [self.right_bot_goban, self.right_game_goban]:
+			goban.space=self.right_goban_size/(self.dim+1+1+1)
+		
+
+		
+		
+		#creating the status bar widget
 		self.status_bar=Label(self,text='',anchor=W,justify=LEFT)
 
 		# Such widgets for the buttons_bar - game navigation
@@ -2295,9 +2421,7 @@ class DualView(Toplevel):
 		self.lpix=lpix
 		right_panel_ratio=grp_config.getfloat("Review", "RightPanelRatio")
 		right_panel_width=right_panel_ratio*screen_width
-		#self.comment_lines = int(right_panel_width / police.metrics('linespace') - 2) #no need to give a vertical height
 		self.comment_chars = int(right_panel_width/lpix)
-		#self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",height=self.comment_lines,width=self.comment_chars,foreground='black')
 		self.comment_box2=ScrolledText(self.lists_frame,font=police,wrap="word",width=self.comment_chars,foreground='black')
 		
 		#Place widgets in button_bar
@@ -2329,8 +2453,6 @@ class DualView(Toplevel):
 		
 		
 		central_frame.pack(fill=BOTH, expand=1)	
-		gobans_frame.add(self.goban1, stretch="always") #https://mail.python.org/pipermail/tkinter-discuss/2012-May/003146.html
-		gobans_frame.add(self.goban2, stretch="always")
 		
 		central_frame.add(gobans_frame, stretch="always")
 		central_frame.add(self.lists_frame, stretch="always")
@@ -2338,8 +2460,12 @@ class DualView(Toplevel):
 		self.status_bar.pack(fill=X)
 		
 		# Such keybindings
-		self.territory_button.bind('<Button-1>', self.show_territories)
-		self.territory_button.bind('<ButtonRelease-1>', self.hide_territories)
+		left_territory_button.bind('<Button-1>', lambda event: self.show_territories(self.left_game_goban))
+		left_territory_button.bind('<ButtonRelease-1>', lambda event: self.hide_territories(self.left_game_goban))
+		right_territory_button.bind('<Button-1>', lambda event: self.show_territories(self.right_game_goban))
+		right_territory_button.bind('<ButtonRelease-1>', lambda event: self.hide_territories(self.right_game_goban))
+		
+		
 		self.bind('<Control-q>', self.save_left_as_png)
 		self.bind('<Control-w>', self.save_right_as_png)
 		self.bind('<Left>', self.prev_move)
@@ -2355,33 +2481,41 @@ class DualView(Toplevel):
 		final_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to final move.")))
 		self.charts_button.bind('<Button-1>', self.show_graphs)
 		self.territory_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show territories.")))
-		self.goban1.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
-		self.goban2.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
-		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.goban1,self.goban2]:
-			button.bind("<Leave>",lambda e: self.clear_status())
+		self.left_game_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		self.right_bot_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
 		
-		self.update_idletasks()
-		self.goban1.anchor_y=(gobans_frame.winfo_height()-self.left_goban_size)/2
-		self.goban2.anchor_y=(gobans_frame.winfo_height()-self.right_goban_size)/2
-		
-		self.goban1.reset()
-		self.goban2.reset()
-		
-		self.goban1.bind("<Configure>",self.redraw_left)
-		self.goban2.bind("<Configure>",self.redraw_right)
 		self.comment_box2.bind("<Configure>",self.redraw_panel)
 		
-		self.goban1.bind("<Button-1>",self.click)
-		self.goban1.bind("<Button-2>",self.undo)
+		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.left_game_goban,self.right_bot_goban]:
+			button.bind("<Leave>",lambda e: self.clear_status())
 		
-		self.goban1.bind("<Button-3>",self.shine_left)
-		self.goban2.bind("<Button-3>",self.shine_right)
+		for goban in [self.left_bot_goban, self.left_game_goban]:
+			goban.bind("<Configure>",self.redraw_left)
+
+		for goban in [self.right_bot_goban, self.right_game_goban]:
+			goban.bind("<Configure>",self.redraw_right)
+		
+		#left_notebook.raise_page("game") #forcing a refresh/resize
+		right_notebook.raise_page("bot")
+		
+		self.left_notebook=left_notebook
+		self.right_notebook=right_notebook
+		
+		for goban in [self.left_game_goban, self.right_game_goban]:
+			goban.bind("<Button-1>",self.click_game_goban)
+			goban.bind("<Button-2>",self.undo)
+			goban.bind("<Button-3>",self.shine)
+		
+		for goban in [self.left_bot_goban, self.right_bot_goban]:
+			goban.bind("<Button-3>",self.shine)
 		
 		self.after(10000,self.update_from_file)
-		goban.show_variation=self.show_variation
+		
+		
+		
 		
 
-	def redraw_left(self, event, redrawing=None):	
+	def redraw_left(self, event, redrawing=None):
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing_left=redrawing
@@ -2389,28 +2523,26 @@ class DualView(Toplevel):
 			return
 		if redrawing<self.redrawing_left:
 			return
-		
-		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban2.space)),1)
-		
-		new_space=int(new_size/(self.dim+1+1+1))
 
-		#if new_space!=self.goban1.space:
+		new_size=min(event.width,event.height)
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
-		ratio=1.0*new_size/min(screen_width,screen_height)
-		grp_config.set("Review", "LeftGobanRatio",ratio)
+		min_screen_size=min(screen_width, screen_height)
+		new_size=new_size-new_size%max(int((0.05*min_screen_size)),1) #the goban is resized by increment of 5% of the screen size
+		new_space=int(new_size/(self.dim+1+1+1))
 		
-		self.goban1.space=new_space
+		ratio=1.0*new_size/min_screen_size
+		grp_config.set("Review", "LeftGobanRatio",ratio)
 		new_anchor_x=(event.width-new_size)/2
-		self.goban1.anchor_x=new_anchor_x
 		new_anchor_y=(event.height-new_size)/2
-		self.goban1.anchor_y=new_anchor_y
-		self.goban1.reset()
+		for goban in [self.left_bot_goban, self.left_game_goban]:
+			goban.space=new_space
+			goban.anchor_x=new_anchor_x
+			goban.anchor_y=new_anchor_y
+			goban.reset()
 		
 
 	def redraw_right(self, event, redrawing=None):
-		
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing_right=redrawing
@@ -2420,29 +2552,28 @@ class DualView(Toplevel):
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban2.space)),1)
-		new_space=int(new_size/(self.dim+1+1+1))
-		
-		#if new_space!=self.goban2.space:
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
+		min_screen_size=min(screen_width, screen_height)
+		new_size=new_size-new_size%max(int((0.05*min_screen_size)),1) #the goban is resized by increment of 5% of the screen size
+		new_space=int(new_size/(self.dim+1+1+1))
+		
 		ratio=1.0*new_size/min(screen_width,screen_height)
 		grp_config.set("Review", "RightGobanRatio",ratio)
 		
-		self.goban2.space=new_space
 		new_anchor_x=(event.width-new_size)/2
-		self.goban2.anchor_x=new_anchor_x
 		new_anchor_y=(event.height-new_size)/2
-		self.goban2.anchor_y=new_anchor_y
-		self.goban2.reset()
-		
+		for goban in [self.right_bot_goban, self.right_game_goban]:
+			goban.space=new_space
+			goban.anchor_x=new_anchor_x
+			goban.anchor_y=new_anchor_y
+			goban.reset()
 
-		
-		
 	def redraw_panel(self, event):
 		new_size=event.width
 		screen_width = self.parent.winfo_screenwidth()
 		ratio=1.0*new_size/screen_width
+		print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>",ratio
 		grp_config.set("Review", "RightPanelRatio",ratio)
 
 	def set_status(self,msg):

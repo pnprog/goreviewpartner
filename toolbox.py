@@ -136,7 +136,11 @@ def ij2sgf(m):
 		raise GRPException("Cannot convert grid coordinates "+str(m)+" to SGF coordinates!")
 
 from gomill import sgf, sgf_moves
-from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu
+
+from Tkinter import *
+from Tix import Tk, NoteBook
+from Tkconstants import *
+
 import sys
 import os
 import urllib2
@@ -688,7 +692,7 @@ class RangeSelector(Toplevel):
 
 import Queue
 import time
-from Tkinter import *
+
 import ttk
 
 

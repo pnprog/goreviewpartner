@@ -503,19 +503,6 @@ class LiveAnalysis(Toplevel):
 		self.review_bouton_wrapper=Frame(panel)
 		self.review_bouton_wrapper.grid(column=1,row=row,sticky=W+E)
 		
-		if self.handicap>0:
-			self.handicap_stones=[]
-			self.history.append(None)
-			show_info(_("Please place %i handicap stones on the board.")%self.handicap,self)
-			goban.bind("<Button-1>",lambda e: self.place_handicap(e,self.handicap))
-			
-		else:
-			self.next_color=1		
-			self.current_move=1
-			node_set(self.g.get_root(),"PL", "b")
-			write_rsgf(self.rsgf_filename,self.g)
-			self.black_to_play()
-		
 		self.status_bar=Label(self,text='',background=bg)
 		self.status_bar.grid(column=1,row=3,sticky=W,columnspan=2)
 		
@@ -536,6 +523,21 @@ class LiveAnalysis(Toplevel):
 		self.locked=False
 		
 		self.goban.bind("<Button-3>",self.shine)
+		
+		if self.handicap>0:
+			self.handicap_stones=[]
+			self.history.append(None)
+			show_info(_("Please place %i handicap stones on the board.")%self.handicap,self)
+			goban.bind("<Button-1>",lambda e: self.place_handicap(e,self.handicap))
+			
+		else:
+			self.next_color=1		
+			self.current_move=1
+			node_set(self.g.get_root(),"PL", "b")
+			write_rsgf(self.rsgf_filename,self.g)
+			self.black_to_play()
+		
+
 	
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)

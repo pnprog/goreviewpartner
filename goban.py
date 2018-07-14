@@ -11,7 +11,10 @@ fuzzy=0.0
 
 from random import random,seed,choice
 
-from Tkinter import Canvas
+from Tkinter import *
+from Tix import Tk, NoteBook
+from Tkconstants import *
+
 from toolbox import log
 from math import sin, pi
 
@@ -190,7 +193,7 @@ class Goban(Canvas):
 		self.anchor_y=0
 		
 		self.define_goban_style()
-		self.create_goban()
+		#self.create_goban()
 		self.temporary_shapes=[]
 		
 	def define_goban_style(self):
@@ -356,7 +359,6 @@ class Goban(Canvas):
 		self.display(self.grid,self.markup)
 
 	def display(self,grid,markup,freeze=False):
-		
 		self.grid=grid
 		self.markup=markup
 		space=self.space
