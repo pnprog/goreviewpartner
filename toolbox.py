@@ -138,7 +138,7 @@ def ij2sgf(m):
 from gomill import sgf, sgf_moves
 
 from Tkinter import *
-from Tix import Tk, NoteBook
+#from Tix import Tk, NoteBook
 from Tkconstants import *
 
 import sys

@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 
 from Tkinter import *
-from Tix import Tk, NoteBook
+#from Tix import Tk, NoteBook
+from ttk import Notebook
 from Tkconstants import *
 
 from ScrolledText import *
@@ -12,6 +13,8 @@ import sys,time
 from functools import partial
 from toolbox import *
 from toolbox import _
+
+from tabbed import *
 
 import os
 
@@ -1390,11 +1393,16 @@ class TableWidget:
 						one_label.config(width=4)
 	
 	def show_variation(self,event,one_label,i,j):
-		if self.parent.right_notebook.raised()=="bot":
+		# https://stackoverflow.com/questions/14000944/finding-the-currently-selected-tab-of-ttk-notebook
+		nb1=self.parent.left_notebook
+		nb2=self.parent.right_notebook
+		if nb2.index(nb2.select())==1:
+			#if self.parent.right_notebook.raised()=="bot":
 			grid, markup=self.parent.right_bot_goban.grid, self.parent.right_bot_goban.markup
 			self.parent.show_variation(event=event,goban=self.parent.right_bot_goban,grid=grid,markup=markup,i=i,j=j)
 			one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.right_bot_goban,grid,markup))
-		elif self.parent.left_notebook.raised()=="bot":
+		elif nb1.index(nb1.select())==1:
+			#elif self.parent.left_notebook.raised()=="bot":
 			grid, markup=self.parent.left_bot_goban.grid, self.parent.left_bot_goban.markup
 			self.parent.show_variation(event=event,goban=self.parent.left_bot_goban,grid=grid,markup=markup,i=i,j=j)
 			one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.left_bot_goban,grid,markup))
@@ -2076,6 +2084,8 @@ class DualView(Toplevel):
 		new_popup.goban.black_stones=self.left_game_goban.black_stones_style
 		new_popup.goban.white_stones=self.left_game_goban.white_stones_style
 		
+		new_popup.goban.grid=new_popup.grid
+		new_popup.goban.markup=new_popup.markup
 		new_popup.goban.reset()
 		#new_popup.goban.display(new_popup.grid,new_popup.markup)
 		
@@ -2240,6 +2250,21 @@ class DualView(Toplevel):
 		grp_config.set("Review","VariationsLabel",labeling)
 		self.update_one_bot_goban(self.current_move, self.right_bot_goban, labeling, coloring)
 		
+	
+	def new_right_goban(self,event=None):
+		new_tab=InteractiveGoban(self.right_notebook,self.current_move,self.dim,self.sgf)
+		new_tab.status_bar=self.status_bar
+		pos=len(self.right_notebook.tabs())-1
+		self.right_notebook.insert(pos,new_tab, text=str(self.current_move))
+		self.right_notebook.select(pos)
+		
+	def new_left_goban(self,event=None):
+		new_tab=InteractiveGoban(self.left_notebook,self.current_move,self.dim,self.sgf)
+		new_tab.status_bar=self.status_bar
+		pos=len(self.right_notebook.tabs())-1
+		self.left_notebook.insert(pos,new_tab, text=str(self.current_move))
+		self.left_notebook.select(pos)
+			
 	def initialize(self):
 		self.realgamedeepness=grp_config.getint("Review", "RealGameSequenceDeepness")
 		self.maxvariations=grp_config.getint("Review", "MaxVariations")
@@ -2284,23 +2309,33 @@ class DualView(Toplevel):
 		self.left_goban_size=min(left_display_factor*screen_width,left_display_factor*screen_height)
 		self.right_goban_size=min(right_display_factor*screen_width,right_display_factor*screen_height)
 		
-		left_notebook=NoteBook(gobans_frame)
+		left_notebook=Notebook(gobans_frame)
 		
-		left_notebook.add("game", label=_("Game"))
-		left_notebook.add("bot", label=_("Bot"))
-		#left_notebook.add("+", label="+")
-		left_game_tab=left_notebook.subwidget_list["game"]
-		left_bot_tab=left_notebook.subwidget_list["bot"]
+		left_game_tab=Frame(left_notebook)
+		left_notebook.add(left_game_tab, text=_("Actual game"))
 		
-		right_notebook=NoteBook(gobans_frame)
-		right_notebook.add("game", label=_("Game"))
-		right_notebook.add("bot", label=_("Bot"))
-		#right_notebook.add("+", label="+")
-		right_game_tab=right_notebook.subwidget_list["game"]
-		right_bot_tab=right_notebook.subwidget_list["bot"]
+		left_bot_tab=Frame(left_notebook)
+		left_notebook.add(left_bot_tab, text=_("Analysis"))
+		
+		left_plus_tab=Frame(left_notebook)
+		left_notebook.add(left_plus_tab, text="+")
+		left_plus_tab.bind("<Visibility>",self.new_left_goban)
+		
+		right_notebook=Notebook(gobans_frame)
+		
+		right_game_tab=Frame(right_notebook)
+		right_notebook.add(right_game_tab, text=_("Actual game"))
+		
+		right_bot_tab=Frame(right_notebook)
+		right_notebook.add(right_bot_tab, text=_("Analysis"))
+		
+		right_plus_tab=Frame(right_notebook)
+		right_notebook.add(right_plus_tab, text="+")
+		right_plus_tab.bind("<Visibility>",self.new_right_goban)
 		
 		gobans_frame.add(left_notebook, stretch="always") #https://mail.python.org/pipermail/tkinter-discuss/2012-May/003146.html
 		gobans_frame.add(right_notebook, stretch="always")
+		
 		
 		#######################
 		toolbar=Frame(left_game_tab)
@@ -2496,7 +2531,7 @@ class DualView(Toplevel):
 			goban.bind("<Configure>",self.redraw_right)
 		
 		#left_notebook.raise_page("game") #forcing a refresh/resize
-		right_notebook.raise_page("bot")
+		right_notebook.select(1)
 		
 		self.left_notebook=left_notebook
 		self.right_notebook=right_notebook
