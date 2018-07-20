@@ -275,6 +275,8 @@ class InteractiveGoban(Frame):
 			self.white_autoplay=False
 			if len(self.menu_bots)>0:
 				self.bots_menubutton.config(state="normal")
+			if len(self.history)>0:
+				self.undo_button.config(state='normal')
 		elif action=="quick evaluation":
 			self.click_evaluation()
 			self.selected_action.set("do nothing")
