@@ -1214,9 +1214,9 @@ class BotOpenMove():
 		self.sgf_g=sgf_g
 		self.profile=profile
 
-	def start(self):
+	def start(self,silentfail=True):
 		try:
-			result=self.my_starting_procedure(self.sgf_g,profile=self.profile,silentfail=True)
+			result=self.my_starting_procedure(self.sgf_g,profile=self.profile,silentfail=silentfail)
 			if result:
 				self.bot=result
 				self.okbot=True
