@@ -42,7 +42,8 @@ class InteractiveGoban(Frame):
 		self.locked=True
 
 	def do_nothing(self,event=None):
-		pass
+		self.selected_action.set("do nothing")
+		self.change_action()
 
 	def unlock(self):
 		self.undo_button.config(state='normal')
@@ -110,9 +111,7 @@ class InteractiveGoban(Frame):
 			else:
 				self.display_queue.put(bot.name+" ("+_("White")+"): "+move.lower())
 			
-			self.selected_action.set("do nothing")
-			self.black_autoplay=False
-			self.white_autoplay=False
+			self.do_nothing()
 			return
 		
 		if self.white_autoplay and self.black_autoplay:
@@ -124,11 +123,10 @@ class InteractiveGoban(Frame):
 				return
 			else:
 				log("End of SELF PLAY")
-				self.selected_action.set("do nothing")
-				self.black_autoplay=False
-				self.white_autoplay=False
 				self.display_queue.put(4)
 				self.display_queue.put(1)
+				self.do_nothing()
+
 				return
 		else:
 			self.display_queue.put(4)
@@ -249,6 +247,7 @@ class InteractiveGoban(Frame):
 	def click_selfplay(self):
 		self.black_autoplay=True
 		self.white_autoplay=True
+		self.bots_menubutton.config(state="disabled")
 		threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 
 	def click_evaluation(self):
@@ -273,6 +272,8 @@ class InteractiveGoban(Frame):
 		if action=="do nothing":
 			self.black_autoplay=False
 			self.white_autoplay=False
+			if len(self.menu_bots)>0:
+				self.bots_menubutton.config(state="normal")
 		elif action=="quick evaluation":
 			self.click_evaluation()
 			self.selected_action.set("do nothing")
