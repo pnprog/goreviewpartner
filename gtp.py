@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 
 import subprocess,sys
 import threading, Queue
-
-from time import sleep,time
-
+from time import sleep
 from toolbox import log,GRPException
 
 class gtp():
@@ -31,7 +29,7 @@ class gtp():
 				else:
 					log("leaving consume_stderr thread")
 					return
-			except Exception, e:
+			except Exception:
 				log("leaving consume_stderr thread due to exception")
 				return
 	

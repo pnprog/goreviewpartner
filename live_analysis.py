@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 from toolbox import *
 from toolbox import _
 from goban import *
-import sys
 from datetime import datetime
 from Tkinter import *
 from threading import Lock
 import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
+from copy import deepcopy as copy
 
 #bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 bots_for_playing=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]

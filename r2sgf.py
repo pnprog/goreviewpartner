@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 
 from toolbox import *
-from toolbox import _
-
 
 def rsgf2sgf(rsgf_file):
 	#log("Convertion of",rsgf_file,"into",rsgf_file+".sgf")
@@ -27,7 +25,6 @@ def rsgf2sgf(rsgf_file):
 
 	write_sgf(rsgf_file+".sgf",g)
 
-import getopt
 if __name__ == "__main__":
 	from sys import argv
 	

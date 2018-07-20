@@ -2,15 +2,9 @@
 from __future__ import unicode_literals
 
 from Tkinter import *
-
 import threading
-
 from toolbox import *
 from toolbox import _
-
-import os
-
-from gtp import gtp
 
 class Terminal(Toplevel):
 	def __init__(self,parent,bot_gtp,bot_command_line):

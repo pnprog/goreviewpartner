@@ -2,20 +2,10 @@
 from __future__ import unicode_literals
 
 from functools import partial
-from copy import deepcopy as copy
-
-#space=10
-
 fuzzy=0.0
-
-
-from random import random,seed,choice
-
+from random import random,choice
 from Tkinter import *
-from Tix import Tk, NoteBook
 from Tkconstants import *
-
-from toolbox import log
 from math import sin, pi
 
 class Intersection():
@@ -417,7 +407,6 @@ class Goban(Canvas):
 					if grid[i][j]==0:
 						self.temporary_shapes.append(self.draw_point(u,v,0.6,color=bg,outline=bg))
 					if markup[i][j]==0:
-						k=0.8
 						self.temporary_shapes.append(self.draw_point(u,v,.4,color="",outline=markup_color,width=space/22.))
 
 					elif markup[i][j]==-1:

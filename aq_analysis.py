@@ -3,23 +3,12 @@ from __future__ import unicode_literals
 
 from gtp import gtp
 import sys
-from gomill import sgf, sgf_moves
-
-from sys import exit,argv
-
+from sys import argv
 from Tkinter import *
-
-import sys
 from time import sleep
-import os
 import threading
-import ttk
-
 from toolbox import *
 from toolbox import _
-
-import tkMessageBox
-
 
 class AQAnalysis():
 
@@ -140,7 +129,7 @@ class LiveAnalysis(AQAnalysis,LiveAnalysisBase):
 
 import ntpath
 import subprocess
-import threading, Queue
+import Queue
 
 class AQ_gtp(gtp):
 

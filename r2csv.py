@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from gomill import sgf, sgf_moves
+from gomill import sgf_moves
 from toolbox import *
 
 def rsgf2csv(filename):
@@ -40,8 +40,6 @@ def rsgf2csv(filename):
 
 	new_line=""
 	csv.write(new_line+"\n")
-		
-	columns_header=["Move",'nothing here',"WR","MCWR","VNWR","PNV","PO","EV","RAVE","SCORE"]
 	
 	headers_left=["Move number", "Move color"]
 	headers_bot=["Move", "Win rate", "Value Network", "Monte Carlo", "Evaluation", "Rave", "Score Estimation", "Policy Network", "Simulations", "Follow up"]
@@ -164,8 +162,6 @@ def rsgf2csv(filename):
 	log("saving")
 	csv.close()
 
-
-import getopt
 if __name__ == "__main__":
 	from sys import argv
 	

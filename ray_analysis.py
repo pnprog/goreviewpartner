@@ -1,21 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from gtp import gtp, GRPException
+from gtp import gtp
 import sys
-from gomill import sgf, sgf_moves
-from sys import exit,argv
+from sys import argv
 from Tkinter import *
-
-import os
-import threading
-import ttk
-
 from toolbox import *
 from toolbox import _
-
 from time import time
-
 
 class RayAnalysis():
 

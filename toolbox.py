@@ -429,10 +429,7 @@ class RangeSelector(Toplevel):
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		
 		self.bots=bots
-
 		self.g=open_sgf(self.filename)
-		content=self.g.serialise()
-
 		self.move_zero=self.g.get_root()
 		nb_moves=get_moves_number(self.move_zero)
 		self.nb_moves=nb_moves
@@ -1421,11 +1418,6 @@ def draw_logo(logo,event=None,stretch="horizontal"):
 		y2=b+w*(v+1/8.)
 
 		logo.create_oval(x1, y1, x2, y2, fill="black", outline="")
-
-
-
-
-import getopt
 
 import __main__
 try:

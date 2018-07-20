@@ -5,6 +5,7 @@ from Tkinter import *
 from toolbox import *
 from toolbox import _
 from goban import *
+from copy import deepcopy as copy
 
 class InteractiveGoban(Frame):
 	def __init__(self,parent,move,dim,sgf):

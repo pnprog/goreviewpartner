@@ -1,31 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 from Tkinter import *
-#from Tix import Tk, NoteBook
 from ttk import Notebook
 from Tkconstants import *
-
 from ScrolledText import *
 import tkFont
 import sys,time
 from functools import partial
 from toolbox import *
 from toolbox import _
-
 from tabbed import *
-
 import os
-
-from gtp import gtp
-
-
 import threading, Queue
+from goban import *
+from copy import deepcopy as copy
 
 bg='#C0C0C0'
-
-from goban import *
 
 class OpenChart(Toplevel):
 	def __init__(self,parent,data,nb_moves,current_move=0):
@@ -1419,7 +1410,7 @@ class DualView(Toplevel):
 		Toplevel.__init__(self,parent)
 		self.parent=parent
 		self.filename=filename
-		global goban
+		import goban
 		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
 		goban.show_variation=self.show_variation
 		
@@ -1866,7 +1857,9 @@ class DualView(Toplevel):
 		main_sequence=[]
 		
 		for m in range(self.realgamedeepness):
-			one_move=get_node(self.gameroot,move+m)			
+			one_move=get_node(self.gameroot,move+m)
+			if one_move==False:
+				break #pass or resign move
 			ij=one_move.get_move()[1]
 			if ij==None:
 				break #pass or resign move
@@ -2062,7 +2055,6 @@ class DualView(Toplevel):
 		self.comment_box2.insert(END,self.game_comments)
 	
 	def display_move(self,move=1):
-		dim=self.dim
 		
 		self.move_number.config(text=str(move)+'/'+str(self.nb_moves))
 		log("========================")
@@ -2625,9 +2617,6 @@ class DualView(Toplevel):
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(self.goban2,filename)
 	
-from gomill import sgf, sgf_moves
-import goban
-
 if __name__ == "__main__":
 	if len(sys.argv)==1:
 		temp_root = Tk()

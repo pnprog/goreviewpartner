@@ -3,15 +3,8 @@ from __future__ import unicode_literals
 
 from gtp import gtp
 import sys
-from gomill import sgf, sgf_moves
-from sys import exit,argv
+from sys import argv
 from Tkinter import *
-import os
-import time, os
-
-import ttk
-
-
 from toolbox import *
 from toolbox import _
 

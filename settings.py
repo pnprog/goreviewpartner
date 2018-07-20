@@ -7,7 +7,6 @@ from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
 from aq_analysis import AQSettings
 from leela_zero_analysis import LeelaZeroSettings
-#from toolbox import log, config_file, _, available_translations, lang, Application
 from toolbox import *
 from toolbox import _
 
