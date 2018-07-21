@@ -8,20 +8,13 @@ from goban import *
 from copy import deepcopy as copy
 
 class InteractiveGoban(Frame):
-	def __init__(self,parent,move,dim,sgf):
-		Frame.__init__(self,parent)
+	def __init__(self,parent,move,dim,sgf,**kwargs):
+		Frame.__init__(self,parent,**kwargs)
 		self.parent=parent
 		self.move=move
 		self.dim=dim
 		self.sgf=sgf
 		
-		display_factor=grp_config.getfloat("Review", "OpenGobanRatio")
-		screen_width = self.parent.winfo_screenwidth()
-		screen_height = self.parent.winfo_screenheight()
-		width=int(display_factor*screen_width)
-		height=int(display_factor*screen_height)
-		self.goban_size=min(width,height)
-
 		self.available_bots=[]
 		for bot in get_available("ReviewBot"):
 			self.available_bots.append(bot)
@@ -60,13 +53,13 @@ class InteractiveGoban(Frame):
 		
 	def close(self):
 		log("closing tab")
-		self.display_queue.put(0)
-		self.destroy()
-		
 		if self.current_bot:
 			self.menu_bots[self.current_bot].close()
-
-		self.parent.remove_popup(self)
+		try:
+			self.display_queue.put(0, False)
+		except:
+			pass
+		self.destroy()
 		log("done")
 	
 	def undo(self,event=None):
@@ -348,7 +341,10 @@ class InteractiveGoban(Frame):
 				return
 		
 		self.actions_menubutton.config(state="normal")
-		
+	
+	def close_tab(self):
+		log("Not implemented")
+	
 	def initialize(self):
 		gameroot=self.sgf.get_root()
 		popup=self
@@ -358,7 +354,7 @@ class InteractiveGoban(Frame):
 		self.locked=False
 		panel=Frame(popup)
 		undo_button=Button(panel, text=_('Undo'),command=self.undo)
-		undo_button.pack(side=LEFT)
+		undo_button.pack(side=LEFT,fill=Y)
 		undo_button.config(state='disabled')
 		undo_button.bind("<Enter>",lambda e: self.set_status(_("Undo last move. Shortcut: mouse middle button.")))
 		undo_button.bind("<Leave>",lambda e: self.clear_status())
@@ -408,15 +404,18 @@ class InteractiveGoban(Frame):
 			mb.menu.add_radiobutton(label=_('Let the bot take both sides and play against itself.'), value="self play", variable=self.selected_action, command=self.change_action)
 			mb.menu.add_radiobutton(label=_('Ask the bot for a quick evaluation'), value="quick evaluation", variable=self.selected_action, command=self.change_action)
 
-			
+		
+		Label(panel, text=' ', height=2).pack(side=LEFT, fill=X, expand=1)
+		self.close_button=Button(panel, text='x', command=self.close_tab)
+		self.close_button.pack(side=LEFT,fill=Y)
 		
 		self.black_autoplay=False
 		self.white_autoplay=False
 		
 		panel.pack(fill=X)
 		bg=popup.cget("background")
-		goban3 = Goban(dim,self.goban_size,master=popup,bg=bg,bd=0, borderwidth=0)
-		goban3.space=self.goban_size/(dim+1+1+1)
+		goban3 = Goban(dim,1,master=popup,bg=bg,bd=0, borderwidth=0)
+		goban3.space=1
 		goban3.pack(fill=BOTH,expand=1)
 
 		self.bind('<Control-q>', self.save_as_png)
@@ -536,16 +535,12 @@ class InteractiveGoban(Frame):
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban.space)),1)
-		
-		new_space=int(new_size/(self.dim+1+1+1))
-		
-
+		#new_size=new_size-new_size%max(int((0.1*self.dim*self.goban.space)),1)
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
-		ratio=1.0*new_size/min(screen_width,screen_height)
-		grp_config.set("Review", "OpenGobanRatio",ratio)
-			
+		min_screen_size=min(screen_width, screen_height)
+		new_size=new_size-new_size%max(int((0.05*min_screen_size)),1) #the goban is resized by increment of 5% of the screen size
+		new_space=int(new_size/(self.dim+1+1+1))
 		self.goban.space=new_space
 		
 		new_anchor_x=(event.width-new_size)/2.
@@ -561,10 +556,16 @@ class InteractiveGoban(Frame):
 		canvas2png(self.goban,filename)
 
 if __name__ == "__main__":
+	#for testing purpose only...
 	sgf=open_sgf("../9x9.rsgf")
 
 	app = Tk()
-
-	InteractiveGoban(app,5,9,sgf).pack(fill=BOTH, expand=1)
-
+	Frame(app, height=0, width=600).grid(row=0, column=1)
+	Frame(app, height=600, width=0).grid(row=1, column=0)
+	f=Frame(app)
+	f.grid(row=1, column=1, sticky=N+W+E+S)
+	
+	w=InteractiveGoban(f,5,9,sgf)
+	w.pack(fill=BOTH, expand=1)
+	
 	app.mainloop()

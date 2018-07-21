@@ -1436,6 +1436,9 @@ class DualView(Toplevel):
 		self.popups.append(popup)
 
 	def close(self):
+		for tab in self.left_side_opened_tabs+self.right_side_opened_tabs:
+			tab.close()
+		
 		for popup in self.popups[:]:
 			popup.close()
 		self.destroy()
@@ -2246,18 +2249,56 @@ class DualView(Toplevel):
 	def new_right_goban(self,event=None):
 		new_tab=InteractiveGoban(self.right_notebook,self.current_move,self.dim,self.sgf)
 		new_tab.status_bar=self.status_bar
+		new_tab.goban.space=self.right_game_goban.space
+		new_tab.goban.mesh=self.left_game_goban.mesh
+		new_tab.goban.wood=self.left_game_goban.wood
+		new_tab.goban.black_stones=self.left_game_goban.black_stones_style
+		new_tab.goban.white_stones=self.left_game_goban.white_stones_style
+		
+		self.right_side_opened_tabs.append(new_tab)
+		
 		pos=len(self.right_notebook.tabs())-1
 		self.right_notebook.insert(pos,new_tab, text=str(self.current_move))
 		self.right_notebook.select(pos)
+		new_tab.close_button.config(command=lambda: self.close_right_tab(new_tab))
+
+	def close_right_tab(self, tab):
+		id=self.right_notebook.index("current")
+		log("closing tab", id)
+		self.right_notebook.select(id-1)
+		self.right_notebook.forget(id)
+		tab.close()
+		self.right_side_opened_tabs.remove(tab)
 		
 	def new_left_goban(self,event=None):
 		new_tab=InteractiveGoban(self.left_notebook,self.current_move,self.dim,self.sgf)
 		new_tab.status_bar=self.status_bar
-		pos=len(self.right_notebook.tabs())-1
+		new_tab.goban.space=self.left_game_goban.space
+		new_tab.goban.mesh=self.left_game_goban.mesh
+		new_tab.goban.wood=self.left_game_goban.wood
+		new_tab.goban.black_stones=self.left_game_goban.black_stones_style
+		new_tab.goban.white_stones=self.left_game_goban.white_stones_style
+		
+		self.left_side_opened_tabs.append(new_tab)
+		
+		pos=len(self.left_notebook.tabs())-1
 		self.left_notebook.insert(pos,new_tab, text=str(self.current_move))
 		self.left_notebook.select(pos)
-			
+		new_tab.close_button.config(command=lambda: self.close_left_tab(new_tab))
+	
+	def close_left_tab(self, tab):
+		id=self.left_notebook.index("current")
+		log("closing tab", id)
+		self.left_notebook.select(id-1)
+		self.left_notebook.forget(id)
+		tab.close()
+		self.left_side_opened_tabs.remove(tab)
+		
 	def initialize(self):
+		
+		self.left_side_opened_tabs=[]
+		self.right_side_opened_tabs=[]
+		
 		self.realgamedeepness=grp_config.getint("Review", "RealGameSequenceDeepness")
 		self.maxvariations=grp_config.getint("Review", "MaxVariations")
 		
@@ -2333,16 +2374,14 @@ class DualView(Toplevel):
 		toolbar=Frame(left_game_tab)
 		toolbar.pack(fill=X)
 		left_territory_button=Button(toolbar,text=_("Show territories"))
-		left_territory_button.pack(side=LEFT)
+		left_territory_button.pack(side=LEFT,fill=Y)
 		self.left_game_goban = Goban(self.dim,self.left_goban_size,master=left_game_tab)
 		self.left_game_goban.pack(fill=BOTH,expand=True)
+		Label(toolbar,text=" ", height=2).pack(side=LEFT)
 		
 		#######################
 		toolbar=Frame(left_bot_tab)
 		toolbar.pack(fill=X)
-		
-		filter_button=Button(toolbar,text="Filter", state="disable")
-		filter_button.pack(side=LEFT)
 		
 		mb=Menubutton(toolbar, text=_("Display"), relief=RAISED)
 		mb.pack(side=LEFT,fill=Y)
@@ -2364,6 +2403,10 @@ class DualView(Toplevel):
 		for value, label in labeling.items():
 			mb.menu.add_radiobutton(label=label, value=value, variable=labeling_selection, command=self.change_left_display)
 		
+		#filter_button=Button(toolbar,text="Filter", state="disable")
+		#filter_button.pack(side=LEFT)
+		Label(toolbar,text=" ", height=2).pack(side=LEFT)
+		
 		self.left_bot_goban = Goban(self.dim,self.left_goban_size,master=left_bot_tab)
 		self.left_bot_goban.pack(fill=BOTH,expand=True)
 		
@@ -2371,16 +2414,15 @@ class DualView(Toplevel):
 		toolbar=Frame(right_game_tab)
 		toolbar.pack(fill=X)
 		right_territory_button=Button(toolbar,text=_("Show territories"))
-		right_territory_button.pack(side=LEFT)
+		right_territory_button.pack(side=LEFT,fill=Y)
 		self.right_game_goban = Goban(self.dim,self.right_goban_size,master=right_game_tab)
 		self.right_game_goban.pack(fill=BOTH,expand=True)
+		Label(toolbar,text=" ", height=2).pack(side=LEFT)
 		
 		#######################
 		toolbar=Frame(right_bot_tab)
 		toolbar.pack(fill=X)
-		filter_button=Button(toolbar,text="Filter", state="disable")
-		filter_button.pack(side=LEFT)
-		
+
 		mb=Menubutton(toolbar, text=_("Display"), relief=RAISED)
 		mb.pack(side=LEFT,fill=Y)
 		mb.menu = Menu(mb,tearoff=0)
@@ -2400,6 +2442,10 @@ class DualView(Toplevel):
 		labeling_selection.set(grp_config.get("Review","VariationsLabel"))
 		for value, label in labeling.items():
 			mb.menu.add_radiobutton(label=label, value=value, variable=labeling_selection, command=self.change_right_display)
+		
+		#filter_button=Button(toolbar,text="Filter", state="disable")
+		#filter_button.pack(side=LEFT)
+		Label(toolbar,text=" ", height=2).pack(side=LEFT)
 		
 		self.right_bot_goban = Goban(self.dim,self.right_goban_size,master=right_bot_tab)
 		self.right_bot_goban.pack(fill=BOTH,expand=True)
@@ -2435,7 +2481,7 @@ class DualView(Toplevel):
 		open_button=Button(self.buttons_bar2, text=_('Open position'),command=self.open_move)
 		self.territory_button=Button(self.buttons_bar2, text=_('Show territories'))
 		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
-		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),state=DISABLED)
+		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),command=self.show_graphs, state=DISABLED)
 
 		for data in self.data_for_chart:
 			if data!=None:
@@ -2465,7 +2511,7 @@ class DualView(Toplevel):
 		self.buttons_bar2.columnconfigure(50, weight=1)
 		
 		#Place widgets in command bar
-		open_button.grid(column=100,row=1)
+		#open_button.grid(column=100,row=1)
 		self.table_button.grid(column=101,row=1)
 		self.charts_button.grid(column=102,row=1)
 		self.territory_button.grid(column=103,row=1)
@@ -2506,7 +2552,7 @@ class DualView(Toplevel):
 		next_button.bind("<Enter>",lambda e: self.set_status(_("Go forward one move. Shortcut: keyboard right key.")))
 		next_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go forward 10 moves.")))
 		final_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to final move.")))
-		self.charts_button.bind('<Button-1>', self.show_graphs)
+		#self.charts_button.bind('<Button-1>', self.show_graphs)
 		self.territory_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show territories.")))
 		self.left_game_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		self.right_bot_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
@@ -2546,7 +2592,7 @@ class DualView(Toplevel):
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing_left=redrawing
-			self.after(100,lambda: self.redraw_left(event,redrawing))
+			self.after(200,lambda: self.redraw_left(event,redrawing))
 			return
 		if redrawing<self.redrawing_left:
 			return
@@ -2562,18 +2608,24 @@ class DualView(Toplevel):
 		grp_config.set("Review", "LeftGobanRatio",ratio)
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
-		for goban in [self.left_bot_goban, self.left_game_goban]:
+		goban=event.widget
+		goban.space=new_space
+		goban.anchor_x=new_anchor_x
+		goban.anchor_y=new_anchor_y
+		goban.reset()
+		
+		"""
+		for goban in [self.left_bot_goban, self.left_game_goban]+[tab.goban for tab in self.left_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
 			goban.anchor_y=new_anchor_y
-			goban.reset()
-		
+			goban.reset()"""
 
 	def redraw_right(self, event, redrawing=None):
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing_right=redrawing
-			self.after(100,lambda: self.redraw_right(event,redrawing))
+			self.after(200,lambda: self.redraw_right(event,redrawing))
 			return
 		if redrawing<self.redrawing_right:
 			return
@@ -2590,17 +2642,23 @@ class DualView(Toplevel):
 		
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
-		for goban in [self.right_bot_goban, self.right_game_goban]:
+		
+		goban=event.widget
+		goban.space=new_space
+		goban.anchor_x=new_anchor_x
+		goban.anchor_y=new_anchor_y
+		goban.reset()
+		
+		"""for goban in [self.right_bot_goban, self.right_game_goban]+[tab.goban for tab in self.right_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
 			goban.anchor_y=new_anchor_y
-			goban.reset()
+			goban.reset()"""
 
 	def redraw_panel(self, event):
 		new_size=event.width
 		screen_width = self.parent.winfo_screenwidth()
 		ratio=1.0*new_size/screen_width
-		print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>",ratio
 		grp_config.set("Review", "RightPanelRatio",ratio)
 
 	def set_status(self,msg):

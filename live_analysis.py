@@ -9,6 +9,8 @@ from Tkinter import *
 from threading import Lock
 import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
 from copy import deepcopy as copy
+from ttk import Notebook
+from tabbed import *
 
 #bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 bots_for_playing=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
@@ -326,15 +328,41 @@ class LiveAnalysis(Toplevel):
 		self.parent.after(100,lambda :new_popup.goban.display(new_popup.grid,new_popup.markup))
 		
 		self.parent.add_popup(new_popup)
+	
+	def new_goban(self,event=None):
+		new_tab=InteractiveGoban(self.notebook,self.current_move,self.dim,self.g)
+		new_tab.status_bar=self.status_bar
+		new_tab.goban.space=self.goban.space
+		
+		new_tab.goban.mesh=self.goban.mesh
+		new_tab.goban.wood=self.goban.wood
+		new_tab.goban.black_stones=self.goban.black_stones_style
+		new_tab.goban.white_stones=self.goban.white_stones_style
+		
+		self.opened_tabs.append(new_tab)
+		
+		pos=len(self.notebook.tabs())-1
+		self.notebook.insert(pos,new_tab, text=str(self.current_move))
+		self.notebook.select(pos)
 
+		new_tab.close_button.config(command=lambda: self.close_tab(new_tab))
+
+
+	def close_tab(self, tab):
+		id=self.notebook.index("current")
+		log("closing tab", id)
+		self.notebook.select(id-1)
+		self.notebook.forget(id)
+		tab.close()
+		self.opened_tabs.remove(tab)
+	
 	def initialize(self):
 		popup=self
 		buttons_with_status=[]
 		dim=self.dim
-		
+		self.opened_tabs=[]
 		#popup.configure(background=bg)
 		bg=popup.cget("background")
- 
 		panel=Frame(popup, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
 		
 		panel.grid(column=1,row=1,sticky=N+S)
@@ -345,21 +373,32 @@ class LiveAnalysis(Toplevel):
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
 		self.goban_size=min(width,height)
+		notebook=Notebook(popup)
+		self.notebook=notebook
+		notebook.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
 		
-		goban = Goban(dim,self.goban_size,master=popup,bg=bg,bd=0, borderwidth=0)
+		live_tab=Frame(notebook)
+		
+		toolbar=Frame(live_tab)
+		toolbar.pack(fill=X)
+		
+		goban = Goban(dim,self.goban_size,master=live_tab,bg=bg,bd=0, borderwidth=0)
 		goban.space=self.goban_size/(dim+1+1+1)
-		goban.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
+		goban.pack(fill=BOTH, expand=1)
+		notebook.add(live_tab, text=_("Live game"))
 		goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		buttons_with_status.append(goban)
 		
+		plus_tab=Frame(notebook)
+		notebook.add(plus_tab, text="+")
+		plus_tab.bind("<Visibility>",self.new_goban)
+
 		popup.grid_rowconfigure(1, weight=1)
 		popup.grid_columnconfigure(2, weight=1)
 		
 		grid=[[0 for r in range(dim)] for c in range(dim)]
 		markup=[["" for r in range(dim)] for c in range(dim)]
 		
-		
-		print "[",goban,"]"
 		self.goban=goban
 		self.grid=grid
 		self.markup=markup
@@ -449,26 +488,26 @@ class LiveAnalysis(Toplevel):
 		
 		
 		row+=1
-		self.pass_button=Button(panel,text=_("Pass"),state="disabled",command=self.player_pass)
+		self.pass_button=Button(toolbar,text=_("Pass"),state="disabled",command=self.player_pass)
 		self.pass_button.bind("<Enter>",lambda e: self.set_status(_("Pass for this move")))
 		buttons_with_status.append(self.pass_button)
 		
-		self.undo_button=Button(panel,text=_("Undo"),state="disabled")
+		self.undo_button=Button(toolbar,text=_("Undo"),state="disabled")
 		self.undo_button.bind("<Enter>",lambda e: self.set_status(_("Undo to previous move")))
 		buttons_with_status.append(self.undo_button)
 		
 		if (self.black=="human") or (self.white=="human"):
-			self.pass_button.grid(column=1,row=row,sticky=W+E)
-			self.undo_button.grid(column=1,row=row+1,sticky=W+E)
+			self.pass_button.pack(side=LEFT)
+			self.undo_button.pack(side=LEFT)
 		row+=1
 		if (self.black!="human") and (self.white!="human"):
 			row+=1
-			self.pause_button=Button(panel,text=_("Pause"),command=self.pause)
-			self.pause_button.grid(column=1,row=row,sticky=W+E)
+			self.pause_button=Button(toolbar,text=_("Pause"),command=self.pause)
+			self.pause_button.pack(side=LEFT)
 			self.pause_button.bind("<Enter>",lambda e: self.set_status(_("Pause the game")))
 			buttons_with_status.append(self.pause_button)
 		self.pause_lock=Lock()
-		
+		Label(toolbar,text=" ", height=2).pack(side=LEFT)
 		row+=1
 		Label(panel,text="").grid(column=1,row=row,sticky=W)
 		
@@ -495,7 +534,7 @@ class LiveAnalysis(Toplevel):
 		
 		row+=1
 		open_button=Button(panel,text=_("Open position"),command=self.open_move)
-		open_button.grid(column=1,row=row,sticky=W+E)
+		#open_button.grid(column=1,row=row,sticky=W+E)
 		open_button.bind("<Enter>",lambda e: self.set_status(_("Open this position onto a third goban to play out variations.")))
 		buttons_with_status.append(open_button)
 		
@@ -514,21 +553,29 @@ class LiveAnalysis(Toplevel):
 	
 		self.bind('<Control-q>', self.save_as_png)
 	
-		self.update_idletasks()
-		goban.reset()
-		goban.display(grid,markup)
+		#self.update_idletasks()
+		#goban.reset()
+		#goban.display(grid,markup)
+		#self.goban.create_goban()
+		#self.goban.grid=grid
+		#self.goban.markup=markup
+		
 		self.goban.bind("<Configure>",self.redraw)
+		
 		popup.focus()
-		self.display_queue=Queue.Queue(1)
 		self.locked=False
 		
 		self.goban.bind("<Button-3>",self.shine)
-		
+
+		#self.starting()
+		self.after(500, self.starting)
+
+	def starting(self):
 		if self.handicap>0:
 			self.handicap_stones=[]
 			self.history.append(None)
 			show_info(_("Please place %i handicap stones on the board.")%self.handicap,self)
-			goban.bind("<Button-1>",lambda e: self.place_handicap(e,self.handicap))
+			self.goban.bind("<Button-1>",lambda e: self.place_handicap(e,self.handicap))
 			
 		else:
 			self.next_color=1		
@@ -559,7 +606,10 @@ class LiveAnalysis(Toplevel):
 			self.white.close()
 		
 		self.analyser.bot.close()
-
+		
+		for tab in self.opened_tabs:
+			tab.close()
+		
 		self.destroy()
 		self.parent.remove_popup(self)
 		
@@ -1143,24 +1193,24 @@ class LiveAnalysis(Toplevel):
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing=redrawing
-			self.after(100,lambda: self.redraw(event,redrawing))
+			self.after(200,lambda: self.redraw(event,redrawing))
 			return
 		if redrawing<self.redrawing:
 			return
 		
 		new_size=min(event.width,event.height)
-		new_size=new_size-new_size%max(int((0.1*self.dim*self.goban.space)),1)
-		
+		#new_size=new_size-new_size%max(int((0.1*self.dim*self.goban.space)),1)
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		min_screen_size=min(screen_width, screen_height)
+		new_size=new_size-new_size%max(int((0.05*min_screen_size)),1) #the goban is resized by increment of 5% of the screen size
 		new_space=int(new_size/(self.dim+1+1+1))
-		
-
 		screen_width = self.parent.winfo_screenwidth()
 		screen_height = self.parent.winfo_screenheight()
 		ratio=1.0*new_size/min(screen_width,screen_height)
 		grp_config.set("Live", "LiveGobanRatio",ratio)
 			
 		self.goban.space=new_space
-		
 		
 		new_anchor_x=(event.width-new_size)/2.
 		self.goban.anchor_x=new_anchor_x
