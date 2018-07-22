@@ -317,7 +317,9 @@ class InteractiveGoban(Frame):
 		if not new_bot.okbot:
 			self.remove_bot(self.current_bot)
 			return
-			
+		
+		grp_config.set("Review", "LastBot",self.selected_bot.get() )
+		
 		gameroot=self.sgf.get_root()
 		m=0
 		for m in range(1,self.move):
@@ -373,7 +375,7 @@ class InteractiveGoban(Frame):
 			#	self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
 			
 			self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
-			
+		
 		if len(self.menu_bots)>0:
 			
 			mb=Menubutton(panel, text=_("Select bot"), relief=RAISED)
@@ -386,7 +388,14 @@ class InteractiveGoban(Frame):
 			#self.selected_bot.set(self.menu_bots.keys()[0])
 			self.current_bot=""
 			
-			for bot in self.menu_bots.keys():
+			list_of_bots=self.menu_bots.keys()
+			list_of_bots.sort()
+			if grp_config.get("Review", "LastBot") in list_of_bots:
+				log("Placing",grp_config.get("Review", "LastBot") , "as playing bot first choice")
+				list_of_bots.remove(grp_config.get("Review", "LastBot"))
+				list_of_bots=[grp_config.get("Review", "LastBot")]+list_of_bots
+			
+			for bot in list_of_bots:
 				mb.menu.add_radiobutton(label=bot, value=bot, variable=self.selected_bot, command=self.change_bot)
 			
 			mb=Menubutton(panel, text=_("Action"), relief=RAISED)
