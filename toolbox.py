@@ -1922,25 +1922,14 @@ def get_available(use):
 
 	bots=[]
 	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
-		slow=False
-		fast=False
-		if grp_config.get(bot['name'],use)=="slow":
-			slow=True
-		elif grp_config.get(bot['name'],use)=="fast":
-			fast=True
-		elif grp_config.get(bot['name'],use)=="both":
-			slow=True
-			fast=True
-		if slow:
-			if grp_config.get(bot['name'],"SlowCommand")!="":
-				bot2=dict(bot)
-				bots.append(bot2)
-				bot2['profile']="slow"
-		if fast:
-			if grp_config.get(bot['name'],"FastCommand")!="":
-				bot2=dict(bot)
-				bots.append(bot2)
-				bot2['profile']="fast"
+		if grp_config.get(bot['name'],"SlowCommand")!="":
+			bot2=dict(bot)
+			bots.append(bot2)
+			bot2['profile']="slow"
+		if grp_config.get(bot['name'],"FastCommand")!="":
+			bot2=dict(bot)
+			bots.append(bot2)
+			bot2['profile']="fast"
 	return bots
 
 

@@ -430,35 +430,35 @@ class LeelaSettings(Frame):
 		
 		
 		row+=1
-		Label(self,text="").grid(row=row,column=1)
+		#Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Label(self,text=_("%s availability")%bot).grid(row=row,column=1,sticky=W)
+		#Label(self,text=_("%s availability")%bot).grid(row=row,column=1,sticky=W)
 		row+=1
 		
 		value={"slow":_("Slow profile"),"fast":_("Fast profile"),"both":_("Both profiles"),"none":_("None")}
 
-		Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
+		#Label(self,text=_("Static analysis")).grid(row=row,column=1,sticky=W)
 		analysis_bot = StringVar()
 		analysis_bot.set(value[grp_config.get(bot,"AnalysisBot")])
-		OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		#OptionMenu(self,analysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
-		Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
+		#Label(self,text=_("Live analysis")).grid(row=row,column=1,sticky=W)
 		liveanalysis_bot = StringVar()
 		liveanalysis_bot.set(value[grp_config.get(bot,"LiveAnalysisBot")])
-		OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		#OptionMenu(self,liveanalysis_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
-		Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
+		#Label(self,text=_("Live analysis as black or white")).grid(row=row,column=1,sticky=W)
 		liveplayer_bot = StringVar()
 		liveplayer_bot.set(value[grp_config.get(bot,"LivePlayerBot")])
-		OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		#OptionMenu(self,liveplayer_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 		row+=1
-		Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
+		#Label(self,text=_("When opening a position for manual play")).grid(row=row,column=1,sticky=W)
 		review_bot = StringVar()
 		review_bot.set(value[grp_config.get(bot,"ReviewBot")])
-		OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
+		#OptionMenu(self,review_bot,_("Slow profile"),_("Fast profile"),_("Both profiles"),_("None")).grid(row=row,column=2,sticky=W)
 		
 
 		self.SlowCommand=SlowCommand
