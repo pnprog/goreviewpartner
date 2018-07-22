@@ -299,24 +299,35 @@ class InteractiveGoban(Frame):
 		del self.menu_bots[bot]
 		if len(self.menu_bots)==0:
 			self.bots_menubutton.config(state="disabled")
-		self.current_bot=""
+		self.current_bot=_("No bot")
 	
 	
 	def change_bot(self):
-		if self.current_bot:
+		
+		if self.current_bot!=_("No bot"):
 			log("Bot changed from '"+self.current_bot+"' to '"+self.selected_bot.get()+"'")
 			log("Terminating",self.current_bot)
 			previous_bot=self.menu_bots[self.current_bot]
 			previous_bot.close()
+			self.current_bot=_("No bot")
 		else:
 			log("Bot selected:",self.selected_bot.get())
 		
-		self.current_bot=self.selected_bot.get()
-		new_bot=self.menu_bots[self.current_bot]
+		if self.selected_bot.get()==_("No bot"):
+			self.current_bot=_("No bot")
+			self.actions_menubutton.config(state="disabled")
+			return
+		
+		
+		new_bot=self.menu_bots[self.selected_bot.get()]
+		
 		new_bot.start(silentfail=False)
 		if not new_bot.okbot:
-			self.remove_bot(self.current_bot)
+			self.remove_bot(self.selected_bot.get())
+			self.selected_bot.set(_("No bot"))
+			self.change_bot()
 			return
+			
 		
 		grp_config.set("Review", "LastBot",self.selected_bot.get() )
 		
@@ -334,14 +345,19 @@ class InteractiveGoban(Frame):
 				color=2
 			if not new_bot.place(ij2gtp(ij),color):
 				self.remove_bot(self.current_bot)
+				self.selected_bot.set(_("No bot"))
+				self.change_bot()
 				return
 		
 		
 		for __,__,move in self.history:
 			if not new_bot.place(move[0],move[1]):
 				self.remove_bot(self.current_bot)
+				self.selected_bot.set(_("No bot"))
+				self.change_bot()
 				return
 		
+		self.current_bot=self.selected_bot.get()
 		self.actions_menubutton.config(state="normal")
 	
 	def close_tab(self):
@@ -386,7 +402,7 @@ class InteractiveGoban(Frame):
 			
 			self.selected_bot=StringVar()
 			#self.selected_bot.set(self.menu_bots.keys()[0])
-			self.current_bot=""
+			self.current_bot=_("No bot")
 			
 			list_of_bots=self.menu_bots.keys()
 			list_of_bots.sort()
@@ -394,7 +410,8 @@ class InteractiveGoban(Frame):
 				log("Placing",grp_config.get("Review", "LastBot") , "as playing bot first choice")
 				list_of_bots.remove(grp_config.get("Review", "LastBot"))
 				list_of_bots=[grp_config.get("Review", "LastBot")]+list_of_bots
-			
+			list_of_bots.append(_("No bot"))
+			self.selected_bot.set(_("No bot"))
 			for bot in list_of_bots:
 				mb.menu.add_radiobutton(label=bot, value=bot, variable=self.selected_bot, command=self.change_bot)
 			
