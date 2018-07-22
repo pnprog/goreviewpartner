@@ -10,8 +10,6 @@ from leela_zero_analysis import LeelaZeroSettings
 from toolbox import *
 from toolbox import _
 
-
-
 class OpenSettings(Toplevel):
 	def display_settings(self):
 		if self.setting_frame:
@@ -27,7 +25,7 @@ class OpenSettings(Toplevel):
 		self.current_settings=new_settings
 		Button(self.setting_frame,text=_("Save settings"),command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 		
-		self.setting_frame.pack()
+		self.setting_frame.pack(fill=BOTH, expand=1)
 		self.focus()
 
 			
@@ -163,10 +161,10 @@ class OpenSettings(Toplevel):
 		self.title('GoReviewPartner')
 		
 		left_column=Frame(self, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
-		left_column.grid(row=0,column=0,sticky=N)
+		left_column.pack(side=LEFT, fill=Y)
 		
-		right_column=Frame(self, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
-		right_column.grid(row=0,column=1)		
+		right_column=Frame(self, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)	
+		right_column.pack(side=LEFT, fill=BOTH, expand=1)
 		
 		self.setting_mode=StringVar()
 		self.setting_mode.set("GRP") # initialize		
