@@ -1401,15 +1401,16 @@ class TableWidget:
 			log("No analysis tab beeing displayed")
 			return
 
-		self.parent.bind("<Up>", self.parent.show_variation_next)
-		self.parent.bind("<Down>", self.parent.show_variation_prev)
-		one_label.bind("<MouseWheel>", self.parent.mouse_wheel)
+		one_label.bind("<Up>", self.parent.show_variation_next)
+		one_label.bind("<Down>", self.parent.show_variation_prev)
+		
+		one_label.bind("<MouseWheel>", self.parent.mouse_wheel) #for windows
 		if not self.parent.inverted_mouse_wheel:
-			one_label.bind("<Button-4>", self.parent.show_variation_next)
-			one_label.bind("<Button-5>", self.parent.show_variation_prev)
+			one_label.bind("<Button-4>", self.parent.show_variation_next) #for linux
+			one_label.bind("<Button-5>", self.parent.show_variation_prev) #for linux
 		else:
-			one_label.bind("<Button-5>", self.parent.show_variation_next)
-			one_label.bind("<Button-4>", self.parent.show_variation_prev)
+			one_label.bind("<Button-5>", self.parent.show_variation_next) #for linux
+			one_label.bind("<Button-4>", self.parent.show_variation_prev) #for linux
 	
 	def clear_status(self):
 		self.parent.clear_status()
@@ -1440,6 +1441,10 @@ class DualView(Toplevel):
 		self.display_move(self.current_move)
 		self.pressed=0
 		self.parent.focus()
+		self.active_notebook=None
+	
+	def set_active(self,nb):
+		self.active_notebook=nb
 	
 	def remove_popup(self,popup):
 		log("Removing popup")
@@ -1529,6 +1534,7 @@ class DualView(Toplevel):
 		self.comment_box2.insert(END,self.game_comments)
 		self.parent.bind("<Up>", lambda e: None)
 		self.parent.bind("<Down>", lambda e: None)
+		self.bind("<MouseWheel>", self.left_mouse_wheel) #for windows
 		self.current_variation_sequence=None
 		self.clear_status()
 		goban.display(grid,markup)
@@ -1587,13 +1593,15 @@ class DualView(Toplevel):
 		
 		self.bind("<Up>", self.show_variation_next)
 		self.bind("<Down>", self.show_variation_prev)
-		goban.bind("<MouseWheel>", self.mouse_wheel)
+		
+		self.bind("<MouseWheel>", self.mouse_wheel) #for windows
 		if not self.inverted_mouse_wheel:
-			goban.bind("<Button-4>", self.show_variation_next)
-			goban.bind("<Button-5>", self.show_variation_prev)
+			goban.bind("<Button-4>", self.show_variation_next) #for linux
+			goban.bind("<Button-5>", self.show_variation_prev) #for linux
 		else:
-			goban.bind("<Button-5>", self.show_variation_next)
-			goban.bind("<Button-4>", self.show_variation_prev)
+			goban.bind("<Button-5>", self.show_variation_next) #for linux
+			goban.bind("<Button-4>", self.show_variation_prev) #for linux
+		
 		self.set_status(_("Use mouse wheel or keyboard up/down keys to display the sequence move by move."))
 	
 	def mouse_wheel(self,event):
@@ -2197,13 +2205,14 @@ class DualView(Toplevel):
 				
 				goban.left_variation_index+=1
 				
-				goban.bind("<MouseWheel>", self.left_mouse_wheel)
+				self.bind("<MouseWheel>", self.left_mouse_wheel) #for windows
+				
 				if not self.inverted_mouse_wheel:
-					goban.bind("<Button-4>", self.show_left_variation_next)
-					goban.bind("<Button-5>", self.show_left_variation_prev)
+					goban.bind("<Button-4>", self.show_left_variation_next) #for linux
+					goban.bind("<Button-5>", self.show_left_variation_prev) #for linux
 				else:
-					goban.bind("<Button-5>", self.show_left_variation_next)
-					goban.bind("<Button-4>", self.show_left_variation_prev)
+					goban.bind("<Button-5>", self.show_left_variation_next) #for linux
+					goban.bind("<Button-4>", self.show_left_variation_prev) #for linux
 				
 				self.set_status(_("Use mouse middle click or wheel to undo move."))
 
@@ -2231,11 +2240,24 @@ class DualView(Toplevel):
 			self.show_left_variation_prev(event)
 	
 	def show_left_variation_next(self,event):
-		goban=event.widget
+		index=self.active_notebook.index("current")
+		if self.active_notebook is self.left_notebook:
+			if index==0:
+				goban=self.left_game_goban
+			elif index==1:
+				goban=self.left_bot_goban
+			else:
+				return
+		elif self.active_notebook is self.right_notebook:
+			if index==0:
+				goban=self.right_game_goban
+			elif index==1:
+				goban=self.right_bot_goban
+			else:
+				return
 		try:
 			goban.history
 		except:
-			print ":-("
 			return
 		
 		if len(goban.history)<=1:
@@ -2248,11 +2270,24 @@ class DualView(Toplevel):
 			goban.left_variation_index+=1
 
 	def show_left_variation_prev(self,event):
-		goban=event.widget
+		index=self.active_notebook.index("current")
+		if self.active_notebook is self.left_notebook:
+			if index==0:
+				goban=self.left_game_goban
+			elif index==1:
+				goban=self.left_bot_goban
+			else:
+				return
+		elif self.active_notebook is self.right_notebook:
+			if index==0:
+				goban=self.right_game_goban
+			elif index==1:
+				goban=self.right_bot_goban
+			else:
+				return
 		try:
 			goban.history
 		except:
-			print ":-("
 			return
 		
 		if len(goban.history)<=1:
@@ -2385,6 +2420,7 @@ class DualView(Toplevel):
 		self.right_goban_size=min(right_display_factor*screen_width,right_display_factor*screen_height)
 		
 		left_notebook=Notebook(gobans_frame)
+		left_notebook.bind("<Enter>",lambda event: self.set_active(left_notebook))
 		
 		left_game_tab=Frame(left_notebook)
 		left_notebook.add(left_game_tab, text=_("Actual game"))
@@ -2397,6 +2433,7 @@ class DualView(Toplevel):
 		left_plus_tab.bind("<Visibility>",self.new_left_goban)
 		
 		right_notebook=Notebook(gobans_frame)
+		right_notebook.bind("<Enter>",lambda event: self.set_active(right_notebook))
 		
 		right_game_tab=Frame(right_notebook)
 		right_notebook.add(right_game_tab, text=_("Actual game"))
