@@ -1397,6 +1397,19 @@ class TableWidget:
 			grid, markup=self.parent.left_bot_goban.grid, self.parent.left_bot_goban.markup
 			self.parent.show_variation(event=event,goban=self.parent.left_bot_goban,grid=grid,markup=markup,i=i,j=j)
 			one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.left_bot_goban,grid,markup))
+		else:
+			log("No analysis tab beeing displayed")
+			return
+
+		self.parent.bind("<Up>", self.parent.show_variation_next)
+		self.parent.bind("<Down>", self.parent.show_variation_prev)
+		one_label.bind("<MouseWheel>", self.parent.mouse_wheel)
+		if not self.parent.inverted_mouse_wheel:
+			one_label.bind("<Button-4>", self.parent.show_variation_next)
+			one_label.bind("<Button-5>", self.parent.show_variation_prev)
+		else:
+			one_label.bind("<Button-5>", self.parent.show_variation_next)
+			one_label.bind("<Button-4>", self.parent.show_variation_prev)
 	
 	def clear_status(self):
 		self.parent.clear_status()
@@ -1423,7 +1436,8 @@ class DualView(Toplevel):
 		self.current_move=1
 		self.current_view=-1
 		
-		self.after(500,lambda: self.display_move(self.current_move))
+		#self.after(500,lambda: self.display_move(self.current_move))
+		self.display_move(self.current_move)
 		self.pressed=0
 		self.parent.focus()
 	
@@ -1573,13 +1587,13 @@ class DualView(Toplevel):
 		
 		self.bind("<Up>", self.show_variation_next)
 		self.bind("<Down>", self.show_variation_prev)
-		self.bind("<MouseWheel>", self.mouse_wheel)
+		goban.bind("<MouseWheel>", self.mouse_wheel)
 		if not self.inverted_mouse_wheel:
-			self.bind("<Button-4>", self.show_variation_next)
-			self.bind("<Button-5>", self.show_variation_prev)
+			goban.bind("<Button-4>", self.show_variation_next)
+			goban.bind("<Button-5>", self.show_variation_prev)
 		else:
-			self.bind("<Button-5>", self.show_variation_next)
-			self.bind("<Button-4>", self.show_variation_prev)
+			goban.bind("<Button-5>", self.show_variation_next)
+			goban.bind("<Button-4>", self.show_variation_prev)
 		self.set_status(_("Use mouse wheel or keyboard up/down keys to display the sequence move by move."))
 	
 	def mouse_wheel(self,event):
@@ -1885,27 +1899,39 @@ class DualView(Toplevel):
 		
 		self.current_game_markup=markup1
 		
-		self.left_game_goban.left_variation_index=0
-		self.left_game_goban.history=[]
-		self.left_game_goban.display(grid1,markup1)
+		try:
+			self.left_game_goban.left_variation_index=0
+			self.left_game_goban.history=[]
+			self.left_game_goban.display(grid1,markup1)
+		except:
+			pass
 		
-		self.right_game_goban.left_variation_index=0
-		self.right_game_goban.history=[]
-		self.right_game_goban.display(grid1,markup1)
+		try:
+			self.right_game_goban.left_variation_index=0
+			self.right_game_goban.history=[]
+			self.right_game_goban.display(grid1,markup1)
+		except:
+			pass
 		
 	def update_both_bot_gobans(self, move):
 		parent=get_node(self.gameroot,move-1)
 		if len(parent)<=1:
 			self.table_button.config(state='normal')
 		
-		coloring=self.left_coloring_selection.get()
-		labeling=self.left_labeling_selection.get()
-		self.update_one_bot_goban(move, self.left_bot_goban, labeling, coloring)
+		try:
+			coloring=self.left_coloring_selection.get()
+			labeling=self.left_labeling_selection.get()
+			self.update_one_bot_goban(move, self.left_bot_goban, labeling, coloring)
+		except:
+			pass
 		
-		coloring=self.right_coloring_selection.get()
-		labeling=self.right_labeling_selection.get()
-		self.update_one_bot_goban(move, self.right_bot_goban, labeling, coloring)
-	
+		try:
+			coloring=self.right_coloring_selection.get()
+			labeling=self.right_labeling_selection.get()
+			self.update_one_bot_goban(move, self.right_bot_goban, labeling, coloring)
+		except:
+			pass
+		
 	def update_one_bot_goban(self, move, goban, labeling, coloring):
 		grid=copy(self.current_grid)
 		markup=copy(self.current_markup)
@@ -2063,12 +2089,13 @@ class DualView(Toplevel):
 		log("========================")
 		log("displaying move",move)
 		
+		
 		self.update_view(move)
 		self.update_comments(move)
 		self.update_territory(move)
 		self.update_game_gobans(move)
 		self.update_both_bot_gobans(move)
-		
+
 		
 	def open_move(self):
 		log("Opening move",self.current_move)
@@ -2170,13 +2197,13 @@ class DualView(Toplevel):
 				
 				goban.left_variation_index+=1
 				
-				self.bind("<MouseWheel>", self.left_mouse_wheel)
+				goban.bind("<MouseWheel>", self.left_mouse_wheel)
 				if not self.inverted_mouse_wheel:
-					self.bind("<Button-4>", self.show_left_variation_next)
-					self.bind("<Button-5>", self.show_left_variation_prev)
+					goban.bind("<Button-4>", self.show_left_variation_next)
+					goban.bind("<Button-5>", self.show_left_variation_prev)
 				else:
-					self.bind("<Button-5>", self.show_left_variation_next)
-					self.bind("<Button-4>", self.show_left_variation_prev)
+					goban.bind("<Button-5>", self.show_left_variation_next)
+					goban.bind("<Button-4>", self.show_left_variation_prev)
 				
 				self.set_status(_("Use mouse middle click or wheel to undo move."))
 
@@ -2205,23 +2232,38 @@ class DualView(Toplevel):
 	
 	def show_left_variation_next(self,event):
 		goban=event.widget
+		try:
+			goban.history
+		except:
+			print ":-("
+			return
+		
 		if len(goban.history)<=1:
 			return
 		if goban.left_variation_index>=len(goban.history)-1:
 			return
-		updated_grid, updated_markup =goban.history[goban.left_variation_index+1]
-		goban.display(copy(updated_grid),updated_markup)
-		goban.left_variation_index+=1
+		else:
+			updated_grid, updated_markup =goban.history[goban.left_variation_index+1]
+			goban.display(copy(updated_grid),updated_markup)
+			goban.left_variation_index+=1
 
 	def show_left_variation_prev(self,event):
 		goban=event.widget
+		try:
+			goban.history
+		except:
+			print ":-("
+			return
+		
 		if len(goban.history)<=1:
 			return
 		if goban.left_variation_index==0:
+			goban.display(copy(self.current_grid),copy(self.current_game_markup))
 			return
-		updated_grid, updated_markup =goban.history[goban.left_variation_index-1]
-		goban.display(copy(updated_grid),updated_markup)
-		goban.left_variation_index-=1
+		else:
+			updated_grid, updated_markup =goban.history[goban.left_variation_index-1]
+			goban.display(copy(updated_grid),updated_markup)
+			goban.left_variation_index-=1
 
 	def undo(self,event=None):
 		goban=event.widget
@@ -2455,13 +2497,15 @@ class DualView(Toplevel):
 			goban.wood=self.left_game_goban.wood
 			goban.black_stones_style=self.left_game_goban.black_stones_style
 			goban.white_stones_style=self.left_game_goban.white_stones_style
+			
 		
 		for goban in [self.left_bot_goban, self.left_game_goban]:
 			goban.space=self.left_goban_size/(self.dim+1+1+1)
+			#goban.reset()
 		
 		for goban in [self.right_bot_goban, self.right_game_goban]:
 			goban.space=self.right_goban_size/(self.dim+1+1+1)
-		
+			#goban.reset()
 
 		
 		
@@ -2614,12 +2658,12 @@ class DualView(Toplevel):
 		goban.anchor_y=new_anchor_y
 		goban.reset()
 		
-		"""
+		
 		for goban in [self.left_bot_goban, self.left_game_goban]+[tab.goban for tab in self.left_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
 			goban.anchor_y=new_anchor_y
-			goban.reset()"""
+			goban.reset()
 
 	def redraw_right(self, event, redrawing=None):
 		if not redrawing:
@@ -2649,11 +2693,11 @@ class DualView(Toplevel):
 		goban.anchor_y=new_anchor_y
 		goban.reset()
 		
-		"""for goban in [self.right_bot_goban, self.right_game_goban]+[tab.goban for tab in self.right_side_opened_tabs]:
+		for goban in [self.right_bot_goban, self.right_game_goban]+[tab.goban for tab in self.right_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
 			goban.anchor_y=new_anchor_y
-			goban.reset()"""
+			goban.reset()
 
 	def redraw_panel(self, event):
 		new_size=event.width

@@ -53,7 +53,7 @@ class InteractiveGoban(Frame):
 		
 	def close(self):
 		log("closing tab")
-		if self.current_bot:
+		if self.current_bot!=_("No bot"):
 			self.menu_bots[self.current_bot].close()
 		try:
 			self.display_queue.put(0, False)
@@ -75,7 +75,7 @@ class InteractiveGoban(Frame):
 		self.next_color=3-self.next_color
 		self.goban.display(self.grid,self.markup)
 		
-		if self.current_bot:
+		if self.current_bot!=_("No bot"):
 			self.menu_bots[self.current_bot].undo()
 		
 
@@ -152,7 +152,7 @@ class InteractiveGoban(Frame):
 			if self.grid[i][j] not in (1,2):
 				#nothing, so we add a stone
 				
-				if self.current_bot:
+				if self.current_bot!=_("No bot"):
 					bot=self.menu_bots[self.current_bot]
 					if bot.place(ij2gtp((i,j)),color)==False:
 						self.remove_bot(self.current_bot)
