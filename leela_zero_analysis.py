@@ -289,27 +289,6 @@ class Leela_Zero_gtp(gtp):
 		except:
 			raise GRPException("GRPException in Get_leela_zero_final_score()")
 
-	def get_leela_zero_influence(self):
-		self.write("influence")
-		one_line=self.readline() #empty line
-		buff=[]
-		while self.stderr_queue.empty():
-			sleep(.1)
-		while not self.stderr_queue.empty():
-			while not self.stderr_queue.empty():
-				buff.append(self.stderr_queue.get())
-			sleep(.1)
-		buff.reverse()
-		#log(buff)
-		influence=[]
-		for i in range(self.size):
-			one_line=buff[i].strip()
-			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0").replace("w","1").replace("b","2")
-			one_line=[int(s) for s in one_line.split(" ")]
-			influence.append(one_line)
-		
-		return influence
-
 	def get_all_leela_zero_moves(self):
 		buff=[]
 		

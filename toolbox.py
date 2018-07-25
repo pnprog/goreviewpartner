@@ -123,7 +123,13 @@ def ij2gtp(m):
 	except:
 		raise GRPException("Cannot convert grid coordinates "+str(m)+" to GTP coordinates!")
 
-
+def sgf2ij(m):
+	# cj => 8,2
+	a, b=m
+	letters="abcdefghjklmnopqrstuvwxyz"
+	i=letters.index(b)
+	j=letters.index(a)
+	return i, j
 def ij2sgf(m):
 	# (17,0) => ???
 	try:
@@ -1623,6 +1629,7 @@ class MyConfig():
 		self.default_values["review"]["lastgraph"]=""
 		self.default_values["review"]["yellowbar"]="#F39C12"
 		self.default_values["review"]["lastbot"]=""
+		self.default_values["review"]["lastmap"]=""
 		
 		self.default_values["live"]={}
 		self.default_values["live"]["livegobanratio"]="0.4"
@@ -2295,6 +2302,13 @@ def node_set(node, property_name, value):
 		value=value.encode("utf-8")
 	if property_name.lower() in ("w","b"):
 		node.set_move(property_name.encode("utf-8"),value)
+	elif  property_name.upper() in ("TBM","TWM", "IBM", "IWM", "HTM"):
+		new_list=[]
+		for ij in value:
+			new_list.append(ij2sgf(ij).encode("utf-8"))
+		if type(property_name)==type(u"abc"):
+			property_name=property_name.encode("utf-8")
+		node.set_raw_list(property_name,new_list)
 	else:
 		if type(property_name)==type(u"abc"):
 			property_name=property_name.encode("utf-8")

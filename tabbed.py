@@ -394,7 +394,7 @@ class InteractiveGoban(Frame):
 		
 		if len(self.menu_bots)>0:
 			
-			mb=Menubutton(panel, text=_("Select bot"), relief=RAISED)
+			mb=Menubutton(panel, text=_("Select bot")+" ▽", relief=RAISED)
 			mb.pack(side=LEFT,fill=Y)
 			mb.menu = Menu(mb,tearoff=0)
 			mb["menu"]= mb.menu
@@ -415,7 +415,7 @@ class InteractiveGoban(Frame):
 			for bot in list_of_bots:
 				mb.menu.add_radiobutton(label=bot, value=bot, variable=self.selected_bot, command=self.change_bot)
 			
-			mb=Menubutton(panel, text=_("Action"), relief=RAISED)
+			mb=Menubutton(panel, text=_("Action")+" ▽", relief=RAISED)
 			mb.pack(side=LEFT,fill=Y)
 			mb.menu = Menu(mb,tearoff=0)
 			mb["menu"]= mb.menu

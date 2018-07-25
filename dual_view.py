@@ -2070,17 +2070,41 @@ class DualView(Toplevel):
 	
 	def update_territory(self,move):
 		one_move=get_node(self.gameroot,move)
-		self.territories=[[],[]]
-		if node_has(one_move,"TB"):
-			self.territories[0]=node_get(one_move,"TB")
-		if node_has(one_move,"TW"):
-			self.territories[1]=node_get(one_move,"TW")
 		
-		if self.territories!=[[],[]]:
-			self.territory_button.config(state=NORMAL)
+		self.territories=[[],[]]
+		if node_has(one_move,"TBM") or node_has(one_move,"TWM"):
+			print "have territories"
+			territories=True
+			self.left_map_menu.entryconfig(_("Territories"), state="normal")
+			self.right_map_menu.entryconfig(_("Territories"), state="normal")
 		else:
-			self.territory_button.config(state=DISABLED)
-	
+			print "no territories"
+			territories=False
+			self.left_map_menu.entryconfig(_("Territories"), state="disabled")
+			self.right_map_menu.entryconfig(_("Territories"), state="disabled")
+			
+		if node_has(one_move,"IBM") or node_has(one_move,"IWM"):
+			print "have influence"
+			influence=True
+			self.left_map_menu.entryconfig(_("Influence"), state="normal")
+			self.right_map_menu.entryconfig(_("Influence"), state="normal")
+		else:
+			print "no influence"
+			influence=False
+			self.left_map_menu.entryconfig(_("Influence"), state="disabled")
+			self.right_map_menu.entryconfig(_("Influence"), state="disabled")
+
+		self.left_map_menu.entryconfig(_("Heat map"), state="disabled")
+		self.right_map_menu.entryconfig(_("Heat map"), state="disabled")
+		heatmap=False
+		
+		if not territories and not influence and not heatmap:
+			self.left_map_button.config(state="disabled")
+			self.right_map_button.config(state="disabled")
+		else:
+			self.left_map_button.config(state="normal")
+			self.right_map_button.config(state="normal")
+		
 	def update_comments(self,move):
 		one_move=get_node(self.gameroot,move)
 		self.game_comments=""
@@ -2322,6 +2346,9 @@ class DualView(Toplevel):
 		grp_config.set("Review","VariationsLabel",labeling)
 		self.update_one_bot_goban(self.current_move, self.right_bot_goban, labeling, coloring)
 		
+	def change_map(self, selection):
+		map=selection.get()
+		grp_config.set("Review","LastMap",map)
 	
 	def new_right_goban(self,event=None):
 		new_tab=InteractiveGoban(self.right_notebook,self.current_move,self.dim,self.sgf)
@@ -2370,7 +2397,48 @@ class DualView(Toplevel):
 		self.left_notebook.forget(id)
 		tab.close()
 		self.left_side_opened_tabs.remove(tab)
+	
+	def show_left_map(self):
+		self.show_map(self.left_game_goban, self.left_map_selection)
 		
+	def show_right_map(self):
+		self.show_map(self.right_game_goban, self.right_map_selection)
+	
+	def hide_left_map(self):
+		self.hide_map(self.left_game_goban)
+	
+	def hide_right_map(self):
+		self.hide_map(self.right_game_goban)
+	
+	def hide_map(self,goban):
+		goban.display(self.current_grid,self.current_game_markup)
+	
+	def show_map(self, goban, selection):
+		print "showing map:", selection.get()
+		move=self.current_move
+		one_move=get_node(self.gameroot,move)
+		map=selection.get()
+		if map==_("Influence"):
+			if node_has(one_move,"IBM") or node_has(one_move,"IWM"):
+				print "has IMB or IWM"
+				dim=self.dim
+				markup=[["" for r in range(dim)] for c in range(dim)]
+				if node_has(one_move,"IBM"):
+					print "has IBM"
+					black_data=one_move.get_raw_list("IBM")
+					for move in black_data:
+						i, j=sgf2ij(move)
+						markup[i][j]=-1
+				
+				if node_has(one_move,"IWM"):
+					print "has IWM"
+					white_data=one_move.get_raw_list("IWM")
+					for move in white_data:
+						i, j=sgf2ij(move)
+						markup[i][j]=-2
+				
+				goban.display(self.current_grid,markup)
+				
 	def initialize(self):
 		
 		self.left_side_opened_tabs=[]
@@ -2452,17 +2520,37 @@ class DualView(Toplevel):
 		#######################
 		toolbar=Frame(left_game_tab)
 		toolbar.pack(fill=X)
-		left_territory_button=Button(toolbar,text=_("Show territories"))
-		left_territory_button.pack(side=LEFT,fill=Y)
 		self.left_game_goban = Goban(self.dim,self.left_goban_size,master=left_game_tab)
 		self.left_game_goban.pack(fill=BOTH,expand=True)
+		
+		mb=Menubutton(toolbar, text=_("Maps")+" ▽", relief=RAISED)
+		mb.pack(side=LEFT,fill=Y)
+		mb.menu = Menu(mb,tearoff=0)
+		mb["menu"]= mb.menu
+
+		map_selection = StringVar()
+		self.left_map_selection=map_selection
+		self.left_map_menu=mb.menu
+		maps=[_("Territories"), _("Influence"), _("Heat map")]
+		if grp_config.get("Review","lastmap") in maps:
+			map_selection.set(grp_config.get("Review","lastmap"))
+		else:
+			map_selection.set(maps[0])
+		for value in maps:
+			mb.menu.add_radiobutton(label=value, value=value, variable=map_selection,  command=lambda : self.change_map(self.left_map_selection))
+		
+		self.left_map_button=Button(toolbar,text=_("Show"))
+		self.left_map_button.pack(side=LEFT,fill=Y)
+		self.left_map_button.bind('<Button-1>', lambda event: self.show_left_map())
+		self.left_map_button.bind('<ButtonRelease-1>', lambda event: self.hide_left_map())
+		
 		Label(toolbar,text=" ", height=2).pack(side=LEFT)
 		
 		#######################
 		toolbar=Frame(left_bot_tab)
 		toolbar.pack(fill=X)
 		
-		mb=Menubutton(toolbar, text=_("Display"), relief=RAISED)
+		mb=Menubutton(toolbar, text=_("Display")+" ▽", relief=RAISED)
 		mb.pack(side=LEFT,fill=Y)
 		mb.menu = Menu(mb,tearoff=0)
 		mb["menu"]= mb.menu
@@ -2492,17 +2580,37 @@ class DualView(Toplevel):
 		#######################
 		toolbar=Frame(right_game_tab)
 		toolbar.pack(fill=X)
-		right_territory_button=Button(toolbar,text=_("Show territories"))
-		right_territory_button.pack(side=LEFT,fill=Y)
 		self.right_game_goban = Goban(self.dim,self.right_goban_size,master=right_game_tab)
 		self.right_game_goban.pack(fill=BOTH,expand=True)
+		
+		mb=Menubutton(toolbar, text=_("Maps")+" ▽", relief=RAISED)
+		mb.pack(side=LEFT,fill=Y)
+		mb.menu = Menu(mb,tearoff=0)
+		mb["menu"]= mb.menu
+
+		map_selection = StringVar()
+		self.right_map_selection=map_selection
+		self.right_map_menu=mb.menu
+		maps=[_("Territories"), _("Influence"), _("Heat map")]
+		if grp_config.get("Review","lastmap") in maps:
+			map_selection.set(grp_config.get("Review","lastmap"))
+		else:
+			map_selection.set(maps[0])
+		for value in maps:
+			mb.menu.add_radiobutton(label=value, value=value, variable=map_selection)
+		
+		self.right_map_button=Button(toolbar,text=_("Show"))
+		self.right_map_button.pack(side=LEFT,fill=Y)
+		self.right_map_button.bind('<Button-1>', lambda event: self.show_right_map())
+		self.right_map_button.bind('<ButtonRelease-1>', lambda event: self.hide_right_map())
+		
 		Label(toolbar,text=" ", height=2).pack(side=LEFT)
 		
 		#######################
 		toolbar=Frame(right_bot_tab)
 		toolbar.pack(fill=X)
 
-		mb=Menubutton(toolbar, text=_("Display"), relief=RAISED)
+		mb=Menubutton(toolbar, text=_("Display")+" ▽", relief=RAISED)
 		mb.pack(side=LEFT,fill=Y)
 		mb.menu = Menu(mb,tearoff=0)
 		mb["menu"]= mb.menu
@@ -2560,7 +2668,6 @@ class DualView(Toplevel):
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
 		open_button=Button(self.buttons_bar2, text=_('Open position'),command=self.open_move)
-		self.territory_button=Button(self.buttons_bar2, text=_('Show territories'))
 		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
 		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),command=self.show_graphs, state=DISABLED)
 
@@ -2595,7 +2702,6 @@ class DualView(Toplevel):
 		#open_button.grid(column=100,row=1)
 		self.table_button.grid(column=101,row=1)
 		self.charts_button.grid(column=102,row=1)
-		self.territory_button.grid(column=103,row=1)
 		
 		#Place widgets in lists frame
 		self.comment_box2.grid(column=1,row=2,sticky=N+S+E+W, padx=2, pady=2)
@@ -2614,12 +2720,6 @@ class DualView(Toplevel):
 		self.status_bar.pack(fill=X)
 		
 		# Such keybindings
-		left_territory_button.bind('<Button-1>', lambda event: self.show_territories(self.left_game_goban))
-		left_territory_button.bind('<ButtonRelease-1>', lambda event: self.hide_territories(self.left_game_goban))
-		right_territory_button.bind('<Button-1>', lambda event: self.show_territories(self.right_game_goban))
-		right_territory_button.bind('<ButtonRelease-1>', lambda event: self.hide_territories(self.right_game_goban))
-		
-		
 		self.bind('<Control-q>', self.save_left_as_png)
 		self.bind('<Control-w>', self.save_right_as_png)
 		self.bind('<Left>', self.prev_move)
@@ -2634,13 +2734,14 @@ class DualView(Toplevel):
 		next_10_moves_button.bind("<Enter>",lambda e: self.set_status(_("Go forward 10 moves.")))
 		final_move_button.bind("<Enter>",lambda e: self.set_status(_("Go to final move.")))
 		#self.charts_button.bind('<Button-1>', self.show_graphs)
-		self.territory_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show territories.")))
+		self.left_map_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show map.")))
+		self.right_map_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show map.")))
 		self.left_game_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		self.right_bot_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
 		
 		self.comment_box2.bind("<Configure>",self.redraw_panel)
 		
-		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.territory_button,self.left_game_goban,self.right_bot_goban]:
+		for button in [first_move_button,prev_10_moves_button,prev_button,open_button,next_button,next_10_moves_button,final_move_button,self.left_map_button, self.right_map_button,self.left_game_goban,self.right_bot_goban]:
 			button.bind("<Leave>",lambda e: self.clear_status())
 		
 		for goban in [self.left_bot_goban, self.left_game_goban]:

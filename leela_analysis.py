@@ -172,6 +172,9 @@ class LeelaAnalysis():
 			
 		log("==== no more sequences =====")
 		
+		for u in range(nb_undos):
+			leela.undo()
+		
 		log("Creating the influence map")
 		influence=leela.get_leela_influence()
 		black_influence_points=[]
@@ -182,14 +185,11 @@ class LeelaAnalysis():
 					black_influence_points.append([i,j])
 				elif influence[i][j]==2:
 					white_influence_points.append([i,j])
-
+					
 		if black_influence_points!=[]:
-			node_set(one_move.parent,"TB",black_influence_points)
+			node_set(one_move,"IBM",black_influence_points)
 		if white_influence_points!=[]:
-			node_set(one_move.parent,"TW",white_influence_points)
-			
-		for u in range(nb_undos):
-			leela.undo()
+			node_set(one_move,"IWM",white_influence_points)
 
 		return best_answer #returning the best move, necessary for live analysis
 

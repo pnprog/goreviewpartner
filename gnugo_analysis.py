@@ -157,10 +157,10 @@ class GnuGoAnalysis():
 					white_influence_points.append([i,j])
 
 		if black_influence_points!=[]:
-			node_set(one_move.parent,"TB",black_influence_points)
+			node_set(one_move,"IBM",black_influence_points) #IBM: influence black map
 		
 		if white_influence_points!=[]:
-			node_set(one_move.parent,"TW",white_influence_points)
+			node_set(one_move,"IWM",white_influence_points) #IWM: influence white map
 		
 		return answer #returning the best move, necessary for live analysis
 	
