@@ -2302,7 +2302,7 @@ def node_set(node, property_name, value):
 		value=value.encode("utf-8")
 	if property_name.lower() in ("w","b"):
 		node.set_move(property_name.encode("utf-8"),value)
-	elif  property_name.upper() in ("TBM","TWM", "IBM", "IWM", "HTM"):
+	elif  property_name.upper() in ("TBM","TWM", "IBM", "IWM"):
 		new_list=[]
 		for ij in value:
 			new_list.append(ij2sgf(ij).encode("utf-8"))

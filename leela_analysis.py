@@ -190,6 +190,18 @@ class LeelaAnalysis():
 			node_set(one_move,"IBM",black_influence_points)
 		if white_influence_points!=[]:
 			node_set(one_move,"IWM",white_influence_points)
+		
+		if self.size==19:
+			log("==== creating heat map =====")
+			raw_heat_map=leela.get_heatmap()
+			heat_map=""
+			for i in range(self.size):
+				for j in range(self.size):
+					if raw_heat_map[i][j]>=0.01:#ignore values lower than 1% to avoid generating heavy RSGF file
+						heat_map+=ij2sgf([i, j])+str(round(raw_heat_map[i][j],2))+","
+			
+			if heat_map:
+				node_set(one_move,"HTM",heat_map[:-1]) #HTM: heat map
 
 		return best_answer #returning the best move, necessary for live analysis
 
@@ -240,6 +252,38 @@ class Variation(dict):
 	pass
 
 class Leela_gtp(gtp):
+
+	def get_heatmap(self):
+		while not self.stderr_queue.empty():
+			self.stderr_queue.get()
+		self.write("heatmap")
+		one_line=self.readline() #empty line
+		buff=[]
+		while len(buff)<self.size:
+			buff.append(self.stderr_queue.get())
+		buff.reverse()
+		number_coordinate=1
+		letters="abcdefghjklmnopqrst"[:self.size]
+		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
+		pn_values=[]
+		for i in range(self.size):
+			one_line=buff[i].strip()
+			print '=>', one_line
+			if "winrate" in one_line:
+				continue
+			if "pass" in one_line:
+				continue
+			one_line=one_line.strip()
+			one_line=[int(s) for s in one_line.split()]
+			new_values=[[letter_coordinate+str(number_coordinate),int(value)/1000.] for letter_coordinate,value in zip(letters,one_line)]
+			for nv in new_values:
+				pn_values.append(nv)
+			number_coordinate+=1
+
+		for coordinates,value in pn_values:
+			i,j=gtp2ij(coordinates)
+			pn[i][j]=value
+		return pn
 
 	def showboard(self):
 		self.write("showboard")

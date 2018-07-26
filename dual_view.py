@@ -2094,10 +2094,17 @@ class DualView(Toplevel):
 			self.left_map_menu.entryconfig(_("Influence"), state="disabled")
 			self.right_map_menu.entryconfig(_("Influence"), state="disabled")
 
-		self.left_map_menu.entryconfig(_("Heat map"), state="disabled")
-		self.right_map_menu.entryconfig(_("Heat map"), state="disabled")
-		heatmap=False
-		
+		if node_has(one_move,"HTM"):
+			print "have heat map"
+			heatmap=True
+			self.left_map_menu.entryconfig(_("Heat map"), state="normal")
+			self.right_map_menu.entryconfig(_("Heat map"), state="normal")
+		else:
+			print "no heatmap"
+			heatmap=False
+			self.left_map_menu.entryconfig(_("Heat map"), state="disabled")
+			self.right_map_menu.entryconfig(_("Heat map"), state="disabled")
+
 		if not territories and not influence and not heatmap:
 			self.left_map_button.config(state="disabled")
 			self.right_map_button.config(state="disabled")
@@ -2456,6 +2463,19 @@ class DualView(Toplevel):
 					for move in white_data:
 						i, j=sgf2ij(move)
 						markup[i][j]=-2
+				goban.display(self.current_grid,markup)
+	
+		if map==_("Heat map"):
+			if node_has(one_move,"HTM"):
+				print "has HTM"
+				dim=self.dim
+				markup=[["" for r in range(dim)] for c in range(dim)]
+				data=one_move.get("HTM")
+				for move in data.split(","):
+					if not move:
+						continue
+					i, j=sgf2ij(move[0]+move[1])
+					markup[i][j]=float(move[2:])
 				goban.display(self.current_grid,markup)
 	
 	def initialize(self):

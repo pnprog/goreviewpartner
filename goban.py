@@ -444,6 +444,24 @@ class Goban(Canvas):
 					local_area=self.draw_point(u,v,1,color="",outline="")
 					self.tag_bind(local_area, "<Enter>", partial(show_variation,goban=self,grid=grid,markup=markup,i=i,j=j))
 					self.temporary_shapes.append(local_area)
+				
+				elif type(markup[i][j])==type(0.1): #heat map values
+					value=markup[i][j]
+					max_value=max([max([vv if type(vv)==type(0.1) else 0 for vv in ww]) for ww in markup])
+					print value, "/", max_value, "=>", 
+					value=value*1./max_value
+					print value
+					r1, g1, b1=self.wood_color
+					r2, g2, b2=255, 0, 0
+					r3, g3, b3=int(r1+(r2-r1)*value), int(g1+(g2-g1)*value), int(b1+(b2-b1)*value)
+					print r1, g1, b1
+					print r2, g2, b2
+					print r3, g3, b3
+					print "value", markup[i][j], value	
+					color='#%02x%02x%02x' % (r3, g3, b3)
+					print "value", markup[i][j], value, color
+					self.temporary_shapes.append(self.draw_point(i,j,0.8,color=bg,outline=bg))
+					self.temporary_shapes.append(self.draw_point(i,j,.7,color, outline=""))
 		
 
 		
