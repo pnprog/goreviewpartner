@@ -2436,9 +2436,28 @@ class DualView(Toplevel):
 					for move in white_data:
 						i, j=sgf2ij(move)
 						markup[i][j]=-2
-				
 				goban.display(self.current_grid,markup)
+		
+		if map==_("Territories"):
+			if node_has(one_move,"TBM") or node_has(one_move,"TWM"):
+				print "has TMB or TWM"
+				dim=self.dim
+				markup=[["" for r in range(dim)] for c in range(dim)]
+				if node_has(one_move,"TBM"):
+					print "has TBM"
+					black_data=one_move.get_raw_list("TBM")
+					for move in black_data:
+						i, j=sgf2ij(move)
+						markup[i][j]=-1
 				
+				if node_has(one_move,"TWM"):
+					print "has TWM"
+					white_data=one_move.get_raw_list("TWM")
+					for move in white_data:
+						i, j=sgf2ij(move)
+						markup[i][j]=-2
+				goban.display(self.current_grid,markup)
+	
 	def initialize(self):
 		
 		self.left_side_opened_tabs=[]

@@ -146,21 +146,34 @@ class GnuGoAnalysis():
 		
 		log("Creating the influence map")
 		black_influence=gnugo.get_gnugo_initial_influence_black()
+		black_territories_points=[]
 		black_influence_points=[]
 		white_influence=gnugo.get_gnugo_initial_influence_white()
+		white_territories_points=[]
 		white_influence_points=[]
 		for i in range(self.size):
 			for j in range(self.size):
 				if black_influence[i][j]==-3:
-					black_influence_points.append([i,j])
+					black_territories_points.append([i,j])
 				if white_influence[i][j]==3:
+					white_territories_points.append([i,j])
+				
+				if black_influence[i][j]==-2:
+					black_influence_points.append([i,j])
+				if white_influence[i][j]==2:
 					white_influence_points.append([i,j])
 
 		if black_influence_points!=[]:
 			node_set(one_move,"IBM",black_influence_points) #IBM: influence black map
-		
+			
+		if black_territories_points!=[]:
+			node_set(one_move,"TBM",black_territories_points) #TBM: territories black map
+			
 		if white_influence_points!=[]:
 			node_set(one_move,"IWM",white_influence_points) #IWM: influence white map
+			
+		if white_territories_points!=[]:
+			node_set(one_move,"TWM",white_territories_points) #TWM: territories white map
 		
 		return answer #returning the best move, necessary for live analysis
 	
