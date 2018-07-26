@@ -204,7 +204,7 @@ class gtp():
 	def final_score(self):
 		self.write("final_score")
 		answer=self.readline()
-		return " ".join(answer.split(" ")[1:])
+		return " ".join(answer.split(" ")[1:]).strip()
 	
 	#is that needed?
 	def final_status(self,move):

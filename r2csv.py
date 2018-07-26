@@ -154,7 +154,7 @@ def rsgf2csv(filename):
 		line=""
 		for value, header in zip(m,table[0]):
 			if header!="":
-				line+=str(value)+","
+				line+=str(value).strip()+","
 		print line
 		csv.write(line+"\n")
 	
