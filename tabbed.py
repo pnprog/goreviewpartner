@@ -394,7 +394,7 @@ class InteractiveGoban(Frame):
 		
 		if len(self.menu_bots)>0:
 			
-			mb=Menubutton(panel, text=_("Select bot")+" ▽", relief=RAISED)
+			mb=Menubutton(panel, text=_("Select a bot")+" ▽", relief=RAISED)
 			mb.pack(side=LEFT,fill=Y)
 			mb.menu = Menu(mb,tearoff=0)
 			mb["menu"]= mb.menu

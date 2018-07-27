@@ -32,6 +32,10 @@ msgstr "Réglages"
 msgid "The file %s has been converted to %s"
 msgstr "The fichier %s a été convertie en %s"
 
+#1.9
+msgid "Convert RSGF file to CSV file"
+msgstr "Convertir le fichier CSV en fichier SGF"
+
 ############## Analysis setting
 #2.1
 msgid "Bot to use for analysis:"
@@ -119,6 +123,22 @@ msgstr "Impossible de télécharger l'URL"
 msgid "Not a valid SGF file!"
 msgstr "Le fichier télécharger n'est pas un fichier SGF!"
 
+#3.5
+msgid "This analysis will be performed on an already analysed SGF file."
+msgstr ""
+
+#3.6
+msgid "What to do with the existing variations?"
+msgstr ""
+
+#3.7
+msgid "Keep existing variations"
+msgstr ""
+
+#3.8
+msgid "Replace existing variations"
+msgstr ""
+
 ############## Analysis running ###
 #4.1
 msgid "Analysis of: %s"
@@ -146,13 +166,6 @@ msgstr "Ferméture en cours, veuillez patienter..."
 
 
 ############## RSGF review
-#5.1
-msgid "Open position"
-msgstr "Ouvrir cette position"
-
-#5.2
-msgid "Show territories"
-msgstr "Montrer les territoires"
 
 #5.3
 msgid "Graphs"
@@ -161,14 +174,8 @@ msgstr "Graphiques"
 #5.4
 msgid "Table"
 msgstr "Tableau"
-
-#5.5
-msgid "Open this position onto a third goban to play out variations."
-msgstr "Ouvre cette position dans un troisième goban pour tester d'autres variations."
-
-#5.6
-msgid "Keep pressed to show territories."
-msgstr "Maintenez appuyer pour afficher les territoires."
+msgid "Comments"
+msgstr ""
 
 #5.7
 msgid "Go to first move."
@@ -197,6 +204,8 @@ msgstr "Aller au dernier coup de la partie."
 #5.13
 msgid "<Ctrl+Q> to save the goban as an image."
 msgstr "<Ctrl+Q> pour enregistrer le goban comme image."
+msgid "Use mouse middle click or wheel to undo move."
+msgstr ""
 
 #5.14
 msgid "<Ctrl+W> to save the goban as an image."
@@ -206,7 +215,41 @@ msgstr "<Ctrl+W> pour enregistrer le goban comme image."
 msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
 msgstr "Utiliser la molette de souris ou les touches clavier haut/bas pour afficher la séquence coup par coup."
 
+#5.16
+msgid "Actual game"
+msgstr ""
 
+#5.17
+msgid "Keep pressed to show map."
+msgstr ""
+
+#5.18
+msgid "Maps"
+msgstr ""
+
+#5.19
+msgid "Show"
+msgstr ""
+
+#5.20
+msgid "Territories"
+msgstr ""
+
+#5.21
+msgid "Influence"
+msgstr ""
+
+#5.22
+msgid "Heat map"
+msgstr ""
+
+#5.23
+msgid "Display"
+msgstr ""
+
+#5.24
+msgid "Not available"
+msgstr ""
 
 ############## Open position
 #6.1
@@ -225,33 +268,13 @@ msgstr "Jouer en tant que Blanc"
 msgid "Play as black"
 msgstr "Jouer en tant que Noir"
 
-#6.5
-msgid "Self play"
-msgstr "Jouer seul"
-
-#6.6
-msgid "Quick evaluation"
-msgstr "Évaluation rapide"
-
 #6.7
 msgid "Undo last move. Shortcut: mouse middle button."
 msgstr "Annuler le dernier coup. Raccourcis clavier: click milieu souris."
 
 #6.8
-msgid "Select a bot."
+msgid "Select a bot"
 msgstr "Choissisez un programme"
-
-#6.9
-msgid "Ask the bot to play one move."
-msgstr "Demander au programme de jouer un coup."
-
-#6.10
-msgid "Ask the bot to play as White."
-msgstr "Demander au programme de jouer en tant que Blanc."
-
-#6.11
-msgid "Ask the bot to play as Black."
-msgstr "Demander au programme de jouer en tant que Noir."
 
 #6.12
 msgid "Let the bot take both sides and play against itself."
@@ -261,10 +284,6 @@ msgstr "Demander au programme de jouer contre lui même."
 msgid "Ask the bot for a quick evaluation"
 msgstr "Demander au bot une évaluation rapide"
 
-#6.14
-msgid "Abort"
-msgstr "Interrompre"
-
 #6.15
 msgid "White"
 msgstr "Blanc"
@@ -273,6 +292,17 @@ msgstr "Blanc"
 msgid "Black"
 msgstr "Noir"
 
+#6.17
+msgid "Action"
+msgstr ""
+
+#6.18
+msgid "No bot"
+msgstr ""
+
+#6.19
+msgid "Do nothing"
+msgstr ""
 
 
 
@@ -396,10 +426,6 @@ msgstr "Placement naturel des pierres"
 msgid "Real game sequence deepness"
 msgstr "Profondeur de variation de la partie à afficher"
 
-#8.11
-msgid "Goban/screen ratio"
-msgstr "Ratio goban/écran"
-
 #8.12
 msgid "Maximum number of variations to display during review"
 msgstr "Nombre maximum de variations à afficher durant la revue"
@@ -469,26 +495,6 @@ msgstr "Tester"
 msgid "Fast profile parameters"
 msgstr "Paramètres du profil rapide"
 
-#9.7
-msgid "%s availability"
-msgstr "Disponibilité pour %s"
-
-#9.8
-msgid "Static analysis"
-msgstr "Analyse statique"
-
-#9.9
-msgid "Live analysis"
-msgstr "Analyse live"
-
-#9.10
-msgid "Live analysis as black or white"
-msgstr "Pour jouer noir ou blanc pendant durant l'analyse live"
-
-#9.11
-msgid "When opening a position for manual play"
-msgstr "A l'ouverture d'une position"
-
 #9.12
 msgid "Maximum number of variations"
 msgstr "Nombre maximum de variations"
@@ -508,16 +514,6 @@ msgstr "Profil lent"
 #9.16
 msgid "Fast profile"
 msgstr "Profil rapide"
-
-#9.17
-msgid "Both profiles"
-msgstr "Les deux profils"
-
-#9.18
-msgid "None"
-msgstr "Aucun"
-
-
 
 ############## Data description and display
 #10.1
@@ -735,6 +731,10 @@ msgstr "Passer pour ce coup"
 msgid "Undo to previous move"
 msgstr "Annuler le précédent coup"
 
+#12.14
+msgid "Live game"
+msgstr ""
+
 ############## GTP terminal
 #13.1
 msgid "Send GTP command"
@@ -770,6 +770,9 @@ msgid "Information"
 msgstr "Information"
 
 ############## error messages
+
+msgid "Could not open the RSGF file: "
+msgstr ""
 
 msgid "Could not save the RSGF file: "
 msgstr "Impossible de sauvegarder le fichier RSGF: "
@@ -828,8 +831,3 @@ msgstr "Le fichier config.ini ne contient pas d'entrée %s pour %s !"
 
 msgid "The config.ini file %s entry for %s is empty!"
 msgstr "L'entrée %s du fichier config.ini pour %s est vide!"
-
-msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
-msgstr "Le fichier SGF contient des pierres de handicap blanches ! %s ne sait pas gérer ça!"
-
-

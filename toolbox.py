@@ -2276,7 +2276,7 @@ def get_position_short_comments(current_move,gameroot):
 		try:
 			if node_has(node[1],"BKMV"):
 				if node_get(node[1],"BKMV")=="yes":
-					comments+=_(": Book")
+					comments+=": "+_("Book move")
 		except:
 			pass
 	else:

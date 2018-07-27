@@ -32,6 +32,10 @@ msgstr ""
 msgid "The file %s has been converted to %s"
 msgstr ""
 
+#1.9
+msgid "Convert RSGF file to CSV file"
+msgstr ""
+
 ############## Analysis setting
 #2.1
 msgid "Bot to use for analysis:"
@@ -119,6 +123,22 @@ msgstr ""
 msgid "Not a valid SGF file!"
 msgstr ""
 
+#3.5
+msgid "This analysis will be performed on an already analysed SGF file."
+msgstr ""
+
+#3.6
+msgid "What to do with the existing variations?"
+msgstr ""
+
+#3.7
+msgid "Keep existing variations"
+msgstr ""
+
+#3.8
+msgid "Replace existing variations"
+msgstr ""
+
 ############## Analysis running ###
 #4.1
 msgid "Analysis of: %s"
@@ -146,13 +166,6 @@ msgstr ""
 
 
 ############## RSGF review
-#5.1
-msgid "Open position"
-msgstr ""
-
-#5.2
-msgid "Show territories"
-msgstr ""
 
 #5.3
 msgid "Graphs"
@@ -161,13 +174,7 @@ msgstr ""
 #5.4
 msgid "Table"
 msgstr ""
-
-#5.5
-msgid "Open this position onto a third goban to play out variations."
-msgstr ""
-
-#5.6
-msgid "Keep pressed to show territories."
+msgid "Comments"
 msgstr ""
 
 #5.7
@@ -197,6 +204,8 @@ msgstr ""
 #5.13
 msgid "<Ctrl+Q> to save the goban as an image."
 msgstr ""
+msgid "Use mouse middle click or wheel to undo move."
+msgstr ""
 
 #5.14
 msgid "<Ctrl+W> to save the goban as an image."
@@ -206,7 +215,41 @@ msgstr ""
 msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
 msgstr ""
 
+#5.16
+msgid "Actual game"
+msgstr ""
 
+#5.17
+msgid "Keep pressed to show map."
+msgstr ""
+
+#5.18
+msgid "Maps"
+msgstr ""
+
+#5.19
+msgid "Show"
+msgstr ""
+
+#5.20
+msgid "Territories"
+msgstr ""
+
+#5.21
+msgid "Influence"
+msgstr ""
+
+#5.22
+msgid "Heat map"
+msgstr ""
+
+#5.23
+msgid "Display"
+msgstr ""
+
+#5.24
+msgid "Not available"
+msgstr ""
 
 ############## Open position
 #6.1
@@ -225,32 +268,12 @@ msgstr ""
 msgid "Play as black"
 msgstr ""
 
-#6.5
-msgid "Self play"
-msgstr ""
-
-#6.6
-msgid "Quick evaluation"
-msgstr ""
-
 #6.7
 msgid "Undo last move. Shortcut: mouse middle button."
 msgstr ""
 
 #6.8
-msgid "Select a bot."
-msgstr ""
-
-#6.9
-msgid "Ask the bot to play one move."
-msgstr ""
-
-#6.10
-msgid "Ask the bot to play as White."
-msgstr ""
-
-#6.11
-msgid "Ask the bot to play as Black."
+msgid "Select a bot"
 msgstr ""
 
 #6.12
@@ -261,10 +284,6 @@ msgstr ""
 msgid "Ask the bot for a quick evaluation"
 msgstr ""
 
-#6.14
-msgid "Abort"
-msgstr ""
-
 #6.15
 msgid "White"
 msgstr ""
@@ -273,8 +292,17 @@ msgstr ""
 msgid "Black"
 msgstr ""
 
+#6.17
+msgid "Action"
+msgstr ""
 
+#6.18
+msgid "No bot"
+msgstr ""
 
+#6.19
+msgid "Do nothing"
+msgstr ""
 
 ############## Graphs
 #7.1
@@ -396,10 +424,6 @@ msgstr ""
 msgid "Real game sequence deepness"
 msgstr ""
 
-#8.11
-msgid "Goban/screen ratio"
-msgstr ""
-
 #8.12
 msgid "Maximum number of variations to display during review"
 msgstr ""
@@ -469,26 +493,6 @@ msgstr ""
 msgid "Fast profile parameters"
 msgstr ""
 
-#9.7
-msgid "%s availability"
-msgstr ""
-
-#9.8
-msgid "Static analysis"
-msgstr ""
-
-#9.9
-msgid "Live analysis"
-msgstr ""
-
-#9.10
-msgid "Live analysis as black or white"
-msgstr ""
-
-#9.11
-msgid "When opening a position for manual play"
-msgstr ""
-
 #9.12
 msgid "Maximum number of variations"
 msgstr ""
@@ -508,15 +512,6 @@ msgstr ""
 #9.16
 msgid "Fast profile"
 msgstr ""
-
-#9.17
-msgid "Both profiles"
-msgstr ""
-
-#9.18
-msgid "None"
-msgstr ""
-
 
 
 ############## Data description and display
@@ -734,6 +729,10 @@ msgstr ""
 msgid "Undo to previous move"
 msgstr ""
 
+#12.14
+msgid "Live game"
+msgstr ""
+
 ############## GTP terminal
 #13.1
 msgid "Send GTP command"
@@ -769,6 +768,9 @@ msgid "Information"
 msgstr ""
 
 ############## error messages
+
+msgid "Could not open the RSGF file: "
+msgstr ""
 
 msgid "Could not save the RSGF file: "
 msgstr ""
@@ -834,8 +836,3 @@ msgstr ""
 msgid "The config.ini file %s entry for %s is empty!"
 #e.g. The config.ini file TimePerMove entry for Leela is empty!
 msgstr ""
-
-msgid "The SGF file contains white handicap stones! %s cannot deal with that!"
-#e.g. The SGF file contains white handicap stones! Leela cannot deal with that!
-msgstr ""
-

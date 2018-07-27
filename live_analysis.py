@@ -104,7 +104,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.filename=Entry(self)
 		self.filename.grid(row=row,column=2,sticky=W)
 		self.filename.delete(0, END)
-		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_')+_('Human')+'_vs_'+_('Human')+'.sgf'
+		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_')+_('Human player')+'_vs_'+_('Human player')+'.sgf'
 		self.filename.insert(0, filename)
 		self.filename.bind("<Button-1>",self.change_filename)
 		row+=1
@@ -532,12 +532,6 @@ class LiveAnalysis(Toplevel):
 		
 		row+=1
 		Label(panel,text="").grid(column=1,row=row,sticky=W)
-		
-		row+=1
-		open_button=Button(panel,text=_("Open position"),command=self.open_move)
-		#open_button.grid(column=1,row=row,sticky=W+E)
-		open_button.bind("<Enter>",lambda e: self.set_status(_("Open this position onto a third goban to play out variations.")))
-		buttons_with_status.append(open_button)
 		
 		row+=1
 		self.review_bouton_wrapper=Frame(panel)
