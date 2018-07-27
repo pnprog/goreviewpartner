@@ -830,6 +830,9 @@ msgstr "프로그램을 실행할 수 없음"
 msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
 msgstr "릴라제로가 OpenCL SGEMM 튜닝중. 준비될 때까지 몇 분이 걸릴 수 있음."
 
+msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
+msgstr "릴라제로가 OpenCL SGEMM 튜닝중. 준비될 때까지 몇 분이 걸릴 수 있음."
+
 msgid "The config.ini file does not contain %s entry for %s !"
 #e.g. The config.ini file does not contain TimePerMove entry for Leela !
 msgstr "config.ini 파일에 %s 항목(%s 용)이 없음!"

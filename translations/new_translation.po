@@ -824,6 +824,9 @@ msgstr ""
 msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
 msgstr ""
 
+msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
+msgstr ""
+
 msgid "The config.ini file does not contain %s entry for %s !"
 #e.g. The config.ini file does not contain TimePerMove entry for Leela !
 msgstr ""

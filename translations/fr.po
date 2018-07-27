@@ -820,6 +820,9 @@ msgstr "Ne peut pas lancer le programme:"
 msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
 msgstr "Leela Zero est en train d'ajuster les parametres OpenCL SGEMM. Cela pourrait prendre plusieurs minutes avant que Leela Zero ne soit prête."
 
+msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
+msgstr "Ray est en train d'ajuster les parametres OpenCL SGEMM. Cela pourrait prendre plusieurs minutes avant que Ray ne soit prêt."
+
 msgid "The config.ini file does not contain %s entry for %s !"
 msgstr "Le fichier config.ini ne contient pas d'entrée %s pour %s !"
 

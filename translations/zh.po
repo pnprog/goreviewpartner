@@ -825,6 +825,9 @@ msgstr "不能运行程序:"
 msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
 msgstr "Leela Zero试图使用OpenCL加速功能，这个过程可能需要几分钟。"
 
+msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
+msgstr "Ray试图使用OpenCL加速功能，这个过程可能需要几分钟。"
+
 msgid "The config.ini file does not contain %s entry for %s !"
 #e.g. The config.ini file does not contain TimePerMove entry for Leela !
 msgstr "config.ini文件没有包含 %s 的接口!"
