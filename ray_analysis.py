@@ -135,7 +135,76 @@ class LiveAnalysis(RayAnalysis,LiveAnalysisBase):
 	def __init__(self,g,filename,profile="slow"):
 		LiveAnalysisBase.__init__(self,g,filename,profile)
 
+import subprocess
+import Queue
+
 class Ray_gtp(gtp):
+
+	def __init__(self,command):
+		self.c=1
+		self.command_line=command[0]+" "+" ".join(command[1:])
+		command=[c.encode(sys.getfilesystemencoding()) for c in command]
+		self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		self.size=0
+		
+		self.stderr_starting_queue=Queue.Queue(maxsize=100)
+		self.stderr_queue=Queue.Queue()
+		self.stdout_queue=Queue.Queue()
+		threading.Thread(target=self.consume_stderr).start()
+		
+		log("Checking Ray stderr to check for OpenCL SGEMM tuner running")
+		delay=60
+		while 1:
+			try:
+				err_line=self.stderr_starting_queue.get(True,delay)
+				delay=10
+				if "Started OpenCL SGEMM tuner." in err_line:
+					log("OpenCL SGEMM tuner is running")
+					show_info(_("Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."))
+					break
+				elif "Loaded existing SGEMM tuning.\n" in err_line:
+					log("OpenCL SGEMM tuner has already been runned")
+					break
+				elif "BLAS Core:" in err_line:
+					log("Could not find out, abandoning")
+					break
+				elif "Could not open weights file" in err_line:
+					show_info(err_line.strip())
+					break
+				elif "Weights file is the wrong version." in err_line:
+					show_info(err_line.strip())
+					break
+				"""elif "A network weights file is required to use the program." in err_line:
+					show_info(err_line.strip())
+					break"""
+
+			except:
+				log("Could not find out, abandoning")
+				break
+		
+		
+		self.free_handicap_stones=[]
+		self.history=[]
+
+	def consume_stderr(self):
+		while 1:
+			try:
+				err_line=self.process.stderr.readline()
+				if err_line:
+					self.stderr_queue.put(err_line)
+					try:
+						self.stderr_starting_queue.put(err_line,block=False)
+					except:
+						#no need to keep all those log in memory, so there is a limit at 100 lines
+						pass
+				else:
+					log("leaving consume_stderr thread")
+					return
+			except Exception, e:
+				log("leaving consume_stderr thread due to exception:")
+				log(e)
+				return
+
 	def quick_evaluation(self,color):
 		
 		if color==2:
