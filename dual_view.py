@@ -1423,7 +1423,6 @@ class DualView(Toplevel):
 				pass #no next move available
 		except:
 			pass #no next move available
-		print "real game ij", real_game_ij
 		parent=get_node(self.gameroot,move-1)
 		if len(parent)<=1:
 			log("no alternative move")
@@ -1543,34 +1542,28 @@ class DualView(Toplevel):
 		
 		self.territories=[[],[]]
 		if node_has(one_move,"TBM") or node_has(one_move,"TWM"):
-			print "have territories"
 			territories=True
 			self.left_map_menu.menu.entryconfig(_("Territories"), state="normal")
 			self.right_map_menu.menu.entryconfig(_("Territories"), state="normal")
 		else:
-			print "no territories"
 			territories=False
 			self.left_map_menu.menu.entryconfig(_("Territories"), state="disabled")
 			self.right_map_menu.menu.entryconfig(_("Territories"), state="disabled")
 			
 		if node_has(one_move,"IBM") or node_has(one_move,"IWM"):
-			print "have influence"
 			influence=True
 			self.left_map_menu.menu.entryconfig(_("Influence"), state="normal")
 			self.right_map_menu.menu.entryconfig(_("Influence"), state="normal")
 		else:
-			print "no influence"
 			influence=False
 			self.left_map_menu.menu.entryconfig(_("Influence"), state="disabled")
 			self.right_map_menu.menu.entryconfig(_("Influence"), state="disabled")
 
 		if node_has(one_move,"HTM"):
-			print "have heat map"
 			heatmap=True
 			self.left_map_menu.menu.entryconfig(_("Heat map"), state="normal")
 			self.right_map_menu.menu.entryconfig(_("Heat map"), state="normal")
 		else:
-			print "no heatmap"
 			heatmap=False
 			self.left_map_menu.menu.entryconfig(_("Heat map"), state="disabled")
 			self.right_map_menu.menu.entryconfig(_("Heat map"), state="disabled")
@@ -1897,24 +1890,20 @@ class DualView(Toplevel):
 		goban.display(self.current_grid,self.current_game_markup)
 	
 	def show_map(self, goban, selection):
-		print "showing map:", selection.get()
 		move=self.current_move
 		one_move=get_node(self.gameroot,move)
 		map=selection.get()
 		if map==_("Influence"):
 			if node_has(one_move,"IBM") or node_has(one_move,"IWM"):
-				print "has IMB or IWM"
 				dim=self.dim
 				markup=[["" for r in range(dim)] for c in range(dim)]
 				if node_has(one_move,"IBM"):
-					print "has IBM"
 					black_data=one_move.get_raw_list("IBM")
 					for move in black_data:
 						i, j=sgf2ij(move)
 						markup[i][j]=-1
 				
 				if node_has(one_move,"IWM"):
-					print "has IWM"
 					white_data=one_move.get_raw_list("IWM")
 					for move in white_data:
 						i, j=sgf2ij(move)
@@ -1923,18 +1912,15 @@ class DualView(Toplevel):
 		
 		if map==_("Territories"):
 			if node_has(one_move,"TBM") or node_has(one_move,"TWM"):
-				print "has TMB or TWM"
 				dim=self.dim
 				markup=[["" for r in range(dim)] for c in range(dim)]
 				if node_has(one_move,"TBM"):
-					print "has TBM"
 					black_data=one_move.get_raw_list("TBM")
 					for move in black_data:
 						i, j=sgf2ij(move)
 						markup[i][j]=-1
 				
 				if node_has(one_move,"TWM"):
-					print "has TWM"
 					white_data=one_move.get_raw_list("TWM")
 					for move in white_data:
 						i, j=sgf2ij(move)
@@ -1943,7 +1929,6 @@ class DualView(Toplevel):
 	
 		if map==_("Heat map"):
 			if node_has(one_move,"HTM"):
-				print "has HTM"
 				dim=self.dim
 				markup=[["" for r in range(dim)] for c in range(dim)]
 				data=one_move.get("HTM")

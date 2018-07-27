@@ -268,7 +268,6 @@ class Leela_gtp(gtp):
 		pn_values=[]
 		for i in range(self.size):
 			one_line=buff[i].strip()
-			print '=>', one_line
 			if "winrate" in one_line:
 				continue
 			if "pass" in one_line:

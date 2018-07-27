@@ -917,8 +917,7 @@ class LiveAnalysis(Toplevel):
 				if type(self.white)!=type("abc"):
 					#white is a bot
 					log("Asking white (%s) to play the game move"%self.white.bot_name)
-
-
+					self.white.place_black(ij2gtp((i,j)))
 				self.white_to_play()
 			else:
 				#white just played
@@ -929,6 +928,7 @@ class LiveAnalysis(Toplevel):
 				if (type(self.black)!=type("abc")) and (self.white!="black"):
 					#white and black are different bots
 					log("Asking black (%s) to play the game move"%self.black.bot_name)
+					self.black.place_white(ij2gtp((i,j)))
 				self.black_to_play()
 		
 	def black_to_play(self):
@@ -1120,7 +1120,6 @@ class LiveAnalysis(Toplevel):
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
 			color=self.goban.grid[i][j]
 			if color==1:
-				print "[",self.goban,"]"
 				self.goban.black_stones[i][j].shine(100)
 			elif color==2:
 				self.goban.white_stones[i][j].shine(100)
