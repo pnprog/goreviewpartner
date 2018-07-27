@@ -2075,42 +2075,46 @@ class DualView(Toplevel):
 		if node_has(one_move,"TBM") or node_has(one_move,"TWM"):
 			print "have territories"
 			territories=True
-			self.left_map_menu.entryconfig(_("Territories"), state="normal")
-			self.right_map_menu.entryconfig(_("Territories"), state="normal")
+			self.left_map_menu.menu.entryconfig(_("Territories"), state="normal")
+			self.right_map_menu.menu.entryconfig(_("Territories"), state="normal")
 		else:
 			print "no territories"
 			territories=False
-			self.left_map_menu.entryconfig(_("Territories"), state="disabled")
-			self.right_map_menu.entryconfig(_("Territories"), state="disabled")
+			self.left_map_menu.menu.entryconfig(_("Territories"), state="disabled")
+			self.right_map_menu.menu.entryconfig(_("Territories"), state="disabled")
 			
 		if node_has(one_move,"IBM") or node_has(one_move,"IWM"):
 			print "have influence"
 			influence=True
-			self.left_map_menu.entryconfig(_("Influence"), state="normal")
-			self.right_map_menu.entryconfig(_("Influence"), state="normal")
+			self.left_map_menu.menu.entryconfig(_("Influence"), state="normal")
+			self.right_map_menu.menu.entryconfig(_("Influence"), state="normal")
 		else:
 			print "no influence"
 			influence=False
-			self.left_map_menu.entryconfig(_("Influence"), state="disabled")
-			self.right_map_menu.entryconfig(_("Influence"), state="disabled")
+			self.left_map_menu.menu.entryconfig(_("Influence"), state="disabled")
+			self.right_map_menu.menu.entryconfig(_("Influence"), state="disabled")
 
 		if node_has(one_move,"HTM"):
 			print "have heat map"
 			heatmap=True
-			self.left_map_menu.entryconfig(_("Heat map"), state="normal")
-			self.right_map_menu.entryconfig(_("Heat map"), state="normal")
+			self.left_map_menu.menu.entryconfig(_("Heat map"), state="normal")
+			self.right_map_menu.menu.entryconfig(_("Heat map"), state="normal")
 		else:
 			print "no heatmap"
 			heatmap=False
-			self.left_map_menu.entryconfig(_("Heat map"), state="disabled")
-			self.right_map_menu.entryconfig(_("Heat map"), state="disabled")
+			self.left_map_menu.menu.entryconfig(_("Heat map"), state="disabled")
+			self.right_map_menu.menu.entryconfig(_("Heat map"), state="disabled")
 
 		if not territories and not influence and not heatmap:
 			self.left_map_button.config(state="disabled")
 			self.right_map_button.config(state="disabled")
+			self.left_map_menu.config(state="disabled")
+			self.right_map_menu.config(state="disabled")
 		else:
 			self.left_map_button.config(state="normal")
 			self.right_map_button.config(state="normal")
+			self.left_map_menu.config(state="normal")
+			self.right_map_menu.config(state="normal")
 		
 	def update_comments(self,move):
 		one_move=get_node(self.gameroot,move)
@@ -2569,7 +2573,7 @@ class DualView(Toplevel):
 
 		map_selection = StringVar()
 		self.left_map_selection=map_selection
-		self.left_map_menu=mb.menu
+		self.left_map_menu=mb
 		maps=[_("Territories"), _("Influence"), _("Heat map")]
 		if grp_config.get("Review","lastmap") in maps:
 			map_selection.set(grp_config.get("Review","lastmap"))
@@ -2629,7 +2633,7 @@ class DualView(Toplevel):
 
 		map_selection = StringVar()
 		self.right_map_selection=map_selection
-		self.right_map_menu=mb.menu
+		self.right_map_menu=mb
 		maps=[_("Territories"), _("Influence"), _("Heat map")]
 		if grp_config.get("Review","lastmap") in maps:
 			map_selection.set(grp_config.get("Review","lastmap"))
