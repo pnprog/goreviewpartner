@@ -2,16 +2,23 @@
 from __future__ import unicode_literals
 
 import sys, os
-print "STDIN encoding:",sys.stdin.encoding
-print "STDOUT encoding:",sys.stdout.encoding
-print "STDERR encoding:",sys.stderr.encoding
-print "File system encoding:",sys.getfilesystemencoding()
+
+if (sys.version_info > (3, 0)):
+	print("GoReviewPartner needs Python version 2 (e.g. 2.7.9) to run.")
+	print("GoReviewPartner cannot work with verions 3 of Python at the moment.")
+	print("Sorry about that :/")
+	input()
+	exit()
+
+print("STDIN encoding:",sys.stdin.encoding)
+print("STDOUT encoding:",sys.stdout.encoding)
+print("STDERR encoding:",sys.stderr.encoding)
+print("File system encoding:",sys.getfilesystemencoding())
 
 try:
 	from Tkinter import * 
-except Exception, e:
-	print "Could not import the Tkinter librairy, please double check it is installed:"
-	print unicode(e)
+except Exception:
+	print("Could not import the Tkinter librairy, please double check it is installed.")
 	raw_input()
 	sys.exit()
 
