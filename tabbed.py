@@ -444,9 +444,9 @@ class InteractiveGoban(Frame):
 		goban3.space=1
 		goban3.pack(fill=BOTH,expand=1)
 
-		self.bind('<Control-q>', self.save_as_png)
+		"""self.bind('<Control-q>', self.save_as_png)
 		goban3.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
-		goban3.bind("<Leave>",lambda e: self.clear_status())
+		goban3.bind("<Leave>",lambda e: self.clear_status())"""
 		
 		grid3=[[0 for row in range(dim)] for col in range(dim)]
 		markup3=[["" for row in range(dim)] for col in range(dim)]

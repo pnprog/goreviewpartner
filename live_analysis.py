@@ -338,6 +338,7 @@ class LiveAnalysis(Toplevel):
 		new_tab.goban.wood=self.goban.wood
 		new_tab.goban.black_stones=self.goban.black_stones_style
 		new_tab.goban.white_stones=self.goban.white_stones_style
+		new_tab.goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		
 		self.opened_tabs.append(new_tab)
 		

@@ -2369,6 +2369,7 @@ class DualView(Toplevel):
 		new_tab.goban.wood=self.left_game_goban.wood
 		new_tab.goban.black_stones=self.left_game_goban.black_stones_style
 		new_tab.goban.white_stones=self.left_game_goban.white_stones_style
+		new_tab.goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
 		
 		self.right_side_opened_tabs.append(new_tab)
 		
@@ -2393,6 +2394,7 @@ class DualView(Toplevel):
 		new_tab.goban.wood=self.left_game_goban.wood
 		new_tab.goban.black_stones=self.left_game_goban.black_stones_style
 		new_tab.goban.white_stones=self.left_game_goban.white_stones_style
+		new_tab.goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		
 		self.left_side_opened_tabs.append(new_tab)
 		
@@ -2532,6 +2534,7 @@ class DualView(Toplevel):
 		
 		left_notebook=Notebook(gobans_frame)
 		left_notebook.bind("<Enter>",lambda event: self.set_active(left_notebook))
+		self.left_notebook=left_notebook
 		
 		left_game_tab=Frame(left_notebook)
 		left_notebook.add(left_game_tab, text=_("Actual game"))
@@ -2545,7 +2548,8 @@ class DualView(Toplevel):
 		
 		right_notebook=Notebook(gobans_frame)
 		right_notebook.bind("<Enter>",lambda event: self.set_active(right_notebook))
-		
+		self.right_notebook=right_notebook
+
 		right_game_tab=Frame(right_notebook)
 		right_notebook.add(right_game_tab, text=_("Actual game"))
 		
@@ -2780,7 +2784,9 @@ class DualView(Toplevel):
 		self.left_map_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show map.")))
 		self.right_map_button.bind("<Enter>",lambda e: self.set_status(_("Keep pressed to show map.")))
 		self.left_game_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		self.left_bot_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
 		self.right_bot_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
+		self.right_game_goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
 		
 		self.comment_box2.bind("<Configure>",self.redraw_panel)
 		
@@ -2893,12 +2899,14 @@ class DualView(Toplevel):
 		self.status_bar.config(text="")
 
 	def save_left_as_png(self,event=None):
+		goban=self.left_game_goban
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
-		canvas2png(self.goban1,filename)
+		canvas2png(goban,filename)
 
 	def save_right_as_png(self,event=None):
+		goban=self.right_game_goban
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
-		canvas2png(self.goban2,filename)
+		canvas2png(goban,filename)
 	
 if __name__ == "__main__":
 	if len(sys.argv)==1:
