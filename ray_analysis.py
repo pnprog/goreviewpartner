@@ -374,7 +374,7 @@ Ray['gtp']=Ray_gtp
 Ray['liveanalysis']=LiveAnalysis
 Ray['runanalysis']=RunAnalysis
 Ray['starting']=ray_starting_procedure
-
+import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()

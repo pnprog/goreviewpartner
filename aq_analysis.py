@@ -361,7 +361,7 @@ AQ['gtp']=AQ_gtp
 AQ['liveanalysis']=LiveAnalysis
 AQ['runanalysis']=RunAnalysis
 AQ['starting']=aq_starting_procedure
-
+import getopt
 if __name__ == "__main__":
 	if len(argv)==1:
 		temp_root = Tk()

@@ -71,7 +71,7 @@ class InteractiveGoban(Frame):
 		elif len(self.history)==1:
 			self.undo_button.config(state='disabled')
 		
-		self.grid,self.markup,move=self.history.pop()
+		self.grid,self.markup,unused=self.history.pop()
 		self.next_color=3-self.next_color
 		self.goban.display(self.grid,self.markup)
 		

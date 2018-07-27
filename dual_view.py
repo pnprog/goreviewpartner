@@ -1946,14 +1946,15 @@ class DualView(Toplevel):
 		
 		real_game_ij=(-1,-1)
 		try:
-			ij=one_move[0].get_move()[1]
+			one_move=get_node(self.gameroot,move)
+			ij=one_move.get_move()[1]
 			if ij:
 				real_game_ij=ij
 			else:
 				pass #no next move available
 		except:
 			pass #no next move available
-		
+		print "real game ij", real_game_ij
 		parent=get_node(self.gameroot,move-1)
 		if len(parent)<=1:
 			log("no alternative move")
