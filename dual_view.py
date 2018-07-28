@@ -1833,6 +1833,7 @@ class DualView(Toplevel):
 		new_tab.goban.black_stones=self.left_game_goban.black_stones_style
 		new_tab.goban.white_stones=self.left_game_goban.white_stones_style
 		new_tab.goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+W> to save the goban as an image.")))
+		new_tab.bind("<Visibility>",lambda event: self.refocus(new_tab))
 		
 		self.right_side_opened_tabs.append(new_tab)
 		
@@ -1848,7 +1849,7 @@ class DualView(Toplevel):
 		self.right_notebook.forget(id)
 		tab.close()
 		self.right_side_opened_tabs.remove(tab)
-		
+	
 	def new_left_goban(self,event=None):
 		new_tab=InteractiveGoban(self.left_notebook,self.current_move,self.dim,self.sgf)
 		new_tab.status_bar=self.status_bar
@@ -1858,6 +1859,7 @@ class DualView(Toplevel):
 		new_tab.goban.black_stones=self.left_game_goban.black_stones_style
 		new_tab.goban.white_stones=self.left_game_goban.white_stones_style
 		new_tab.goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		new_tab.bind("<Visibility>",lambda event: self.refocus(new_tab))
 		
 		self.left_side_opened_tabs.append(new_tab)
 		
@@ -1939,6 +1941,9 @@ class DualView(Toplevel):
 					markup[i][j]=float(move[2:])
 				goban.display(self.current_grid,markup)
 	
+	def refocus(self,widget):
+		widget.focus()
+	
 	def initialize(self):
 		
 		self.left_side_opened_tabs=[]
@@ -1991,11 +1996,13 @@ class DualView(Toplevel):
 		left_notebook.bind("<Enter>",lambda event: self.set_active(left_notebook))
 		self.left_notebook=left_notebook
 		
-		left_game_tab=Frame(left_notebook)
+		left_game_tab=Frame(left_notebook, takefocus = 0)
 		left_notebook.add(left_game_tab, text=_("Actual game"))
+		left_game_tab.bind("<Visibility>",lambda event: self.refocus(left_game_tab))
 		
 		left_bot_tab=Frame(left_notebook)
 		left_notebook.add(left_bot_tab, text=_("Analysis"))
+		left_bot_tab.bind("<Visibility>",lambda event: self.refocus(left_bot_tab))
 		
 		left_plus_tab=Frame(left_notebook)
 		left_notebook.add(left_plus_tab, text="+")
@@ -2007,9 +2014,11 @@ class DualView(Toplevel):
 
 		right_game_tab=Frame(right_notebook)
 		right_notebook.add(right_game_tab, text=_("Actual game"))
+		right_game_tab.bind("<Visibility>",lambda event: self.refocus(right_game_tab))
 		
 		right_bot_tab=Frame(right_notebook)
 		right_notebook.add(right_bot_tab, text=_("Analysis"))
+		right_bot_tab.bind("<Visibility>",lambda event: self.refocus(right_bot_tab))
 		
 		right_plus_tab=Frame(right_notebook)
 		right_notebook.add(right_plus_tab, text="+")

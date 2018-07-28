@@ -329,6 +329,9 @@ class LiveAnalysis(Toplevel):
 		
 		self.parent.add_popup(new_popup)
 	
+	def refocus(self,widget):
+		widget.focus()
+	
 	def new_goban(self,event=None):
 		new_tab=InteractiveGoban(self.notebook,self.current_move,self.dim,self.g)
 		new_tab.status_bar=self.status_bar
@@ -339,6 +342,7 @@ class LiveAnalysis(Toplevel):
 		new_tab.goban.black_stones=self.goban.black_stones_style
 		new_tab.goban.white_stones=self.goban.white_stones_style
 		new_tab.goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		new_tab.bind("<Visibility>",lambda event: self.refocus(new_tab))
 		
 		self.opened_tabs.append(new_tab)
 		
@@ -379,6 +383,7 @@ class LiveAnalysis(Toplevel):
 		notebook.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
 		
 		live_tab=Frame(notebook)
+		live_tab.bind("<Visibility>",lambda event: self.refocus(live_tab))
 		
 		toolbar=Frame(live_tab)
 		toolbar.pack(fill=X)
