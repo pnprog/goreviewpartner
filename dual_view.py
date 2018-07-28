@@ -1339,7 +1339,7 @@ class DualView(Toplevel):
 		self.current_markup=[["" for row in range(dim)] for col in range(dim)]
 		try:
 			#indicating last play with delta
-			i,j=one_move.parent.get_move()[1]
+			i,j=one_move.get_move()[1]
 			self.current_markup[i][j]=0
 		except:
 			pass #no previous move available
