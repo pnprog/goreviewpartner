@@ -42,18 +42,19 @@ def rsgf2csv(filename):
 	csv.write(new_line+"\n")
 	
 	headers_left=["Move number", "Move color"]
-	headers_bot=["Move", "Win rate", "Value Network", "Monte Carlo", "Evaluation", "Rave", "Score Estimation", "Policy Network", "Simulations", "Follow up"]
-	headers_game=["Move", "Win rate", "Value Network", "Monte Carlo", "Evaluation", "Rave", "Score Estimation", "Policy Network", "Simulations", "Follow up"]
+	headers_game=["Move", "Win rate", "Value Network", "Monte Carlo", "Evaluation", "Rave", "Score Estimation", "Policy Network", "Simulations", "Follow up", "Variations"]
+	headers_bot=headers_game[:]
 	
-	table=[headers_left[:]+headers_bot[:]+headers_game[:]]
+	header_first_line=[""]*len(headers_left)+["Game move"]*len(headers_game)+["Bot move"]*len(headers_bot)
 	
-	columns_sgf_properties=["CBM","BWWR","VNWR","MCWR","EVAL","RAVE","ES","PNV","PLYO","nothing_here"]
+	table=[headers_left[:]+headers_game[:]+headers_bot[:]]
 	
+	nb_max_variations=1
 	
+	columns_sgf_properties=["CBM","BWWR","VNWR","MCWR","EVAL","RAVE","ES","PNV","PLYO","nothing_here","nothing_here"]
 	
 	for m in range(1,max_move):
 		one_move=get_node(gameroot,m)
-		
 		table.append(["" for i in range(len(table[0]))])
 		#-- Move number
 		table[m][0]=m
@@ -62,35 +63,9 @@ def rsgf2csv(filename):
 		color=guess_color_to_play(gameroot,m)
 		table[m][1]=color.upper()
 		
-		c=len(headers_left)
-		for header, sgf_property in zip(headers_bot,columns_sgf_properties):
-			if header=="Follow up":
-				break
-			try:
-				one_move=get_node(gameroot,m)
-				if sgf_property in ("PNV","PLYO"):
-					one_move=one_move.parent[1]
-				
-				if node_has(one_move,sgf_property):
-					value=node_get(one_move,sgf_property)
-					if "%/" in value:
-						if color=="b":
-							value=float(value.split("%/")[0])
-							value=round(value,2)
-							value=str(value)+"%"
-						else:
-							value=float(value.split("/")[1][:-1])
-							value=round(value,2)
-							value=str(value)+"%"
-					table[m][c]=value
-			except:
-				pass
-			c+=1
-		
-		
-
+		#-- game move
 		one_move=get_node(gameroot,m)
-		c=len(headers_left+headers_bot)
+		c=len(headers_left)
 		for header, sgf_property in zip(headers_bot,columns_sgf_properties):
 			if header=="Follow up":
 				break
@@ -130,24 +105,80 @@ def rsgf2csv(filename):
 			except:
 				pass
 			c+=1
+		
+		#-- variations
+		
+		if len(one_move.parent[1:])>nb_max_variations:
+			nb_max_variations=len(one_move.parent[1:])
+			headers_bot=headers_game[:]*nb_max_variations
+			table[0]=headers_left[:]+headers_game[:]+headers_bot[:]*nb_max_variations
+			header_first_line=[""]*len(headers_left)+["Game move"]*len(headers_game)+["Bot move"]*len(headers_game)
+			for i in range(2,nb_max_variations+1):
+				header_first_line+=["Bot move "+str(i)]*len(headers_game)
+		
+		c=len(headers_left+headers_game)
+		if len(one_move.parent[1:]):
+			table[m][c-1]=len(one_move.parent[1:])
+		nbv=1
+		for one_variation in one_move.parent[1:]:
+			nbv+=1
+			for header, sgf_property in zip(headers_bot,columns_sgf_properties):
+				#if header=="Follow up":
+				#	break
+				try:
+					#one_move=get_node(gameroot,m)
+					#if sgf_property in ("PNV","PLYO"):
+					#	one_move=one_variation
+					one_move=one_variation
+					
+					if sgf_property=="CBM":
+						if color=="w":
+							sgf_property="W"
+						else:
+							sgf_property="B"
+					
+					if node_has(one_move,sgf_property):
+						if sgf_property=="B" or sgf_property=="W":
+							value=node_get(one_move,color.upper())
+							value=ij2gtp(value).upper()
+						else:
+							value=node_get(one_move,sgf_property)
+						if "%/" in value:
+							if color=="b":
+								value=float(value.split("%/")[0])
+								value=round(value,2)
+								value=str(value)+"%"
+							else:
+								value=float(value.split("/")[1][:-1])
+								value=round(value,2)
+								value=str(value)+"%"
+						table[m][c]=value
+						
+				except:
+					pass
+				c+=1
 
-
+	
 	for c in range(len(table[0])):
 		for m in range(len(table[1:])):
-			if table[1+m][c]!="":
-				break
+			try:
+				if table[1+m][c]!="":
+					break
+			except:
+				#no data (probably no variation data, so keep searching)
+				pass
+		
 		if table[1+m][c]=="":
 			table[0][c]=""
 	
-	csv.write(",,")
-	c=2
-	for header in table[0][len(headers_left):]:
+	c=len(headers_left+headers_game)-1
+	header_first_line[c]=""
+	c=0
+	for header in table[0]:
 		if header!="":
-			if c<=len(headers_bot):
-				csv.write("Bot move,")
-			else:
-				csv.write("Game move,")
+			csv.write(header_first_line[c]+",")
 		c+=1
+	
 	csv.write("\n")
 	
 	for m in table:
@@ -155,7 +186,7 @@ def rsgf2csv(filename):
 		for value, header in zip(m,table[0]):
 			if header!="":
 				line+=str(value).strip()+","
-		print line
+		#print line
 		csv.write(line+"\n")
 	
 
