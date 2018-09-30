@@ -26,13 +26,13 @@ class LiveAnalysisLauncher(Toplevel):
 		root.parent.title('GoReviewPartner')
 
 		row=1
-		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		self.analysis_bots_names=[bot['name']+value[bot['profile']] for bot in get_available("LiveAnalysisBot")]
+		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		self.analysis_bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available("LiveAnalysisBot")]
 		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=W)
 		self.bot_selection=StringVar()	
 		apply(OptionMenu,(self,self.bot_selection)+tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
 		
-		self.bots_names=[bot['name']+value[bot['profile']] for bot in get_available("LivePlayerBot")]
+		self.bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available("LivePlayerBot")]
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -167,11 +167,11 @@ class LiveAnalysisLauncher(Toplevel):
 		self.parent.remove_popup(self)
 		
 	def start(self):
-		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		bots={bot['name']+value[bot['profile']]:bot for bot in get_available("LiveAnalysisBot")}
+		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available("LiveAnalysisBot")}
 		analyser=bots[self.bot_selection.get()]
 		
-		bots={bot['name']+value[bot['profile']]:bot for bot in get_available("LivePlayerBot")}
+		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available("LivePlayerBot")}
 		
 		b=self.selected_black_index()
 		if b==0:
@@ -417,7 +417,7 @@ class LiveAnalysis(Toplevel):
 		self.g.lock=self.g_lock
 		
 		#self.analyser=self.analyser[0](self.g,self.filename)
-		self.analyser=self.analyser["liveanalysis"](self.g,self.rsgf_filename,self.analyser["profile"])
+		self.analyser=self.analyser["liveanalysis"](self.g,self.rsgf_filename,self.analyser)
 		
 		first_comment=_("Analysis by GoReviewPartner")
 		first_comment+="\n"+("Bot: %s/%s"%(self.analyser.bot.bot_name,self.analyser.bot.bot_version))
@@ -441,7 +441,7 @@ class LiveAnalysis(Toplevel):
 			#so it's a bot
 			log("Starting bot for black")
 			#self.black=bot_starting_procedure(self.black[2],self.black[3],self.black[1],self.g,profil="fast")
-			self.black=self.black["starting"](self.g,profile=self.black["profile"])
+			self.black=self.black["starting"](self.g,profile=self.black)
 			log("Black bot started")
 		
 		
@@ -450,7 +450,7 @@ class LiveAnalysis(Toplevel):
 			#so it's a bot
 			log("Starting bot for white")
 			#self.white=bot_starting_procedure(self.white[2],self.white[3],self.white[1],self.g,profil="fast")
-			self.white=self.white["starting"](self.g,profile=self.white["profile"])
+			self.white=self.white["starting"](self.g,profile=self.white)
 			log("White bot started")
 		
 

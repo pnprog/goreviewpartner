@@ -318,9 +318,7 @@ class InteractiveGoban(Frame):
 			self.actions_menubutton.config(state="disabled")
 			return
 		
-		
 		new_bot=self.menu_bots[self.selected_bot.get()]
-		
 		new_bot.start(silentfail=False)
 		if not new_bot.okbot:
 			self.remove_bot(self.selected_bot.get())
@@ -380,17 +378,17 @@ class InteractiveGoban(Frame):
 		self.bots=[]
 		self.menu_bots={}
 		#row=10
-		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 		for available_bot in self.available_bots:
 			#row+=2
-			one_bot=available_bot['openmove'](self.sgf,available_bot['profile'])
+			one_bot=available_bot['openmove'](self.sgf,available_bot)
 			#one_bot.start()
 			self.bots.append(one_bot)
 			
 			#if one_bot.okbot:
 			#	self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
 			
-			self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
+			self.menu_bots[one_bot.name+" - "+available_bot['profile']]=one_bot
 		
 		if len(self.menu_bots)>0:
 			

@@ -153,17 +153,13 @@ class LeelaZeroAnalysis():
 		self.time_per_move=0
 		return leela_zero
 
-def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
-	if profile=="slow":
-		timepermove_entry="SlowTimePerMove"
-	elif profile=="fast":
-		timepermove_entry="FastTimePerMove"
+def leela_zero_starting_procedure(sgf_g,profile,silentfail=False):
 
 	leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,sgf_g,profile,silentfail)
 	if not leela_zero:
 		return False
 	try:
-		time_per_move=grp_config.get("LeelaZero", timepermove_entry)
+		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
@@ -180,11 +176,11 @@ def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
 
 
 class RunAnalysis(LeelaZeroAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow",existing_variations="remove_everything"):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations="remove_everything"):
 		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations)
 
 class LiveAnalysis(LeelaZeroAnalysis,LiveAnalysisBase):
-	def __init__(self,g,filename,profile="slow"):
+	def __init__(self,g,filename,profile):
 		LiveAnalysisBase.__init__(self,g,filename,profile)
 
 
@@ -374,16 +370,12 @@ class Leela_Zero_gtp(gtp):
 from leela_analysis import LeelaSettings
 
 class LeelaZeroSettings(LeelaSettings):
-	def __init__(self,parent):
-		LeelaSettings.__init__(self,parent)
-		self.name="LeelaZero"
-		self.parent=parent
-		self.gtp=Leela_Zero_gtp
-		self.initialize()
-
+	def __init__(self,parent,bot="LeelaZero"):
+		LeelaSettings.__init__(self,parent,bot)
+		self.bot_gtp=Leela_Zero_gtp
 
 class LeelaZeroOpenMove(BotOpenMove):
-	def __init__(self,sgf_g,profile="slow"):
+	def __init__(self,sgf_g,profile):
 		BotOpenMove.__init__(self,sgf_g,profile)
 		self.name='Leela Zero'
 		self.my_starting_procedure=leela_zero_starting_procedure
@@ -414,13 +406,19 @@ if __name__ == "__main__":
 		top = Application()
 		bot=LeelaZero
 		
-		slowbot=bot
-		slowbot['profile']="slow"
-		fastbot=dict(bot)
-		fastbot['profile']="fast"
-		popup=RangeSelector(top,filename,bots=[slowbot, fastbot])
-		top.add_popup(popup)
-		top.mainloop()
+		bots=[]
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			for key, value in profile.items():
+				bot2[key]=value
+			bots.append(bot2)
+		if len(bots)>0:
+			popup=RangeSelector(top,filename,bots=bots)
+			top.add_popup(popup)
+			top.mainloop()
+		else:
+			log("Not profiles available for "+bot["name"]+" in config.ini")
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])

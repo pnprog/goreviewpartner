@@ -203,15 +203,17 @@ class GnuGoAnalysis():
 		
 		self.nb_variations=4
 		try:
-			self.nb_variations=int(grp_config.get("GnuGo", "variations"))
+			self.nb_variations=int(self.profile["variations"])
 		except:
-			grp_config.set("GnuGo", "variations",self.nb_variations)
+			pass
+			#grp_config.set("GnuGo", "variations",self.nb_variations)"""
 		
 		self.deepness=4
 		try:
-			self.deepness=int(grp_config.get("GnuGo", "deepness"))
+			self.deepness=int(self.profile["deepness"])
 		except:
-			grp_config.set("GnuGo", "deepness",self.deepness)
+			pass
+			#grp_config.set("GnuGo", "deepness",self.deepness)"""
 		
 		gnugo=gnugo_starting_procedure(self.g,self.profile)
 		self.nb_workers=self.nb_variations
@@ -228,7 +230,7 @@ class GnuGoAnalysis():
 		self.time_per_move=0
 		return gnugo
 
-def gnugo_starting_procedure(sgf_g,profile="slow",silentfail=False):
+def gnugo_starting_procedure(sgf_g,profile,silentfail=False):
 	return bot_starting_procedure("GnuGo","GNU Go",GnuGo_gtp,sgf_g,profile,silentfail)
 
 
@@ -318,7 +320,132 @@ class GnuGo_gtp(gtp):
 		return answer[2:]
 
 
-class GnuGoSettings(Frame):
+class GnuGoSettings(BotProfiles):
+	def __init__(self,parent,bot="GnuGo"):
+		Frame.__init__(self,parent)
+		self.parent=parent
+		self.bot=bot
+		self.profiles=get_bot_profiles(bot,False)
+		profiles_frame=self
+		
+		self.listbox = Listbox(profiles_frame)
+		self.listbox.grid(column=10,row=10,rowspan=10)
+		self.update_listbox()
+		
+		row=10
+		Label(profiles_frame,text=_("Profile")).grid(row=row,column=11,sticky=W)
+		self.profile = StringVar()
+		Entry(profiles_frame, textvariable=self.profile, width=30).grid(row=row,column=12)
+
+		row+=1
+		Label(profiles_frame,text=_("Command")).grid(row=row,column=11,sticky=W)
+		self.command = StringVar() 
+		Entry(profiles_frame, textvariable=self.command, width=30).grid(row=row,column=12)
+		
+		row+=1
+		Label(profiles_frame,text=_("Parameters")).grid(row=row,column=11,sticky=W)
+		self.parameters = StringVar()
+		Entry(profiles_frame, textvariable=self.parameters, width=30).grid(row=row,column=12)
+
+		row+=1
+		Label(profiles_frame,text=_("Maximum number of variations")).grid(row=row,column=11,sticky=W)
+		self.variations = StringVar()
+		Entry(profiles_frame, textvariable=self.variations, width=30).grid(row=row,column=12)
+		
+		row+=1
+		Label(profiles_frame,text=_("Deepness for each variation")).grid(row=row,column=11,sticky=W)
+		self.deepness = StringVar()
+		Entry(profiles_frame, textvariable=self.deepness, width=30).grid(row=row,column=12)
+		
+
+		row+=10
+		buttons_frame=Frame(profiles_frame)
+		buttons_frame.grid(row=row,column=10,sticky=W,columnspan=3)
+		Button(buttons_frame, text=_("Add profile"),command=self.add_profile).grid(row=row,column=1,sticky=W)
+		Button(buttons_frame, text=_("Modify profile"),command=self.modify_profile).grid(row=row,column=2,sticky=W)
+		Button(buttons_frame, text=_("Delete profile"),command=self.delete_profile).grid(row=row,column=3,sticky=W)
+		Button(buttons_frame, text=_("Test"),command=lambda: self.parent.parent.test(self.bot_gtp,self.command,self.parameters)).grid(row=row,column=4,sticky=W)
+		self.listbox.bind("<Button-1>", lambda e: self.after(100,self.change_selection))
+		
+		self.bot_gtp=GnuGo_gtp
+
+	def change_selection(self):
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		data=self.profiles[index]
+		self.profile.set(data["profile"])
+		self.command.set(data["command"])
+		self.parameters.set(data["parameters"])
+		self.variations.set(data["variations"])
+		self.deepness.set(data["deepness"])
+		
+	def add_profile(self):
+		profiles=self.profiles
+		if self.profile.get()=="":
+			return
+		data={"bot":self.bot}
+		data["profile"]=self.profile.get()
+		data["command"]=self.command.get()
+		data["parameters"]=self.parameters.get()
+		data["variations"]=self.variations.get()
+		data["deepness"]=self.deepness.get()
+		
+		self.empty_profiles()
+		profiles.append(data)
+		self.create_profiles()
+		
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.variations.set("")
+		self.deepness.set("")
+		
+	def modify_profile(self):
+		profiles=self.profiles
+		if self.profile.get()=="":
+			return
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		profiles[index]["profile"]=self.profile.get()
+		profiles[index]["command"]=self.command.get()
+		profiles[index]["parameters"]=self.parameters.get()
+		profiles[index]["variations"]=self.variations.get()
+		profiles[index]["deepness"]=self.deepness.get()
+		
+		self.empty_profiles()
+		self.create_profiles()
+		
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.variations.set("")
+		self.deepness.set("")
+
+	def delete_profile(self):
+		profiles=self.profiles
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		self.empty_profiles()
+		del profiles[index]
+		self.create_profiles()
+
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.variations.set("")
+		self.deepness.set("")
+		
+
+class GnuGoSettings_old(Frame):
 
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
@@ -379,6 +506,12 @@ class GnuGoSettings(Frame):
 		row+=1
 		Button(self, text=_("Test"),command=lambda: self.parent.parent.test(GnuGo_gtp,"fast")).grid(row=row,column=1,sticky=W)
 		
+		row+=1
+		Label(self,text="").grid(row=row,column=1)
+		
+		row+=1
+		BotProfiles(self,"GnuGo").grid(row=row,column=1)
+		
 		self.SlowCommand=SlowCommand
 		self.SlowParameters=SlowParameters
 		self.Variations=Variations
@@ -402,7 +535,7 @@ class GnuGoSettings(Frame):
 			self.parent.parent.refresh()
 
 class GnuGoOpenMove(BotOpenMove):
-	def __init__(self,sgf_g,profile="slow"):
+	def __init__(self,sgf_g,profile):
 		BotOpenMove.__init__(self,sgf_g,profile)
 		self.name='Gnugo'
 		self.my_starting_procedure=gnugo_starting_procedure
@@ -434,13 +567,19 @@ if __name__ == "__main__":
 		top = Application()
 		bot=GnuGo
 		
-		slowbot=bot
-		slowbot['profile']="slow"
-		fastbot=dict(bot)
-		fastbot['profile']="fast"
-		popup=RangeSelector(top,filename,bots=[slowbot, fastbot])
-		top.add_popup(popup)
-		top.mainloop()
+		bots=[]
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			for key, value in profile.items():
+				bot2[key]=value
+			bots.append(bot2)
+		if len(bots)>0:
+			popup=RangeSelector(top,filename,bots=bots)
+			top.add_popup(popup)
+			top.mainloop()
+		else:
+			log("Not profiles available for "+bot["name"]+" in config.ini")
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])

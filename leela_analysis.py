@@ -211,18 +211,15 @@ class LeelaAnalysis():
 		self.time_per_move=0
 		return leela
 
-def leela_starting_procedure(sgf_g,profile="slow",silentfail=False):
-	if profile=="slow":
-		timepermove_entry="SlowTimePerMove"
-	elif profile=="fast":
-		timepermove_entry="FastTimePerMove"
+def leela_starting_procedure(sgf_g,profile,silentfail=False):
+
 
 	leela=bot_starting_procedure("Leela","Leela",Leela_gtp,sgf_g,profile,silentfail)
 	if not leela:
 		return False
 
 	try:
-		time_per_move=grp_config.get("Leela", timepermove_entry)
+		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
@@ -231,17 +228,17 @@ def leela_starting_procedure(sgf_g,profile="slow",silentfail=False):
 				#self.time_per_move=time_per_move #why is that needed???
 	except:
 		log("Wrong value for Leela thinking time:",grp_config.get("Leela", timepermove_entry))
-		log("Erasing that value in the config file")
-		grp_config.set("Leela",timepermove_entry,"")
+		#log("Erasing that value in the config file")
+		#grp_config.set("Leela",timepermove_entry,"")
 	
 	return leela
 
 class RunAnalysis(LeelaAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow",existing_variations="remove_everything"):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations="remove_everything"):
 		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations)
 
 class LiveAnalysis(LeelaAnalysis,LiveAnalysisBase):
-	def __init__(self,g,filename,profile="slow"):
+	def __init__(self,g,filename,profile):
 		LiveAnalysisBase.__init__(self,g,filename,profile)
 
 class Position(dict):
@@ -405,8 +402,124 @@ class Leela_gtp(gtp):
 		return position_evaluation
 
 
+class LeelaSettings(BotProfiles):
+	def __init__(self,parent,bot="Leela"):
+		Frame.__init__(self,parent)
+		self.parent=parent
+		self.bot=bot
+		self.profiles=get_bot_profiles(bot,False)
+		profiles_frame=self
+		
+		self.listbox = Listbox(profiles_frame)
+		self.listbox.grid(column=10,row=10,rowspan=10)
+		self.update_listbox()
+		
+		row=10
+		Label(profiles_frame,text=_("Profile")).grid(row=row,column=11,sticky=W)
+		self.profile = StringVar()
+		Entry(profiles_frame, textvariable=self.profile, width=30).grid(row=row,column=12)
 
-class LeelaSettings(Frame):
+		row+=1
+		Label(profiles_frame,text=_("Command")).grid(row=row,column=11,sticky=W)
+		self.command = StringVar() 
+		Entry(profiles_frame, textvariable=self.command, width=30).grid(row=row,column=12)
+		
+		row+=1
+		Label(profiles_frame,text=_("Parameters")).grid(row=row,column=11,sticky=W)
+		self.parameters = StringVar()
+		Entry(profiles_frame, textvariable=self.parameters, width=30).grid(row=row,column=12)
+		
+		row+=1
+		Label(profiles_frame,text=_("Time per move (s)")).grid(row=row,column=11,sticky=W)
+		self.timepermove = StringVar()
+		Entry(profiles_frame, textvariable=self.timepermove, width=30).grid(row=row,column=12)
+		
+
+		row+=10
+		buttons_frame=Frame(profiles_frame)
+		buttons_frame.grid(row=row,column=10,sticky=W,columnspan=3)
+		Button(buttons_frame, text=_("Add profile"),command=self.add_profile).grid(row=row,column=1,sticky=W)
+		Button(buttons_frame, text=_("Modify profile"),command=self.modify_profile).grid(row=row,column=2,sticky=W)
+		Button(buttons_frame, text=_("Delete profile"),command=self.delete_profile).grid(row=row,column=3,sticky=W)
+		Button(buttons_frame, text=_("Test"),command=lambda: self.parent.parent.test(self.bot_gtp,self.command,self.parameters)).grid(row=row,column=4,sticky=W)
+		
+		self.listbox.bind("<Button-1>", lambda e: self.after(100,self.change_selection))
+
+		self.bot_gtp=Leela_gtp
+
+	def change_selection(self):
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		data=self.profiles[index]
+		self.profile.set(data["profile"])
+		self.command.set(data["command"])
+		self.parameters.set(data["parameters"])
+		self.timepermove.set(data["timepermove"])
+
+		
+	def add_profile(self):
+		profiles=self.profiles
+		if self.profile.get()=="":
+			return
+		data={"bot":self.bot}
+		data["profile"]=self.profile.get()
+		data["command"]=self.command.get()
+		data["parameters"]=self.parameters.get()
+		data["timepermove"]=self.timepermove.get()
+		
+		self.empty_profiles()
+		profiles.append(data)
+		self.create_profiles()
+		
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.timepermove.set("")
+		
+	def modify_profile(self):
+		profiles=self.profiles
+		if self.profile.get()=="":
+			return
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		profiles[index]["profile"]=self.profile.get()
+		profiles[index]["command"]=self.command.get()
+		profiles[index]["parameters"]=self.parameters.get()
+		profiles[index]["timepermove"]=self.timepermove.get()
+		
+		self.empty_profiles()
+		self.create_profiles()
+		
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.timepermove.set("")
+
+	def delete_profile(self):
+		profiles=self.profiles
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		self.empty_profiles()
+		del profiles[index]
+		self.create_profiles()
+
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.timepermove.set("")
+		
+
+
+class LeelaSettings_old(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		self.name="Leela"
@@ -494,8 +607,8 @@ class LeelaSettings(Frame):
 			self.parent.parent.refresh()
 
 class LeelaOpenMove(BotOpenMove):
-	def __init__(self,sgf_g,profile="slow"):
-		BotOpenMove.__init__(self,sgf_g)
+	def __init__(self,sgf_g,profile):
+		BotOpenMove.__init__(self,sgf_g,profile)
 		self.name='Leela'
 		self.my_starting_procedure=leela_starting_procedure
 
@@ -525,13 +638,19 @@ if __name__ == "__main__":
 		top = Application()
 		bot=Leela
 		
-		slowbot=bot
-		slowbot['profile']="slow"
-		fastbot=dict(bot)
-		fastbot['profile']="fast"
-		popup=RangeSelector(top,filename,bots=[slowbot, fastbot])
-		top.add_popup(popup)
-		top.mainloop()
+		bots=[]
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			for key, value in profile.items():
+				bot2[key]=value
+			bots.append(bot2)
+		if len(bots)>0:
+			popup=RangeSelector(top,filename,bots=bots)
+			top.add_popup(popup)
+			top.mainloop()
+		else:
+			log("Not profiles available for "+bot["name"]+" in config.ini")
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])

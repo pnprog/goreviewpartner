@@ -123,16 +123,16 @@ class RayAnalysis():
 		self.time_per_move=0
 		return ray
 
-def ray_starting_procedure(sgf_g,profile="slow",silentfail=False):
+def ray_starting_procedure(sgf_g,profile,silentfail=False):
 	return bot_starting_procedure("Ray","RLO",Ray_gtp,sgf_g,profile,silentfail)
 
 
 class RunAnalysis(RayAnalysis,RunAnalysisBase):
-	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile="slow",existing_variations="remove_everything"):
+	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations="remove_everything"):
 		RunAnalysisBase.__init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations)
 
 class LiveAnalysis(RayAnalysis,LiveAnalysisBase):
-	def __init__(self,g,filename,profile="slow"):
+	def __init__(self,g,filename,profile):
 		LiveAnalysisBase.__init__(self,g,filename,profile)
 
 import subprocess
@@ -247,7 +247,14 @@ class Ray_gtp(gtp):
 			log("\a") #let's make this annoying enough :)
 		return sequences
 
-class RaySettings(Frame):
+
+class RaySettings(BotProfiles):
+	def __init__(self,parent,bot="Ray"):
+		BotProfiles.__init__(self,parent,bot)
+		self.bot_gtp=Ray_gtp
+
+
+class RaySettings_old(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		self.parent=parent
@@ -313,7 +320,7 @@ class RaySettings(Frame):
 			self.parent.parent.refresh()
 
 class RayOpenMove(BotOpenMove):
-	def __init__(self,sgf_g,profile="slow"):
+	def __init__(self,sgf_g,profile):
 		BotOpenMove.__init__(self,sgf_g,profile)
 		self.name='Ray'
 		self.my_starting_procedure=ray_starting_procedure
@@ -344,13 +351,19 @@ if __name__ == "__main__":
 		top = Application()
 		bot=Ray
 		
-		slowbot=bot
-		slowbot['profile']="slow"
-		fastbot=dict(bot)
-		fastbot['profile']="fast"
-		popup=RangeSelector(top,filename,bots=[slowbot, fastbot])
-		top.add_popup(popup)
-		top.mainloop()
+		bots=[]
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			for key, value in profile.items():
+				bot2[key]=value
+			bots.append(bot2)
+		if len(bots)>0:
+			popup=RangeSelector(top,filename,bots=bots)
+			top.add_popup(popup)
+			top.mainloop()
+		else:
+			log("Not profiles available for "+bot["name"]+" in config.ini")
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])

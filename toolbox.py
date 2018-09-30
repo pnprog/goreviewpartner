@@ -445,8 +445,8 @@ class RangeSelector(Toplevel):
 
 		row+=1
 		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=N+W)
-		value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		bot_names=[bot['name']+value[bot['profile']] for bot in bots]
+		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+		bot_names=[bot['name']+" - "+bot['profile'] for bot in bots]
 		self.bot_selection=StringVar()
 
 		apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
@@ -642,8 +642,8 @@ class RangeSelector(Toplevel):
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
-			value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-			bot={bot['name']+value[bot['profile']]:bot for bot in self.bots}[bot]
+			#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
+			bot={bot['name']+" - "+bot['profile']:bot for bot in self.bots}[bot]
 
 			#RunAnalysis={bot_label:bot['runanalysis'] for bot in self.bots}[bot]
 			#profile={bot_label:bot['profile'] for bot in self.bots}[bot]
@@ -686,7 +686,7 @@ class RangeSelector(Toplevel):
 		grp_config.set("Analysis","analyser",self.bot_selection.get())
 		grp_config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
 
-		popup=RunAnalysis(self.parent,(self.filename,self.rsgf_filename),move_selection,intervals,variation,komi,profile,self.existing_variations.get())
+		popup=RunAnalysis(self.parent,(self.filename,self.rsgf_filename),move_selection,intervals,variation,komi,bot,self.existing_variations.get())
 		self.parent.add_popup(popup)
 		self.close()
 
@@ -729,7 +729,7 @@ def guess_color_to_play(move_zero,move_number):
 		return "b"
 
 class LiveAnalysisBase():
-	def __init__(self,g,rsgf_filename,profile="slow"):
+	def __init__(self,g,rsgf_filename,profile):
 		self.g=g
 		self.rsgf_filename=rsgf_filename
 		self.profile=profile
@@ -882,7 +882,7 @@ class LiveAnalysisBase():
 
 
 class RunAnalysisBase(Toplevel):
-	def __init__(self,parent,filenames,move_range,intervals,variation,komi,profile="slow",existing_variations="remove_everything"):
+	def __init__(self,parent,filenames,move_range,intervals,variation,komi,profile,existing_variations="remove_everything"):
 		if parent!="no-gui":
 			Toplevel.__init__(self,parent)
 		self.parent=parent
@@ -1210,7 +1210,7 @@ class RunAnalysisBase(Toplevel):
 
 
 class BotOpenMove():
-	def __init__(self,sgf_g,profile="slow"):
+	def __init__(self,sgf_g,profile):
 		self.name='Bot'
 		self.bot=None
 		self.okbot=False
@@ -1260,36 +1260,26 @@ class BotOpenMove():
 			log("killing",self.name)
 			self.bot.close()
 
-def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",silentfail=False):
-	log("Bot starting procedure started with profile =",profile)
+def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile,silentfail=False):
+	
+	log("Bot starting procedure started with profile =",profile["profile"])
 	log("\tbot name:",bot_name)
 	log("\tbot gtp name",bot_gtp_name)
-	if profile=="slow":
-		command_entry="SlowCommand"
-		parameters_entry="SlowParameters"
-	elif profile=="fast":
-		command_entry="FastCommand"
-		parameters_entry="FastParameters"
+	
+	command_entry=profile["command"]
+	parameters_entry=profile["parameters"]
 
 	size=sgf_g.get_size()
 
 	try:
-		try:
-			bot_command_line=grp_config.get(bot_name, command_entry)
-		except:
-			#normaly, this should not happen anymore.
-			#to be deleted soon, or moved somewhere else
-			raise GRPException(_("The config.ini file does not contain %s entry for %s !")%(command_entry, bot_name))
-
-		if not bot_command_line:
-			raise GRPException(_("The config.ini file %s entry for %s is empty!")%(command_entry, bot_name))
 
 		log("Starting "+bot_name+"...")
 		try:
-			bot_command_line=[grp_config.get(bot_name, command_entry)]+grp_config.get(bot_name, parameters_entry).split()
+			#bot_command_line=[grp_config.get(bot_name, command_entry)]+grp_config.get(bot_name, parameters_entry).split()
+			bot_command_line=[command_entry]+parameters_entry.split()
 			bot=bot_gtp(bot_command_line)
 		except Exception,e:
-			raise GRPException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+grp_config.get(bot_name, command_entry)+" "+grp_config.get(bot_name, parameters_entry)+"\n"+unicode(e))
+			raise GRPException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+command_entry+" "+parameters_entry+"\n"+unicode(e))
 
 		log(bot_name+" started")
 		log(bot_name+" identification through GTP...")
@@ -1773,6 +1763,17 @@ class MyConfig():
 		self.config.set(section,key,value)
 		self.config.write(open(self.config_file,"w"))
 
+	def get_sections(self):
+		return [section.decode("utf-8") for section in self.config.sections()]
+
+	def get_options(self,section):
+		return [option.decode("utf-8") for option in self.config.options(section)]
+	
+	def remove_section(self,section):
+		result=self.config.remove_section(section)
+		self.config.write(open(self.config_file,"w"))
+		return result
+
 grp_config=MyConfig(config_file)
 
 log("Reading language setting from config file")
@@ -1920,24 +1921,7 @@ def fast_profile_bots():
 	return bots
 
 
-def get_available(use):
-	from leela_analysis import Leela
-	from gnugo_analysis import GnuGo
-	from ray_analysis import Ray
-	from aq_analysis import AQ
-	from leela_zero_analysis import LeelaZero
 
-	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
-		if grp_config.get(bot['name'],"SlowCommand")!="":
-			bot2=dict(bot)
-			bots.append(bot2)
-			bot2['profile']="slow"
-		if grp_config.get(bot['name'],"FastCommand")!="":
-			bot2=dict(bot)
-			bots.append(bot2)
-			bot2['profile']="fast"
-	return bots
 
 
 		
@@ -2327,3 +2311,170 @@ def node_has(node, property_name):
 	if type(property_name)==type(u"abc"):
 		property_name=property_name.encode("utf-8")
 	return node.has_property(property_name)
+
+def get_available(use):
+	from leela_analysis import Leela
+	from gnugo_analysis import GnuGo
+	from ray_analysis import Ray
+	from aq_analysis import AQ
+	from leela_zero_analysis import LeelaZero
+
+
+	bots=[]
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			bots.append(bot2)
+			for key, value in profile.items():
+				bot2[key]=value
+	return bots
+
+
+def get_bot_profiles(bot="",withcommand=True):
+	sections=grp_config.get_sections()
+	if bot!="":
+		bots=[bot]
+	else:
+		bots=["Leela","GnuGo","Ray","AQ","LeelaZero"]
+	profiles=[]
+	for section in sections:
+		for bot in bots:
+			if bot+"-" in section:
+				command=grp_config.get(section,"command")
+				if (not command) and (withcommand==True):
+					continue
+				data={"bot":bot}
+				for option in grp_config.get_options(section):
+					value=grp_config.get(section,option)
+					data[option]=value
+				profiles.append(data)
+	
+	return profiles
+
+class BotProfiles(Frame):
+	def __init__(self,parent,bot):
+		Frame.__init__(self,parent)
+		self.parent=parent
+		self.bot=bot
+		self.profiles=get_bot_profiles(bot,False)
+		profiles_frame=self
+		
+		self.listbox = Listbox(profiles_frame)
+		self.listbox.grid(column=10,row=10,rowspan=10)
+		self.update_listbox()
+		
+		row=10
+		Label(profiles_frame,text=_("Profile")).grid(row=row,column=11,sticky=W)
+		self.profile = StringVar()
+		Entry(profiles_frame, textvariable=self.profile, width=30).grid(row=row,column=12)
+
+		row+=1
+		Label(profiles_frame,text=_("Command")).grid(row=row,column=11,sticky=W)
+		self.command = StringVar() 
+		Entry(profiles_frame, textvariable=self.command, width=30).grid(row=row,column=12)
+		
+		row+=1
+		Label(profiles_frame,text=_("Parameters")).grid(row=row,column=11,sticky=W)
+		self.parameters = StringVar() 
+		Entry(profiles_frame, textvariable=self.parameters, width=30).grid(row=row,column=12)
+
+		row+=10
+		buttons_frame=Frame(profiles_frame)
+		buttons_frame.grid(row=row,column=10,sticky=W,columnspan=3)
+		Button(buttons_frame, text=_("Add profile"),command=self.add_profile).grid(row=row,column=1,sticky=W)
+		Button(buttons_frame, text=_("Modify profile"),command=self.modify_profile).grid(row=row,column=2,sticky=W)
+		Button(buttons_frame, text=_("Delete profile"),command=self.delete_profile).grid(row=row,column=3,sticky=W)
+		Button(buttons_frame, text=_("Test"),command=lambda: self.parent.parent.test(self.bot_gtp,self.command,self.parameters)).grid(row=row,column=4,sticky=W)
+		self.listbox.bind("<Button-1>", lambda e: self.after(100,self.change_selection))
+
+
+	def change_selection(self):
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		data=self.profiles[index]
+		self.profile.set(data["profile"])
+		self.command.set(data["command"])
+		self.parameters.set(data["parameters"])
+
+	def empty_profiles(self):
+		profiles=self.profiles
+		sections=grp_config.get_sections()
+		for bot in [profile["bot"] for profile in profiles]:
+			for section in sections:
+				if bot+"-" in section:
+					print "removing section",section
+					grp_config.remove_section(section)
+		self.update_listbox()
+
+	def create_profiles(self):
+		profiles=self.profiles
+		p=0
+		for profile in profiles:
+			bot=profile["bot"]
+			for key,value in profile.items():
+				if key!="bot":
+					grp_config.add_entry(bot+"-"+str(p),key,value)
+			p+=1
+		self.update_listbox()
+
+	def add_profile(self):
+		profiles=self.profiles
+		if self.profile.get()=="":
+			return
+		data={"bot":self.bot}
+		data["profile"]=self.profile.get()
+		data["command"]=self.command.get()
+		data["parameters"]=self.parameters.get()
+		self.empty_profiles()
+		profiles.append(data)
+		self.create_profiles()
+		
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+
+	def modify_profile(self):
+		profiles=self.profiles
+		if self.profile.get()=="":
+			return
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		profiles[index]["profile"]=self.profile.get()
+		profiles[index]["command"]=self.command.get()
+		profiles[index]["parameters"]=self.parameters.get()
+		
+		self.empty_profiles()
+		self.create_profiles()
+		
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+
+	def delete_profile(self):
+		profiles=self.profiles
+		try:
+			index=self.listbox.curselection()[0]
+		except:
+			log("No selection")
+			return
+		self.empty_profiles()
+		del profiles[index]
+		self.create_profiles()
+
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+
+
+	def update_listbox(self):
+		profiles=self.profiles
+		self.listbox.delete(0, END)
+		for item in [profile["bot"]+" - "+profile["profile"] for profile in profiles]:
+			self.listbox.insert(END, item)

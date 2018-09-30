@@ -23,7 +23,6 @@ class OpenSettings(Toplevel):
 		new_settings=settings_dict[key](self.setting_frame)
 		new_settings.grid(row=0,column=0, padx=5, pady=5)
 		self.current_settings=new_settings
-		Button(self.setting_frame,text=_("Save settings"),command=new_settings.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 		
 		self.setting_frame.pack(fill=BOTH, expand=1)
 		self.focus()
@@ -126,7 +125,7 @@ class OpenSettings(Toplevel):
 		InvertedMouseWheelCheckbutton.grid(row=row,column=2,sticky=W)
 		InvertedMouseWheelCheckbutton.var=InvertedMouseWheel
 
-
+		Button(self.setting_frame,text=_("Save settings"),command=self.save).grid(row=1,column=0, padx=5, pady=5,sticky=W)
 
 		self.Language=Language
 		self.FuzzyStonePlacement=FuzzyStonePlacement
@@ -208,15 +207,18 @@ class OpenSettings(Toplevel):
 		if self.refresh!=None:
 			self.refresh()
 		
-	def test(self,gtp_bot,profil):
+	def test(self,gtp_bot,command,parameters):
 		from gtp_terminal import Terminal
 		
-		if profil=="slow":
+		command=command.get()
+		parameters=parameters.get().split()
+		
+		"""if profil=="slow":
 			command=self.current_settings.SlowCommand.get()
 			parameters=self.current_settings.SlowParameters.get().split()
 		if profil=="fast":
 			command=self.current_settings.FastCommand.get()
-			parameters=self.current_settings.FastParameters.get().split()
+			parameters=self.current_settings.FastParameters.get().split()"""
 		
 		if not command:
 			log("Empty command line!")
