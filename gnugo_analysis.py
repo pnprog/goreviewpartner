@@ -367,13 +367,26 @@ class GnuGoSettings(BotProfiles):
 		Button(buttons_frame, text=_("Test"),command=lambda: self.parent.parent.test(self.bot_gtp,self.command,self.parameters)).grid(row=row,column=4,sticky=W)
 		self.listbox.bind("<Button-1>", lambda e: self.after(100,self.change_selection))
 		
+		self.index=-1
+		
 		self.bot_gtp=GnuGo_gtp
+
+		
+	def clear_selection(self):
+		self.index=-1
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.variations.set("")
+		self.deepness.set("")
 
 	def change_selection(self):
 		try:
 			index=self.listbox.curselection()[0]
+			self.index=index
 		except:
 			log("No selection")
+			self.clear_selection()
 			return
 		data=self.profiles[index]
 		self.profile.set(data["profile"])
@@ -396,22 +409,18 @@ class GnuGoSettings(BotProfiles):
 		self.empty_profiles()
 		profiles.append(data)
 		self.create_profiles()
-		
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
-		self.variations.set("")
-		self.deepness.set("")
+		self.clear_selection()
 		
 	def modify_profile(self):
 		profiles=self.profiles
 		if self.profile.get()=="":
 			return
-		try:
-			index=self.listbox.curselection()[0]
-		except:
+		
+		if self.index<0:
 			log("No selection")
 			return
+		index=self.index
+		
 		profiles[index]["profile"]=self.profile.get()
 		profiles[index]["command"]=self.command.get()
 		profiles[index]["parameters"]=self.parameters.get()
@@ -420,29 +429,7 @@ class GnuGoSettings(BotProfiles):
 		
 		self.empty_profiles()
 		self.create_profiles()
-		
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
-		self.variations.set("")
-		self.deepness.set("")
-
-	def delete_profile(self):
-		profiles=self.profiles
-		try:
-			index=self.listbox.curselection()[0]
-		except:
-			log("No selection")
-			return
-		self.empty_profiles()
-		del profiles[index]
-		self.create_profiles()
-
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
-		self.variations.set("")
-		self.deepness.set("")
+		self.clear_selection()
 		
 
 class GnuGoSettings_old(Frame):

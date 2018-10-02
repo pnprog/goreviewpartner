@@ -2388,12 +2388,22 @@ class BotProfiles(Frame):
 		Button(buttons_frame, text=_("Test"),command=lambda: self.parent.parent.test(self.bot_gtp,self.command,self.parameters)).grid(row=row,column=4,sticky=W)
 		self.listbox.bind("<Button-1>", lambda e: self.after(100,self.change_selection))
 
-
+		self.index=-1
+		
+	def clear_selection(self):
+		self.index=-1
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		
 	def change_selection(self):
 		try:
 			index=self.listbox.curselection()[0]
+			self.index=index
+			log("Profile",index,"selected")
 		except:
 			log("No selection")
+			self.clear_selection()
 			return
 		data=self.profiles[index]
 		self.profile.set(data["profile"])
@@ -2406,7 +2416,6 @@ class BotProfiles(Frame):
 		for bot in [profile["bot"] for profile in profiles]:
 			for section in sections:
 				if bot+"-" in section:
-					print "removing section",section
 					grp_config.remove_section(section)
 		self.update_listbox()
 
@@ -2432,45 +2441,39 @@ class BotProfiles(Frame):
 		self.empty_profiles()
 		profiles.append(data)
 		self.create_profiles()
-		
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
+		self.clear_selection()
+
 
 	def modify_profile(self):
 		profiles=self.profiles
 		if self.profile.get()=="":
 			return
-		try:
-			index=self.listbox.curselection()[0]
-		except:
+		
+		if self.index<0:
 			log("No selection")
 			return
+		index=self.index
+		
 		profiles[index]["profile"]=self.profile.get()
 		profiles[index]["command"]=self.command.get()
 		profiles[index]["parameters"]=self.parameters.get()
 		
 		self.empty_profiles()
 		self.create_profiles()
-		
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
+		self.clear_selection()
 
 	def delete_profile(self):
 		profiles=self.profiles
-		try:
-			index=self.listbox.curselection()[0]
-		except:
+		
+		if self.index<0:
 			log("No selection")
 			return
+		index=self.index
+		
 		self.empty_profiles()
 		del profiles[index]
 		self.create_profiles()
-
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
+		self.clear_selection()
 
 
 	def update_listbox(self):

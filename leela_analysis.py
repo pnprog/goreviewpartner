@@ -445,13 +445,24 @@ class LeelaSettings(BotProfiles):
 		
 		self.listbox.bind("<Button-1>", lambda e: self.after(100,self.change_selection))
 
+		self.index=-1
+
 		self.bot_gtp=Leela_gtp
 
+	def clear_selection(self):
+		self.index=-1
+		self.profile.set("")
+		self.command.set("")
+		self.parameters.set("")
+		self.timepermove.set("")
+		
 	def change_selection(self):
 		try:
 			index=self.listbox.curselection()[0]
+			self.index=index
 		except:
 			log("No selection")
+			self.clear_selection()
 			return
 		data=self.profiles[index]
 		self.profile.set(data["profile"])
@@ -473,21 +484,18 @@ class LeelaSettings(BotProfiles):
 		self.empty_profiles()
 		profiles.append(data)
 		self.create_profiles()
-		
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
-		self.timepermove.set("")
+		self.clear_selection()
 		
 	def modify_profile(self):
 		profiles=self.profiles
 		if self.profile.get()=="":
 			return
-		try:
-			index=self.listbox.curselection()[0]
-		except:
+		
+		if self.index<0:
 			log("No selection")
 			return
+		index=self.index
+		
 		profiles[index]["profile"]=self.profile.get()
 		profiles[index]["command"]=self.command.get()
 		profiles[index]["parameters"]=self.parameters.get()
@@ -495,28 +503,8 @@ class LeelaSettings(BotProfiles):
 		
 		self.empty_profiles()
 		self.create_profiles()
-		
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
-		self.timepermove.set("")
+		self.clear_selection()
 
-	def delete_profile(self):
-		profiles=self.profiles
-		try:
-			index=self.listbox.curselection()[0]
-		except:
-			log("No selection")
-			return
-		self.empty_profiles()
-		del profiles[index]
-		self.create_profiles()
-
-		self.profile.set("")
-		self.command.set("")
-		self.parameters.set("")
-		self.timepermove.set("")
-		
 
 
 class LeelaSettings_old(Frame):

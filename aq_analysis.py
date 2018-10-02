@@ -270,7 +270,9 @@ class AQSettings(BotProfiles):
 		Label(buttons_frame,text="").grid(row=row,column=1)
 		row+=1
 		Label(buttons_frame,text=_("See AQ parameters in \"aq_config.txt\"")).grid(row=row,column=1,columnspan=2,sticky=W)
-
+		
+		self.index=-1
+		
 		self.bot_gtp=AQ_gtp
 
 class AQSettings_old(Frame):
