@@ -106,12 +106,12 @@ class Main(Toplevel):
 		
 		log("filename:",filename)
 		
-		new_popup=RangeSelector(self.parent,filename,bots=get_available("AnalysisBot"))
+		new_popup=RangeSelector(self.parent,filename,bots=get_available())
 
 		self.parent.add_popup(new_popup)
 
 	def download_sgf_for_review(self):	
-		new_popup=DownloadFromURL(self.parent,bots=get_available("AnalysisBot"))
+		new_popup=DownloadFromURL(self.parent,bots=get_available())
 		self.parent.add_popup(new_popup)
 
 	def launch_live_analysis(self):		
@@ -133,7 +133,7 @@ class Main(Toplevel):
 
 	def refresh(self):
 		log("refreshing")
-		if len(get_available("AnalysisBot"))==0:
+		if len(get_available())==0:
 			self.analysis_bouton.config(state='disabled')
 			self.download_bouton.config(state='disabled')
 			self.live_bouton.config(state='disabled')
@@ -142,7 +142,7 @@ class Main(Toplevel):
 			self.download_bouton.config(state='normal')
 			self.live_bouton.config(state='normal')
 		
-		if len(get_available("LiveAnalysisBot"))==0:
+		if len(get_available())==0:
 			self.live_bouton.config(state='disabled')
 		else:
 			self.live_bouton.config(state='normal')

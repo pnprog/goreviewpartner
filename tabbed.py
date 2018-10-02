@@ -16,7 +16,7 @@ class InteractiveGoban(Frame):
 		self.sgf=sgf
 		
 		self.available_bots=[]
-		for bot in get_available("ReviewBot"):
+		for bot in get_available():
 			self.available_bots.append(bot)
 		self.initialize()
 		

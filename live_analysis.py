@@ -27,12 +27,12 @@ class LiveAnalysisLauncher(Toplevel):
 
 		row=1
 		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		self.analysis_bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available("LiveAnalysisBot")]
+		self.analysis_bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available()]
 		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=W)
 		self.bot_selection=StringVar()	
 		apply(OptionMenu,(self,self.bot_selection)+tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
 		
-		self.bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available("LivePlayerBot")]
+		self.bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available()]
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -168,10 +168,10 @@ class LiveAnalysisLauncher(Toplevel):
 		
 	def start(self):
 		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available("LiveAnalysisBot")}
+		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()}
 		analyser=bots[self.bot_selection.get()]
 		
-		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available("LivePlayerBot")}
+		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()}
 		
 		b=self.selected_black_index()
 		if b==0:

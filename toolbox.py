@@ -1631,61 +1631,6 @@ class MyConfig():
 		self.default_values["live"]["black"]=""
 		self.default_values["live"]["white"]=""
 		
-		self.default_values["leela"]={}
-		self.default_values["leela"]["slowcommand"]=""
-		self.default_values["leela"]["slowparameters"]="--gtp --noponder"
-		self.default_values["leela"]["slowtimepermove"]="15"
-		self.default_values["leela"]["fastcommand"]=""
-		self.default_values["leela"]["fastparameters"]="--gtp --noponder"
-		self.default_values["leela"]["fasttimepermove"]="5"
-		self.default_values["leela"]["analysisbot"]="slow"
-		self.default_values["leela"]["liveanalysisbot"]="both"
-		self.default_values["leela"]["liveplayerbot"]="fast"
-		self.default_values["leela"]["reviewbot"]="fast"
-		
-		self.default_values["gnugo"]={}
-		self.default_values["gnugo"]["slowcommand"]=""
-		self.default_values["gnugo"]["slowparameters"]="--mode=gtp --level=15"
-		self.default_values["gnugo"]["fastcommand"]=""
-		self.default_values["gnugo"]["fastparameters"]="--mode=gtp --level=10"
-		self.default_values["gnugo"]["variations"]="4"
-		self.default_values["gnugo"]["deepness"]="4"
-		self.default_values["gnugo"]["analysisbot"]="slow"
-		self.default_values["gnugo"]["liveanalysisbot"]="both"
-		self.default_values["gnugo"]["liveplayerbot"]="fast"
-		self.default_values["gnugo"]["reviewbot"]="fast"
-		
-		self.default_values["leelazero"]={}
-		self.default_values["leelazero"]["slowcommand"]=""
-		self.default_values["leelazero"]["slowparameters"]="--gtp --noponder --weights weights.txt"
-		self.default_values["leelazero"]["slowtimepermove"]="15"
-		self.default_values["leelazero"]["fastcommand"]=""
-		self.default_values["leelazero"]["fastparameters"]="--gtp --noponder --weights weights.txt"
-		self.default_values["leelazero"]["fasttimepermove"]="5"
-		self.default_values["leelazero"]["analysisbot"]="slow"
-		self.default_values["leelazero"]["liveanalysisbot"]="both"
-		self.default_values["leelazero"]["liveplayerbot"]="fast"
-		self.default_values["leelazero"]["reviewbot"]="fast"
-		
-		self.default_values["aq"]={}
-		self.default_values["aq"]["slowcommand"]=""
-		self.default_values["aq"]["slowparameters"]=""
-		self.default_values["aq"]["fastcommand"]=""
-		self.default_values["aq"]["fastparameters"]=""
-		self.default_values["aq"]["analysisbot"]="slow"
-		self.default_values["aq"]["liveanalysisbot"]="both"
-		self.default_values["aq"]["liveplayerbot"]="fast"
-		self.default_values["aq"]["reviewbot"]="fast"
-		
-		self.default_values["ray"]={}
-		self.default_values["ray"]["slowcommand"]=""
-		self.default_values["ray"]["slowparameters"]="--no-gpu --const-time 15"
-		self.default_values["ray"]["fastcommand"]=""
-		self.default_values["ray"]["fastparameters"]="--no-gpu --const-time 5"
-		self.default_values["ray"]["analysisbot"]="slow"
-		self.default_values["ray"]["liveanalysisbot"]="both"
-		self.default_values["ray"]["liveplayerbot"]="fast"
-		self.default_values["ray"]["reviewbot"]="fast"
 		
 	def set(self, section, key, value):
 		if type(value) in (type(1), type(0.5), type(True)):
@@ -1890,39 +1835,6 @@ def batch_analysis(app,batch):
 		log("Batch analysis failed")
 		log(e)
 		app.force_close()
-
-		
-def slow_profile_bots():
-	from leela_analysis import Leela
-	from gnugo_analysis import GnuGo
-	from ray_analysis import Ray
-	from aq_analysis import AQ
-	from leela_zero_analysis import LeelaZero
-
-	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
-		if grp_config.get(bot['name'],"SlowCommand")!="":
-			bots.append(bot)
-			bot['profile']="slow"
-	return bots
-
-def fast_profile_bots():
-	from leela_analysis import Leela
-	from gnugo_analysis import GnuGo
-	from ray_analysis import Ray
-	from aq_analysis import AQ
-	from leela_zero_analysis import LeelaZero
-
-	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
-		if grp_config.get(bot['name'],"FastReviewCommand")!="":
-			bots.append(bot)
-			bot['profile']="fast"
-	return bots
-
-
-
-
 
 		
 def opposite_rate(value):
@@ -2312,7 +2224,7 @@ def node_has(node, property_name):
 		property_name=property_name.encode("utf-8")
 	return node.has_property(property_name)
 
-def get_available(use):
+def get_available():
 	from leela_analysis import Leela
 	from gnugo_analysis import GnuGo
 	from ray_analysis import Ray
@@ -2344,7 +2256,7 @@ def get_bot_profiles(bot="",withcommand=True):
 				command=grp_config.get(section,"command")
 				if (not command) and (withcommand==True):
 					continue
-				data={"bot":bot}
+				data={"bot":bot,"command":"","parameters":"","timepermove":"","variations":"4","deepness":"4"}
 				for option in grp_config.get_options(section):
 					value=grp_config.get(section,option)
 					data[option]=value
