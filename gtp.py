@@ -23,20 +23,21 @@ class gtp():
 	def consume_stderr(self):
 		while 1:
 			try:
-				err_line=self.process.stderr.readline()
+				err_line=self.process.stderr.readline().decode("utf-8")
 				if err_line:
 					self.stderr_queue.put(err_line)
 				else:
 					log("leaving consume_stderr thread")
 					return
-			except Exception:
+			except Exception,e:
 				log("leaving consume_stderr thread due to exception")
+				log(e)
 				return
 	
 	def consume_stdout(self):
 		while 1:
 			try:
-				line=self.process.stdout.readline()
+				line=self.process.stdout.readline().decode("utf-8")
 				if line:
 					self.stdout_queue.put(line)
 				else:
@@ -59,9 +60,9 @@ class gtp():
 		self.c+=1
 
 	def readline(self):
-		answer=self.process.stdout.readline()
+		answer=self.process.stdout.readline().decode("utf-8")
 		while answer in ("\n","\r\n","\r"):
-			answer=self.process.stdout.readline()
+			answer=self.process.stdout.readline().decode("utf-8")
 		return answer
 	
 	####hight level function####

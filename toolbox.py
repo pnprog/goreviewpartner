@@ -2230,10 +2230,10 @@ def get_available():
 	from ray_analysis import Ray
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
-
+	from pachi_analysis import Pachi
 
 	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero]:
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero, Pachi]:
 		profiles=get_bot_profiles(bot["name"])
 		for profile in profiles:
 			bot2=dict(bot)
@@ -2248,7 +2248,7 @@ def get_bot_profiles(bot="",withcommand=True):
 	if bot!="":
 		bots=[bot]
 	else:
-		bots=["Leela","GnuGo","Ray","AQ","LeelaZero"]
+		bots=["Leela","GnuGo","Ray","AQ","LeelaZero","Pachi"]
 	profiles=[]
 	for section in sections:
 		for bot in bots:
