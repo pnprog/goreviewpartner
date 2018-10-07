@@ -188,7 +188,21 @@ class Pachi_gtp(gtp):
 		threading.Thread(target=self.consume_stderr).start()
 		self.free_handicap_stones=[]
 		self.history=[]
-
+	
+	def play_black(self):
+		move=gtp.play_black(self)
+		self.undo()#this undo performs a clear board / reset, necessary for Pachi in self play
+		if move.lower()!="resign":
+			self.place_black(move)
+		return move
+		
+	def play_white(self):
+		move=gtp.play_white(self)
+		self.undo()#this undo performs a clear board / reset, necessary for Pachi in self play
+		if move.lower()!="resign":
+			self.place_white(move)
+		return move
+		
 	def get_heatmap(self):
 		while not self.stderr_queue.empty():
 			self.stderr_queue.get()
@@ -290,10 +304,10 @@ class Pachi_gtp(gtp):
 			if '{"move": ' in err_line:
 				#this line is the json report line
 				#exemple: {"move": {"playouts": 5064, "extrakomi": 0.0, "choice": "H8", "can": [[{"H8":0.792},{"F2":0.778},{"G6":0.831},{"G7":0.815}], [{"K14":0.603},{"L13":0.593},{"M13":0.627},{"K13":0.593}], [{"M15":0.603},{"L13":0.724},{"M13":0.778},{"K13":0.700}], [{"M14":0.627},{"M15":0.647},{"N15":0.596}]]}}
-				json=json_loads(err_line)
 				print
 				print err_line
 				print
+				json=json_loads(err_line)
 				position_evaluation["playouts"]=json["move"]["playouts"]
 				for move in json["move"]["can"]:
 					if not move:
