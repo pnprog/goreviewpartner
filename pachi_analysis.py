@@ -131,20 +131,18 @@ def pachi_starting_procedure(sgf_g,profile,silentfail=False):
 	pachi=bot_starting_procedure("Pachi","Pachi UCT",Pachi_gtp,sgf_g,profile,silentfail)
 	if not pachi:
 		return False
-	"""
+	
 	try:
+		pachi.time_per_move=False
 		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
-				log("Setting time per move")
-				leela.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-				#self.time_per_move=time_per_move #why is that needed???
+				log("Setting time per move:",time_per_move,"s")
+				pachi.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				pachi.time_per_move=time_per_move
 	except:
-		log("Wrong value for Leela thinking time:",grp_config.get("Leela", timepermove_entry))
-		#log("Erasing that value in the config file")
-		#grp_config.set("Leela",timepermove_entry,"")
-	"""
+		log("Wrong value for Pachi thinking time:",time_per_move)
 	return pachi
 
 class RunAnalysis(PachiAnalysis,RunAnalysisBase):
@@ -188,6 +186,12 @@ class Pachi_gtp(gtp):
 		threading.Thread(target=self.consume_stderr).start()
 		self.free_handicap_stones=[]
 		self.history=[]
+	
+	def undo(self):
+		result=gtp.undo(self)
+		if self.time_per_move:
+			self.set_time(main_time=0,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
+		return result
 	
 	def play_black(self):
 		move=gtp.play_black(self)
@@ -304,9 +308,9 @@ class Pachi_gtp(gtp):
 			if '{"move": ' in err_line:
 				#this line is the json report line
 				#exemple: {"move": {"playouts": 5064, "extrakomi": 0.0, "choice": "H8", "can": [[{"H8":0.792},{"F2":0.778},{"G6":0.831},{"G7":0.815}], [{"K14":0.603},{"L13":0.593},{"M13":0.627},{"K13":0.593}], [{"M15":0.603},{"L13":0.724},{"M13":0.778},{"K13":0.700}], [{"M14":0.627},{"M15":0.647},{"N15":0.596}]]}}
-				print
+				"""print
 				print err_line
-				print
+				print"""
 				json=json_loads(err_line)
 				position_evaluation["playouts"]=json["move"]["playouts"]
 				for move in json["move"]["can"]:
@@ -353,12 +357,11 @@ class PachiSettings(BotProfiles):
 		self.parameters = StringVar()
 		Entry(profiles_frame, textvariable=self.parameters, width=30).grid(row=row,column=12)
 		
-		"""row+=1
+		row+=1
 		Label(profiles_frame,text=_("Time per move (s)")).grid(row=row,column=11,sticky=W)
 		self.timepermove = StringVar()
-		Entry(profiles_frame, textvariable=self.timepermove, width=30).grid(row=row,column=12)"""
+		Entry(profiles_frame, textvariable=self.timepermove, width=30).grid(row=row,column=12)
 		
-
 		row+=10
 		buttons_frame=Frame(profiles_frame)
 		buttons_frame.grid(row=row,column=10,sticky=W,columnspan=3)
@@ -378,7 +381,7 @@ class PachiSettings(BotProfiles):
 		self.profile.set("")
 		self.command.set("")
 		self.parameters.set("")
-		#self.timepermove.set("")
+		self.timepermove.set("")
 		
 	def change_selection(self):
 		try:
@@ -392,7 +395,7 @@ class PachiSettings(BotProfiles):
 		self.profile.set(data["profile"])
 		self.command.set(data["command"])
 		self.parameters.set(data["parameters"])
-		#self.timepermove.set(data["timepermove"])
+		self.timepermove.set(data["timepermove"])
 
 		
 	def add_profile(self):
@@ -403,7 +406,7 @@ class PachiSettings(BotProfiles):
 		data["profile"]=self.profile.get()
 		data["command"]=self.command.get()
 		data["parameters"]=self.parameters.get()
-		#data["timepermove"]=self.timepermove.get()
+		data["timepermove"]=self.timepermove.get()
 		
 		self.empty_profiles()
 		profiles.append(data)
@@ -423,7 +426,7 @@ class PachiSettings(BotProfiles):
 		profiles[index]["profile"]=self.profile.get()
 		profiles[index]["command"]=self.command.get()
 		profiles[index]["parameters"]=self.parameters.get()
-		#profiles[index]["timepermove"]=self.timepermove.get()
+		profiles[index]["timepermove"]=self.timepermove.get()
 		
 		self.empty_profiles()
 		self.create_profiles()

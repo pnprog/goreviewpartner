@@ -165,12 +165,9 @@ def leela_zero_starting_procedure(sgf_g,profile,silentfail=False):
 			if time_per_move>0:
 				log("Setting time per move")
 				leela_zero.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-				#self.time_per_move=time_per_move #why is that needed???
 	except:
-		log("Wrong value for Leela thinking time:",grp_config.get("LeelaZero", timepermove_entry))
-		log("Erasing that value in the config file")
-		grp_config.set("LeelaZero",timepermove_entry,"")
-	
+		log("Wrong value for Leela Zero thinking time:",time_per_move)
+
 	return leela_zero
 
 
