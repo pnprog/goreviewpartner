@@ -301,11 +301,12 @@ class Pachi_gtp(gtp):
 			sleep(.01)
 		
 		position_evaluation=Position()
-		
+		found=False
 		for err_line in buff:
 			if "Score Est: " in err_line:
 				position_evaluation["estimated score"]=err_line.split("Score Est: ")[1]
 			if '{"move": ' in err_line:
+				found=True
 				#this line is the json report line
 				#exemple: {"move": {"playouts": 5064, "extrakomi": 0.0, "choice": "H8", "can": [[{"H8":0.792},{"F2":0.778},{"G6":0.831},{"G7":0.815}], [{"K14":0.603},{"L13":0.593},{"M13":0.627},{"K13":0.593}], [{"M15":0.603},{"L13":0.724},{"M13":0.778},{"K13":0.700}], [{"M14":0.627},{"M15":0.647},{"N15":0.596}]]}}
 				"""print
@@ -326,7 +327,15 @@ class Pachi_gtp(gtp):
 						sequence+=follow_up.keys()[0]+" "
 					variation["sequence"]=sequence.strip()
 					position_evaluation['variations'].append(variation)
-
+		if not found:
+			log("\a")
+			log("\n")
+			log("===========================================")
+			log("Could not find any data in Pachi log")
+			log("Please double check that Pachi command line")
+			log("includes parameter: reporting=json")
+			log("===========================================")
+			log("\n")
 		return position_evaluation
 
 
