@@ -339,28 +339,31 @@ class Leela_Zero_gtp(gtp):
 		
 		for err_line in buff:
 			#log(err_line)
-			if " ->" in err_line:
-				if err_line[0]==" ":
-					#log(err_line)
-					variation=Variation()
-					
-					one_answer=err_line.strip().split(" ")[0]
-					variation["first move"]=one_answer
-					
-					nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
-					variation["playouts"]=nodes
-					
-					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
-					variation["value network win rate"]=value_network #for Leela Zero, the value network is used as win rate
-					
-					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
-					variation["policy network value"]=policy_network
-					
-					sequence=err_line.split("PV: ")[1].strip()
-					variation["sequence"]=sequence
-					
-					#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
-					position_evaluation['variations']=[variation]+position_evaluation['variations']
+			try: #for comptability with Leela Zero dynamic komi
+				if " ->" in err_line:
+					if err_line[0]==" ":
+						#log(err_line)
+						variation=Variation()
+						
+						one_answer=err_line.strip().split(" ")[0]
+						variation["first move"]=one_answer
+						
+						nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
+						variation["playouts"]=nodes
+						
+						value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
+						variation["value network win rate"]=value_network #for Leela Zero, the value network is used as win rate
+						
+						policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
+						variation["policy network value"]=policy_network
+						
+						sequence=err_line.split("PV: ")[1].strip()
+						variation["sequence"]=sequence
+						
+						#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
+						position_evaluation['variations']=[variation]+position_evaluation['variations']
+			except:
+				pass
 
 		return position_evaluation
 
