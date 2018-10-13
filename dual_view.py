@@ -1902,14 +1902,16 @@ class DualView(Toplevel):
 				if node_has(one_move,"IBM"):
 					black_data=one_move.get_raw_list("IBM")
 					for move in black_data:
-						i, j=sgf2ij(move)
-						markup[i][j]=-1
+						i,j=sgf2ij(move)
+						if self.current_grid[i][j]!=1:
+							markup[i][j]=-1
 				
 				if node_has(one_move,"IWM"):
 					white_data=one_move.get_raw_list("IWM")
 					for move in white_data:
 						i, j=sgf2ij(move)
-						markup[i][j]=-2
+						if self.current_grid[i][j]!=2:
+							markup[i][j]=-2
 				goban.display(self.current_grid,markup)
 		
 		if map==_("Territories"):

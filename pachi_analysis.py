@@ -81,9 +81,9 @@ class PachiAnalysis():
 			
 		log("==== no more sequences =====")
 		
-		"""
+		
 		log("Creating the influence map")
-		influence=pachi.get_pachi_influence()
+		influence=position_evaluation["influence"]
 		black_influence_points=[]
 		white_influence_points=[]
 		for i in range(self.size):
@@ -98,18 +98,6 @@ class PachiAnalysis():
 		if white_influence_points!=[]:
 			node_set(one_move,"IWM",white_influence_points)
 		
-		if self.size==19:
-			log("==== creating heat map =====")
-			raw_heat_map=leela.get_heatmap()
-			heat_map=""
-			for i in range(self.size):
-				for j in range(self.size):
-					if raw_heat_map[i][j]>=0.01:#ignore values lower than 1% to avoid generating heavy RSGF file
-						heat_map+=ij2sgf([i, j])+str(round(raw_heat_map[i][j],2))+","
-			
-			if heat_map:
-				node_set(one_move,"HTM",heat_map[:-1]) #HTM: heat map
-		"""
 		return best_answer #returning the best move, necessary for live analysis
 
 	def initialize_bot(self):
@@ -186,15 +174,15 @@ class Pachi_gtp(gtp):
 	def play_black(self):
 		move=gtp.play_black(self)
 		self.undo()#this undo performs a clear board / reset, necessary for Pachi in self play
-		if move.lower()!="resign":
-			self.place_black(move)
+		#if move.lower()!="resign":
+		self.place_black(move)
 		return move
 		
 	def play_white(self):
 		move=gtp.play_white(self)
 		self.undo()#this undo performs a clear board / reset, necessary for Pachi in self play
-		if move.lower()!="resign":
-			self.place_white(move)
+		#if move.lower()!="resign":
+		self.place_white(move)
 		return move
 		
 	def get_heatmap(self):
@@ -292,7 +280,22 @@ class Pachi_gtp(gtp):
 		
 		position_evaluation=Position()
 		found=False
+		influence=[[0 for i in range(self.size)] for j in range(self.size)]
+		number_coordinate=self.size
 		for err_line in buff:
+			if " |" in err_line:
+				line=err_line.split(" |")[3].strip()
+				line=line.split(" ")
+				letters="abcdefghjklmnopqrst"[:self.size]
+				
+				for value,letter in zip(line,letters):
+					i,j=gtp2ij(letter+str(number_coordinate))
+					if value in ("X","x"):
+						influence[i][j]=1
+					elif value in ("O","o"):
+						influence[i][j]=2
+				
+				number_coordinate-=1
 			if "Score Est: " in err_line:
 				position_evaluation["estimated score"]=err_line.split("Score Est: ")[1]
 			if '{"move": ' in err_line:
@@ -326,6 +329,11 @@ class Pachi_gtp(gtp):
 			log("includes parameter: reporting=json")
 			log("===========================================")
 			log("\n")
+		position_evaluation["influence"]=influence
+		"""for i in range(self.size):
+			for j in range(self.size):
+				print influence[i][j],
+			print"""
 		return position_evaluation
 
 
