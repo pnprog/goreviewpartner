@@ -809,15 +809,24 @@ class LiveAnalysisBase():
 				move_to_undo=int(msg.split()[1])
 				#move_to_undo=int(priority+1)
 				log("received undo msg for move",move_to_undo,"and beyong")
-				if move_to_undo>self.current_move:
+				"""if move_to_undo>self.current_move:
 					log("Analysis of move",move_to_undo,"has not started yet, so let's forget about it")
 				else:
 					log("Analysis of move",move_to_undo,"was completed already, let's remove that branch")
+					
+					
+					
 					while self.current_move>=move_to_undo:
 						log("Undoing move",self.current_move,"through GTP")
 						self.undo()
-						self.current_move-=1
-
+						self.current_move-=1"""
+				
+				log("GTP bot is currently at move",len(self.bot.history))
+				while len(self.bot.history)>=move_to_undo:
+					log("Undoing move",len(self.bot.history),"through GTP")
+					self.undo()
+					self.current_move-=1
+				
 				log("Deleting the SGF branch")
 				parent=go_to_move(self.move_zero,move_to_undo-1)
 				new_branch=parent[0]

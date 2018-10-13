@@ -1036,7 +1036,7 @@ class LiveAnalysis(Toplevel):
 			log("analyser needs to wait for a new message")
 			self.parent.after(1,self.analyser_to_play)
 		elif number==self.current_move:
-			log("this is the message analyser is waiting for")
+			log("this is the message expected from analyser")
 			color=self.next_color
 			if move.lower()=="resign":
 				log("The analyser is resigning")
