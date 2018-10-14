@@ -1058,7 +1058,7 @@ class RunAnalysisBase(Toplevel):
 							for child in parent[1:]:
 								child.delete()
 							write_rsgf(self.rsgf_filename,self.g)
-			except:
+			except Exception, e:
 				#what could possibly go wrong with this?
 				pass
 			
@@ -1080,8 +1080,7 @@ class RunAnalysisBase(Toplevel):
 
 			self.current_move+=1
 			if self.parent!="no-gui":
-				self.update_queue.put(self.current_move)
-			
+				self.update_queue.put(self.total_done)
 		return
 
 	def abort(self):
@@ -1113,16 +1112,12 @@ class RunAnalysisBase(Toplevel):
 			if self.time_per_move!=0:
 				self.lab2.config(text=_("Remaining time: %ih, %im, %is")%(remaining_h,remaining_m,remaining_s))
 			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
-			self.pb.step()
 			
-			
-
-			if self.total_done==1:
+			self.pb.update_idletasks()
+			if msg==1:#msg contains the value of self.total_done
 				if not self.review_button:
 					self.review_button=Button(self.right_frame,text=_("Start the review"),command=self.start_review)
 					self.review_button.pack()
-				
-			
 		except:
 			pass
 
@@ -1130,6 +1125,7 @@ class RunAnalysisBase(Toplevel):
 			if msg==None:
 				self.parent.after(250,self.follow_analysis)
 			else:
+				self.pb.step()
 				self.parent.after(10,self.follow_analysis)
 		else:
 			self.end_of_analysis()
