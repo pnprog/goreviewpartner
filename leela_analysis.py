@@ -524,6 +524,7 @@ Leela['starting']=leela_starting_procedure
 
 import getopt
 if __name__ == "__main__":
+	bot=Leela
 	if len(argv)==1:
 		temp_root = Tk()
 		filename = open_sgf_file(parent=temp_root)
@@ -535,7 +536,7 @@ if __name__ == "__main__":
 		log("filename:",filename)
 
 		top = Application()
-		bot=Leela
+		
 		
 		bots=[]
 		profiles=get_bot_profiles(bot["name"])
@@ -551,29 +552,42 @@ if __name__ == "__main__":
 		else:
 			log("Not profiles available for "+bot["name"]+" in config.ini")
 	else:
+		existing_profiles=[p["profile"] for p in get_bot_profiles(bot["name"])]
+		if not existing_profiles:
+			log("Not profiles available for "+bot["name"]+" in config.ini")
+			sys.exit()
 		try:
-			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profil="])
+			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation=", "profile="])
 		except Exception, e:
 			show_error(unicode(e)+"\n"+usage)
 			sys.exit()
-		
 		if not parameters[1]:
 			show_error("SGF file missing\n"+usage)
 			sys.exit()
 		
+		
 		app=None
 		batch=[]
-		
 		for filename in parameters[1]:
-			move_selection,intervals,variation,komi,nogui,profil=parse_command_line(filename,parameters[0])
+			move_selection,intervals,variation,komi,nogui,profile=parse_command_line(filename,parameters[0])
+			if not profile:
+				log("No profile indicated, the profile \""+existing_profiles[0]+"\" will be used")
+				profile=existing_profiles[0]
+			if profile not in existing_profiles:
+				log("Unknown profile \""+profile+"\" for",bot["name"])
+				log("The profile \""+profile+"\" is not defined in \"config.ini\"")
+				log("The existing profiles are"," ".join(['"'+p+'"' for p in existing_profiles]))
+				sys.exit()
+			profile={p["profile"]:p for p in get_bot_profiles(bot["name"])}[profile]
+			
 			filename2=".".join(filename.split(".")[:-1])+".rsgf"
 			if nogui:
-				popup=RunAnalysis("no-gui",[filename,filename2],move_selection,intervals,variation-1,komi,profil)
+				popup=RunAnalysis("no-gui",[filename,filename2],move_selection,intervals,variation-1,komi,profile)
 				popup.terminate_bot()
 			else:
 				if not app:
 					app = Application()
-				one_analysis=[RunAnalysis,[filename,filename2],move_selection,intervals,variation-1,komi,profil]
+				one_analysis=[RunAnalysis,[filename,filename2],move_selection,intervals,variation-1,komi,profile]
 				batch.append(one_analysis)
 	
 		if not nogui:

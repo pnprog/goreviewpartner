@@ -1422,7 +1422,7 @@ def draw_logo(logo,event=None,stretch="horizontal"):
 
 import __main__
 try:
-	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=<both|black|white>] [--komi=<komi>] [--variation=<variation>] [--profil=<fast|slow>] [--no-gui] <sgf file1> <sgf file2> <sgf file3>"
+	usage="usage: python "+__main__.__file__+" [--range=<range>] [--color=<both|black|white>] [--komi=<komi>] [--variation=<variation>] [--profil=<\"profil\">] [--no-gui] <sgf file1> <sgf file2> <sgf file3>"
 except:
 	log("Command line features are disabled")
 	usage=""
@@ -1435,7 +1435,8 @@ def parse_command_line(filename,argv):
 	leaves=get_all_sgf_leaves(move_zero)
 
 	found=False
-	argv=[(unicode(p,errors="replace"),unicode(v,errors="replace")) for p,v in argv] #ok, this is maybe overkill...
+	
+	#argv=[(unicode(p,errors="replace"),unicode(v,errors="replace")) for p,v in argv] #ok, this is maybe overkill...
 	for p,v in argv:
 		if p=="--variation":
 			try:
@@ -1531,17 +1532,12 @@ def parse_command_line(filename,argv):
 
 	found=False
 	for p,v in argv:
-		if p=="--profil":
-			if v.lower() in ("slow","fast"):
-				profil=v
-				found=True
-			else:
-				show_error("Wrong profil parameter\n"+usage)
-				sys.exit()
+		if p=="--profile":
+			profile=v
+			found=True
 	if not found:
-		profil="slow"
-
-	log("Profil:",profil)
+		profile=None
+	log("Profile:",profile)
 
 	nogui=False
 	for p,v in argv:
@@ -1549,7 +1545,7 @@ def parse_command_line(filename,argv):
 			nogui=True
 			break
 
-	return move_selection,intervals,variation,komi,nogui,profil
+	return move_selection,intervals,variation,komi,nogui,profile
 
 # from http://www.py2exe.org/index.cgi/WhereAmI
 def we_are_frozen():
