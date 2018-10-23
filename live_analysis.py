@@ -296,6 +296,8 @@ class LiveAnalysis(Toplevel):
 		self.komi=komi
 		self.handicap=handicap
 		self.filename=filename
+		import goban
+		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
 		self.rsgf_filename=".".join(filename.split(".")[:-1])+".rsgf"
 		self.overlap_thinking=overlap_thinking
 		self.color=color
