@@ -75,6 +75,9 @@ class PachiAnalysis():
 						if best_move:
 							node_set(one_move,"BWWR",black_value+'/'+white_value)
 					
+					if 'playouts' in variation:
+						node_set(new_child,"PLYO",variation['playouts'])
+					
 					if best_move:
 						best_move=False
 					
@@ -318,9 +321,15 @@ class Pachi_gtp(gtp):
 						continue
 					variation=Variation()
 					first_move=move[0].keys()[0]
-					winrate=move[0].values()[0]
-					variation["first move"]=first_move
-					variation["win rate"]=str(100*float(winrate))+"%"
+					if type(move[0].values()[0])==type(0.5):
+						winrate=move[0].values()[0]
+						variation["first move"]=first_move
+						variation["win rate"]=str(100*float(winrate))+"%"
+					elif type(move[0].values()[0])==type([0,1]):
+						winrate, playouts=move[0].values()[0]
+						variation["first move"]=first_move
+						variation["win rate"]=str(100*float(winrate))+"%"
+						variation["playouts"]=str(playouts)
 					sequence=""
 					for follow_up in move:
 						sequence+=follow_up.keys()[0]+" "
