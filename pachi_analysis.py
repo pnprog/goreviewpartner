@@ -293,18 +293,22 @@ class Pachi_gtp(gtp):
 			if "fbook match" in err_line:
 				position_evaluation["book move"]=True
 			if " |" in err_line:
-				line=err_line.split(" |")[3].strip()
-				line=line.split(" ")
-				letters="abcdefghjklmnopqrst"[:self.size]
-				
-				for value,letter in zip(line,letters):
-					i,j=gtp2ij(letter+str(number_coordinate))
-					if value in ("X","x"):
-						influence[i][j]=1
-					elif value in ("O","o"):
-						influence[i][j]=2
-				
-				number_coordinate-=1
+				print err_line
+				try:
+					line=err_line.split(" |")[3].strip()
+					line=line.split(" ")
+					letters="abcdefghjklmnopqrst"[:self.size]
+					
+					for value,letter in zip(line,letters):
+						i,j=gtp2ij(letter+str(number_coordinate))
+						if value in ("X","x"):
+							influence[i][j]=1
+						elif value in ("O","o"):
+							influence[i][j]=2
+					
+					number_coordinate-=1
+				except:
+					pass
 			if "Score Est: " in err_line:
 				position_evaluation["estimated score"]=err_line.split("Score Est: ")[1]
 			if '{"move": ' in err_line:
@@ -344,6 +348,7 @@ class Pachi_gtp(gtp):
 			log("includes parameter: reporting=json")
 			log("===========================================")
 			log("\n")
+		#print "len(influence)",len(influence),number_coordinate
 		position_evaluation["influence"]=influence
 		"""for i in range(self.size):
 			for j in range(self.size):
