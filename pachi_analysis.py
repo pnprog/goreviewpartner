@@ -293,7 +293,7 @@ class Pachi_gtp(gtp):
 			if "fbook match" in err_line:
 				position_evaluation["book move"]=True
 			if " |" in err_line:
-				print err_line
+				
 				try:
 					line=err_line.split(" |")[3].strip()
 					line=line.split(" ")

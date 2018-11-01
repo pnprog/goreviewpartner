@@ -95,7 +95,9 @@ def go_to_move(move_zero,move_number=0):
 	k=0
 	while k!=move_number:
 		if not move:
-			return False #The end of the sgf tree was reached before getting to move_number 
+			log("The end of the sgf tree was reached before getting to move_number",move_number)
+			log("Could only reach move_number",k)
+			return False
 		move=move[0]
 		k+=1
 	return move
@@ -779,6 +781,7 @@ class LiveAnalysisBase():
 						log("Analyser received a high priority message")
 						wait=0
 					self.update_queue.put((priority,msg))
+					
 				except:
 					continue
 				
@@ -809,6 +812,7 @@ class LiveAnalysisBase():
 				move_to_undo=int(msg.split()[1])
 				#move_to_undo=int(priority+1)
 				log("received undo msg for move",move_to_undo,"and beyong")
+				self.best_moves_queue.put((priority,msg))#sending echo
 				"""if move_to_undo>self.current_move:
 					log("Analysis of move",move_to_undo,"has not started yet, so let's forget about it")
 				else:

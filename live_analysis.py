@@ -668,7 +668,7 @@ class LiveAnalysis(Toplevel):
 			#what is under the pointer ?
 			
 			if self.grid[i][j] not in (1,2):
-				self.analyser.bot.place(ij2gtp((i,j)),1)
+				
 				self.history[0]=[copy(self.grid),copy(self.markup)]
 				place(self.grid,i,j,1)
 				
@@ -688,6 +688,8 @@ class LiveAnalysis(Toplevel):
 				else:
 					node_set(self.g.get_root(),"AB",self.handicap_stones)
 					write_rsgf(self.rsgf_filename,self.g)
+					self.analyser.bot.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
+					self.analyser.handicap_stones=self.handicap_stones
 					if type(self.black)!=type("abc"):
 						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 					if type(self.white)!=type("abc"):
@@ -761,10 +763,11 @@ class LiveAnalysis(Toplevel):
 			self.analyser.update_queue.put(r)
 		
 		log("Sending a priority request to undo move",move2undo,"and beyong to analyser")
-		self.analyser.update_queue.put((1./move2undo,"undo "+str(move2undo)))
+		msg1=(1./move2undo,"undo "+str(move2undo))
+		self.analyser.update_queue.put(msg1)
 		log("Releasing the analyser")
 		self.analyser.cpu_lock.release()
-
+		
 		self.latest_node=new_branch
 		if type(self.black)!=type("abc"):
 			#black is a bot
@@ -778,8 +781,16 @@ class LiveAnalysis(Toplevel):
 		self.grid,self.markup=self.history.pop()
 		self.current_move-=2
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
-		self.parent.after(100,self.after_undo) #enough time for analyser to grab the process lock and process the queue
 		write_rsgf(self.rsgf_filename,self.g)
+		
+		log("waiting for echo")
+		t0=time.time()
+		msg2=None
+		while msg2!=msg1:
+			msg2=self.analyser.best_moves_queue.get()
+			log("...............",msg2)
+		log("echo received after",time.time()-t0,"s")
+		self.parent.after(10,self.after_undo) #enough time for analyser to grab the process lock and process the queue
 		
 	def after_undo(self):
 		self.pass_button.config(state='normal')
