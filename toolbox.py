@@ -249,7 +249,8 @@ def write_rsgf(filename,sgf_content):
 			content=sgf_content.serialise()
 		filename2=filename
 		if type(filename2)==type(u"abc"):
-			filename2=filename2.encode(sys.getfilesystemencoding())
+			if sys.getfilesystemencoding()!="mbcs":
+				filename2=filename2.encode(sys.getfilesystemencoding())
 		try:
 			new_file=open(filename2,'w') 
 			new_file.write(content)
@@ -280,7 +281,8 @@ def write_sgf(filename,sgf_content):
 			content=sgf_content.serialise()
 		filename2=filename
 		if type(filename2)==type(u"abc"):
-			filename2=filename2.encode(sys.getfilesystemencoding())
+			if sys.getfilesystemencoding()!="mbcs":
+				filename2=filename2.encode(sys.getfilesystemencoding())
 		try:
 			new_file=open(filename2,'w')
 			new_file.write(content)
@@ -307,7 +309,8 @@ def open_sgf(filename):
 		#log("Opening SGF file",filename)
 		filename2=filename
 		if type(filename2)==type(u"abc"):
-			filename2=filename2.encode(sys.getfilesystemencoding())
+			if sys.getfilesystemencoding()!="mbcs":
+				filename2=filename2.encode(sys.getfilesystemencoding())
 		txt = open(filename2,'r')
 		game = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
