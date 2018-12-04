@@ -2460,6 +2460,9 @@ def main(bot):
 				sys.exit()
 			profile={p["profile"]:p for p in get_bot_profiles(bot["name"])}[profile]
 			
+			if isinstance(filename, str):
+   				filename = unicode(filename, 'utf-8')
+   				
 			filename2=".".join(filename.split(".")[:-1])+".rsgf"
 			if nogui:
 				popup=bot["runanalysis"]("no-gui",[filename,filename2],move_selection,intervals,variation-1,komi,profile)
