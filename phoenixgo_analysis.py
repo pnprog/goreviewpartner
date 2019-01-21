@@ -239,7 +239,7 @@ class PhoenixGo_gtp(gtp):
 			white_win_rate=position_evaluation["variations"][0]["value network win rate"]
 			black_win_rate=opposite_rate(white_win_rate)
 		txt=variation_data_formating["VNWR"]%(black_win_rate+'/'+white_win_rate)
-		txt+="\n\n"+variation_data_formating["ES"]%self.get_phoenixgo_final_score()
+		#txt+="\n\n"+variation_data_formating["ES"]%self.get_phoenixgo_final_score()
 		return txt
 		
 	def __init__(self,command):
