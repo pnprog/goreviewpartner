@@ -5,60 +5,52 @@ from gtp import gtp
 import sys
 from Tkinter import *
 from time import sleep
+import threading
 from toolbox import *
 from toolbox import _
 
 class PhoenixGoAnalysis():
-
 	def run_analysis(self,current_move):
 		one_move=go_to_move(self.move_zero,current_move)
 		player_color=guess_color_to_play(self.move_zero,current_move)
-
+		
 		phoenixgo=self.phoenixgo
 		log()
 		log("==============")
 		log("move",str(current_move))
+		
 		#additional_comments=""
 		if player_color in ('w',"W"):
-			log("phoenixgo play white")
+			log("Phoenix Go play white")
 			answer=phoenixgo.play_white()
 		else:
-			log("phoenixgo play black")
+			log("Phoenix Go play black")
 			answer=phoenixgo.play_black()
-		
-		
+		"""
+		if current_move>1:
+			es=phoenixgo.get_phoenixgo_final_score()
+			node_set(one_move,"ES",es)"""
+			
 		best_answer=answer
 		node_set(one_move,"CBM",answer) #Computer Best Move
-		
-		#all_moves=phoenixgo.get_all_phoenixgo_moves()
-		position_evaluation=phoenixgo.get_all_phoenixgo_moves()
 
-		if "estimated score" in position_evaluation:
-			node_set(one_move,"ES",position_evaluation["estimated score"])
+		position_evaluation=phoenixgo.get_all_phoenixgo_moves()
+		
 		if (answer.lower() in ["pass","resign"]):
-			bookmove=False
 			phoenixgo.undo()
-			nb_undos=0
 		else:
-			nb_undos=1 #let's remember to undo that move from PhoenixGo
-			
-			#one_move.set("CBM",answer.lower()) #Computer Best Move
-			if 'book move' in position_evaluation:
-				bookmove=True
-			else:
-				bookmove=False
-			
 			#let's make sure there is at least one variation available
 			if len(position_evaluation['variations'])==0:
 				position_evaluation['variations'].append({'sequence':answer})
+			
+			nb_undos=1 #let's remember to undo that move from Phoenix Go
 
-				
 			#let's make sure that there is more than one move for the first line of play
 			#only one move could be a bookmove, or a very very forcing move
 			first_sequence=position_evaluation['variations'][0]['sequence']
 			new_sequence=first_sequence
 			while len(new_sequence.split())<=1 and nb_undos<=5:
-				log("first, let's ask phoenixgo for the next move")
+				log("first, let's ask phoenix go for the next move")
 				if player_color in ('w',"W") and nb_undos%2==0:
 					answer=phoenixgo.play_white()
 				elif player_color in ('w',"W") and nb_undos%2==1:
@@ -80,21 +72,20 @@ class PhoenixGoAnalysis():
 					new_sequence=new_position_evaluation["variations"][0]["sequence"]
 					#adding this new sequence to the old sequence
 					position_evaluation['variations'][0]['sequence']+=" "+new_sequence
-					
-					#we continue only if this is still a book move
-					if "book move" not in new_position_evaluation:
-						break
 
 				else:
 					#phoenixgo does not want to play further on this line of play
 					#so let's stop there
 					break
 
+			for u in range(nb_undos):
+				#log("undo...")
+				phoenixgo.undo()
 			
 		best_move=True
 		log("Number of alternative sequences:",len(position_evaluation['variations']))
-		for variation in position_evaluation['variations']:
-			#exemple: variation={'first move': 'M10', 'value network win rate': '21.11%', 'monte carlo win rate': '36.11%', 'sequence': 'M10 M9', 'playouts': '22', 'win rate': '27.46%', 'policy network value': '3.6%'}
+		for variation in position_evaluation['variations'][:self.maxvariations]:
+			#exemple: {'value network win rate': '50.22%', 'policy network value': '17.37%', 'sequence': 'Q16 D4 D17 Q4', 'playouts': '13', 'first move': 'Q16'}
 			previous_move=one_move.parent
 			current_color=player_color	
 			first_variation_move=True
@@ -111,54 +102,24 @@ class PhoenixGoAnalysis():
 					first_variation_move=False
 					#variation_comment=""
 		
-					if 'win rate' in variation:
-						if player_color=='b':
-							black_value=variation['win rate']
-							white_value=opposite_rate(black_value)
-						else:
-							white_value=variation['win rate']
-							black_value=opposite_rate(white_value)
-						node_set(new_child,"BWWR",black_value+'/'+white_value)
-						if best_move:
-							node_set(one_move,"BWWR",black_value+'/'+white_value)
-					
-					if 'monte carlo win rate' in variation:
-						if player_color=='b':
-							black_value=variation['monte carlo win rate']
-							white_value=opposite_rate(black_value)
-						else:
-							white_value=variation['monte carlo win rate']
-							black_value=opposite_rate(white_value)
-						node_set(new_child,"MCWR",black_value+'/'+white_value)
-						if best_move:
-							node_set(one_move,"MCWR",black_value+'/'+white_value)
-					
 					if 'value network win rate' in variation:
 						if player_color=='b':
 							black_value=variation['value network win rate']
 							white_value=opposite_rate(black_value)
 						else:
 							white_value=variation['value network win rate']
-							black_value=opposite_rate(white_value)
+							black_value=opposite_rate(white_value)	
 						node_set(new_child,"VNWR",black_value+'/'+white_value)
 						if best_move:
 							node_set(one_move,"VNWR",black_value+'/'+white_value)
-					
-					if 'move evaluation' in variation:
-						node_set(new_child,"EVAL",variation['move evaluation'])
-						
-					if 'rapid action value estimation' in variation:
-						node_set(new_child,"RAVE",variation['rapid action value estimation'])
-						
+
 					if 'policy network value' in variation:
 						node_set(new_child,"PNV",variation['policy network value'])
-					
+
 					if 'playouts' in variation:
 						node_set(new_child,"PLYO",variation['playouts'])
-						
-					if bookmove:
-						bookmove=False
-						node_set(new_child,"BKMV","yes")
+					
+					#new_child.add_comment_text(variation_comment)
 					
 					if best_move:
 						best_move=False
@@ -168,42 +129,23 @@ class PhoenixGoAnalysis():
 					current_color='b'
 				else:
 					current_color='w'
-			
 		log("==== no more sequences =====")
-		
-		for u in range(nb_undos):
-			phoenixgo.undo()
-		
-		log("Creating the influence map")
-		influence=phoenixgo.get_phoenixgo_influence()
-		black_influence_points=[]
-		white_influence_points=[]
+		"""
+		log("==== creating heat map =====")
+		raw_heat_map=phoenixgo.get_heatmap()
+		heat_map=""
 		for i in range(self.size):
 			for j in range(self.size):
-				if influence[i][j]==1:
-					black_influence_points.append([i,j])
-				elif influence[i][j]==2:
-					white_influence_points.append([i,j])
-					
-		if black_influence_points!=[]:
-			node_set(one_move,"IBM",black_influence_points)
-		if white_influence_points!=[]:
-			node_set(one_move,"IWM",white_influence_points)
+				if raw_heat_map[i][j]>=0.01:#ignore values lower than 1% to avoid generating heavy RSGF file
+					heat_map+=ij2sgf([i, j])+str(round(raw_heat_map[i][j],2))+","
 		
-		if self.size==19:
-			log("==== creating heat map =====")
-			raw_heat_map=phoenixgo.get_heatmap()
-			heat_map=""
-			for i in range(self.size):
-				for j in range(self.size):
-					if raw_heat_map[i][j]>=0.01:#ignore values lower than 1% to avoid generating heavy RSGF file
-						heat_map+=ij2sgf([i, j])+str(round(raw_heat_map[i][j],2))+","
-			
-			if heat_map:
-				node_set(one_move,"HTM",heat_map[:-1]) #HTM: heat map
-
-		return best_answer #returning the best move, necessary for live analysis
-
+		if heat_map:
+			node_set(one_move,"HTM",heat_map[:-1]) #HTM: heat map
+		
+		"""
+		#one_move.add_comment_text(additional_comments)
+		return best_answer
+	
 	def initialize_bot(self):
 		phoenixgo=phoenixgo_starting_procedure(self.g,self.profile)
 		self.phoenixgo=phoenixgo
@@ -212,23 +154,22 @@ class PhoenixGoAnalysis():
 
 def phoenixgo_starting_procedure(sgf_g,profile,silentfail=False):
 
-
 	phoenixgo=bot_starting_procedure("PhoenixGo","PhoenixGo",PhoenixGo_gtp,sgf_g,profile,silentfail)
 	if not phoenixgo:
 		return False
-
-	try:
+	"""try:
 		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
 				log("Setting time per move")
 				phoenixgo.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
-				#self.time_per_move=time_per_move #why is that needed???
 	except:
-		log("Wrong value for PhoenixGo thinking time:",time_per_move)
-	
+		log("Wrong value for PhoenixGo thinking time:",time_per_move)"""
+
 	return phoenixgo
+
+
 
 class RunAnalysis(PhoenixGoAnalysis,RunAnalysisBase):
 	def __init__(self,parent,filename,move_range,intervals,variation,komi,profile,existing_variations="remove_everything"):
@@ -237,6 +178,11 @@ class RunAnalysis(PhoenixGoAnalysis,RunAnalysisBase):
 class LiveAnalysis(PhoenixGoAnalysis,LiveAnalysisBase):
 	def __init__(self,g,filename,profile):
 		LiveAnalysisBase.__init__(self,g,filename,profile)
+
+
+import ntpath
+import subprocess
+import Queue
 
 class Position(dict):
 	def __init__(self):
@@ -247,20 +193,20 @@ class Variation(dict):
 
 class PhoenixGo_gtp(gtp):
 
-	def get_heatmap(self):
+	"""def get_heatmap(self):
 		while not self.stderr_queue.empty():
 			self.stderr_queue.get()
-		self.write("heatmap")
+		self.write("heatmap average")
 		one_line=self.readline() #empty line
 		buff=[]
-		while len(buff)<self.size:
+		while len(buff)<self.size+2:
 			buff.append(self.stderr_queue.get())
 		buff.reverse()
 		number_coordinate=1
 		letters="abcdefghjklmnopqrst"[:self.size]
 		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
 		pn_values=[]
-		for i in range(self.size):
+		for i in range(self.size+2):
 			one_line=buff[i].strip()
 			if "winrate" in one_line:
 				continue
@@ -276,8 +222,8 @@ class PhoenixGo_gtp(gtp):
 		for coordinates,value in pn_values:
 			i,j=gtp2ij(coordinates)
 			pn[i][j]=value
-		return pn
-		
+		return pn"""
+
 	def quick_evaluation(self,color):
 		if color==2:
 			self.play_white()
@@ -286,105 +232,179 @@ class PhoenixGo_gtp(gtp):
 		position_evaluation=self.get_all_phoenixgo_moves()
 		self.undo()
 		
-		txt=""
-		try:
-			if color==1:
-				black_win_rate=position_evaluation["variations"][0]["win rate"]
-				white_win_rate=opposite_rate(black_win_rate)
-			else:
-				white_win_rate=position_evaluation["variations"][0]["win rate"]
-				black_win_rate=opposite_rate(white_win_rate)
-			txt+= variation_data_formating["BWWR"]%(black_win_rate+'/'+white_win_rate)
-			txt+="\n\n"+variation_data_formating["ES"]%self.get_phoenixgo_final_score()
-		except:
-			txt+=variation_data_formating["ES"]%self.get_phoenixgo_final_score()
-
+		if color==1:
+			black_win_rate=position_evaluation["variations"][0]["value network win rate"]
+			white_win_rate=opposite_rate(black_win_rate)
+		else:
+			white_win_rate=position_evaluation["variations"][0]["value network win rate"]
+			black_win_rate=opposite_rate(white_win_rate)
+		txt=variation_data_formating["VNWR"]%(black_win_rate+'/'+white_win_rate)
+		txt+="\n\n"+variation_data_formating["ES"]%self.get_phoenixgo_final_score()
 		return txt
-	
+		
+	def __init__(self,command):
+		self.c=1
+		self.command_line=command[0]+" "+" ".join(command[1:])
+		
+		phoenixgo_working_directory=command[0][:-len(ntpath.basename(command[0]))]
+		command=[c.encode(sys.getfilesystemencoding()) for c in command]
+		phoenixgo_working_directory=phoenixgo_working_directory.encode(sys.getfilesystemencoding())
+		if phoenixgo_working_directory:
+			log("Phoenix Go working directory:",phoenixgo_working_directory)
+			self.process=subprocess.Popen(command,cwd=phoenixgo_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		else:
+			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		self.size=0
+		
+		self.stderr_starting_queue=Queue.Queue(maxsize=100)
+		self.stderr_queue=Queue.Queue()
+		self.stdout_queue=Queue.Queue()
+		
+		threading.Thread(target=self.consume_stderr).start()
+		self.free_handicap_stones=[]
+		self.history=[]
+
+	def consume_stderr(self):
+		while 1:
+			try:
+				err_line=self.process.stderr.readline()
+				if err_line:
+					self.stderr_queue.put(err_line)
+					try:
+						self.stderr_starting_queue.put(err_line,block=False)
+					except:
+						#no need to keep all those log in memory, so there is a limit at 100 lines
+						pass
+				else:
+					log("leaving consume_stderr thread")
+					return
+			except Exception, e:
+				log("leaving consume_stderr thread due to exception:")
+				log(e)
+				return
+
+
 	def get_phoenixgo_final_score(self):
 		self.write("final_score")
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
 		except:
-			raise GRPException("GRPException in Get_phoenixgo_final_score()")
-
-	def get_phoenixgo_influence(self):
-		self.write("influence")
-		one_line=self.readline() #empty line
-		buff=[]
-		while self.stderr_queue.empty():
-			sleep(.1)
-		while not self.stderr_queue.empty():
-			while not self.stderr_queue.empty():
-				buff.append(self.stderr_queue.get())
-			sleep(.1)
-		buff.reverse()
-		#log(buff)
-		influence=[]
-		for i in range(self.size):
-			one_line=buff[i].strip()
-			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0").replace("w","1").replace("b","2")
-			one_line=[int(s) for s in one_line.split(" ")]
-			influence.append(one_line)
-		
-		return influence
+			raise GRPException("GRPException in get_phoenixgo_final_score()")
+	
+	def coords2ij(self,m):
+		# cj => 8,2
+		a, b=m
+		letters="abcdefghijklmnopqrstuvwxyz"
+		i=letters.index(b)
+		j=letters.index(a)
+		return ij2gtp((i, j))
 
 	def get_all_phoenixgo_moves(self):
 		buff=[]
 		
-		sleep(.01)
+		sleep(.1)
 		while not self.stderr_queue.empty():
 			while not self.stderr_queue.empty():
 				buff.append(self.stderr_queue.get())
-			sleep(.01)
+			sleep(.1)
+		
+		#buff.reverse()
 		
 		position_evaluation=Position()
-		
+		found=False
 		for err_line in buff:
-			#log(err_line[:-1])
-			
-			if "score=" in err_line:
-				position_evaluation["estimated score"]=err_line.split("score=")[1].strip()
-			
-			if "book moves" in err_line:
-				log("book move")
-				position_evaluation["book move"]=True
-			
-			if " ->" in err_line:
-				variation=Variation()
-				#log(err_line[:-1])
-				one_answer=err_line.strip().split(" ")[0]
-				variation["first move"]=one_answer
-				one_score=err_line.split()[4][:-1]
-				nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
-				variation["playouts"]=nodes
-				if self.size==19:
-					monte_carlo=err_line.split("(U:")[1].split('%)')[0].strip()+"%"
-					variation["monte carlo win rate"]=monte_carlo
+			print err_line.strip()
+			if not found:
+				if "========== debug info for" in err_line:
+					found=True
+			else:
+				if "========== debug info for" in err_line:
+					found=False
+					continue
+				
+				if "main move path" in err_line:
+					err_line=err_line.split("path: ")[1]
+					all_moves=err_line.split("),")
+					sequence=""
+					for move in all_moves:
+						sequence_move=move.split("(")[0]
+						log("sequence_move:",sequence_move)
+						try:
+							sequence_move=self.coords2ij(sequence_move)
+							sequence+=sequence_move+" "
+						except:
+							break
+					sequence=sequence.strip()
+					
+				elif "model global step" in err_line:
+					pass
+				else:
+					variation=Variation()
+					first_move=err_line.split("] ")[1].split(":")[0]
+					log("first_move",first_move)
+					try:
+						first_move=self.coords2ij(first_move)
+						variation["first move"]=first_move
+						log("\t=>",first_move)
+						if sequence.split()[0]==first_move:
+							variation["sequence"]=sequence
+						else:
+							variation["sequence"]=first_move
+						log("\t=>",first_move,"=>",variation["sequence"])
+						
+						winrate=err_line.split(", Q=")[1].split(", ")[0]
+						print "raw winrate",winrate
+						winrate=str((float(winrate)+1)*50.)+"%"
+						variation["value network win rate"]=winrate
+						
+						if variation["sequence"]==sequence:
+							position_evaluation['variations']=[variation]+position_evaluation['variations']
+						else:
+							position_evaluation['variations'].append(variation)
+					except:
+						print
+						print
+						print "RESIGN?"
+						print
+						print
+						pass
+
+					
+			try:
+				if ", winrate=" in err_line:
+					winrate=err_line.split(", winrate=")[1].split(", ")[0]
+					if not "nan" in winrate:
+						position_evaluation['variations'][0]["value network win rate"]=winrate
+			except:
+				print
+				print err_line.strip()
+				print
+				pass
+			"""if " ->" in err_line:
+				if err_line[0]==" ":
+					#log(err_line)
+					variation=Variation()
+					
+					one_answer=err_line.strip().split(" ")[0]
+					variation["first move"]=one_answer
+					
+					nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
+					variation["playouts"]=nodes
+					
 					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
-					variation["value network win rate"]=value_network
+					variation["value network win rate"]=value_network #for Leela Zero, the value network is used as win rate
+					
 					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
 					variation["policy network value"]=policy_network
-					evaluation=None
-					rave=None
-				else:
-					value_network=None
-					policy_network=None
-					evaluation=err_line.split("(N:")[1].split('%)')[0].strip()
-					variation["move evaluation"]=evaluation
-					rave=err_line.split("(R:")[1].split(')')[0].strip().replace(":","")
-					rave1=rave.split()[0]
-					rave2=rave.split()[1]
-					variation["rapid action value estimation"]=rave1+' '+rave2
-				
-				if one_score!="0.00%":
-					variation["win rate"]=one_score
+					
 					sequence=err_line.split("PV: ")[1].strip()
 					variation["sequence"]=sequence
-					position_evaluation['variations'].append(variation)
-		return position_evaluation
+					
+					#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
+					position_evaluation['variations']=[variation]+position_evaluation['variations']"""
 
+		return position_evaluation
 
 class PhoenixGoSettings(BotProfiles):
 	def __init__(self,parent,bot="PhoenixGo"):
