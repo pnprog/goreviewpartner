@@ -224,7 +224,8 @@ class DownloadFromURL(Toplevel):
 			filename+=black+'_VS_'+white+'.sgf'
 
 		log(filename)
-		write_rsgf(filename,sgf)
+		game = convert_sgf_to_utf(sgf)
+		write_rsgf(filename,game)
 
 		popup=RangeSelector(self.parent,filename,self.bots)
 		self.parent.add_popup(popup)
@@ -303,6 +304,31 @@ def write_sgf(filename,sgf_content):
 		log("=>",e)
 		raise GRPException(_("Could not save the SGF file: ")+filename+"\n"+unicode(e))
 
+def convert_sgf_to_utf(content):
+	game = sgf.Sgf_game.from_string(content)
+	gameroot=game.get_root()
+	sgf_moves.indicate_first_player(game) #adding the PL property on the root
+	if node_has(gameroot,"CA"):
+		ca=node_get(gameroot,"CA")
+		if ca=="UTF-8":
+			#the sgf is already in UTF, so we accept it directly
+			return game
+		else:
+			log("Encoding for",filename,"is",ca)
+			log("Converting from",ca,"to UTF-8")
+			encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
+			content=game.serialise()
+			content=content.decode(encoding,errors='ignore') #transforming content into a unicode object
+			content=content.replace("CA["+ca+"]","CA[UTF-8]")
+			game = sgf.Sgf_game.from_string(content.encode("utf-8")) #sgf.Sgf_game.from_string requires str object, not unicode
+			return game
+	else:
+		log("the sgf has no declared encoding, we will enforce UTF-8 encoding")
+		content=game.serialise()
+		content=content.decode("utf",errors="replace").encode("utf")
+		game = sgf.Sgf_game.from_string(content,override_encoding="UTF-8")
+		return game
+	
 def open_sgf(filename):
 	filelock.acquire()
 	try:
@@ -312,31 +338,11 @@ def open_sgf(filename):
 			if sys.getfilesystemencoding()!="mbcs":
 				filename2=filename2.encode(sys.getfilesystemencoding())
 		txt = open(filename2,'r')
-		game = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
+		content=clean_sgf(txt.read())
 		txt.close()
 		filelock.release()
-		gameroot=game.get_root()
-		sgf_moves.indicate_first_player(game) #adding the PL property on the root
-		if node_has(gameroot,"CA"):
-			ca=node_get(gameroot,"CA")
-			if ca=="UTF-8":
-				#the sgf is already in UTF, so we accept it directly
-				return game
-			else:
-				log("Encoding for",filename,"is",ca)
-				log("Converting from",ca,"to UTF-8")
-				encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
-				content=game.serialise()
-				content=content.decode(encoding,errors='ignore') #transforming content into a unicode object
-				content=content.replace("CA["+ca+"]","CA[UTF-8]")
-				game = sgf.Sgf_game.from_string(content.encode("utf-8")) #sgf.Sgf_game.from_string requires str object, not unicode
-				return game
-		else:
-			log("the sgf has no declared encoding, we will enforce UTF-8 encoding")
-			content=game.serialise()
-			content=content.decode("utf",errors="replace").encode("utf")
-			game = sgf.Sgf_game.from_string(content,override_encoding="UTF-8")
-			return game
+		game = convert_sgf_to_utf(content)
+		return game
 	except IOError, e:
 		filelock.release()
 		log("Could not open the SGF file",filename)
@@ -2239,9 +2245,10 @@ def get_available():
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 	from pachi_analysis import Pachi
-
+	from phoenixgo_analysis import PhoenixGo
+	
 	bots=[]
-	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero, Pachi]:
+	for bot in [Leela, AQ, Ray, GnuGo, LeelaZero, Pachi, PhoenixGo]:
 		profiles=get_bot_profiles(bot["name"])
 		for profile in profiles:
 			bot2=dict(bot)
@@ -2256,7 +2263,7 @@ def get_bot_profiles(bot="",withcommand=True):
 	if bot!="":
 		bots=[bot]
 	else:
-		bots=["Leela","GnuGo","Ray","AQ","LeelaZero","Pachi"]
+		bots=["Leela","GnuGo","Ray","AQ","LeelaZero","Pachi","PhoenixGo"]
 	profiles=[]
 	for section in sections:
 		for bot in bots:
