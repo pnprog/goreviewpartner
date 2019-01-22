@@ -191,6 +191,13 @@ class Position(dict):
 class Variation(dict):
 	pass
 
+class Tree(dict):
+	def __init__(self):
+		self.leaves=[]
+		self.branches={}
+		self.data=""
+	
+
 class PhoenixGo_gtp(gtp):
 
 	"""def get_heatmap(self):
@@ -308,38 +315,93 @@ class PhoenixGo_gtp(gtp):
 			while not self.stderr_queue.empty():
 				buff.append(self.stderr_queue.get())
 			sleep(.1)
-		
-		#buff.reverse()
-		
 		position_evaluation=Position()
 		found=False
+		tree=Tree()
 		for err_line in buff:
-			print err_line.strip()
+			#print err_line.strip()
 			if not found:
 				if "========== debug info for" in err_line:
 					found=True
+					print err_line.strip()
 			else:
-				if "========== debug info for" in err_line:
-					found=False
-					continue
-				
+				print err_line.strip()
 				if "main move path" in err_line:
 					err_line=err_line.split("path: ")[1]
 					all_moves=err_line.split("),")
 					sequence=""
+					first_move=True
 					for move in all_moves:
 						sequence_move=move.split("(")[0]
-						log("sequence_move:",sequence_move)
+						if first_move:
+							first_move=False
+							best_first_move=sequence_move
+							q=float(move.split("(")[1].split(",")[1])
+							best_winrate=(q+1)*50
+							best_winrate=str(best_winrate)+"%"
 						try:
 							sequence_move=self.coords2ij(sequence_move)
 							sequence+=sequence_move+" "
 						except:
 							break
-					sequence=sequence.strip()
-					
+					best_sequence=sequence.strip()
 				elif "model global step" in err_line:
+					#we ignore this line
 					pass
+				elif "========== debug info for" in err_line:
+					#end of the interesting data, time to build the variations
+					found=False
+					if best_first_move not in tree.leaves:
+						log("Best move (",best_first_move,") not in tree, so manually adding it")
+						variation=Variation()
+						variation["sequence"]=best_sequence
+						variation["value network win rate"]=best_winrate
+						position_evaluation['variations'].append(variation)
+						
+					for move in tree.leaves:
+						variation=Variation()
+						print "\t",move
+						if move!=best_first_move:
+							top_branch=tree.branches[move]
+							winrate=top_branch.data.split(", Q=")[1].split(", ")[0]
+							winrate=str((float(winrate)+1)*50.)+"%"
+							variation["value network win rate"]=winrate							
+							sequence=self.coords2ij(move)
+							print "\tdata",top_branch.data.strip()
+							while top_branch.leaves:
+								sequence_move=top_branch.leaves[0]
+								sequence+=" "+self.coords2ij(sequence_move)
+								top_branch=top_branch.branches[sequence_move]
+							variation["sequence"]=sequence
+							position_evaluation['variations'].append(variation)
+							print "\twinrate",winrate
+							print "\tsequence",sequence
+							
+						else:
+							variation["sequence"]=best_sequence
+							variation["value network win rate"]=best_winrate
+							position_evaluation['variations']=[variation]+position_evaluation['variations']
+							
+							print "\twinrate*",best_winrate
+							print "\tsequence*",best_sequence
+						print
+					continue
 				else:
+					#this line contains information on the tree
+					path=err_line.split("] ")[1].split(":")[0]
+					path=path.split(",")
+					path_len=len(path)
+					leaf=tree
+					for step in path:
+						if step not in leaf.branches:
+							leaf.leaves.append(step) #this allow to remember what candidate move came first
+							leaf.branches[step]=Tree() #for storing following leaves down the branch
+							leaf.branches[step].data=err_line #data associated with that leaf
+						else:
+							leaf=leaf.branches[step]
+
+					
+					"""
 					variation=Variation()
 					first_move=err_line.split("] ")[1].split(":")[0]
 					log("first_move",first_move)
@@ -369,6 +431,7 @@ class PhoenixGo_gtp(gtp):
 						print
 						print
 						pass
+						"""
 
 					
 			try:
@@ -376,6 +439,8 @@ class PhoenixGo_gtp(gtp):
 					winrate=err_line.split(", winrate=")[1].split(", ")[0]
 					if not "nan" in winrate:
 						position_evaluation['variations'][0]["value network win rate"]=winrate
+						print "new winrate for first variation =>",winrate
+						#raw_input()
 			except:
 				print
 				print err_line.strip()
@@ -403,6 +468,7 @@ class PhoenixGo_gtp(gtp):
 					
 					#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
 					position_evaluation['variations']=[variation]+position_evaluation['variations']"""
+		
 
 		return position_evaluation
 
