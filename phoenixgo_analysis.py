@@ -319,13 +319,12 @@ class PhoenixGo_gtp(gtp):
 		found=False
 		tree=Tree()
 		for err_line in buff:
-			#print err_line.strip()
 			if not found:
 				if "========== debug info for" in err_line:
 					found=True
-					print err_line.strip()
+					log(err_line.strip())
 			else:
-				print err_line.strip()
+				log(err_line.strip())
 				if "main move path" in err_line:
 					err_line=err_line.split("path: ")[1]
 					all_moves=err_line.split("),")
@@ -339,6 +338,7 @@ class PhoenixGo_gtp(gtp):
 							q=float(move.split("(")[1].split(",")[1])
 							best_winrate=(q+1)*50
 							best_winrate=str(best_winrate)+"%"
+							best_playouts=move.split("(")[1].split(",")[0]
 						try:
 							sequence_move=self.coords2ij(sequence_move)
 							sequence+=sequence_move+" "
@@ -356,96 +356,71 @@ class PhoenixGo_gtp(gtp):
 						variation=Variation()
 						variation["sequence"]=best_sequence
 						variation["value network win rate"]=best_winrate
+						variation["playouts"]=best_playouts
 						position_evaluation['variations'].append(variation)
 						
 					for move in tree.leaves:
 						variation=Variation()
-						print "\t",move
+						log("\t",move)
 						if move!=best_first_move:
 							top_branch=tree.branches[move]
 							winrate=top_branch.data.split(", Q=")[1].split(", ")[0]
 							winrate=str((float(winrate)+1)*50.)+"%"
-							variation["value network win rate"]=winrate							
+							variation["value network win rate"]=winrate
+							playouts=top_branch.data.split(": N=")[1].split(", ")[0]
+							variation["playouts"]=playouts
 							sequence=self.coords2ij(move)
-							print "\tdata",top_branch.data.strip()
+							log("\tdata",top_branch.data.strip())
 							while top_branch.leaves:
 								sequence_move=top_branch.leaves[0]
 								sequence+=" "+self.coords2ij(sequence_move)
 								top_branch=top_branch.branches[sequence_move]
 							variation["sequence"]=sequence
 							position_evaluation['variations'].append(variation)
-							print "\twinrate",winrate
-							print "\tsequence",sequence
-							
+							log("\twinrate",winrate)
+							log("\tsequence",sequence)
+							log("\tplayouts",playouts)
 						else:
 							variation["sequence"]=best_sequence
 							variation["value network win rate"]=best_winrate
+							variation["playouts"]=best_playouts
 							position_evaluation['variations']=[variation]+position_evaluation['variations']
-							
-							print "\twinrate*",best_winrate
-							print "\tsequence*",best_sequence
-						print
+							log("\twinrate*",best_winrate)
+							log("\tsequence*",best_sequence)
+							log("\tplayouts*",best_playouts)
+						log()
 					continue
 				else:
 					#this line contains information on the tree
 					path=err_line.split("] ")[1].split(":")[0]
 					path=path.split(",")
-					path_len=len(path)
 					leaf=tree
+					level=0
 					for step in path:
-						if step not in leaf.branches:
-							leaf.leaves.append(step) #this allow to remember what candidate move came first
-							leaf.branches[step]=Tree() #for storing following leaves down the branch
-							leaf.branches[step].data=err_line #data associated with that leaf
-						else:
+						if level==0:
+							if step not in leaf.branches:
+								leaf.leaves.append(step) #this allow to remember what candidate move came first
+								leaf.branches[step]=Tree() #for storing following leaves down the branch
+								leaf.branches[step].data=err_line #data associated with that leaf
 							leaf=leaf.branches[step]
-
-					
-					"""
-					variation=Variation()
-					first_move=err_line.split("] ")[1].split(":")[0]
-					log("first_move",first_move)
-					try:
-						first_move=self.coords2ij(first_move)
-						variation["first move"]=first_move
-						log("\t=>",first_move)
-						if sequence.split()[0]==first_move:
-							variation["sequence"]=sequence
 						else:
-							variation["sequence"]=first_move
-						log("\t=>",first_move,"=>",variation["sequence"])
-						
-						winrate=err_line.split(", Q=")[1].split(", ")[0]
-						print "raw winrate",winrate
-						winrate=str((float(winrate)+1)*50.)+"%"
-						variation["value network win rate"]=winrate
-						
-						if variation["sequence"]==sequence:
-							position_evaluation['variations']=[variation]+position_evaluation['variations']
-						else:
-							position_evaluation['variations'].append(variation)
-					except:
-						print
-						print
-						print "RESIGN?"
-						print
-						print
-						pass
-						"""
-
+							if not leaf.branches:
+								leaf.leaves.append(step) #this allow to remember what candidate move came first
+								leaf.branches[step]=Tree() #for storing following leaves down the branch
+								leaf=leaf.branches[step]
+							else:
+								break
 					
 			try:
 				if ", winrate=" in err_line:
 					winrate=err_line.split(", winrate=")[1].split(", ")[0]
 					if not "nan" in winrate:
 						position_evaluation['variations'][0]["value network win rate"]=winrate
-						print "new winrate for first variation =>",winrate
-						#raw_input()
+						log("winrate for first variation =>",winrate)
 			except:
-				print
-				print err_line.strip()
-				print
-				pass
+				traceback.print_exc()
+				log(err_line.strip())
+			
 			"""if " ->" in err_line:
 				if err_line[0]==" ":
 					#log(err_line)
