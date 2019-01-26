@@ -19,7 +19,8 @@ class PhoenixGoAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-		#additional_comments=""
+
+		
 		if player_color in ('w',"W"):
 			log("Phoenix Go play white")
 			answer=phoenixgo.play_white()
@@ -230,7 +231,42 @@ class PhoenixGo_gtp(gtp):
 			i,j=gtp2ij(coordinates)
 			pn[i][j]=value
 		return pn"""
+	
+	def play_black(self):
+		self.write("genmove black")
+		
+		sleep(.5)
+		while not self.stderr_queue.empty():#emptying
+			while not self.stderr_queue.empty():
+				self.stderr_queue.get()
+			sleep(.5)
+			
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			self.history.append(["b",move])
+			return move
+		except Exception, e:
+			raise GRPException("GRPException in genmove_black()\nanswer='"+answer+"'\n"+unicode(e))
 
+		
+	def play_white(self):
+		self.write("genmove white")
+		
+		sleep(.5)
+		while not self.stderr_queue.empty():#emptying
+			while not self.stderr_queue.empty():
+				self.stderr_queue.get()
+			sleep(.5)
+		
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			self.history.append(["w",move])
+			return move
+		except Exception, e:
+			raise GRPException("GRPException in genmove_white()\nanswer='"+answer+"'\n"+unicode(e))
+	
 	def quick_evaluation(self,color):
 		if color==2:
 			self.play_white()
@@ -337,7 +373,7 @@ class PhoenixGo_gtp(gtp):
 							best_first_move=sequence_move
 							q=float(move.split("(")[1].split(",")[1])
 							best_winrate=(q+1)*50
-							best_winrate=str(best_winrate)+"%"
+							best_winrate="%.2f%%"%best_winrate
 							best_playouts=move.split("(")[1].split(",")[0]
 						try:
 							sequence_move=self.coords2ij(sequence_move)
@@ -365,7 +401,7 @@ class PhoenixGo_gtp(gtp):
 						if move!=best_first_move:
 							top_branch=tree.branches[move]
 							winrate=top_branch.data.split(", Q=")[1].split(", ")[0]
-							winrate=str((float(winrate)+1)*50.)+"%"
+							winrate="%.2f%%"%((float(winrate)+1)*50.)
 							variation["value network win rate"]=winrate
 							playouts=top_branch.data.split(": N=")[1].split(", ")[0]
 							variation["playouts"]=playouts
@@ -413,7 +449,8 @@ class PhoenixGo_gtp(gtp):
 					
 			try:
 				if ", winrate=" in err_line:
-					winrate=err_line.split(", winrate=")[1].split(", ")[0]
+					winrate=float(err_line.split(", winrate=")[1].split("%, ")[0])
+					winrate="%.2f%%"%winrate
 					if not "nan" in winrate:
 						position_evaluation['variations'][0]["value network win rate"]=winrate
 						log("winrate for first variation =>",winrate)
