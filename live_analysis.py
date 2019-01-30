@@ -1106,7 +1106,10 @@ class LiveAnalysis(Toplevel):
 				self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
 				self.markup[i][j]=0
 				self.goban.display(self.grid,self.markup,freeze=True)
-				
+				if color==1:
+					self.goban.black_stones[i][j].shine()
+				else:
+					self.goban.white_stones[i][j].shine()
 				if color==1:
 					self.g.lock.acquire()
 					node_set(self.latest_node,'b',(i,j))
