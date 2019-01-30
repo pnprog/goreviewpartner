@@ -158,7 +158,7 @@ def phoenixgo_starting_procedure(sgf_g,profile,silentfail=False):
 	phoenixgo=bot_starting_procedure("PhoenixGo","PhoenixGo",PhoenixGo_gtp,sgf_g,profile,silentfail)
 	if not phoenixgo:
 		return False
-	"""try:
+	try:
 		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
@@ -166,7 +166,7 @@ def phoenixgo_starting_procedure(sgf_g,profile,silentfail=False):
 				log("Setting time per move")
 				phoenixgo.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 	except:
-		log("Wrong value for PhoenixGo thinking time:",time_per_move)"""
+		log("Wrong value for PhoenixGo thinking time:",time_per_move)
 
 	return phoenixgo
 
