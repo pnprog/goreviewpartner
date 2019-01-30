@@ -108,7 +108,7 @@ class gtp():
 		self.write("genmove black")
 		answer=self.readline().strip()
 		try:
-			move=answer.split(" ")[1]
+			move=answer.split(" ")[1].upper()
 			self.history.append(["b",move])
 			return move
 		except Exception, e:
@@ -119,7 +119,7 @@ class gtp():
 		self.write("genmove white")
 		answer=self.readline().strip()
 		try:
-			move=answer.split(" ")[1]
+			move=answer.split(" ")[1].upper()
 			self.history.append(["w",move])
 			return move
 		except Exception, e:

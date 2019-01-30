@@ -35,14 +35,13 @@ class LeelaAnalysis():
 
 		if "estimated score" in position_evaluation:
 			node_set(one_move,"ES",position_evaluation["estimated score"])
-		if (answer.lower() in ["pass","resign"]):
+		if (answer in ["PASS","RESIGN"]):
 			bookmove=False
 			leela.undo()
 			nb_undos=0
 		else:
 			nb_undos=1 #let's remember to undo that move from Leela
 			
-			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			if 'book move' in position_evaluation:
 				bookmove=True
 			else:
@@ -75,7 +74,7 @@ class LeelaAnalysis():
 				if len(new_position_evaluation['variations'])==0:
 					new_position_evaluation['variations'].append({'sequence':answer})
 				
-				if (answer.lower() not in ["pass","resign"]):
+				if (answer not in ["PASS","RESIGN"]):
 					#let's check the lenght of the new sequence
 					new_sequence=new_position_evaluation["variations"][0]["sequence"]
 					#adding this new sequence to the old sequence
@@ -99,8 +98,8 @@ class LeelaAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
-				if one_deep_move.lower() in ["pass","resign"]:
-					log("Leaving the variation when encountering",one_deep_move.lower())
+				if one_deep_move in ["PASS","RESIGN"]:
+					log("Leaving the variation when encountering",one_deep_move)
 					break
 
 				i,j=gtp2ij(one_deep_move)

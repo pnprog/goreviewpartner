@@ -52,8 +52,8 @@ class PachiAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
-				if one_deep_move.lower() in ["pass","resign"]:
-					log("Leaving the variation when encountering",one_deep_move.lower())
+				if one_deep_move in ["PASS","RESIGN"]:
+					log("Leaving the variation when encountering",one_deep_move)
 					break
 
 				i,j=gtp2ij(one_deep_move)
@@ -180,14 +180,12 @@ class Pachi_gtp(gtp):
 	def play_black(self):
 		move=gtp.play_black(self)
 		self.undo()#this undo performs a clear board / reset, necessary for Pachi in self play
-		#if move.lower()!="resign":
 		self.place_black(move)
 		return move
 		
 	def play_white(self):
 		move=gtp.play_white(self)
 		self.undo()#this undo performs a clear board / reset, necessary for Pachi in self play
-		#if move.lower()!="resign":
 		self.place_white(move)
 		return move
 		

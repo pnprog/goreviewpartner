@@ -859,27 +859,27 @@ class LiveAnalysis(Toplevel):
 		move=self.gtp_thread.answer
 		
 		color=self.next_color
-		if move.lower()=="resign":
+		if move=="RESIGN":
 			log("The bot is resigning")
 			if color==1:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
+				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
 				self.goban.display(self.grid,self.markup)
 				return
 			elif color==2:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self)
+				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move,parent=self)
 				self.goban.display(self.grid,self.markup)
 				return
-		elif move.lower()=="pass":
+		elif move=="PASS":
 			log("The bot is passing")
 			if color==1:
-				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
+				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
 				if self.white_just_passed:
 					self.goban.display(self.grid,self.markup)
 					result=self.gtp_thread.bot.final_score()
 					show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+result,parent=self)
 					return
 			elif color==2:
-				show_info(self.gtp_thread.bot.bot_name+": "+move.lower(),parent=self)
+				show_info(self.gtp_thread.bot.bot_name+": "+move,parent=self)
 				if self.black_just_passed:
 					self.goban.display(self.grid,self.markup)
 					result=self.gtp_thread.bot.final_score()
@@ -1051,22 +1051,22 @@ class LiveAnalysis(Toplevel):
 		elif number==self.current_move:
 			log("this is the message expected from analyser")
 			color=self.next_color
-			if move.lower()=="resign":
+			if move=="RESIGN":
 				log("The analyser is resigning")
 				if color==1:
-					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
+					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
 					return
 				elif color==2:
-					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self)
+					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move,parent=self)
 					return
-			elif move.lower()=="pass":
+			elif move=="PASS":
 				log("The analyser is passing")
 				if color==1:
-					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move.lower(),parent=self)
+					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
 					if self.white_just_passed:
 						return
 				elif color==2:
-					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move.lower(),parent=self)
+					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move,parent=self)
 					if self.black_just_passed:
 						return
 				self.next_color=3-color

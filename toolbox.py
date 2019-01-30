@@ -104,9 +104,8 @@ def go_to_move(move_zero,move_number=0):
 
 def gtp2ij(move):
 	try:
-		#letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-		letters="abcdefghjklmnopqrstuvwxyz"
-		return int(move[1:])-1,letters.index(move[0].lower())
+		letters="ABCDEFGHJKLMNOPQRSTUVWXYZ"
+		return int(move[1:])-1,letters.index(move[0])
 	except:
 		raise GRPException("Cannot convert GTP coordinates "+str(move)+" to grid coordinates!")
 
@@ -119,8 +118,7 @@ def ij2gtp(m):
 		if m==None:
 			return "pass"
 		i,j=m
-		#letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-		letters="abcdefghjklmnopqrstuvwxyz"
+		letters="ABCDEFGHJKLMNOPQRSTUVWXYZ"
 		return letters[j]+str(i+1)
 	except:
 		raise GRPException("Cannot convert grid coordinates "+str(m)+" to GTP coordinates!")
@@ -882,7 +880,7 @@ class LiveAnalysisBase():
 				log("Game move:",game_move)
 				if game_move:
 					if self.no_variation_if_same_move:
-						if ij2gtp(game_move)==answer.lower():
+						if ij2gtp(game_move)==answer:
 							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
 							parent=go_to_move(self.move_zero,self.current_move-1)
 							for child in parent[1:]:
@@ -1065,7 +1063,7 @@ class RunAnalysisBase(Toplevel):
 				game_move=go_to_move(self.move_zero,self.current_move).get_move()[1]
 				if game_move:
 					if self.no_variation_if_same_move:
-						if ij2gtp(game_move)==answer.lower():
+						if ij2gtp(game_move)==answer:
 							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
 							parent=go_to_move(self.move_zero,self.current_move-1)
 							for child in parent[1:]:
@@ -1075,7 +1073,7 @@ class RunAnalysisBase(Toplevel):
 				#what could possibly go wrong with this?
 				pass
 			
-			if (answer.lower()=="resign") and (self.stop_at_first_resign==True):
+			if (answer=="RESIGN") and (self.stop_at_first_resign==True):
 				log("")
 				log("The analysis will stop now")
 				log("")

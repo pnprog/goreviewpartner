@@ -86,7 +86,7 @@ class InteractiveGoban(Frame):
 		color=self.next_color
 		move=bot.click(color)
 		
-		if move.lower() not in ["pass","resign"]:
+		if move not in ["PASS","RESIGN"]:
 			i,j=gtp2ij(move)
 
 			self.history.append([copy(self.grid),copy(self.markup),(move,color)])
@@ -101,15 +101,15 @@ class InteractiveGoban(Frame):
 		else:
 			bot.undo()
 			if color==1:
-				self.display_queue.put(bot.name+" ("+_("Black")+"): "+move.lower())
+				self.display_queue.put(bot.name+" ("+_("Black")+"): "+move)
 			else:
-				self.display_queue.put(bot.name+" ("+_("White")+"): "+move.lower())
+				self.display_queue.put(bot.name+" ("+_("White")+"): "+move)
 			
 			self.do_nothing()
 			return
 		
 		if self.white_autoplay and self.black_autoplay:
-			if move.lower() not in ["pass","resign"]:
+			if move not in ["PASS","RESIGN"]:
 				log("SELF PLAY")
 				self.display_queue.put(2)
 				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))

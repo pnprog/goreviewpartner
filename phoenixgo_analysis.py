@@ -37,7 +37,7 @@ class PhoenixGoAnalysis():
 
 		position_evaluation=phoenixgo.get_all_phoenixgo_moves()
 		
-		if (answer.lower() in ["pass","resign"]):
+		if (answer in ["PASS","RESIGN"]):
 			phoenixgo.undo()
 		else:
 			#let's make sure there is at least one variation available
@@ -68,7 +68,7 @@ class PhoenixGoAnalysis():
 				if len(new_position_evaluation['variations'])==0:
 					new_position_evaluation['variations'].append({'sequence':answer})
 				
-				if (answer.lower() not in ["pass","resign"]):
+				if (answer not in ["PASS","RESIGN"]):
 					#let's check the lenght of the new sequence
 					new_sequence=new_position_evaluation["variations"][0]["sequence"]
 					#adding this new sequence to the old sequence
@@ -91,8 +91,8 @@ class PhoenixGoAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
-				if one_deep_move.lower() in ["pass","resign"]:
-					log("Leaving the variation when encountering",one_deep_move.lower())
+				if one_deep_move in ["PASS","RESIGN"]:
+					log("Leaving the variation when encountering",one_deep_move)
 					break
 
 				i,j=gtp2ij(one_deep_move)
