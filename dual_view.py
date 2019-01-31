@@ -1132,7 +1132,7 @@ class DualView(Toplevel):
 			
 			try:
 				player_color,player_move=one_move.get_move()
-				player_move=ij2gtp(player_move).upper()
+				player_move=ij2gtp(player_move)
 				one_data['move']=m #move number
 			except:
 				pass

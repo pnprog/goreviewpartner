@@ -2078,9 +2078,9 @@ def get_position_comments(current_move,gameroot):
 		game_move_color=guess_color_to_play(gameroot,current_move)
 	
 	if game_move_color.lower()=="w":
-		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move)
 	elif game_move_color.lower()=="b":
-		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move)
 	
 	node=get_node(gameroot,current_move)
 	if node_has(node,"CBM"):
@@ -2176,7 +2176,7 @@ def get_position_short_comments(current_move,gameroot):
 		else:
 			player=_("White")
 	
-	comments+="%s: %s"%(player,ij2gtp(game_move).upper())
+	comments+="%s: %s"%(player,ij2gtp(game_move))
 
 	if node_has(node,"CBM"):
 		bot=node_get(gameroot,"BOT")
