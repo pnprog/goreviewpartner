@@ -27,10 +27,6 @@ class OpenChart(Toplevel):
 		self.data=data
 		self.current_move=current_move
 
-		popup_width=self.parent.winfo_width()
-		popup_height=self.parent.winfo_height()/2+10
-		self.geometry(str(popup_width)+'x'+str(popup_height))
-		
 		self.last_graph=grp_config.get("Review","LastGraph")
 		self.initialize()
 
@@ -129,20 +125,21 @@ class OpenChart(Toplevel):
 			self.graph_mode.set(self.last_graph)
 			
 		self.graph_mode.trace("w", lambda a,b,c: self.change_graph())
-		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
-		#self.chart.grid(sticky=N+S+W+E)
 		
+		chart_width=self.parent.winfo_width()
+		chart_height=self.parent.winfo_height()/3+10
+		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0,height=chart_height,width=chart_width)
+
 		self.chart.pack(fill=BOTH,expand=1, padx=5)
 		self.chart.bind("<Configure>",self.display)
 		
 		bottom_frame=Frame(popup)
 		bottom_frame.pack(anchor=W)
-		
 		self.status_bar=Label(bottom_frame,text='',background=bg)
 		self.status_bar.pack(anchor=W)
-		bottom_frame.pack()
-	
+		
 		self.clear_status()
+		
 		self.bind('<Control-q>', self.save_as_png)
 		
 		self.protocol("WM_DELETE_WINDOW", self.close)
@@ -204,6 +201,10 @@ class OpenChart(Toplevel):
 		
 	def display(self,event=None):
 		if event:
+			print "====="
+			print self.chart
+			print event.widget
+			print "==="
 			width=event.width
 			height=event.height
 			self.width=width
