@@ -299,7 +299,6 @@ class PhoenixGo_gtp(gtp):
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		
-		self.stderr_starting_queue=Queue.Queue(maxsize=100)
 		self.stderr_queue=Queue.Queue()
 		self.stdout_queue=Queue.Queue()
 		
@@ -308,16 +307,21 @@ class PhoenixGo_gtp(gtp):
 		self.history=[]
 
 	def consume_stderr(self):
-		while 1:
+		
+		count=100
+		while count:
+			count-=1
 			try:
 				err_line=self.process.stderr.readline()
 				if err_line:
 					self.stderr_queue.put(err_line)
-					try:
-						self.stderr_starting_queue.put(err_line,block=False)
-					except:
-						#no need to keep all those log in memory, so there is a limit at 100 lines
-						pass
+					if "enable_background_search: true" in err_line:
+						log("=====================================================")
+						log("=== WARNING: Pondering is currently enabled       ===")
+						log("=== GRP works better with pondering disabled      ===")
+						log("=== Please turn \"enable_background_search\" at 0   ===")
+						log("=====================================================")
+						log("\a")
 				else:
 					log("leaving consume_stderr thread")
 					return
@@ -325,7 +329,18 @@ class PhoenixGo_gtp(gtp):
 				log("leaving consume_stderr thread due to exception:")
 				log(e)
 				return
-
+		while 1:
+			try:
+				err_line=self.process.stderr.readline()
+				if err_line:
+					self.stderr_queue.put(err_line)
+				else:
+					log("leaving consume_stderr thread")
+					return
+			except Exception, e:
+				log("leaving consume_stderr thread due to exception:")
+				log(e)
+				return
 
 	def get_phoenixgo_final_score(self):
 		self.write("final_score")
