@@ -1220,7 +1220,7 @@ class DualView(Toplevel):
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
-				one_data['winrate_delta']=delta
+				one_data['winrate_delta']=round(delta,2)
 			except:
 				pass
 			
@@ -1237,7 +1237,7 @@ class DualView(Toplevel):
 					current_position_win_rate=next_position_win_rate
 					one_data['monte_carlo_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['monte_carlo_win_rate']
-				one_data['mcwr_delta']=delta
+				one_data['mcwr_delta']=round(delta,2)
 			except:
 				pass
 			
@@ -1254,7 +1254,7 @@ class DualView(Toplevel):
 					current_position_win_rate=next_position_win_rate
 					one_data['value_network_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['value_network_win_rate']
-				one_data['vnwr_delta']=delta
+				one_data['vnwr_delta']=round(delta,2)
 			except:
 				pass
 			
