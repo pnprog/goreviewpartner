@@ -19,7 +19,10 @@ class InteractiveGoban(Frame):
 		for bot in get_available():
 			self.available_bots.append(bot)
 		self.initialize()
-		
+	
+	def stone_sound(self):
+		self.after(0,play_stone_sound)
+	
 	def lock(self):	
 		self.undo_button.config(state='disabled')
 		self.menu.config(state='disabled')
@@ -170,6 +173,7 @@ class InteractiveGoban(Frame):
 					self.goban.black_stones[i][j].shine()
 				else:
 					self.goban.white_stones[i][j].shine()
+				self.stone_sound()
 				self.next_color=3-color
 				self.undo_button.config(state='normal')
 				
@@ -539,6 +543,7 @@ class InteractiveGoban(Frame):
 					self.goban.black_stones[i][j].shine()
 				else:
 					self.goban.white_stones[i][j].shine()
+				self.stone_sound()
 				self.wait_for_display()
 			else:
 				show_info(msg,self)
@@ -578,18 +583,3 @@ class InteractiveGoban(Frame):
 	def save_as_png(self,event=None):
 		filename = save_png_file(parent=self,filename='variation_move'+str(self.move)+'.png')
 		canvas2png(self.goban,filename)
-
-if __name__ == "__main__":
-	#for testing purpose only...
-	sgf=open_sgf("../9x9.rsgf")
-
-	app = Tk()
-	Frame(app, height=0, width=600).grid(row=0, column=1)
-	Frame(app, height=600, width=0).grid(row=1, column=0)
-	f=Frame(app)
-	f.grid(row=1, column=1, sticky=N+W+E+S)
-	
-	w=InteractiveGoban(f,5,9,sgf)
-	w.pack(fill=BOTH, expand=1)
-	
-	app.mainloop()

@@ -1672,6 +1672,9 @@ class DualView(Toplevel):
 		
 		self.after(period*1000,self.update_from_file)
 	
+	def stone_sound(self):
+		self.after(0,play_stone_sound)
+		
 	def click_game_goban(self,event):
 		goban=event.widget
 		dim=self.dim
@@ -1701,6 +1704,7 @@ class DualView(Toplevel):
 					goban.black_stones[i][j].shine()
 				else:
 					goban.white_stones[i][j].shine()
+				self.stone_sound()
 				
 				goban.left_variation_index+=1
 				

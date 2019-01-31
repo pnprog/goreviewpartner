@@ -677,6 +677,8 @@ class LiveAnalysis(Toplevel):
 				self.markup[i][j]=0
 				self.goban.display(self.grid,self.markup)
 				self.goban.black_stones[i][j].shine()
+				self.stone_sound()
+				
 				self.handicap_stones.append([i,j])
 				#if type(self.black)!=type("abc"):
 				#	self.black.place_black(ij2gtp((i,j)))
@@ -704,6 +706,9 @@ class LiveAnalysis(Toplevel):
 					self.current_move=1
 					self.white_to_play()
 	
+	def stone_sound(self):
+		self.after(0,play_stone_sound)
+		
 	def gtp_thread_wrapper(self,bot,color):
 		self.cpu_lock.acquire()
 		if color=="black":
@@ -926,6 +931,7 @@ class LiveAnalysis(Toplevel):
 				self.goban.black_stones[i][j].shine()
 			else:
 				self.goban.white_stones[i][j].shine()
+			self.stone_sound()
 			if color==1:
 				#black juste played
 				self.g.lock.acquire()
@@ -1110,6 +1116,7 @@ class LiveAnalysis(Toplevel):
 					self.goban.black_stones[i][j].shine()
 				else:
 					self.goban.white_stones[i][j].shine()
+				self.stone_sound()
 				if color==1:
 					self.g.lock.acquire()
 					node_set(self.latest_node,'b',(i,j))
@@ -1175,6 +1182,7 @@ class LiveAnalysis(Toplevel):
 					self.goban.black_stones[i][j].shine()
 				else:
 					self.goban.white_stones[i][j].shine()
+				self.stone_sound()
 				self.next_color=3-color
 				
 				self.g.lock.acquire()
