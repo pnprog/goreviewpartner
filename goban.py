@@ -185,6 +185,7 @@ class Goban(Canvas):
 		self.define_goban_style()
 		#self.create_goban()
 		self.temporary_shapes=[]
+		self.freeze=False
 		
 	def define_goban_style(self):
 		f=fuzzy
@@ -346,9 +347,11 @@ class Goban(Canvas):
 			self.grid=[[0 for row in range(self.dim)] for col in range(self.dim)]
 			self.markup=[["" for row in range(self.dim)] for col in range(self.dim)]
 		
-		self.display(self.grid,self.markup)
+		self.display(self.grid,self.markup,"keep")
 
 	def display(self,grid,markup,freeze=False):
+		if freeze!="keep":
+			self.freeze=freeze
 		self.grid=grid
 		self.markup=markup
 		space=self.space
@@ -363,7 +366,7 @@ class Goban(Canvas):
 		
 
 		
-		if freeze:
+		if self.freeze:
 			self.temporary_shapes.append(self.draw_rectangle(-0.1-.5  ,  -0.1-.5  ,   -.5,    dim-1+.5+0.1,"red"))
 			self.temporary_shapes.append(self.draw_rectangle(dim-1+.5+0.1  ,  -0.1-.5  ,   dim-1+.5,    dim-1+.5+0.1,"red"))
 			self.temporary_shapes.append(self.draw_rectangle(-0.1-.5  ,  -0.1-.5  ,   dim-1+.5 ,  -.5,"red"))
