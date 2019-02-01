@@ -357,7 +357,7 @@ class Leela_Zero_gtp(gtp):
 						variation["policy network value"]=policy_network
 						
 						sequence=err_line.split("PV: ")[1].strip()
-						variation["sequence"]=sequence
+						variation["sequence"]=sequence.upper()
 						
 						#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
 						position_evaluation['variations']=[variation]+position_evaluation['variations']

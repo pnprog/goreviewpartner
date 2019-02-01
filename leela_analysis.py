@@ -393,7 +393,7 @@ class Leela_gtp(gtp):
 				if one_score!="0.00%":
 					variation["win rate"]=one_score
 					sequence=err_line.split("PV: ")[1].strip()
-					variation["sequence"]=sequence
+					variation["sequence"]=sequence.upper()
 					position_evaluation['variations'].append(variation)
 		return position_evaluation
 
