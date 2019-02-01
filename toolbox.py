@@ -1,19 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-try:
-	from playsound import playsound
-	def play_stone_sound():
-		global playsound
-		mp3=grp_config.get("General","StoneSound")
-		if mp3:
-			try:
-				playsound(mp3)
-			except:
-				playsound=lambda: None
-except:
-	play_stone_sound=lambda: None
-
 class GRPException(Exception):
 	def __init__(self,msg):
 		if type(msg)==type(u"abc"):
@@ -2484,3 +2471,16 @@ def main(bot):
 		if not nogui:
 			app.after(100,lambda: batch_analysis(app,batch))
 			app.mainloop()
+
+try:
+	from playsound import playsound
+	mp3=grp_config.get("General","StoneSound")
+	def play_stone_sound():
+		global playsound
+		if mp3:
+			try:
+				playsound(mp3)
+			except:
+				playsound=lambda: None
+except:
+	play_stone_sound=lambda: None
