@@ -112,8 +112,13 @@ class OpenChart(Toplevel):
 		for data in self.data:
 			if data:
 				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
-					#self.graph_mode.set(_("Score estimation")) # initialize
 					available_graphs.append(_("Score estimation"))
+					break
+		
+		for data in self.data:
+			if data:
+				if ("average_reading_depth" in data) or ("max_reading_depth" in data):
+					available_graphs.append(_("Reading depth"))
 					break
 		
 		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
@@ -194,6 +199,21 @@ class OpenChart(Toplevel):
 				self.chart.create_line(width-border-3, y2, width-border+3, y2, fill='black')
 				y0=y1
 	
+	def display_vertical_depth_graduation(self,border,height,width,maximum):
+		#drawing vertical graduation
+		graduations=[x for x in range(maximum+1)]
+		x0=border/2
+		x00=width-border/2
+		y0=height-border
+		for g in graduations:
+				y1=height-border-g*(height-2*border)/maximum
+				if y0-y1>=border/2:
+					self.chart.create_text(x0,y1, text=str(g),fill='black',font=self.font)
+					self.chart.create_text(x00,y1, text=str(g),fill='black',font=self.font)
+					self.chart.create_line(border-3, y1, border+3, y1, fill='black')
+					self.chart.create_line(width-border-3, y1, width-border+3, y1, fill='black')
+					y0=y1
+	
 	def change_graph(self,event=None):
 		self.last_graph=_(self.graph_mode.get())
 		grp_config.set("Review","LastGraph",self.last_graph)
@@ -201,10 +221,6 @@ class OpenChart(Toplevel):
 		
 	def display(self,event=None):
 		if event:
-			print "====="
-			print self.chart
-			print event.widget
-			print "==="
 			width=event.width
 			height=event.height
 			self.width=width
@@ -263,7 +279,9 @@ class OpenChart(Toplevel):
 			moves=self.display_monte_carlo_delta(border,height,width)
 		elif mode in (_("Black Value Network win rate delta"),_("White Value Network win rate delta")):
 			moves=self.display_value_network_delta(border,height,width)
-		
+		elif mode==_("Reading depth"):
+			moves=self.display_reading_depth_graph(border,height,width,lpix)
+			
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
 		self.display_axis(height,width,border)
 
@@ -562,6 +580,7 @@ class OpenChart(Toplevel):
 		self.display_vertical_winrate_graduation(border,height,width)
 		return moves
 
+
 	def display_score_graph(self,border,height,width,lpix):
 		self.chart.create_text(border+len(_("Win for Black"))*lpix/2,border+lpix, text=_("Win for Black"),fill='black',font=self.font)
 		self.chart.create_text(border+len(_("Win for White"))*lpix/2,height-border-lpix, text=_("Win for White"),fill='black',font=self.font)
@@ -631,6 +650,52 @@ class OpenChart(Toplevel):
 		self.display_vertical_score_graduation(border,height,width,maximum)
 		return moves
 
+
+	def display_reading_depth_graph(self,border,height,width,lpix):
+		
+		moves=[]
+		#checking graph limits
+		maximum=8
+		for one_data in self.data:
+			if "average_reading_depth" in one_data:
+				maximum=max(maximum,one_data["average_reading_depth"])
+			if "max_reading_depth" in one_data:
+				maximum=max(maximum,one_data["max_reading_depth"])
+		maximum+=2
+		space=1.0*(width-2*border)/(self.nb_moves+1)
+		middle=height-border-(height-2*border)/2
+		x00=border
+		y00=height-border
+		for one_data in self.data:
+			if "max_reading_depth" in one_data:
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space
+				
+				max_reading_depth=one_data["max_reading_depth"]
+				y0=height-border
+				y1=height-border-max_reading_depth*(height-2*border)/maximum
+				light_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#E6E6E6',outline='grey')
+				
+				average_reading_depth=one_data["average_reading_depth"]
+				y0=height-border
+				y1=height-border-average_reading_depth*(height-2*border)/maximum
+				dark_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				msg1=_("Move %i, for this position, the bot reads up to %d moves ahead.")%(move,max_reading_depth)
+				self.chart.tag_bind(light_bar, "<Enter>", partial(self.set_status,msg=msg1))
+				self.chart.tag_bind(light_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(light_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				msg2=_("Move %i, for this position, the bot reads in average %.1f moves ahead.")%(move,average_reading_depth)
+				self.chart.tag_bind(dark_bar, "<Enter>", partial(self.set_status,msg=msg2))
+				self.chart.tag_bind(dark_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(dark_bar, "<Button-1>",partial(self.goto_move,move=move))
+			
+		self.display_vertical_depth_graduation(border,height,width,maximum)
+		return moves
+
 	def display_axis(self,height,width,border):
 		#drawing axis
 		x0=border
@@ -640,7 +705,8 @@ class OpenChart(Toplevel):
 		x1=width-border
 		self.chart.create_line(x1, y0, x1, y1, fill='black')
 		self.chart.create_line(x0, y0, x1, y0, fill='black')
-		self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
+		if self.last_graph!=_("Reading depth"):
+			self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
 	
 	def display_horizontal_graduation(self,moves,height,width,border,lpix):
 		#drawing horizontal graduation
@@ -835,16 +901,6 @@ class TableWidget:
 						i,j=gtp2ij(columns[1][r])
 						
 						one_label.bind("<Enter>",partial(self.show_variation,one_label=one_label,i=i,j=j))
-						"""
-						if self.parent.right_notebook.raised()=="bot":
-							grid, markup=self.parent.right_bot_goban.grid, self.parent.right_bot_goban.markup
-							one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.right_bot_goban,grid=grid,markup=markup,i=i,j=j))
-							one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.right_bot_goban,grid,markup))
-						elif self.parent.left_notebook.raised()=="bot":
-							grid, markup=self.parent.left_bot_goban.grid, self.parent.left_bot_goban.markup
-							one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.left_bot_goban,grid=grid,markup=markup,i=i,j=j))
-							one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.left_bot_goban,grid,markup))
-						"""
 					else:
 						one_label.config(bd=2)
 					
@@ -1166,6 +1222,18 @@ class DualView(Toplevel):
 					one_data['lower_bound_score']=float(lbs[1:])
 				else:
 					one_data['lower_bound_score']=-float(lbs[1:])
+			except:
+				pass
+			
+			try:
+				ard=node_get(one_move,'ARD')
+				one_data['average_reading_depth']=float(ard)
+			except:
+				pass
+			
+			try:
+				mrd=node_get(one_move,'MRD')
+				one_data['max_reading_depth']=int(mrd)
 			except:
 				pass
 			

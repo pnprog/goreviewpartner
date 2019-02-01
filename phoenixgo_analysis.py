@@ -131,19 +131,13 @@ class PhoenixGoAnalysis():
 				else:
 					current_color='w'
 		log("==== no more sequences =====")
-		"""
-		log("==== creating heat map =====")
-		raw_heat_map=phoenixgo.get_heatmap()
-		heat_map=""
-		for i in range(self.size):
-			for j in range(self.size):
-				if raw_heat_map[i][j]>=0.01:#ignore values lower than 1% to avoid generating heavy RSGF file
-					heat_map+=ij2sgf([i, j])+str(round(raw_heat_map[i][j],2))+","
-		
-		if heat_map:
-			node_set(one_move,"HTM",heat_map[:-1]) #HTM: heat map
-		
-		"""
+		try:
+			max_reading_depth=position_evaluation['max reading depth']
+			node_set(one_move,"MRD",str(max_reading_depth))
+			average_reading_depth=position_evaluation['average reading depth']
+			node_set(one_move,"ARD",str(average_reading_depth))
+		except:
+			pass
 		#one_move.add_comment_text(additional_comments)
 		return best_answer
 	
@@ -469,9 +463,16 @@ class PhoenixGo_gtp(gtp):
 					if not "nan" in winrate:
 						position_evaluation['variations'][0]["value network win rate"]=winrate
 						log("winrate for first variation =>",winrate)
+				
+				if ", avg_height=" in err_line:
+					max_reading_depth=int(err_line.split(", height=")[1].split(", ")[0])
+					average_reading_depth=float(err_line.split(", avg_height=")[1].split(", ")[0])
+					position_evaluation['max reading depth']=max_reading_depth
+					position_evaluation['average reading depth']=average_reading_depth
 			except:
 				traceback.print_exc()
 				log(err_line.strip())
+			
 			
 			"""if " ->" in err_line:
 				if err_line[0]==" ":
