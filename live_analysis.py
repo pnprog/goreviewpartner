@@ -795,7 +795,7 @@ class LiveAnalysis(Toplevel):
 			msg2=self.analyser.best_moves_queue.get()
 			log("...............",msg2)
 		log("echo received after",time.time()-t0,"s")
-		self.parent.after(10,self.after_undo) #enough time for analyser to grab the process lock and process the queue
+		self.parent.after(100,self.after_undo) #enough time for analyser to grab the process lock and process the queue
 		
 	def after_undo(self):
 		self.pass_button.config(state='normal')
