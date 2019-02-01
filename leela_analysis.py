@@ -256,7 +256,7 @@ class Leela_gtp(gtp):
 			buff.append(self.stderr_queue.get())
 		buff.reverse()
 		number_coordinate=1
-		letters="abcdefghjklmnopqrst"[:self.size]
+		letters="ABCDEFGHJKLMNOPQRST"[:self.size]
 		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
 		pn_values=[]
 		for i in range(self.size):
