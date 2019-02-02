@@ -313,6 +313,7 @@ class LiveAnalysis(Toplevel):
 
 	def save_as_png(self,event=None):
 		filename=save_png_file(filename='move'+str(self.current_move)+'.png',parent=self)
+		self.goban.parent=self
 		canvas2png(self.goban,filename)
 
 	def open_move(self):

@@ -2032,14 +2032,28 @@ def canvas2png(goban,filename):
 	left = goban.winfo_rootx()
 	width = goban.winfo_width()
 	height = goban.winfo_height()
-	v_center=top+height/2
-	h_center=left+width/2
-	dim=goban.dim
-	space=goban.space
-	monitor = {'top': int(v_center-space*(dim+3)/2)+1, 'left': int(h_center-space*(dim+3)/2)+1, 'width': int(space*(dim+3))-2, 'height': int(space*(dim+3))-2}
+	try:
+		dim=goban.dim
+		space=goban.space
+		current_tab_id=goban.parent.right_notebook.index("current")
+		goban.parent.right_notebook.select(0)
+		goban.parent.update_idletasks()
+		goban.parent.right_notebook.select(current_tab_id)
+		goban.parent.update_idletasks()
+		top = goban.winfo_rooty()
+		v_center=top+goban.anchor_y+space*(dim+3)/2
+		h_center=left+goban.anchor_x+space*(dim+3)/2
+		monitor = {'top': int(v_center-space*(dim+3)/2)+1, 'left': int(h_center-space*(dim+3)/2)+1, 'width': int(space*(dim+3))-2, 'height': int(space*(dim+3))-2}
+	except:
+		monitor = {'top': int(top), 'left': int(left), 'width': int(width), 'height': int(height)}
+	
+	goban.after(500,lambda: screenshot(monitor, filename))
+
+def screenshot(monitor, filename):
+	log("Screenshot!")
+	log(monitor)
 	sct_img = mss.mss().grab(monitor)
 	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
-
 
 def get_variation_comments(one_variation):
 	comments=''

@@ -2356,6 +2356,7 @@ class DualView(Toplevel):
 		
 
 	def redraw_left(self, event, redrawing=None):
+		
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing_left=redrawing
@@ -2375,11 +2376,11 @@ class DualView(Toplevel):
 		grp_config.set("Review", "LeftGobanRatio",ratio)
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
-		goban=event.widget
+		"""goban=event.widget
 		goban.space=new_space
 		goban.anchor_x=new_anchor_x
 		goban.anchor_y=new_anchor_y
-		goban.reset()
+		goban.reset()"""
 		
 		
 		for goban in [self.left_bot_goban, self.left_game_goban]+[tab.goban for tab in self.left_side_opened_tabs]:
@@ -2410,11 +2411,11 @@ class DualView(Toplevel):
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
 		
-		goban=event.widget
+		"""goban=event.widget
 		goban.space=new_space
 		goban.anchor_x=new_anchor_x
 		goban.anchor_y=new_anchor_y
-		goban.reset()
+		goban.reset()"""
 		
 		for goban in [self.right_bot_goban, self.right_game_goban]+[tab.goban for tab in self.right_side_opened_tabs]:
 			goban.space=new_space
@@ -2436,11 +2437,13 @@ class DualView(Toplevel):
 
 	def save_left_as_png(self,event=None):
 		goban=self.left_game_goban
+		goban.parent=self
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(goban,filename)
 
 	def save_right_as_png(self,event=None):
 		goban=self.right_game_goban
+		goban.parent=self
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(goban,filename)
 	
