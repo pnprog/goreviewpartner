@@ -708,7 +708,7 @@ class LiveAnalysis(Toplevel):
 					self.white_to_play()
 	
 	def stone_sound(self):
-		self.after(0,play_stone_sound)
+		play_stone_sound()
 		
 	def gtp_thread_wrapper(self,bot,color):
 		self.cpu_lock.acquire()

@@ -1741,7 +1741,7 @@ class DualView(Toplevel):
 		self.after(period*1000,self.update_from_file)
 	
 	def stone_sound(self):
-		self.after(0,play_stone_sound)
+		play_stone_sound()
 		
 	def click_game_goban(self,event):
 		goban=event.widget

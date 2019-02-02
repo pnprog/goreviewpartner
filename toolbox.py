@@ -2489,12 +2489,16 @@ def main(bot):
 try:
 	from playsound import playsound
 	mp3=grp_config.get("General","StoneSound")
+	if mp3:
+		log("Reading",mp3)
+		with open(mp3, mode='rb') as sound_file: #pre loading the sound file in memory
+			fileContent = sound_file.read()
+	
 	def play_stone_sound():
-		global playsound
 		if mp3:
-			try:
-				playsound(mp3)
-			except:
-				playsound=lambda: None
-except:
+			threading.Thread(target=playsound, args=(mp3,)).start()
+	
+except Exception,e:
+	log("Stone sound disabled:")
+	log(e)
 	play_stone_sound=lambda: None
