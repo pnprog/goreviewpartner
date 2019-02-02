@@ -1632,7 +1632,7 @@ class MyConfig():
 		self.default_values["live"]["analyser"]=""
 		self.default_values["live"]["black"]=""
 		self.default_values["live"]["white"]=""
-		
+		self.default_values["live"]["thinkbeforeplaying"]="0"
 		
 	def set(self, section, key, value):
 		if type(value) in (type(1), type(0.5), type(True)):

@@ -367,7 +367,8 @@ class Goban(Canvas):
 
 		
 		if self.freeze:
-			self.config(cursor="watch")
+			if freeze!="keep":
+				self.config(cursor="watch")
 			self.temporary_shapes.append(self.draw_rectangle(-0.1-.5  ,  -0.1-.5  ,   -.5,    dim-1+.5+0.1,"red"))
 			self.temporary_shapes.append(self.draw_rectangle(dim-1+.5+0.1  ,  -0.1-.5  ,   dim-1+.5,    dim-1+.5+0.1,"red"))
 			self.temporary_shapes.append(self.draw_rectangle(-0.1-.5  ,  -0.1-.5  ,   dim-1+.5 ,  -.5,"red"))
@@ -382,7 +383,8 @@ class Goban(Canvas):
 				x,y=self.ij2xy(i,dim+0.1)
 				self.temporary_shapes.append(self.create_text(x,y, text=str(i+1),font=self.font,fill="red"))
 		else:
-			self.config(cursor="cross")
+			if freeze!="keep":
+				self.config(cursor="cross")
 		
 		
 		r,g,b=self.wood_color

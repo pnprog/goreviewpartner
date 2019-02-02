@@ -975,12 +975,20 @@ class LiveAnalysis(Toplevel):
 		self.pass_button.config(state='disabled')
 		self.undo_button.config(state='disabled')
 		if self.black=="human":
-			self.goban.bind("<Button-1>",self.click)
+			thinkbeforeplaying=grp_config.getfloat("Live","ThinkBeforePlaying")
+			self.goban.display(self.grid,self.markup,freeze=False)
+			if not thinkbeforeplaying:
+				self.goban.bind("<Button-1>",self.click)
+			else:
+				self.goban.config(cursor="watch")
+				log("Think",thinkbeforeplaying,"s before playing")
+				self.after(int(thinkbeforeplaying*1000),lambda: self.goban.bind("<Button-1>",self.click))
+				self.after(int(thinkbeforeplaying*1000),lambda: self.goban.config(cursor="cross"))
 			self.pass_button.config(state='normal')
 			if self.current_move>=3:
 				self.undo_button.config(state='normal',command=self.undo_as_black)
 				self.goban.bind("<Button-2>",self.undo_as_black)
-			self.goban.display(self.grid,self.markup,freeze=False)
+			
 		elif self.black=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
 			self.goban.display(self.grid,self.markup,freeze=True)
@@ -1013,12 +1021,19 @@ class LiveAnalysis(Toplevel):
 		self.pass_button.config(state='disabled')
 		self.undo_button.config(state='disabled')
 		if self.white=="human":
-			self.goban.bind("<Button-1>",self.click)
+			thinkbeforeplaying=grp_config.getfloat("Live","ThinkBeforePlaying")
+			self.goban.display(self.grid,self.markup,freeze=False)
+			if not thinkbeforeplaying:
+				self.goban.bind("<Button-1>",self.click)
+			else:
+				self.goban.config(cursor="watch")
+				log("Think",thinkbeforeplaying,"s before playing")
+				self.after(int(thinkbeforeplaying*1000),lambda: self.goban.bind("<Button-1>",self.click))
+				self.after(int(thinkbeforeplaying*1000),lambda: self.goban.config(cursor="cross"))
 			self.pass_button.config(state='normal')
 			if self.current_move>=3:
 				self.undo_button.config(state='normal',command=self.undo_as_white)
 				self.goban.bind("<Button-2>",self.undo_as_white)
-			self.goban.display(self.grid,self.markup,freeze=False)
 		elif self.white=="analyser":
 			self.goban.bind("<Button-1>",self.do_nothing)
 			self.goban.display(self.grid,self.markup,freeze=True)
