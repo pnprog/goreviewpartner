@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+from traceback import format_exc
+import traceback
 class GRPException(Exception):
 	def __init__(self,msg):
 		if type(msg)==type(u"abc"):
-			print "converting GRPException error message from unicode to str"
 			self.utf_msg=msg
 			self.str_msg=msg.encode("utf-8",errors='replace')
 		else:
 			self.str_msg=msg
 			self.utf_msg=msg.decode("utf-8",errors='replace')
+		log("===")
+		log(format_exc())
+		log("===")
 		Exception.__init__(self,self.str_msg)
 	
 	def __unicode__(self):
@@ -101,6 +104,7 @@ def go_to_move(move_zero,move_number=0):
 		move=move[0]
 		k+=1
 	return move
+
 
 def gtp2ij(move):
 	try:
