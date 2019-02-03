@@ -189,37 +189,6 @@ class Pachi_gtp(gtp):
 		self.place_white(move)
 		return move
 		
-	def get_heatmap(self):
-		while not self.stderr_queue.empty():
-			self.stderr_queue.get()
-		self.write("heatmap")
-		one_line=self.readline() #empty line
-		buff=[]
-		while len(buff)<self.size:
-			buff.append(self.stderr_queue.get())
-		buff.reverse()
-		number_coordinate=1
-		letters="abcdefghjklmnopqrst"[:self.size]
-		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
-		pn_values=[]
-		for i in range(self.size):
-			one_line=buff[i].strip()
-			if "winrate" in one_line:
-				continue
-			if "pass" in one_line:
-				continue
-			one_line=one_line.strip()
-			one_line=[int(s) for s in one_line.split()]
-			new_values=[[letter_coordinate+str(number_coordinate),int(value)/1000.] for letter_coordinate,value in zip(letters,one_line)]
-			for nv in new_values:
-				pn_values.append(nv)
-			number_coordinate+=1
-
-		for coordinates,value in pn_values:
-			i,j=gtp2ij(coordinates)
-			pn[i][j]=value
-		return pn
-
 	def quick_evaluation(self,color):
 		if color==2:
 			self.play_white()
@@ -295,8 +264,7 @@ class Pachi_gtp(gtp):
 				try:
 					line=err_line.split(" |")[3].strip()
 					line=line.split(" ")
-					letters="abcdefghjklmnopqrst"[:self.size]
-					
+					letters="ABCDEFGHJKLMNOPQRST"[:self.size]
 					for value,letter in zip(line,letters):
 						i,j=gtp2ij(letter+str(number_coordinate))
 						if value in ("X","x"):
