@@ -18,6 +18,10 @@ class InteractiveGoban(Frame):
 		self.available_bots=[]
 		for bot in get_available():
 			self.available_bots.append(bot)
+		
+		self.available_gtp_bots=[]
+		for bot in get_gtp_bots():
+			self.available_gtp_bots.append(bot)
 		self.initialize()
 	
 	def stone_sound(self):
@@ -361,6 +365,14 @@ class InteractiveGoban(Frame):
 		
 		self.current_bot=self.selected_bot.get()
 		self.actions_menubutton.config(state="normal")
+		
+		print self.current_bot
+		print [bot['gtp_name']+" - "+bot['profile'] for bot in self.available_gtp_bots]
+		if self.current_bot in [bot['gtp_name']+" - "+bot['profile'] for bot in self.available_gtp_bots]:
+			log("A GTP bot is selected")
+			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state="disabled")
+		else:
+			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state="normal")
 	
 	def close_tab(self):
 		log("Not implemented")
@@ -381,17 +393,14 @@ class InteractiveGoban(Frame):
 		
 		self.bots=[]
 		self.menu_bots={}
-		#row=10
-		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 		for available_bot in self.available_bots:
-			#row+=2
 			one_bot=available_bot['openmove'](self.sgf,available_bot)
-			#one_bot.start()
 			self.bots.append(one_bot)
-			
-			#if one_bot.okbot:
-			#	self.menu_bots[one_bot.name+value[available_bot['profile']]]=one_bot
-			
+			self.menu_bots[one_bot.name+" - "+available_bot['profile']]=one_bot
+		
+		for available_bot in self.available_gtp_bots:
+			one_bot=available_bot['openmove'](self.sgf,available_bot)
+			self.bots.append(one_bot)
 			self.menu_bots[one_bot.name+" - "+available_bot['profile']]=one_bot
 		
 		if len(self.menu_bots)>0:
@@ -431,7 +440,6 @@ class InteractiveGoban(Frame):
 			mb.menu.add_radiobutton(label=_('Play as black'), value="play as black", variable=self.selected_action, command=self.change_action)
 			mb.menu.add_radiobutton(label=_('Let the bot take both sides and play against itself.'), value="self play", variable=self.selected_action, command=self.change_action)
 			mb.menu.add_radiobutton(label=_('Ask the bot for a quick evaluation'), value="quick evaluation", variable=self.selected_action, command=self.change_action)
-
 		
 		Label(panel, text=' ', height=2).pack(side=LEFT, fill=X, expand=1)
 		self.close_button=Button(panel, text='x', command=self.close_tab)
