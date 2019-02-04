@@ -7,13 +7,10 @@ from goban import *
 from datetime import datetime
 from Tkinter import *
 from threading import Lock
-import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
+import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis,gtp_bot
 from copy import deepcopy as copy
 from ttk import Notebook
 from tabbed import *
-
-#bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
-bots_for_playing=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 
 class LiveAnalysisLauncher(Toplevel):
 	def __init__(self,parent):
@@ -26,14 +23,13 @@ class LiveAnalysisLauncher(Toplevel):
 		root.parent.title('GoReviewPartner')
 
 		row=1
-		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 		self.analysis_bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available()]
 		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=W)
 		self.bot_selection=StringVar()	
 		apply(OptionMenu,(self,self.bot_selection)+tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
 		
 		self.bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available()]
-		
+		self.gtp_bots_names=[bot['name']+" - "+bot['profile'] for bot in get_gtp_bots()]
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 		
@@ -42,7 +38,8 @@ class LiveAnalysisLauncher(Toplevel):
 		self.black_selection=StringVar()	
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
-		self.black_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names
+		self.black_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names+self.gtp_bots_names
+		print "====",self.black_options
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
 
@@ -55,7 +52,7 @@ class LiveAnalysisLauncher(Toplevel):
 		self.white_selection=StringVar()
 		self.white_selection_wrapper=Frame(self)
 		self.white_selection_wrapper.grid(row=row,column=2,sticky=W)
-		self.white_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names
+		self.white_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names+self.gtp_bots_names
 		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
 		self.white_menu.pack()
 		
@@ -167,11 +164,11 @@ class LiveAnalysisLauncher(Toplevel):
 		self.parent.remove_popup(self)
 		
 	def start(self):
-		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
-		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()}
+		#bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()}
+		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()+get_gtp_bots()}
 		analyser=bots[self.bot_selection.get()]
 		
-		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()}
+		#bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()+get_gtp_bots()}
 		
 		b=self.selected_black_index()
 		if b==0:
@@ -225,14 +222,14 @@ class LiveAnalysisLauncher(Toplevel):
 
 	def update_black_white_options(self):
 		i=self.selected_black_index()
-		self.black_options=[_("Human player"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
+		self.black_options=[_("Human player"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names+self.gtp_bots_names
 		self.black_menu.pack_forget()
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
 		self.black_selection.set(self.black_options[i])
 
 		j=self.selected_white_index()
-		self.white_options=[_("Human player"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
+		self.white_options=[_("Human player"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names+self.gtp_bots_names
 		self.white_menu.pack_forget()
 		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
 		self.white_menu.pack()

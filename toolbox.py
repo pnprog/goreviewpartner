@@ -1297,9 +1297,9 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile,silentfai
 		except Exception, e:
 			raise GRPException((_("%s did not reply as expected to the GTP name command:")%bot_name)+"\n"+unicode(e))
 
-
-		if answer!=bot_gtp_name:
-			raise GRPException((_("%s did not identify itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
+		if bot_gtp_name!='GtpBot':
+			if answer!=bot_gtp_name:
+				raise GRPException((_("%s did not identify itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
 
 
 		log(bot_name+" identified itself properly")
@@ -2263,6 +2263,18 @@ def get_available():
 				bot2[key]=value
 	return bots
 
+def get_gtp_bots():
+	from gtp_bot import GtpBot
+	
+	bots=[]
+	for bot in [GtpBot]:
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			bots.append(bot2)
+			for key, value in profile.items():
+				bot2[key]=value
+	return bots
 
 def get_bot_profiles(bot="",withcommand=True):
 	sections=grp_config.get_sections()
