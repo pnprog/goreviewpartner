@@ -2101,7 +2101,7 @@ class DualView(Toplevel):
 		
 		gobans_frame.add(left_notebook, stretch="always") #https://mail.python.org/pipermail/tkinter-discuss/2012-May/003146.html
 		gobans_frame.add(right_notebook, stretch="always")
-		
+		self.gobans_frame=gobans_frame
 		
 		#######################
 		toolbar=Frame(left_game_tab)
@@ -2253,6 +2253,7 @@ class DualView(Toplevel):
 		final_move_button=Button(self.buttons_bar2, text=' >>|',command=self.final_move)
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
+		self.pane_mode_button=Button(self.buttons_bar2,text=_("Single-panel"),command=self.one_or_two_panels)
 		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
 		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),command=self.show_graphs, state=DISABLED)
 
@@ -2284,6 +2285,7 @@ class DualView(Toplevel):
 		self.buttons_bar2.columnconfigure(50, weight=1)
 		
 		#Place widgets in command bar
+		self.pane_mode_button.grid(column=100,row=1)
 		self.table_button.grid(column=101,row=1)
 		self.charts_button.grid(column=102,row=1)
 		
@@ -2352,8 +2354,14 @@ class DualView(Toplevel):
 		self.after(10000,self.update_from_file)
 		
 		
-		
-		
+	def one_or_two_panels(self):
+		current_mode=self.pane_mode_button.cget("text")
+		if current_mode==_("Dual-panel"):
+			self.gobans_frame.add(self.left_notebook, stretch="always")
+			current_mode=self.pane_mode_button.config(text=_("Single-panel"))
+		else:
+			self.gobans_frame.remove(self.left_notebook)
+			current_mode=self.pane_mode_button.config(text=_("Dual-panel"))
 
 	def redraw_left(self, event, redrawing=None):
 		
