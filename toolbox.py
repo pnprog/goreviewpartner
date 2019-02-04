@@ -1627,6 +1627,7 @@ class MyConfig():
 		self.default_values["review"]["yellowbar"]="#F39C12"
 		self.default_values["review"]["lastbot"]=""
 		self.default_values["review"]["lastmap"]=""
+		self.default_values["review"]["oneortwopanels"]="1"
 		
 		self.default_values["live"]={}
 		self.default_values["live"]["livegobanratio"]="0.4"

@@ -2254,9 +2254,12 @@ class DualView(Toplevel):
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
 		self.pane_mode_button=Button(self.buttons_bar2,text=_("Single-panel"),command=self.one_or_two_panels)
+		one_or_two_panels=grp_config.getint("Review", "OneOrTwoPanels")
+		if one_or_two_panels==1:
+			self.one_or_two_panels()
+		
 		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
 		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),command=self.show_graphs, state=DISABLED)
-
 		for data in self.data_for_chart:
 			if data!=None:
 				self.charts_button.configure( state = NORMAL )
@@ -2359,9 +2362,11 @@ class DualView(Toplevel):
 		if current_mode==_("Dual-panel"):
 			self.gobans_frame.add(self.left_notebook, stretch="always")
 			current_mode=self.pane_mode_button.config(text=_("Single-panel"))
+			grp_config.set("Review", "OneOrTwoPanels",2)
 		else:
 			self.gobans_frame.remove(self.left_notebook)
 			current_mode=self.pane_mode_button.config(text=_("Dual-panel"))
+			grp_config.set("Review", "OneOrTwoPanels",1)
 
 	def redraw_left(self, event, redrawing=None):
 		
@@ -2384,13 +2389,7 @@ class DualView(Toplevel):
 		grp_config.set("Review", "LeftGobanRatio",ratio)
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
-		"""goban=event.widget
-		goban.space=new_space
-		goban.anchor_x=new_anchor_x
-		goban.anchor_y=new_anchor_y
-		goban.reset()"""
-		
-		
+
 		for goban in [self.left_bot_goban, self.left_game_goban]+[tab.goban for tab in self.left_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
