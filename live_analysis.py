@@ -302,6 +302,7 @@ class LiveAnalysis(Toplevel):
 		import goban
 		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
 		self.rsgf_filename=".".join(filename.split(".")[:-1])+".rsgf"
+		self.sgf_filename=".".join(filename.split(".")[:-1])+".sgf"
 		self.overlap_thinking=overlap_thinking
 		self.color=color
 		
@@ -559,13 +560,6 @@ class LiveAnalysis(Toplevel):
 	
 		self.bind('<Control-q>', self.save_as_png)
 	
-		#self.update_idletasks()
-		#goban.reset()
-		#goban.display(grid,markup)
-		#self.goban.create_goban()
-		#self.goban.grid=grid
-		#self.goban.markup=markup
-		
 		self.goban.bind("<Configure>",self.redraw)
 		
 		popup.focus()
@@ -587,10 +581,39 @@ class LiveAnalysis(Toplevel):
 			self.next_color=1		
 			self.current_move=1
 			node_set(self.g.get_root(),"PL", "b")
-			write_rsgf(self.rsgf_filename,self.g)
+			self.save_sgf()
 			self.black_to_play()
 		
-
+	def save_sgf(self):
+		try:
+			write_rsgf(self.rsgf_filename,self.g)
+		except Exception, e:
+			log("Could not save the RSGF file!")
+			log(e)
+			log("\a")
+		self.g_lock.acquire()
+		try:
+			sgf_game = sgf.Sgf_game(size=self.dim)
+			node_set(sgf_game.get_root(),"KM", self.komi)
+			node_set(sgf_game.get_root(),"AB",self.handicap_stones)
+			node_set(sgf_game.get_root(),"PB",node_get(self.g.get_root(),"PB"))
+			node_set(sgf_game.get_root(),"PW",node_get(self.g.get_root(),"PW"))
+			for node in self.g.get_main_sequence():
+				move=node.get_move()
+				if "b" in move:
+					move=move[1]
+					new_node=sgf_game.extend_main_sequence()
+					node_set(new_node,"b",move)
+				elif "w" in move:
+					move=move[1]
+					new_node=sgf_game.extend_main_sequence()
+					node_set(new_node,"w",move)
+			write_rsgf(self.sgf_filename,sgf_game)
+		except Exception, e:
+			log("Could not save the SGF file!")
+			log(e)
+			log("\a")
+		self.g_lock.release()
 	
 	def set_status(self,msg):
 		self.status_bar.config(text=msg)
@@ -684,16 +707,12 @@ class LiveAnalysis(Toplevel):
 				self.stone_sound()
 				
 				self.handicap_stones.append([i,j])
-				#if type(self.black)!=type("abc"):
-				#	self.black.place_black(ij2gtp((i,j)))
-				#if type(self.white)!=type("abc"):
-				#	self.white.place_black(ij2gtp((i,j)))
 					
 				if handicap>1:
 					self.goban.bind("<Button-1>",lambda e: self.place_handicap(e,handicap-1))
 				else:
 					node_set(self.g.get_root(),"AB",self.handicap_stones)
-					write_rsgf(self.rsgf_filename,self.g)
+					self.save_sgf()
 					self.analyser.bot.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 					self.analyser.handicap_stones=self.handicap_stones
 					if type(self.black)!=type("abc"):
@@ -703,7 +722,6 @@ class LiveAnalysis(Toplevel):
 						
 					show_info(_("The game is now starting!"),self)
 					self.next_color=2
-					#self.goban.bind("<Button-1>",self.click)
 					
 					node_set(self.g.get_root(),"PL", "w")
 					
@@ -790,8 +808,7 @@ class LiveAnalysis(Toplevel):
 		self.grid,self.markup=self.history.pop()
 		self.current_move-=2
 		self.game_label.config(text=_("Currently at move %i")%self.current_move)
-		write_rsgf(self.rsgf_filename,self.g)
-		
+		self.save_sgf()
 		log("waiting for echo")
 		t0=time.time()
 		msg2=None
@@ -965,7 +982,7 @@ class LiveAnalysis(Toplevel):
 			self.parent.after(250,self.black_to_play)
 			return
 		self.pause_lock.release()
-		write_rsgf(self.rsgf_filename,self.g)
+		self.save_sgf()
 		log("======== move %i ========="%self.current_move)
 		log("black to play")
 		
@@ -1011,7 +1028,7 @@ class LiveAnalysis(Toplevel):
 			self.parent.after(250,self.white_to_play)
 			return
 		self.pause_lock.release()
-		write_rsgf(self.rsgf_filename,self.g)
+		self.save_sgf()
 		log("======== move %i ========="%self.current_move)
 		log("White to play")
 		
