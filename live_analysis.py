@@ -39,7 +39,6 @@ class LiveAnalysisLauncher(Toplevel):
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
 		self.black_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names+self.gtp_bots_names
-		print "====",self.black_options
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
 
@@ -138,7 +137,7 @@ class LiveAnalysisLauncher(Toplevel):
 		if analyser in self.analysis_bots_names:
 			self.bot_selection.set(analyser)
 		
-		self.change_parameters()
+		
 		
 		black=grp_config.get("Live","black")
 		if black in self.black_options:
@@ -147,6 +146,8 @@ class LiveAnalysisLauncher(Toplevel):
 		white=grp_config.get("Live","white")
 		if white in self.white_options:
 			self.white_selection.set(white)
+			
+		self.change_parameters()
 		
 		self.bot_selection.trace("w", lambda a,b,c: self.change_parameters())
 		self.black_selection.trace("w", lambda a,b,c: self.change_parameters())
@@ -257,14 +258,19 @@ class LiveAnalysisLauncher(Toplevel):
 	def update_overlap_thinking_option(self):
 		i=self.selected_black_index()
 		j=self.selected_white_index()
+		print i,j
 		if i<=1 and j<=1:
 			nb_bots=1
+			print "a"
 		elif (i>1 and j<=1) or (j>1 and i<=1):
 			nb_bots=2
+			print "b"
 		elif (i>1 and j>1 and i==j):
 			nb_bots=2
+			print "c"
 		elif (i>1 and j>1 and i!=j):
 			nb_bots=3
+			print "d"
 		
 		for widget in self.overlap_thinking_widgets:
 			widget.grid_forget()
