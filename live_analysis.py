@@ -661,7 +661,10 @@ class LiveAnalysis(Toplevel):
 		try:
 			sgf_game = sgf.Sgf_game(size=self.dim)
 			node_set(sgf_game.get_root(),"KM", self.komi)
-			node_set(sgf_game.get_root(),"AB",self.handicap_stones)
+			try:
+				node_set(sgf_game.get_root(),"AB",self.handicap_stones)
+			except:
+				pass
 			node_set(sgf_game.get_root(),"PB",node_get(self.g.get_root(),"PB"))
 			node_set(sgf_game.get_root(),"PW",node_get(self.g.get_root(),"PW"))
 			for node in self.g.get_main_sequence():
