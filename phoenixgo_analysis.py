@@ -19,8 +19,6 @@ class PhoenixGoAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-
-		
 		if player_color in ('w',"W"):
 			log("Phoenix Go play white")
 			answer=phoenixgo.play_white()
@@ -60,6 +58,7 @@ class PhoenixGoAnalysis():
 					answer=phoenixgo.play_black()
 				else:
 					answer=phoenixgo.play_white()
+				log(new_sequence,"=>", answer)
 				nb_undos+=1 #one have to remember to undo that move later
 				
 				new_position_evaluation=phoenixgo.get_all_phoenixgo_moves() #let's get stats for this new move
@@ -194,37 +193,6 @@ class Tree(dict):
 	
 
 class PhoenixGo_gtp(gtp):
-
-	"""def get_heatmap(self):
-		while not self.stderr_queue.empty():
-			self.stderr_queue.get()
-		self.write("heatmap average")
-		one_line=self.readline() #empty line
-		buff=[]
-		while len(buff)<self.size+2:
-			buff.append(self.stderr_queue.get())
-		buff.reverse()
-		number_coordinate=1
-		letters="abcdefghjklmnopqrst"[:self.size]
-		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
-		pn_values=[]
-		for i in range(self.size+2):
-			one_line=buff[i].strip()
-			if "winrate" in one_line:
-				continue
-			if "pass" in one_line:
-				continue
-			one_line=one_line.strip()
-			one_line=[int(s) for s in one_line.split()]
-			new_values=[[letter_coordinate+str(number_coordinate),int(value)/1000.] for letter_coordinate,value in zip(letters,one_line)]
-			for nv in new_values:
-				pn_values.append(nv)
-			number_coordinate+=1
-
-		for coordinates,value in pn_values:
-			i,j=gtp2ij(coordinates)
-			pn[i][j]=value
-		return pn"""
 	
 	def play_black(self):
 		self.write("genmove black")
@@ -363,10 +331,12 @@ class PhoenixGo_gtp(gtp):
 		position_evaluation=Position()
 		found=False
 		tree=Tree()
+		info_available=False
 		for err_line in buff:
 			if not found:
 				if "========== debug info for" in err_line:
 					found=True
+					info_available=True
 					log(err_line.strip())
 			else:
 				log(err_line.strip())
@@ -455,7 +425,8 @@ class PhoenixGo_gtp(gtp):
 								leaf=leaf.branches[step]
 							else:
 								break
-					
+			
+			
 			try:
 				if ", winrate=" in err_line:
 					winrate=float(err_line.split(", winrate=")[1].split("%, ")[0])
@@ -473,30 +444,12 @@ class PhoenixGo_gtp(gtp):
 				traceback.print_exc()
 				log(err_line.strip())
 			
-			
-			"""if " ->" in err_line:
-				if err_line[0]==" ":
-					#log(err_line)
-					variation=Variation()
-					
-					one_answer=err_line.strip().split(" ")[0]
-					variation["first move"]=one_answer
-					
-					nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
-					variation["playouts"]=nodes
-					
-					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
-					variation["value network win rate"]=value_network #for Leela Zero, the value network is used as win rate
-					
-					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
-					variation["policy network value"]=policy_network
-					
-					sequence=err_line.split("PV: ")[1].strip()
-					variation["sequence"]=sequence
-					
-					#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
-					position_evaluation['variations']=[variation]+position_evaluation['variations']"""
-		
+		if not info_available:
+			log("=========================================================")
+			log("=== WARNING: no information found in PhoenixGo output ===")
+			log("=== Please make sure verbose level is 1    (--v=1)    ===")
+			log("=========================================================")
+			log("\a")
 
 		return position_evaluation
 
