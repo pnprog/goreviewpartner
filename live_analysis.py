@@ -30,24 +30,22 @@ class LiveAnalysisLauncher(Toplevel):
 		
 		self.bots_names=[bot['name']+" - "+bot['profile'] for bot in get_available()]
 		self.gtp_bots_names=[bot['name']+" - "+bot['profile'] for bot in get_gtp_bots()]
-		row+=1
-		Label(self,text="").grid(row=row,column=1)
+		#row+=1
+		#Label(self,text="").grid(row=row,column=1)
 		
 		row+=1
-		Label(self,text=_("Black player")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Black player"+":")).grid(row=row,column=1,sticky=W)
 		self.black_selection=StringVar()	
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
 		self.black_options=[_("Human player"),_("Bot used for analysis")]+self.bots_names+self.gtp_bots_names
 		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
 		self.black_menu.pack()
-
+		#row+=1
+		#Label(self,text="").grid(row=row,column=1)
 		
 		row+=1
-		Label(self,text="").grid(row=row,column=1)
-		
-		row+=1
-		Label(self,text=_("White player")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("White player")+":").grid(row=row,column=1,sticky=W)
 		self.white_selection=StringVar()
 		self.white_selection_wrapper=Frame(self)
 		self.white_selection_wrapper.grid(row=row,column=2,sticky=W)
@@ -65,32 +63,59 @@ class LiveAnalysisLauncher(Toplevel):
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
 
+
 		row+=1
-		Label(self,text=_("Board size")).grid(row=row,column=1,sticky=W)
-		self.dim=Entry(self)
+
+		notebook=Notebook(self)
+		self.notebook=notebook
+		notebook.grid(row=row,column=1,columnspan=2,sticky=W+E)
+		
+		tab1=Frame(notebook)
+		newgame_frame=Frame(tab1)
+		newgame_frame.pack(fill=X,pady=10)
+		notebook.add(tab1, text=_("New game"))
+
+		row+=1
+		Label(newgame_frame,text=_("Board size")).grid(row=row,column=1,sticky=W,padx=10)
+		self.dim=Entry(newgame_frame)
 		self.dim.grid(row=row,column=2,sticky=W)
 		self.dim.delete(0, END)
 		self.dim.insert(0, grp_config.get("Live", "size"))
+		#row+=1
+		#Label(self,text="").grid(row=row,column=1)
 
 		row+=1
-		Label(self,text="").grid(row=row,column=1)
-
-		row+=1
-		Label(self,text=_("Komi")).grid(row=row,column=1,sticky=W)
-		self.komi=Entry(self)
+		Label(newgame_frame,text=_("Komi")).grid(row=row,column=1,sticky=W,padx=10)
+		self.komi=Entry(newgame_frame)
 		self.komi.grid(row=row,column=2,sticky=W)
 		self.komi.delete(0, END)
 		self.komi.insert(0, grp_config.get("Live", "komi"))
+		#row+=1
+		#Label(self,text="").grid(row=row,column=1)
 
 		row+=1
-		Label(self,text="").grid(row=row,column=1)
-
-		row+=1
-		Label(self,text=_("Handicap stones")).grid(row=row,column=1,sticky=W)
-		self.handicap=Entry(self)
+		Label(newgame_frame,text=_("Handicap stones")).grid(row=row,column=1,sticky=W,padx=10)
+		self.handicap=Entry(newgame_frame)
 		self.handicap.grid(row=row,column=2,sticky=W)
 		self.handicap.delete(0, END)
 		self.handicap.insert(0, grp_config.get("Live", "handicap"))
+		
+		tab2=Frame(notebook)
+		existinggame_frame=Frame(tab2)
+		existinggame_frame.pack(fill=X,pady=10)
+		notebook.add(tab2, text=_("From existing game"))
+		
+		self.notebook=notebook
+		
+		Label(existinggame_frame,text=_("Select a game record")+":").grid(row=row,column=1,sticky=W,padx=10)
+		self.existing_game=Entry(existinggame_frame)
+		self.existing_game.grid(row=row,column=2,sticky=W)
+		self.existing_game.bind("<Button-1>",self.change_existing_game)
+		
+		row+=1
+		Label(existinggame_frame,text=_("Select starting position:")+" "+_("Move")).grid(row=row,column=1,sticky=W,padx=10)
+		self.existing_position=Entry(existinggame_frame)
+		self.existing_position.grid(row=row,column=2,sticky=W)
 		
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -103,9 +128,6 @@ class LiveAnalysisLauncher(Toplevel):
 		filename=datetime.now().strftime('%Y-%m-%d_%H-%M_')+_('Human player')+'_vs_'+_('Human player')+'.sgf'
 		self.filename.insert(0, filename)
 		self.filename.bind("<Button-1>",self.change_filename)
-		row+=1
-		Label(self,text="").grid(row=row,column=1)
-
 
 		row+=1
 		Label(self,text=_("Select colors to be analysed")).grid(row=row,column=1,sticky=W)
@@ -152,6 +174,23 @@ class LiveAnalysisLauncher(Toplevel):
 		self.black_selection.trace("w", lambda a,b,c: self.change_parameters())
 		self.white_selection.trace("w", lambda a,b,c: self.change_parameters())
 	
+	def change_existing_game(self,event=None):
+		filename=open_sgf_file(parent=self)
+		if filename:
+			try:
+				sgfgame=open_sgf(filename)
+				move_zero=sgfgame.get_root()
+				nb_moves=get_moves_number(move_zero)
+				
+				self.existing_game.delete(0, END)
+				self.existing_game.insert(0, filename)
+				
+				self.existing_position.delete(0, END)
+				self.existing_position.insert(0, str(nb_moves+1))
+			except Exception, e:
+				print e
+				show_error(_("Could not read file")+" \""+os.path.basename(filename)+"\":\n"+unicode(e),parent=self)
+				
 	def change_filename(self,event=None):
 		filename=save_live_game(self.filename.get(), parent=self)
 		if filename:
@@ -164,12 +203,10 @@ class LiveAnalysisLauncher(Toplevel):
 		self.parent.remove_popup(self)
 		
 	def start(self):
-		#bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()}
+		
 		bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()+get_gtp_bots()}
 		analyser=bots[self.bot_selection.get()]
-		
-		#bots={bot['name']+" - "+bot['profile']:bot for bot in get_available()+get_gtp_bots()}
-		
+
 		b=self.selected_black_index()
 		if b==0:
 			black="human"
@@ -188,23 +225,51 @@ class LiveAnalysisLauncher(Toplevel):
 		else:
 			white=bots[self.white_selection.get()]
 		
-		komi=float(self.komi.get())
-		dim=int(self.dim.get())
-		handicap=int(self.handicap.get())
-		
-		grp_config.set("Live","komi",komi)
-		grp_config.set("Live","size",dim)
-		grp_config.set("Live","handicap",handicap)
-		
 		grp_config.set("Live","analyser",self.bot_selection.get())
 		grp_config.set("Live","black",self.black_selection.get())
 		grp_config.set("Live","white",self.white_selection.get())
 		
 		filename=os.path.join(grp_config.get("General","livefolder"),self.filename.get())
-		self.withdraw()
-		popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
-		self.parent.add_popup(popup)
-		self.close()
+		
+		if self.notebook.index("current")==0:
+			log("Starting a live game from scratch")
+		
+			komi=float(self.komi.get())
+			dim=int(self.dim.get())
+			handicap=int(self.handicap.get())
+			
+			grp_config.set("Live","komi",komi)
+			grp_config.set("Live","size",dim)
+			grp_config.set("Live","handicap",handicap)
+			
+			self.withdraw()
+			popup=LiveAnalysis(self.parent,analyser,black,white,dim=dim,komi=komi,handicap=handicap,filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
+			self.parent.add_popup(popup)
+			self.close()
+			
+		else:
+			try:
+				sgfgame=open_sgf(self.existing_game.get())
+				move_zero=sgfgame.get_root()
+				nb_moves=get_moves_number(move_zero)
+			except Exception, e:
+				show_error(unicode(e))
+				return
+				
+			try:
+				if (int(self.existing_position.get()) < 1) or (int(self.existing_position.get()) > nb_moves+1):
+					show_error(_("Move position out of range"))
+					return
+			except Exception, e:
+				show_error(_("Incorrect move position")+"\n"+unicode(e))
+				return
+				
+			log("Starting a live game from an existing position")
+			self.withdraw()
+			popup=LiveAnalysisFromExistingGame(self.parent,analyser,black,white,existing_game=self.existing_game.get(),starting_position=int(self.existing_position.get()),filename=filename,overlap_thinking=not self.no_overlap_thinking.get(),color=self.color.get())
+			self.parent.add_popup(popup)
+			self.close()
+
 
 	def selected_black_index(self):
 		i=0
@@ -277,9 +342,9 @@ class LiveAnalysisLauncher(Toplevel):
 		
 		if nb_bots>1:
 			row=0
-			widget=Label(self.overlap_thinking_wrapper,text="")
+			"""widget=Label(self.overlap_thinking_wrapper,text="")
 			widget.grid(row=row,column=1)
-			self.overlap_thinking_widgets.append(widget)
+			self.overlap_thinking_widgets.append(widget)"""
 			
 			row+=1
 			widget=Label(self.overlap_thinking_wrapper,text=_("No overlap thinking time"))
@@ -289,7 +354,9 @@ class LiveAnalysisLauncher(Toplevel):
 			widget=Checkbutton(self.overlap_thinking_wrapper, text="", variable=self.no_overlap_thinking,onvalue=True,offvalue=False)
 			widget.grid(row=row,column=2,sticky=W)
 			self.overlap_thinking_widgets.append(widget)
-			
+
+	
+
 class LiveAnalysis(Toplevel):
 	def __init__(self,parent,analyser=None,black=None,white=None,dim=19,komi=6.5,handicap=0,filename="Live.sgf",overlap_thinking=False,color="both"):
 		Toplevel.__init__(self,parent)
@@ -1283,6 +1350,302 @@ class LiveAnalysis(Toplevel):
 		self.goban.anchor_y=new_anchor_y
 		
 		self.goban.reset()
+
+
+class LiveAnalysisFromExistingGame(LiveAnalysis):
+	def __init__(self,parent,analyser=None,black=None,white=None,existing_game=None,starting_position=None,filename="Live.sgf",overlap_thinking=False,color="both"):
+		Toplevel.__init__(self,parent)
+		self.parent=parent
+		
+		self.existing_game=existing_game
+		self.starting_position=starting_position
+		
+		self.filename=filename
+		import goban
+		goban.fuzzy=grp_config.getfloat("Review", "FuzzyStonePlacement")
+		self.rsgf_filename=".".join(filename.split(".")[:-1])+".rsgf"
+		self.sgf_filename=".".join(filename.split(".")[:-1])+".sgf"
+		self.overlap_thinking=overlap_thinking
+		self.color=color
+		
+		self.analyser=analyser
+		self.black=black
+		self.white=white
+		
+		self.black_just_passed=False
+		self.white_just_passed=False
+		
+		self.initialize()
+
+
+	def initialize(self):
+		
+		sgfgame=open_sgf(self.existing_game)
+		sgf_moves.indicate_first_player(sgfgame)
+		move_zero=sgfgame.get_root()
+		nb_moves=get_moves_number(move_zero)
+		self.komi=sgfgame.get_komi()
+		self.dim=sgfgame.get_size()
+		dim=self.dim
+		
+		if self.starting_position<=nb_moves:
+			one_node=get_node(move_zero,self.starting_position)
+			one_node.delete()
+
+		self.g = sgfgame
+		
+		popup=self
+		buttons_with_status=[]
+		self.opened_tabs=[]
+		bg=popup.cget("background")
+		panel=Frame(popup, padx=5, pady=5, height=2, bd=1, relief=SUNKEN)
+		
+		panel.grid(column=1,row=1,sticky=N+S)
+		
+		display_factor=grp_config.getfloat("Live", "LiveGobanRatio")
+		screen_width = self.parent.winfo_screenwidth()
+		screen_height = self.parent.winfo_screenheight()
+		width=int(display_factor*screen_width)
+		height=int(display_factor*screen_height)
+		self.goban_size=min(width,height)
+		notebook=Notebook(popup)
+		self.notebook=notebook
+		notebook.grid(column=2,row=1,rowspan=2,sticky=N+S+E+W)
+		
+		live_tab=Frame(notebook)
+		live_tab.bind("<Visibility>",lambda event: self.refocus(live_tab))
+		
+		toolbar=Frame(live_tab)
+		toolbar.pack(fill=X)
+		
+		goban = Goban(dim,self.goban_size,master=live_tab,bg=bg,bd=0, borderwidth=0)
+		goban.space=self.goban_size/(dim+1+1+1)
+		goban.pack(fill=BOTH, expand=1)
+		notebook.add(live_tab, text=_("Live game"))
+		goban.bind("<Enter>",lambda e: self.set_status(_("<Ctrl+Q> to save the goban as an image.")))
+		buttons_with_status.append(goban)
+		
+		plus_tab=Frame(notebook)
+		notebook.add(plus_tab, text="+")
+		plus_tab.bind("<Visibility>",self.new_goban)
+
+		popup.grid_rowconfigure(1, weight=1)
+		popup.grid_columnconfigure(2, weight=1)
+		
+		grid=[[0 for r in range(dim)] for c in range(dim)]
+		markup=[["" for r in range(dim)] for c in range(dim)]
+		
+		#placing handicap stones
+		board, unused = sgf_moves.get_setup_and_moves(self.g)
+		for colour, move0 in board.list_occupied_points():
+			if move0 is None:
+				continue
+			row, col = move0
+			if colour=='b':
+				place(grid,row,col,1)
+			else:
+				place(grid,row,col,2)
+		
+		#placing already played stones
+		for m in range(1,self.starting_position):
+			one_move=get_node(move_zero,m)
+			ij=one_move.get_move()[1]
+			if ij==None:
+				continue #pass or resign move
+			if one_move.get_move()[0]=='b':
+				color=1
+			else:
+				color=2
+			i,j=list(ij)
+			place(grid,i,j,color)
+		
+		self.goban=goban
+		self.grid=grid
+		self.markup=markup
+
+		self.history=[]
+
+		self.g_lock=Lock()
+		self.g.lock=self.g_lock
+		
+		#self.analyser=self.analyser[0](self.g,self.filename)
+		self.analyser=self.analyser["liveanalysis"](self.g,self.rsgf_filename,self.analyser)
+		
+		
+		first_comment=_("Analysis by GoReviewPartner")
+		first_comment+="\n"+("Bot: %s/%s"%(self.analyser.bot.bot_name,self.analyser.bot.bot_version))
+		first_comment+="\n"+("Komi: %0.1f"%self.komi)
+
+		if grp_config.getboolean('Analysis', 'SaveCommandLine'):
+			first_comment+="\n"+("Command line: %s"%self.analyser.bot.command_line)
+
+		node_set(self.g.get_root(),"RSGF",first_comment+"\n")
+		node_set(self.g.get_root(),"BOT",self.analyser.bot.bot_name)
+		node_set(self.g.get_root(),"BOTV",self.analyser.bot.bot_version)
+		
+		self.cpu_lock=Lock()
+		if not self.overlap_thinking:
+			self.analyser.cpu_lock=self.cpu_lock #analyser and bot share the same cpu lock
+		
+		self.analyser.start()
+			
+		if type(self.black)!=type("abc"):
+			#black is neither human nor analyser
+			#so it's a bot
+			log("Starting bot for black")
+			self.black=self.black["starting"](self.g,profile=self.black)
+			log("Black bot started")
+		
+		if type(self.white)!=type("abc"):
+			#white is neither human nor analyser not black
+			#so it's a bot
+			log("Starting bot for white")
+			self.white=self.white["starting"](self.g,profile=self.white)
+			log("White bot started")
+
+		self.next_color=None
+		for node in self.g.get_main_sequence():
+			move=node.get_move()
+			if "b" in move:
+				move=ij2gtp(move[1])
+				self.analyser.bot.place_black(move)
+				if type(self.black)!=type("abc"):
+					self.black.bot.place_black(move)
+				if type(self.white)!=type("abc"):
+					self.white.bot.place_black(move)
+				self.next_color=2
+			elif "w" in move:
+				move=ij2gtp(move[1])
+				self.analyser.bot.place_white(move)
+				if type(self.black)!=type("abc"):
+					self.black.bot.place_white(move)
+				if type(self.white)!=type("abc"):
+					self.white.bot.place_white(move)
+				self.next_color=1
+		if not self.next_color:
+			player_color=guess_color_to_play(move_zero,self.starting_position)
+			log("Setting first color to play")
+			if player_color.lower()=='b':
+				self.next_color=1
+			else:
+				self.next_color=2
+		row=1
+		Label(panel,text=_("Game"), font="-weight bold").grid(column=1,row=row,sticky=W)
+
+		row+=1
+		if self.black=="human":
+			player_black=_("Human player")
+		elif self.black=="analyser":
+			player_black=self.analyser.bot.bot_name
+		else:
+			player_black=self.black.bot_name
+			
+		self.game_label=Label(panel,text=_("Black")+": "+player_black)
+		self.game_label.grid(column=1,row=row,sticky=W)
+		node_set(self.g.get_root(),"PB",player_black)
+		
+		row+=1
+		if self.white=="human":
+			player_white=_("Human player")
+		elif self.white=="analyser":
+			player_white=self.analyser.bot.bot_name
+		elif self.white=="black":
+			player_white=player_black
+		else:
+			player_white=self.white.bot_name
+			
+		self.game_label=Label(panel,text=_("White")+": "+player_white)
+		self.game_label.grid(column=1,row=row,sticky=W)
+		node_set(self.g.get_root(),"PW",player_white)
+		
+		row+=1
+		self.game_label=Label(panel,text=_("Komi")+": "+str(self.komi))
+		self.game_label.grid(column=1,row=row,sticky=W)
+
+		row+=1
+		self.game_label=Label(panel,text=_("Currently at move %i")%1)
+		self.game_label.grid(column=1,row=row,sticky=W)
+		
+		
+		row+=1
+		self.pass_button=Button(toolbar,text=_("Pass"),state="disabled",command=self.player_pass)
+		self.pass_button.bind("<Enter>",lambda e: self.set_status(_("Pass for this move")))
+		buttons_with_status.append(self.pass_button)
+		
+		self.undo_button=Button(toolbar,text=_("Undo"),state="disabled")
+		self.undo_button.bind("<Enter>",lambda e: self.set_status(_("Undo to previous move")))
+		buttons_with_status.append(self.undo_button)
+		
+		if (self.black=="human") or (self.white=="human"):
+			self.pass_button.pack(side=LEFT)
+			self.undo_button.pack(side=LEFT)
+		row+=1
+		if (self.black!="human") and (self.white!="human"):
+			row+=1
+			self.pause_button=Button(toolbar,text=_("Pause"),command=self.pause)
+			self.pause_button.pack(side=LEFT)
+			self.pause_button.bind("<Enter>",lambda e: self.set_status(_("Pause the game")))
+			buttons_with_status.append(self.pause_button)
+		self.pause_lock=Lock()
+		Label(toolbar,text=" ", height=2).pack(side=LEFT)
+		row+=1
+		Label(panel,text="").grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		Label(panel,text=_("Analysis"), font="-weight bold").grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		Label(panel,text=_("Analysis by %s")%self.analyser.bot.bot_name).grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		Label(panel,text=_("Status:")).grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		self.analysis_label=Label(panel,text=_("Ready to start"))
+		self.analysis_label.grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		Label(panel,fg=bg,text=_("Currently at move %i")%1000).grid(column=1,row=row,sticky=W) #yes, this is a ugly hack :)
+		row+=1
+		Label(panel,fg=bg,text=_("Waiting for next move")).grid(column=1,row=row,sticky=W) #yes, this is a ugly hack :)
+		
+		row+=1
+		Label(panel,text="").grid(column=1,row=row,sticky=W)
+		
+		row+=1
+		self.review_bouton_wrapper=Frame(panel)
+		self.review_bouton_wrapper.grid(column=1,row=row,sticky=W+E)
+		
+		self.status_bar=Label(self,text='',background=bg)
+		self.status_bar.grid(column=1,row=3,sticky=W,columnspan=2)
+		
+		for button in buttons_with_status:
+			button.bind("<Leave>",lambda e: self.clear_status())
+		
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		self.parent.after(500,self.follow_analysis)
+	
+		self.bind('<Control-q>', self.save_as_png)
+	
+		self.goban.bind("<Configure>",self.redraw)
+		
+		popup.focus()
+		self.locked=False
+		
+		self.goban.bind("<Button-3>",self.shine)
+
+		#self.starting()
+		self.after(500, self.starting)
+
+	def starting(self):
+		self.current_move=self.starting_position
+		self.save_sgf()
+		if self.next_color==1:
+			self.black_to_play()
+		else:
+			self.white_to_play()
+		
+
 
 if __name__ == "__main__":
 	top = Application()

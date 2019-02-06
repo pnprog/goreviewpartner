@@ -729,11 +729,14 @@ def guess_color_to_play(move_zero,move_number):
 		return player_color
 
 	if one_move is move_zero:
-		if node_get(move_zero,"PL").lower()=="b":
+		if node_has(move_zero,"PL"):
+			if node_get(move_zero,"PL").lower()=="b":
+				return "w"
+			if node_get(move_zero,"PL").lower()=="w":
+				return "b"
+		else:
 			return "w"
-		if node_get(move_zero,"PL").lower()=="w":
-			return "b"
-
+	
 	previous_move_color=guess_color_to_play(move_zero,move_number-1)
 
 	if previous_move_color.lower()=='b':
