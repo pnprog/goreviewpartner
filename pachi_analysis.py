@@ -52,6 +52,7 @@ class PachiAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
+				one_deep_move=one_deep_move.upper()
 				if one_deep_move in ["PASS","RESIGN"]:
 					log("Leaving the variation when encountering",one_deep_move)
 					break

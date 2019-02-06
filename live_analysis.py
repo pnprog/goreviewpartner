@@ -136,8 +136,7 @@ class LiveAnalysisLauncher(Toplevel):
 		analyser=grp_config.get("Live","Analyser")
 		if analyser in self.analysis_bots_names:
 			self.bot_selection.set(analyser)
-		
-		
+		self.change_parameters()
 		
 		black=grp_config.get("Live","black")
 		if black in self.black_options:
@@ -887,13 +886,12 @@ class LiveAnalysis(Toplevel):
 		color=self.next_color
 		if move=="RESIGN":
 			log("The bot is resigning")
+			self.goban.display(self.grid,self.markup)
 			if color==1:
 				show_info(self.gtp_thread.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
-				self.goban.display(self.grid,self.markup)
 				return
 			elif color==2:
 				show_info(self.gtp_thread.bot.bot_name+" ("+_("White")+"): "+move,parent=self)
-				self.goban.display(self.grid,self.markup)
 				return
 		elif move=="PASS":
 			log("The bot is passing")
@@ -1095,6 +1093,7 @@ class LiveAnalysis(Toplevel):
 			color=self.next_color
 			if move=="RESIGN":
 				log("The analyser is resigning")
+				self.goban.display(self.grid,self.markup)
 				if color==1:
 					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
 					return
@@ -1106,10 +1105,16 @@ class LiveAnalysis(Toplevel):
 				if color==1:
 					show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+move,parent=self)
 					if self.white_just_passed:
+						self.goban.display(self.grid,self.markup)
+						result=self.analyser.bot.final_score()
+						show_info(self.analyser.bot.bot_name+" ("+_("Black")+"): "+result,parent=self)
 						return
 				elif color==2:
 					show_info(self.analyser.bot.bot_name+" ("+_("White")+"): "+move,parent=self)
 					if self.black_just_passed:
+						self.goban.display(self.grid,self.markup)
+						result=self.analyser.bot.final_score()
+						show_info(self.analyser.bot.bot_name+": "+result,parent=self)
 						return
 				self.next_color=3-color
 				self.current_move+=1
