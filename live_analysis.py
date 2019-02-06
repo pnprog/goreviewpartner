@@ -1510,17 +1510,17 @@ class LiveAnalysisFromExistingGame(LiveAnalysis):
 				move=ij2gtp(move[1])
 				self.analyser.bot.place_black(move)
 				if type(self.black)!=type("abc"):
-					self.black.bot.place_black(move)
+					self.black.place_black(move)
 				if type(self.white)!=type("abc"):
-					self.white.bot.place_black(move)
+					self.white.place_black(move)
 				self.next_color=2
 			elif "w" in move:
 				move=ij2gtp(move[1])
 				self.analyser.bot.place_white(move)
 				if type(self.black)!=type("abc"):
-					self.black.bot.place_white(move)
+					self.black.place_white(move)
 				if type(self.white)!=type("abc"):
-					self.white.bot.place_white(move)
+					self.white.place_white(move)
 				self.next_color=1
 		if not self.next_color:
 			player_color=guess_color_to_play(move_zero,self.starting_position)
@@ -1645,7 +1645,37 @@ class LiveAnalysisFromExistingGame(LiveAnalysis):
 		else:
 			self.white_to_play()
 		
-
+	def save_sgf(self):
+		try:
+			write_rsgf(self.rsgf_filename,self.g)
+		except Exception, e:
+			log("Could not save the RSGF file!")
+			log(e)
+			log("\a")
+		self.g_lock.acquire()
+		try:
+			sgf_game = sgf.Sgf_game(size=self.dim)
+			node_set(sgf_game.get_root(),"KM", self.komi)
+			#node_set(sgf_game.get_root(),"AB",self.handicap_stones)
+			sgf_game.get_root().set_raw_list("AB",self.g.get_root().get_raw_list("AB"))
+			node_set(sgf_game.get_root(),"PB",node_get(self.g.get_root(),"PB"))
+			node_set(sgf_game.get_root(),"PW",node_get(self.g.get_root(),"PW"))
+			for node in self.g.get_main_sequence():
+				move=node.get_move()
+				if "b" in move:
+					move=move[1]
+					new_node=sgf_game.extend_main_sequence()
+					node_set(new_node,"b",move)
+				elif "w" in move:
+					move=move[1]
+					new_node=sgf_game.extend_main_sequence()
+					node_set(new_node,"w",move)
+			write_rsgf(self.sgf_filename,sgf_game)
+		except Exception, e:
+			log("Could not save the SGF file!")
+			log(e)
+			log("\a")
+		self.g_lock.release()
 
 if __name__ == "__main__":
 	top = Application()
