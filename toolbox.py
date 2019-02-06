@@ -1916,6 +1916,10 @@ class Application(Tk):
 		self.popups.remove(popup)
 		log("Totally",len(self.popups),"popups left")
 		if len(self.popups)==0:
+			try:
+				self.destroy()
+			except:
+				pass
 			time.sleep(2)
 			log("")
 			log("GoReviewPartner is closing")
