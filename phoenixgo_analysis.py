@@ -25,10 +25,6 @@ class PhoenixGoAnalysis():
 		else:
 			log("Phoenix Go play black")
 			answer=phoenixgo.play_black()
-		"""
-		if current_move>1:
-			es=phoenixgo.get_phoenixgo_final_score()
-			node_set(one_move,"ES",es)"""
 			
 		best_answer=answer
 		node_set(one_move,"CBM",answer) #Computer Best Move
@@ -441,7 +437,6 @@ class PhoenixGo_gtp(gtp):
 					position_evaluation['max reading depth']=max_reading_depth
 					position_evaluation['average reading depth']=average_reading_depth
 			except:
-				traceback.print_exc()
 				log(err_line.strip())
 			
 		if not info_available:

@@ -173,9 +173,6 @@ class Ray_gtp(gtp):
 				elif "Weights file is the wrong version." in err_line:
 					show_info(err_line.strip())
 					break
-				"""elif "A network weights file is required to use the program." in err_line:
-					show_info(err_line.strip())
-					break"""
 
 			except:
 				log("Could not find out, abandoning")

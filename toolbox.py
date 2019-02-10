@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from traceback import format_exc
-import traceback
+
 class GRPException(Exception):
 	def __init__(self,msg):
 		if type(msg)==type(u"abc"):
@@ -316,7 +316,7 @@ def convert_sgf_to_utf(content):
 			#the sgf is already in UTF, so we accept it directly
 			return game
 		else:
-			log("Encoding for",filename,"is",ca)
+			log("Encoding is",ca)
 			log("Converting from",ca,"to UTF-8")
 			encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
 			content=game.serialise()
@@ -655,17 +655,9 @@ class RangeSelector(Toplevel):
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
-			#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 			bot={bot['name']+" - "+bot['profile']:bot for bot in self.bots}[bot]
-
-			#RunAnalysis={bot_label:bot['runanalysis'] for bot in self.bots}[bot]
-			#profile={bot_label:bot['profile'] for bot in self.bots}[bot]
 			RunAnalysis=bot['runanalysis']
-			profile=bot['profile']
 
-			#bot_selection=int(self.bot_selection.curselection()[0])
-			#log("bot selection:",self.bots[bot_selection][0])
-			#RunAnalysis=self.bots[bot_selection][1]
 
 		if self.mode.get()=="all":
 			intervals="all moves"
@@ -1065,7 +1057,7 @@ class RunAnalysisBase(Toplevel):
 							for child in parent[1:]:
 								child.delete()
 							write_rsgf(self.rsgf_filename,self.g)
-			except Exception, e:
+			except:
 				#what could possibly go wrong with this?
 				pass
 			
@@ -1911,7 +1903,6 @@ class Application(Tk):
 		self.withdraw()
 	
 	def force_close(self):
-		import os
 		os._exit(0)
 	
 	def remove_popup(self,popup):
@@ -2495,8 +2486,8 @@ def main(bot):
 			profile={p["profile"]:p for p in get_bot_profiles(bot["name"])}[profile]
 			
 			if isinstance(filename, str):
-   				filename = unicode(filename, 'utf-8')
-   				
+				filename = unicode(filename, 'utf-8')
+			
 			filename2=".".join(filename.split(".")[:-1])+".rsgf"
 			if nogui:
 				popup=bot["runanalysis"]("no-gui",[filename,filename2],move_selection,intervals,variation-1,komi,profile)
