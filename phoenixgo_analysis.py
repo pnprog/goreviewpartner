@@ -19,24 +19,19 @@ class PhoenixGoAnalysis():
 		log("==============")
 		log("move",str(current_move))
 		
-		#additional_comments=""
 		if player_color in ('w',"W"):
 			log("Phoenix Go play white")
 			answer=phoenixgo.play_white()
 		else:
 			log("Phoenix Go play black")
 			answer=phoenixgo.play_black()
-		"""
-		if current_move>1:
-			es=phoenixgo.get_phoenixgo_final_score()
-			node_set(one_move,"ES",es)"""
 			
 		best_answer=answer
 		node_set(one_move,"CBM",answer) #Computer Best Move
 
 		position_evaluation=phoenixgo.get_all_phoenixgo_moves()
 		
-		if (answer.lower() in ["pass","resign"]):
+		if (answer in ["PASS","RESIGN"]):
 			phoenixgo.undo()
 		else:
 			#let's make sure there is at least one variation available
@@ -59,6 +54,7 @@ class PhoenixGoAnalysis():
 					answer=phoenixgo.play_black()
 				else:
 					answer=phoenixgo.play_white()
+				log(new_sequence,"=>", answer)
 				nb_undos+=1 #one have to remember to undo that move later
 				
 				new_position_evaluation=phoenixgo.get_all_phoenixgo_moves() #let's get stats for this new move
@@ -67,7 +63,7 @@ class PhoenixGoAnalysis():
 				if len(new_position_evaluation['variations'])==0:
 					new_position_evaluation['variations'].append({'sequence':answer})
 				
-				if (answer.lower() not in ["pass","resign"]):
+				if (answer not in ["PASS","RESIGN"]):
 					#let's check the lenght of the new sequence
 					new_sequence=new_position_evaluation["variations"][0]["sequence"]
 					#adding this new sequence to the old sequence
@@ -90,8 +86,8 @@ class PhoenixGoAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
-				if one_deep_move.lower() in ["pass","resign"]:
-					log("Leaving the variation when encountering",one_deep_move.lower())
+				if one_deep_move in ["PASS","RESIGN"]:
+					log("Leaving the variation when encountering",one_deep_move)
 					break
 
 				i,j=gtp2ij(one_deep_move)
@@ -130,19 +126,13 @@ class PhoenixGoAnalysis():
 				else:
 					current_color='w'
 		log("==== no more sequences =====")
-		"""
-		log("==== creating heat map =====")
-		raw_heat_map=phoenixgo.get_heatmap()
-		heat_map=""
-		for i in range(self.size):
-			for j in range(self.size):
-				if raw_heat_map[i][j]>=0.01:#ignore values lower than 1% to avoid generating heavy RSGF file
-					heat_map+=ij2sgf([i, j])+str(round(raw_heat_map[i][j],2))+","
-		
-		if heat_map:
-			node_set(one_move,"HTM",heat_map[:-1]) #HTM: heat map
-		
-		"""
+		try:
+			max_reading_depth=position_evaluation['max reading depth']
+			node_set(one_move,"MRD",str(max_reading_depth))
+			average_reading_depth=position_evaluation['average reading depth']
+			node_set(one_move,"ARD",str(average_reading_depth))
+		except:
+			pass
 		#one_move.add_comment_text(additional_comments)
 		return best_answer
 	
@@ -157,7 +147,7 @@ def phoenixgo_starting_procedure(sgf_g,profile,silentfail=False):
 	phoenixgo=bot_starting_procedure("PhoenixGo","PhoenixGo",PhoenixGo_gtp,sgf_g,profile,silentfail)
 	if not phoenixgo:
 		return False
-	"""try:
+	try:
 		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
@@ -165,7 +155,7 @@ def phoenixgo_starting_procedure(sgf_g,profile,silentfail=False):
 				log("Setting time per move")
 				phoenixgo.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
 	except:
-		log("Wrong value for PhoenixGo thinking time:",time_per_move)"""
+		log("Wrong value for PhoenixGo thinking time:",time_per_move)
 
 	return phoenixgo
 
@@ -199,38 +189,42 @@ class Tree(dict):
 	
 
 class PhoenixGo_gtp(gtp):
+	
+	def play_black(self):
+		self.write("genmove black")
+		
+		sleep(.5)
+		while not self.stderr_queue.empty():#emptying
+			while not self.stderr_queue.empty():
+				self.stderr_queue.get()
+			sleep(.5)
+			
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			self.history.append(["b",move])
+			return move
+		except Exception, e:
+			raise GRPException("GRPException in genmove_black()\nanswer='"+answer+"'\n"+unicode(e))
 
-	"""def get_heatmap(self):
-		while not self.stderr_queue.empty():
-			self.stderr_queue.get()
-		self.write("heatmap average")
-		one_line=self.readline() #empty line
-		buff=[]
-		while len(buff)<self.size+2:
-			buff.append(self.stderr_queue.get())
-		buff.reverse()
-		number_coordinate=1
-		letters="abcdefghjklmnopqrst"[:self.size]
-		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
-		pn_values=[]
-		for i in range(self.size+2):
-			one_line=buff[i].strip()
-			if "winrate" in one_line:
-				continue
-			if "pass" in one_line:
-				continue
-			one_line=one_line.strip()
-			one_line=[int(s) for s in one_line.split()]
-			new_values=[[letter_coordinate+str(number_coordinate),int(value)/1000.] for letter_coordinate,value in zip(letters,one_line)]
-			for nv in new_values:
-				pn_values.append(nv)
-			number_coordinate+=1
-
-		for coordinates,value in pn_values:
-			i,j=gtp2ij(coordinates)
-			pn[i][j]=value
-		return pn"""
-
+		
+	def play_white(self):
+		self.write("genmove white")
+		
+		sleep(.5)
+		while not self.stderr_queue.empty():#emptying
+			while not self.stderr_queue.empty():
+				self.stderr_queue.get()
+			sleep(.5)
+		
+		answer=self.readline().strip()
+		try:
+			move=answer.split(" ")[1]
+			self.history.append(["w",move])
+			return move
+		except Exception, e:
+			raise GRPException("GRPException in genmove_white()\nanswer='"+answer+"'\n"+unicode(e))
+	
 	def quick_evaluation(self,color):
 		if color==2:
 			self.play_white()
@@ -263,7 +257,6 @@ class PhoenixGo_gtp(gtp):
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		
-		self.stderr_starting_queue=Queue.Queue(maxsize=100)
 		self.stderr_queue=Queue.Queue()
 		self.stdout_queue=Queue.Queue()
 		
@@ -272,16 +265,21 @@ class PhoenixGo_gtp(gtp):
 		self.history=[]
 
 	def consume_stderr(self):
-		while 1:
+		
+		count=100
+		while count:
+			count-=1
 			try:
 				err_line=self.process.stderr.readline()
 				if err_line:
 					self.stderr_queue.put(err_line)
-					try:
-						self.stderr_starting_queue.put(err_line,block=False)
-					except:
-						#no need to keep all those log in memory, so there is a limit at 100 lines
-						pass
+					if "enable_background_search: true" in err_line:
+						log("=====================================================")
+						log("=== WARNING: Pondering is currently enabled       ===")
+						log("=== GRP works better with pondering disabled      ===")
+						log("=== Please turn \"enable_background_search\" at 0   ===")
+						log("=====================================================")
+						log("\a")
 				else:
 					log("leaving consume_stderr thread")
 					return
@@ -289,7 +287,18 @@ class PhoenixGo_gtp(gtp):
 				log("leaving consume_stderr thread due to exception:")
 				log(e)
 				return
-
+		while 1:
+			try:
+				err_line=self.process.stderr.readline()
+				if err_line:
+					self.stderr_queue.put(err_line)
+				else:
+					log("leaving consume_stderr thread")
+					return
+			except Exception, e:
+				log("leaving consume_stderr thread due to exception:")
+				log(e)
+				return
 
 	def get_phoenixgo_final_score(self):
 		self.write("final_score")
@@ -318,10 +327,12 @@ class PhoenixGo_gtp(gtp):
 		position_evaluation=Position()
 		found=False
 		tree=Tree()
+		info_available=False
 		for err_line in buff:
 			if not found:
 				if "========== debug info for" in err_line:
 					found=True
+					info_available=True
 					log(err_line.strip())
 			else:
 				log(err_line.strip())
@@ -337,7 +348,7 @@ class PhoenixGo_gtp(gtp):
 							best_first_move=sequence_move
 							q=float(move.split("(")[1].split(",")[1])
 							best_winrate=(q+1)*50
-							best_winrate=str(best_winrate)+"%"
+							best_winrate="%.2f%%"%best_winrate
 							best_playouts=move.split("(")[1].split(",")[0]
 						try:
 							sequence_move=self.coords2ij(sequence_move)
@@ -365,7 +376,7 @@ class PhoenixGo_gtp(gtp):
 						if move!=best_first_move:
 							top_branch=tree.branches[move]
 							winrate=top_branch.data.split(", Q=")[1].split(", ")[0]
-							winrate=str((float(winrate)+1)*50.)+"%"
+							winrate="%.2f%%"%((float(winrate)+1)*50.)
 							variation["value network win rate"]=winrate
 							playouts=top_branch.data.split(": N=")[1].split(", ")[0]
 							variation["playouts"]=playouts
@@ -410,40 +421,30 @@ class PhoenixGo_gtp(gtp):
 								leaf=leaf.branches[step]
 							else:
 								break
-					
+			
+			
 			try:
 				if ", winrate=" in err_line:
-					winrate=err_line.split(", winrate=")[1].split(", ")[0]
+					winrate=float(err_line.split(", winrate=")[1].split("%, ")[0])
+					winrate="%.2f%%"%winrate
 					if not "nan" in winrate:
 						position_evaluation['variations'][0]["value network win rate"]=winrate
 						log("winrate for first variation =>",winrate)
+				
+				if ", avg_height=" in err_line:
+					max_reading_depth=int(err_line.split(", height=")[1].split(", ")[0])
+					average_reading_depth=float(err_line.split(", avg_height=")[1].split(", ")[0])
+					position_evaluation['max reading depth']=max_reading_depth
+					position_evaluation['average reading depth']=average_reading_depth
 			except:
-				traceback.print_exc()
 				log(err_line.strip())
 			
-			"""if " ->" in err_line:
-				if err_line[0]==" ":
-					#log(err_line)
-					variation=Variation()
-					
-					one_answer=err_line.strip().split(" ")[0]
-					variation["first move"]=one_answer
-					
-					nodes=err_line.strip().split("(")[0].split("->")[1].replace(" ","")
-					variation["playouts"]=nodes
-					
-					value_network=err_line.split("(V:")[1].split('%')[0].strip()+"%"
-					variation["value network win rate"]=value_network #for Leela Zero, the value network is used as win rate
-					
-					policy_network=err_line.split("(N:")[1].split('%)')[0].strip()+"%"
-					variation["policy network value"]=policy_network
-					
-					sequence=err_line.split("PV: ")[1].strip()
-					variation["sequence"]=sequence
-					
-					#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
-					position_evaluation['variations']=[variation]+position_evaluation['variations']"""
-		
+		if not info_available:
+			log("=========================================================")
+			log("=== WARNING: no information found in PhoenixGo output ===")
+			log("=== Please make sure verbose level is 1    (--v=1)    ===")
+			log("=========================================================")
+			log("\a")
 
 		return position_evaluation
 

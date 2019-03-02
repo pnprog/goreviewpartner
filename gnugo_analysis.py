@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from gtp import gtp
-import sys
 from Tkinter import *
 from toolbox import *
 from toolbox import _
@@ -23,9 +22,9 @@ def get_full_sequence(worker,current_color,deepness):
 				answer=worker.play_white()
 				current_color="b"
 			sequence+=answer+" "
-			if answer.lower()=='resign':
+			if answer=='RESIGN':
 				break
-			if answer.lower()=='pass':
+			if answer=='PASS':
 				undos+=1
 				break
 			undos+=1
@@ -85,7 +84,7 @@ class GnuGoAnalysis():
 			log("\t",one_top_move)
 		log()
 		top_moves=top_moves[:min(self.nb_variations,self.maxvariations)]
-		if (answer.lower() not in ["pass","resign"]):
+		if (answer not in ["PASS","RESIGN"]):
 			gnugo.undo()
 			
 			while len(top_moves)>0:
@@ -126,7 +125,7 @@ class GnuGoAnalysis():
 					current_color=player_color
 					first_move=True
 					for one_deep_move in one_sequence.split(' '):
-						if one_deep_move.lower() not in ['resign','pass']:
+						if one_deep_move not in ['RESIGN','PASS']:
 							i,j=gtp2ij(one_deep_move)
 							new_child=previous_move.new_child()
 							node_set(new_child,current_color,(i,j))

@@ -52,12 +52,12 @@ class RayAnalysis():
 				#log("one_sequence=",one_sequence[1:])
 				first_variation_move=True
 				for one_deep_move in one_sequence.split(',')[1:]:
-					if one_deep_move.lower() in ["pass","resign"]:
-						log("Leaving the variation when encountering",one_deep_move.lower())
+					if one_deep_move in ["PASS","RESIGN"]:
+						log("Leaving the variation when encountering",one_deep_move)
 						break
 					current_color=one_deep_move[0]
 					one_deep_move=one_deep_move[1:].strip()
-					if one_deep_move.lower()!="pass":
+					if one_deep_move!="PASS":
 						i,j=gtp2ij(one_deep_move)
 						new_child=previous_move.new_child()
 						node_set(new_child,current_color,(i,j))
@@ -173,9 +173,6 @@ class Ray_gtp(gtp):
 				elif "Weights file is the wrong version." in err_line:
 					show_info(err_line.strip())
 					break
-				"""elif "A network weights file is required to use the program." in err_line:
-					show_info(err_line.strip())
-					break"""
 
 			except:
 				log("Could not find out, abandoning")

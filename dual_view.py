@@ -27,10 +27,6 @@ class OpenChart(Toplevel):
 		self.data=data
 		self.current_move=current_move
 
-		popup_width=self.parent.winfo_width()
-		popup_height=self.parent.winfo_height()/2+10
-		self.geometry(str(popup_width)+'x'+str(popup_height))
-		
 		self.last_graph=grp_config.get("Review","LastGraph")
 		self.initialize()
 
@@ -116,8 +112,13 @@ class OpenChart(Toplevel):
 		for data in self.data:
 			if data:
 				if ("score_estimation" in data) or ("upper_bound_score" in data) or ("lower_bound_score" in data):
-					#self.graph_mode.set(_("Score estimation")) # initialize
 					available_graphs.append(_("Score estimation"))
+					break
+		
+		for data in self.data:
+			if data:
+				if ("average_reading_depth" in data) or ("max_reading_depth" in data):
+					available_graphs.append(_("Reading depth"))
 					break
 		
 		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
@@ -129,20 +130,21 @@ class OpenChart(Toplevel):
 			self.graph_mode.set(self.last_graph)
 			
 		self.graph_mode.trace("w", lambda a,b,c: self.change_graph())
-		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0)
-		#self.chart.grid(sticky=N+S+W+E)
 		
+		chart_width=self.parent.winfo_width()
+		chart_height=self.parent.winfo_height()/3+10
+		self.chart = Canvas(popup,bg='white',bd=0, borderwidth=0,height=chart_height,width=chart_width)
+
 		self.chart.pack(fill=BOTH,expand=1, padx=5)
 		self.chart.bind("<Configure>",self.display)
 		
 		bottom_frame=Frame(popup)
 		bottom_frame.pack(anchor=W)
-		
 		self.status_bar=Label(bottom_frame,text='',background=bg)
 		self.status_bar.pack(anchor=W)
-		bottom_frame.pack()
-	
+		
 		self.clear_status()
+		
 		self.bind('<Control-q>', self.save_as_png)
 		
 		self.protocol("WM_DELETE_WINDOW", self.close)
@@ -195,6 +197,21 @@ class OpenChart(Toplevel):
 				self.chart.create_line(width-border-3, y1, width-border+3, y1, fill='black')
 				self.chart.create_line(border-3, y2, border+3, y2, fill='black')
 				self.chart.create_line(width-border-3, y2, width-border+3, y2, fill='black')
+				y0=y1
+	
+	def display_vertical_depth_graduation(self,border,height,width,maximum):
+		#drawing vertical graduation
+		graduations=[x for x in range(maximum+1)]
+		x0=border/2
+		x00=width-border/2
+		y0=height-border
+		for g in graduations:
+			y1=height-border-g*(height-2*border)/maximum
+			if y0-y1>=border/2:
+				self.chart.create_text(x0,y1, text=str(g),fill='black',font=self.font)
+				self.chart.create_text(x00,y1, text=str(g),fill='black',font=self.font)
+				self.chart.create_line(border-3, y1, border+3, y1, fill='black')
+				self.chart.create_line(width-border-3, y1, width-border+3, y1, fill='black')
 				y0=y1
 	
 	def change_graph(self,event=None):
@@ -262,7 +279,9 @@ class OpenChart(Toplevel):
 			moves=self.display_monte_carlo_delta(border,height,width)
 		elif mode in (_("Black Value Network win rate delta"),_("White Value Network win rate delta")):
 			moves=self.display_value_network_delta(border,height,width)
-		
+		elif mode==_("Reading depth"):
+			moves=self.display_reading_depth_graph(border,height,width,lpix)
+			
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
 		self.display_axis(height,width,border)
 
@@ -561,6 +580,7 @@ class OpenChart(Toplevel):
 		self.display_vertical_winrate_graduation(border,height,width)
 		return moves
 
+
 	def display_score_graph(self,border,height,width,lpix):
 		self.chart.create_text(border+len(_("Win for Black"))*lpix/2,border+lpix, text=_("Win for Black"),fill='black',font=self.font)
 		self.chart.create_text(border+len(_("Win for White"))*lpix/2,height-border-lpix, text=_("Win for White"),fill='black',font=self.font)
@@ -630,6 +650,49 @@ class OpenChart(Toplevel):
 		self.display_vertical_score_graduation(border,height,width,maximum)
 		return moves
 
+
+	def display_reading_depth_graph(self,border,height,width,lpix):
+		
+		moves=[]
+		#checking graph limits
+		maximum=8
+		for one_data in self.data:
+			if "average_reading_depth" in one_data:
+				maximum=max(maximum,one_data["average_reading_depth"])
+			if "max_reading_depth" in one_data:
+				maximum=max(maximum,one_data["max_reading_depth"])
+		maximum+=2
+		space=1.0*(width-2*border)/(self.nb_moves+1)
+		for one_data in self.data:
+			if "max_reading_depth" in one_data:
+				move=one_data["move"]
+				moves.append(move)
+				x0=border+(move-1)*space
+				x1=x0+space
+				
+				max_reading_depth=one_data["max_reading_depth"]
+				y0=height-border
+				y1=height-border-max_reading_depth*(height-2*border)/maximum
+				light_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#E6E6E6',outline='grey')
+				
+				average_reading_depth=one_data["average_reading_depth"]
+				y0=height-border
+				y1=height-border-average_reading_depth*(height-2*border)/maximum
+				dark_bar=self.chart.create_rectangle(x0, y0, x1, y1, fill='#aaaaaa',outline='grey')
+				
+				msg1=_("Move %i, for this position, the bot reads up to %d moves ahead.")%(move,max_reading_depth)
+				self.chart.tag_bind(light_bar, "<Enter>", partial(self.set_status,msg=msg1))
+				self.chart.tag_bind(light_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(light_bar, "<Button-1>",partial(self.goto_move,move=move))
+				
+				msg2=_("Move %i, for this position, the bot reads in average %.1f moves ahead.")%(move,average_reading_depth)
+				self.chart.tag_bind(dark_bar, "<Enter>", partial(self.set_status,msg=msg2))
+				self.chart.tag_bind(dark_bar, "<Leave>", self.clear_status)
+				self.chart.tag_bind(dark_bar, "<Button-1>",partial(self.goto_move,move=move))
+			
+		self.display_vertical_depth_graduation(border,height,width,maximum)
+		return moves
+
 	def display_axis(self,height,width,border):
 		#drawing axis
 		x0=border
@@ -639,7 +702,8 @@ class OpenChart(Toplevel):
 		x1=width-border
 		self.chart.create_line(x1, y0, x1, y1, fill='black')
 		self.chart.create_line(x0, y0, x1, y0, fill='black')
-		self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
+		if self.last_graph!=_("Reading depth"):
+			self.chart.create_line(x0, (y0+y1)/2, x1, (y0+y1)/2, fill='black')
 	
 	def display_horizontal_graduation(self,moves,height,width,border,lpix):
 		#drawing horizontal graduation
@@ -834,16 +898,6 @@ class TableWidget:
 						i,j=gtp2ij(columns[1][r])
 						
 						one_label.bind("<Enter>",partial(self.show_variation,one_label=one_label,i=i,j=j))
-						"""
-						if self.parent.right_notebook.raised()=="bot":
-							grid, markup=self.parent.right_bot_goban.grid, self.parent.right_bot_goban.markup
-							one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.right_bot_goban,grid=grid,markup=markup,i=i,j=j))
-							one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.right_bot_goban,grid,markup))
-						elif self.parent.left_notebook.raised()=="bot":
-							grid, markup=self.parent.left_bot_goban.grid, self.parent.left_bot_goban.markup
-							one_label.bind("<Enter>",partial(self.parent.show_variation,goban=self.parent.left_bot_goban,grid=grid,markup=markup,i=i,j=j))
-							one_label.bind("<Leave>", lambda e: self.parent.leave_variation(self.parent.left_bot_goban,grid,markup))
-						"""
 					else:
 						one_label.config(bd=2)
 					
@@ -1132,7 +1186,7 @@ class DualView(Toplevel):
 			
 			try:
 				player_color,player_move=one_move.get_move()
-				player_move=ij2gtp(player_move).upper()
+				player_move=ij2gtp(player_move)
 				one_data['move']=m #move number
 			except:
 				pass
@@ -1165,6 +1219,18 @@ class DualView(Toplevel):
 					one_data['lower_bound_score']=float(lbs[1:])
 				else:
 					one_data['lower_bound_score']=-float(lbs[1:])
+			except:
+				pass
+			
+			try:
+				ard=node_get(one_move,'ARD')
+				one_data['average_reading_depth']=float(ard)
+			except:
+				pass
+			
+			try:
+				mrd=node_get(one_move,'MRD')
+				one_data['max_reading_depth']=int(mrd)
 			except:
 				pass
 			
@@ -1220,7 +1286,7 @@ class DualView(Toplevel):
 					current_position_win_rate=next_position_win_rate
 					one_data['position_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
-				one_data['winrate_delta']=delta
+				one_data['winrate_delta']=round(delta,2)
 			except:
 				pass
 			
@@ -1237,7 +1303,7 @@ class DualView(Toplevel):
 					current_position_win_rate=next_position_win_rate
 					one_data['monte_carlo_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['monte_carlo_win_rate']
-				one_data['mcwr_delta']=delta
+				one_data['mcwr_delta']=round(delta,2)
 			except:
 				pass
 			
@@ -1254,7 +1320,7 @@ class DualView(Toplevel):
 					current_position_win_rate=next_position_win_rate
 					one_data['value_network_win_rate']=next_position_win_rate
 				delta=next_position_win_rate-one_data['value_network_win_rate']
-				one_data['vnwr_delta']=delta
+				one_data['vnwr_delta']=round(delta,2)
 			except:
 				pass
 			
@@ -1602,23 +1668,6 @@ class DualView(Toplevel):
 		self.update_game_gobans(move)
 		self.update_both_bot_gobans(move)
 
-		
-	def open_move(self):
-		log("Opening move",self.current_move)
-		
-		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf)
-		new_popup.goban.mesh=self.left_game_goban.mesh
-		new_popup.goban.wood=self.left_game_goban.wood
-		new_popup.goban.black_stones=self.left_game_goban.black_stones_style
-		new_popup.goban.white_stones=self.left_game_goban.white_stones_style
-		
-		new_popup.goban.grid=new_popup.grid
-		new_popup.goban.markup=new_popup.markup
-		new_popup.goban.reset()
-		#new_popup.goban.display(new_popup.grid,new_popup.markup)
-		
-		self.add_popup(new_popup)
-
 	def update_from_file(self):
 		period=20
 		try:
@@ -1671,6 +1720,9 @@ class DualView(Toplevel):
 		
 		self.after(period*1000,self.update_from_file)
 	
+	def stone_sound(self):
+		play_stone_sound()
+		
 	def click_game_goban(self,event):
 		goban=event.widget
 		dim=self.dim
@@ -1700,6 +1752,7 @@ class DualView(Toplevel):
 					goban.black_stones[i][j].shine()
 				else:
 					goban.white_stones[i][j].shine()
+				self.stone_sound()
 				
 				goban.left_variation_index+=1
 				
@@ -2028,7 +2081,7 @@ class DualView(Toplevel):
 		
 		gobans_frame.add(left_notebook, stretch="always") #https://mail.python.org/pipermail/tkinter-discuss/2012-May/003146.html
 		gobans_frame.add(right_notebook, stretch="always")
-		
+		self.gobans_frame=gobans_frame
 		
 		#######################
 		toolbar=Frame(left_game_tab)
@@ -2180,9 +2233,13 @@ class DualView(Toplevel):
 		final_move_button=Button(self.buttons_bar2, text=' >>|',command=self.final_move)
 		
 		# Such widgets for the buttons_bar2 - commands and extra windows
+		self.pane_mode_button=Button(self.buttons_bar2,text=_("Single-panel"),command=self.one_or_two_panels)
+		one_or_two_panels=grp_config.getint("Review", "OneOrTwoPanels")
+		if one_or_two_panels==1:
+			self.one_or_two_panels()
+		
 		self.table_button=Button(self.buttons_bar2,text=_("Table"),command=self.open_table)
 		self.charts_button=Button(self.buttons_bar2, text=_('Graphs'),command=self.show_graphs, state=DISABLED)
-
 		for data in self.data_for_chart:
 			if data!=None:
 				self.charts_button.configure( state = NORMAL )
@@ -2211,6 +2268,7 @@ class DualView(Toplevel):
 		self.buttons_bar2.columnconfigure(50, weight=1)
 		
 		#Place widgets in command bar
+		self.pane_mode_button.grid(column=100,row=1)
 		self.table_button.grid(column=101,row=1)
 		self.charts_button.grid(column=102,row=1)
 		
@@ -2279,10 +2337,19 @@ class DualView(Toplevel):
 		self.after(10000,self.update_from_file)
 		
 		
-		
-		
+	def one_or_two_panels(self):
+		current_mode=self.pane_mode_button.cget("text")
+		if current_mode==_("Dual-panel"):
+			self.gobans_frame.add(self.left_notebook, stretch="always")
+			current_mode=self.pane_mode_button.config(text=_("Single-panel"))
+			grp_config.set("Review", "OneOrTwoPanels",2)
+		else:
+			self.gobans_frame.remove(self.left_notebook)
+			current_mode=self.pane_mode_button.config(text=_("Dual-panel"))
+			grp_config.set("Review", "OneOrTwoPanels",1)
 
 	def redraw_left(self, event, redrawing=None):
+		
 		if not redrawing:
 			redrawing=time.time()
 			self.redrawing_left=redrawing
@@ -2302,13 +2369,7 @@ class DualView(Toplevel):
 		grp_config.set("Review", "LeftGobanRatio",ratio)
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
-		goban=event.widget
-		goban.space=new_space
-		goban.anchor_x=new_anchor_x
-		goban.anchor_y=new_anchor_y
-		goban.reset()
-		
-		
+
 		for goban in [self.left_bot_goban, self.left_game_goban]+[tab.goban for tab in self.left_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
@@ -2337,12 +2398,6 @@ class DualView(Toplevel):
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
 		
-		goban=event.widget
-		goban.space=new_space
-		goban.anchor_x=new_anchor_x
-		goban.anchor_y=new_anchor_y
-		goban.reset()
-		
 		for goban in [self.right_bot_goban, self.right_game_goban]+[tab.goban for tab in self.right_side_opened_tabs]:
 			goban.space=new_space
 			goban.anchor_x=new_anchor_x
@@ -2363,11 +2418,13 @@ class DualView(Toplevel):
 
 	def save_left_as_png(self,event=None):
 		goban=self.left_game_goban
+		goban.parent=self
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(goban,filename)
 
 	def save_right_as_png(self,event=None):
 		goban=self.right_game_goban
+		goban.parent=self
 		filename = save_png_file(parent=self,filename='move'+str(self.current_move)+'.png')
 		canvas2png(goban,filename)
 	

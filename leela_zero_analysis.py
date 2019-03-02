@@ -36,7 +36,7 @@ class LeelaZeroAnalysis():
 
 		position_evaluation=leela_zero.get_all_leela_zero_moves()
 		
-		if (answer.lower() in ["pass","resign"]):
+		if (answer in ["PASS","RESIGN"]):
 			leela_zero.undo()
 		else:
 			#let's make sure there is at least one variation available
@@ -67,7 +67,7 @@ class LeelaZeroAnalysis():
 				if len(new_position_evaluation['variations'])==0:
 					new_position_evaluation['variations'].append({'sequence':answer})
 				
-				if (answer.lower() not in ["pass","resign"]):
+				if (answer not in ["PASS","RESIGN"]):
 					#let's check the lenght of the new sequence
 					new_sequence=new_position_evaluation["variations"][0]["sequence"]
 					#adding this new sequence to the old sequence
@@ -90,8 +90,8 @@ class LeelaZeroAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
-				if one_deep_move.lower() in ["pass","resign"]:
-					log("Leaving the variation when encountering",one_deep_move.lower())
+				if one_deep_move in ["PASS","RESIGN"]:
+					log("Leaving the variation when encountering",one_deep_move)
 					break
 
 				i,j=gtp2ij(one_deep_move)
@@ -130,6 +130,14 @@ class LeelaZeroAnalysis():
 				else:
 					current_color='w'
 		log("==== no more sequences =====")
+		
+		try:
+			max_reading_depth=position_evaluation['max reading depth']
+			node_set(one_move,"MRD",str(max_reading_depth))
+			average_reading_depth=position_evaluation['average reading depth']
+			node_set(one_move,"ARD",str(average_reading_depth))
+		except:
+			pass
 		
 		log("==== creating heat map =====")
 		raw_heat_map=leela_zero.get_heatmap()
@@ -203,7 +211,7 @@ class Leela_Zero_gtp(gtp):
 			buff.append(self.stderr_queue.get())
 		buff.reverse()
 		number_coordinate=1
-		letters="abcdefghjklmnopqrst"[:self.size]
+		letters="ABCDEFGHJKLMNOPQRST"[:self.size]
 		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
 		pn_values=[]
 		for i in range(self.size+2):
@@ -339,6 +347,9 @@ class Leela_Zero_gtp(gtp):
 		for err_line in buff:
 			#log(err_line)
 			try: #for comptability with Leela Zero dynamic komi
+				if "average depth," in err_line and "max depth" in err_line:
+					position_evaluation["average reading depth"]=float(err_line.split()[0])
+					position_evaluation["max reading depth"]=int(err_line.split()[3])
 				if " ->" in err_line:
 					if err_line[0]==" ":
 						#log(err_line)
@@ -357,7 +368,7 @@ class Leela_Zero_gtp(gtp):
 						variation["policy network value"]=policy_network
 						
 						sequence=err_line.split("PV: ")[1].strip()
-						variation["sequence"]=sequence
+						variation["sequence"]=sequence.upper()
 						
 						#answers=[[one_answer,sequence,value_network,policy_network,nodes]]+answers
 						position_evaluation['variations']=[variation]+position_evaluation['variations']

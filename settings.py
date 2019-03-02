@@ -9,6 +9,7 @@ from aq_analysis import AQSettings
 from leela_zero_analysis import LeelaZeroSettings
 from pachi_analysis import PachiSettings
 from phoenixgo_analysis import PhoenixGoSettings
+from gtp_bot import GtpBotSettings
 from toolbox import *
 from toolbox import _
 
@@ -17,7 +18,7 @@ class OpenSettings(Toplevel):
 		if self.setting_frame:
 			self.setting_frame.pack_forget()
 		
-		settings_dict={"GRP":self.display_GRP_settings, "AQ":AQSettings, "GnuGo":GnuGoSettings, "Leela":LeelaSettings, "Ray":RaySettings, "Leela Zero":LeelaZeroSettings, "Pachi":PachiSettings, "PhoenixGo":PhoenixGoSettings}
+		settings_dict={"GRP":self.display_GRP_settings, "AQ":AQSettings, "GnuGo":GnuGoSettings, "Leela":LeelaSettings, "Ray":RaySettings, "Leela Zero":LeelaZeroSettings, "Pachi":PachiSettings, "PhoenixGo":PhoenixGoSettings, "GtpBot": GtpBotSettings}
 		
 		self.setting_frame=Frame(self.right_column)
 		self.setting_frame.parent=self
@@ -92,21 +93,19 @@ class OpenSettings(Toplevel):
 		FuzzyStonePlacement.set(grp_config.get("Review","FuzzyStonePlacement"))
 		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row,column=2)
 		row+=1
+		
 		Label(setting_frame,text=_("Real game sequence deepness")).grid(row=row,column=1,sticky=W)
 		RealGameSequenceDeepness = StringVar() 
 		RealGameSequenceDeepness.set(grp_config.get("Review","RealGameSequenceDeepness"))
 		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row,column=2)
 		row+=1
-		"""Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row,column=1,sticky=W)
-		GobanScreenRatio = StringVar() 
-		GobanScreenRatio.set(grp_config.get("Review","GobanScreenRatio"))
-		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row,column=2)
-		row+=1"""
+		
 		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(grp_config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
 		row+=1
+		
 		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
 		VariationsColoring = StringVar()
 		coloring={"blue_for_winning":_("Win rate > 50% in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
@@ -177,6 +176,7 @@ class OpenSettings(Toplevel):
 		Radiobutton(left_column, text="Leela Zero",command=self.display_settings,variable=self.setting_mode, value="Leela Zero",indicatoron=0).pack(side=TOP, fill=X)
 		Radiobutton(left_column, text="Pachi",command=self.display_settings,variable=self.setting_mode, value="Pachi",indicatoron=0).pack(side=TOP, fill=X)
 		Radiobutton(left_column, text="PhoenixGo",command=self.display_settings,variable=self.setting_mode, value="PhoenixGo",indicatoron=0).pack(side=TOP, fill=X)
+		Radiobutton(left_column, text="GTP bots",command=self.display_settings,variable=self.setting_mode, value="GtpBot",indicatoron=0).pack(side=TOP, fill=X)
 		
 		self.right_column=right_column
 		self.setting_frame=None
@@ -215,14 +215,7 @@ class OpenSettings(Toplevel):
 		
 		command=command.get()
 		parameters=parameters.get().split()
-		
-		"""if profil=="slow":
-			command=self.current_settings.SlowCommand.get()
-			parameters=self.current_settings.SlowParameters.get().split()
-		if profil=="fast":
-			command=self.current_settings.FastCommand.get()
-			parameters=self.current_settings.FastParameters.get().split()"""
-		
+			
 		if not command:
 			log("Empty command line!")
 			return

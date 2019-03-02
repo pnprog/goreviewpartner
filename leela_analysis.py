@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from gtp import gtp
-import sys
 from Tkinter import *
 from time import sleep
 from toolbox import *
@@ -35,14 +34,13 @@ class LeelaAnalysis():
 
 		if "estimated score" in position_evaluation:
 			node_set(one_move,"ES",position_evaluation["estimated score"])
-		if (answer.lower() in ["pass","resign"]):
+		if (answer in ["PASS","RESIGN"]):
 			bookmove=False
 			leela.undo()
 			nb_undos=0
 		else:
 			nb_undos=1 #let's remember to undo that move from Leela
 			
-			#one_move.set("CBM",answer.lower()) #Computer Best Move
 			if 'book move' in position_evaluation:
 				bookmove=True
 			else:
@@ -75,7 +73,7 @@ class LeelaAnalysis():
 				if len(new_position_evaluation['variations'])==0:
 					new_position_evaluation['variations'].append({'sequence':answer})
 				
-				if (answer.lower() not in ["pass","resign"]):
+				if (answer not in ["PASS","RESIGN"]):
 					#let's check the lenght of the new sequence
 					new_sequence=new_position_evaluation["variations"][0]["sequence"]
 					#adding this new sequence to the old sequence
@@ -99,8 +97,8 @@ class LeelaAnalysis():
 			current_color=player_color	
 			first_variation_move=True
 			for one_deep_move in variation['sequence'].split(' '):
-				if one_deep_move.lower() in ["pass","resign"]:
-					log("Leaving the variation when encountering",one_deep_move.lower())
+				if one_deep_move in ["PASS","RESIGN"]:
+					log("Leaving the variation when encountering",one_deep_move)
 					break
 
 				i,j=gtp2ij(one_deep_move)
@@ -257,7 +255,7 @@ class Leela_gtp(gtp):
 			buff.append(self.stderr_queue.get())
 		buff.reverse()
 		number_coordinate=1
-		letters="abcdefghjklmnopqrst"[:self.size]
+		letters="ABCDEFGHJKLMNOPQRST"[:self.size]
 		pn=[["NA" for i in range(self.size)] for j in range(self.size)] #pn: policy network
 		pn_values=[]
 		for i in range(self.size):
@@ -394,7 +392,7 @@ class Leela_gtp(gtp):
 				if one_score!="0.00%":
 					variation["win rate"]=one_score
 					sequence=err_line.split("PV: ")[1].strip()
-					variation["sequence"]=sequence
+					variation["sequence"]=sequence.upper()
 					position_evaluation['variations'].append(variation)
 		return position_evaluation
 

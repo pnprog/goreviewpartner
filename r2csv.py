@@ -88,7 +88,7 @@ def rsgf2csv(filename):
 				if node_has(next_move,sgf_property):
 					if sgf_property=="B" or sgf_property=="W":
 						value=node_get(one_move,color.upper())
-						value=ij2gtp(value).upper()
+						value=ij2gtp(value)
 					else:
 						value=node_get(next_move,sgf_property)
 						
@@ -140,7 +140,7 @@ def rsgf2csv(filename):
 					if node_has(one_move,sgf_property):
 						if sgf_property=="B" or sgf_property=="W":
 							value=node_get(one_move,color.upper())
-							value=ij2gtp(value).upper()
+							value=ij2gtp(value)
 						else:
 							value=node_get(one_move,sgf_property)
 						if "%/" in value:

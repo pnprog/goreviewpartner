@@ -46,8 +46,7 @@ class AQAnalysis():
 
 		all_moves=aq.get_all_aq_moves()
 
-		if (answer.lower() not in ["pass","resign"]):
-			#one_move.set("CBM",answer.lower()) #Computer Best Move
+		if (answer not in ["PASS","RESIGN"]):
 			best_move=True
 
 			log("Number of alternative sequences:",len(all_moves))
@@ -62,8 +61,8 @@ class AQAnalysis():
 				first_variation_move=True
 				for one_deep_move in one_sequence.split(' '):
 
-					if one_deep_move.lower() in ["pass","resign"]:
-						log("Leaving the variation when encountering",one_deep_move.lower())
+					if one_deep_move in ["PASS","RESIGN"]:
+						log("Leaving the variation when encountering",one_deep_move)
 						break
 					i,j=gtp2ij(one_deep_move)
 					new_child=previous_move.new_child()
@@ -102,7 +101,7 @@ class AQAnalysis():
 			log("==== no more sequences =====")
 			aq.undo()
 		else:
-			log('adding "'+answer.lower()+'" to the sgf file')
+			log('adding "'+answer+'" to the sgf file')
 			aq.undo()
 
 

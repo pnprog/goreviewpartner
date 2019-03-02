@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from traceback import format_exc
 
 class GRPException(Exception):
 	def __init__(self,msg):
 		if type(msg)==type(u"abc"):
-			print "converting GRPException error message from unicode to str"
 			self.utf_msg=msg
 			self.str_msg=msg.encode("utf-8",errors='replace')
 		else:
 			self.str_msg=msg
 			self.utf_msg=msg.decode("utf-8",errors='replace')
+		log("===")
+		log(format_exc())
+		log("===")
 		Exception.__init__(self,self.str_msg)
 	
 	def __unicode__(self):
@@ -102,11 +105,11 @@ def go_to_move(move_zero,move_number=0):
 		k+=1
 	return move
 
+
 def gtp2ij(move):
 	try:
-		#letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-		letters="abcdefghjklmnopqrstuvwxyz"
-		return int(move[1:])-1,letters.index(move[0].lower())
+		letters="ABCDEFGHJKLMNOPQRSTUVWXYZ"
+		return int(move[1:])-1,letters.index(move[0])
 	except:
 		raise GRPException("Cannot convert GTP coordinates "+str(move)+" to grid coordinates!")
 
@@ -119,8 +122,7 @@ def ij2gtp(m):
 		if m==None:
 			return "pass"
 		i,j=m
-		#letters=['a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t']
-		letters="abcdefghjklmnopqrstuvwxyz"
+		letters="ABCDEFGHJKLMNOPQRSTUVWXYZ"
 		return letters[j]+str(i+1)
 	except:
 		raise GRPException("Cannot convert grid coordinates "+str(m)+" to GTP coordinates!")
@@ -314,7 +316,7 @@ def convert_sgf_to_utf(content):
 			#the sgf is already in UTF, so we accept it directly
 			return game
 		else:
-			log("Encoding for",filename,"is",ca)
+			log("Encoding is",ca)
 			log("Converting from",ca,"to UTF-8")
 			encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
 			content=game.serialise()
@@ -653,17 +655,9 @@ class RangeSelector(Toplevel):
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
-			#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 			bot={bot['name']+" - "+bot['profile']:bot for bot in self.bots}[bot]
-
-			#RunAnalysis={bot_label:bot['runanalysis'] for bot in self.bots}[bot]
-			#profile={bot_label:bot['profile'] for bot in self.bots}[bot]
 			RunAnalysis=bot['runanalysis']
-			profile=bot['profile']
 
-			#bot_selection=int(self.bot_selection.curselection()[0])
-			#log("bot selection:",self.bots[bot_selection][0])
-			#RunAnalysis=self.bots[bot_selection][1]
 
 		if self.mode.get()=="all":
 			intervals="all moves"
@@ -727,11 +721,14 @@ def guess_color_to_play(move_zero,move_number):
 		return player_color
 
 	if one_move is move_zero:
-		if node_get(move_zero,"PL").lower()=="b":
+		if node_has(move_zero,"PL"):
+			if node_get(move_zero,"PL").lower()=="b":
+				return "w"
+			if node_get(move_zero,"PL").lower()=="w":
+				return "b"
+		else:
 			return "w"
-		if node_get(move_zero,"PL").lower()=="w":
-			return "b"
-
+	
 	previous_move_color=guess_color_to_play(move_zero,move_number-1)
 
 	if previous_move_color.lower()=='b':
@@ -819,21 +816,9 @@ class LiveAnalysisBase():
 
 			if type(msg)==type("undo xxx"):
 				move_to_undo=int(msg.split()[1])
-				#move_to_undo=int(priority+1)
 				log("received undo msg for move",move_to_undo,"and beyong")
-				self.best_moves_queue.put((priority,msg))#sending echo
-				"""if move_to_undo>self.current_move:
-					log("Analysis of move",move_to_undo,"has not started yet, so let's forget about it")
-				else:
-					log("Analysis of move",move_to_undo,"was completed already, let's remove that branch")
-					
-					
-					
-					while self.current_move>=move_to_undo:
-						log("Undoing move",self.current_move,"through GTP")
-						self.undo()
-						self.current_move-=1"""
 				
+
 				log("GTP bot is currently at move",len(self.bot.history))
 				while len(self.bot.history)>=move_to_undo:
 					log("Undoing move",len(self.bot.history),"through GTP")
@@ -853,6 +838,7 @@ class LiveAnalysisBase():
 				write_rsgf(self.rsgf_filename,self.g)
 				self.cpu_lock.release()
 				self.update_queue.put((0,"wait"))
+				self.best_moves_queue.put((priority,msg))#sending echo
 				continue
 
 			log("Analyser received msg to analyse move",msg)
@@ -882,7 +868,7 @@ class LiveAnalysisBase():
 				log("Game move:",game_move)
 				if game_move:
 					if self.no_variation_if_same_move:
-						if ij2gtp(game_move)==answer.lower():
+						if ij2gtp(game_move)==answer:
 							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
 							parent=go_to_move(self.move_zero,self.current_move-1)
 							for child in parent[1:]:
@@ -1065,17 +1051,17 @@ class RunAnalysisBase(Toplevel):
 				game_move=go_to_move(self.move_zero,self.current_move).get_move()[1]
 				if game_move:
 					if self.no_variation_if_same_move:
-						if ij2gtp(game_move)==answer.lower():
+						if ij2gtp(game_move)==answer:
 							log("Bot move and game move are the same ("+answer+"), removing variations for this move")
 							parent=go_to_move(self.move_zero,self.current_move-1)
 							for child in parent[1:]:
 								child.delete()
 							write_rsgf(self.rsgf_filename,self.g)
-			except Exception, e:
+			except:
 				#what could possibly go wrong with this?
 				pass
 			
-			if (answer.lower()=="resign") and (self.stop_at_first_resign==True):
+			if (answer=="RESIGN") and (self.stop_at_first_resign==True):
 				log("")
 				log("The analysis will stop now")
 				log("")
@@ -1306,10 +1292,11 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile,silentfai
 		except Exception, e:
 			raise GRPException((_("%s did not reply as expected to the GTP name command:")%bot_name)+"\n"+unicode(e))
 
-
-		if answer!=bot_gtp_name:
-			raise GRPException((_("%s did not identify itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
-
+		if bot_gtp_name!='GtpBot':
+			if answer!=bot_gtp_name:
+				raise GRPException((_("%s did not identify itself as expected:")%bot_name)+"\n'"+bot_gtp_name+"' != '"+answer+"'")
+		else:
+			bot_gtp_name=answer
 
 		log(bot_name+" identified itself properly")
 		log("Checking version through GTP...")
@@ -1611,6 +1598,7 @@ class MyConfig():
 		self.default_values["general"]["rsgffolder"]=""
 		self.default_values["general"]["pngfolder"]=""
 		self.default_values["general"]["livefolder"]=""
+		self.default_values["general"]["stonesound"]=""
 		
 		self.default_values["analysis"]={}
 		self.default_values["analysis"]["maxvariations"]="26"
@@ -1634,6 +1622,7 @@ class MyConfig():
 		self.default_values["review"]["yellowbar"]="#F39C12"
 		self.default_values["review"]["lastbot"]=""
 		self.default_values["review"]["lastmap"]=""
+		self.default_values["review"]["oneortwopanels"]="1"
 		
 		self.default_values["live"]={}
 		self.default_values["live"]["livegobanratio"]="0.4"
@@ -1644,7 +1633,7 @@ class MyConfig():
 		self.default_values["live"]["analyser"]=""
 		self.default_values["live"]["black"]=""
 		self.default_values["live"]["white"]=""
-		
+		self.default_values["live"]["thinkbeforeplaying"]="0"
 		
 	def set(self, section, key, value):
 		if type(value) in (type(1), type(0.5), type(True)):
@@ -1914,7 +1903,6 @@ class Application(Tk):
 		self.withdraw()
 	
 	def force_close(self):
-		import os
 		os._exit(0)
 	
 	def remove_popup(self,popup):
@@ -1922,6 +1910,10 @@ class Application(Tk):
 		self.popups.remove(popup)
 		log("Totally",len(self.popups),"popups left")
 		if len(self.popups)==0:
+			try:
+				self.destroy()
+			except:
+				pass
 			time.sleep(2)
 			log("")
 			log("GoReviewPartner is closing")
@@ -2044,14 +2036,28 @@ def canvas2png(goban,filename):
 	left = goban.winfo_rootx()
 	width = goban.winfo_width()
 	height = goban.winfo_height()
-	v_center=top+height/2
-	h_center=left+width/2
-	dim=goban.dim
-	space=goban.space
-	monitor = {'top': int(v_center-space*(dim+3)/2)+1, 'left': int(h_center-space*(dim+3)/2)+1, 'width': int(space*(dim+3))-2, 'height': int(space*(dim+3))-2}
+	try:
+		dim=goban.dim
+		space=goban.space
+		current_tab_id=goban.parent.right_notebook.index("current")
+		goban.parent.right_notebook.select(0)
+		goban.parent.update_idletasks()
+		goban.parent.right_notebook.select(current_tab_id)
+		goban.parent.update_idletasks()
+		top = goban.winfo_rooty()
+		v_center=top+goban.anchor_y+space*(dim+3)/2
+		h_center=left+goban.anchor_x+space*(dim+3)/2
+		monitor = {'top': int(v_center-space*(dim+3)/2)+1, 'left': int(h_center-space*(dim+3)/2)+1, 'width': int(space*(dim+3))-2, 'height': int(space*(dim+3))-2}
+	except:
+		monitor = {'top': int(top), 'left': int(left), 'width': int(width), 'height': int(height)}
+	
+	goban.after(500,lambda: screenshot(monitor, filename))
+
+def screenshot(monitor, filename):
+	log("Screenshot!")
+	log(monitor)
 	sct_img = mss.mss().grab(monitor)
 	mss.tools.to_png(sct_img.rgb, sct_img.size, output=filename)
-
 
 def get_variation_comments(one_variation):
 	comments=''
@@ -2080,9 +2086,9 @@ def get_position_comments(current_move,gameroot):
 		game_move_color=guess_color_to_play(gameroot,current_move)
 	
 	if game_move_color.lower()=="w":
-		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["W"])%ij2gtp(game_move)
 	elif game_move_color.lower()=="b":
-		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move).upper()
+		comments+="\n"+(position_data_formating["B"])%ij2gtp(game_move)
 	
 	node=get_node(gameroot,current_move)
 	if node_has(node,"CBM"):
@@ -2178,7 +2184,7 @@ def get_position_short_comments(current_move,gameroot):
 		else:
 			player=_("White")
 	
-	comments+="%s: %s"%(player,ij2gtp(game_move).upper())
+	comments+="%s: %s"%(player,ij2gtp(game_move))
 
 	if node_has(node,"CBM"):
 		bot=node_get(gameroot,"BOT")
@@ -2257,6 +2263,18 @@ def get_available():
 				bot2[key]=value
 	return bots
 
+def get_gtp_bots():
+	from gtp_bot import GtpBot
+	
+	bots=[]
+	for bot in [GtpBot]:
+		profiles=get_bot_profiles(bot["name"])
+		for profile in profiles:
+			bot2=dict(bot)
+			bots.append(bot2)
+			for key, value in profile.items():
+				bot2[key]=value
+	return bots
 
 def get_bot_profiles(bot="",withcommand=True):
 	sections=grp_config.get_sections()
@@ -2468,8 +2486,8 @@ def main(bot):
 			profile={p["profile"]:p for p in get_bot_profiles(bot["name"])}[profile]
 			
 			if isinstance(filename, str):
-   				filename = unicode(filename, 'utf-8')
-   				
+				filename = unicode(filename, 'utf-8')
+			
 			filename2=".".join(filename.split(".")[:-1])+".rsgf"
 			if nogui:
 				popup=bot["runanalysis"]("no-gui",[filename,filename2],move_selection,intervals,variation-1,komi,profile)
@@ -2483,3 +2501,20 @@ def main(bot):
 		if not nogui:
 			app.after(100,lambda: batch_analysis(app,batch))
 			app.mainloop()
+
+try:
+	from playsound import playsound
+	mp3=grp_config.get("General","StoneSound")
+	if mp3:
+		log("Reading",mp3)
+		with open(mp3, mode='rb') as sound_file: #pre loading the sound file in memory
+			fileContent = sound_file.read()
+	
+	def play_stone_sound():
+		if mp3:
+			threading.Thread(target=playsound, args=(mp3,)).start()
+	
+except Exception,e:
+	log("Stone sound disabled:")
+	log(e)
+	play_stone_sound=lambda: None
