@@ -33,7 +33,7 @@ class LiveAnalysisLauncher(Toplevel):
 		#Label(self,text="").grid(row=row,column=1)
 		
 		row+=1
-		Label(self,text=_("Black player"+":")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Black player")+":").grid(row=row,column=1,sticky=W)
 		self.black_selection=StringVar()	
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
