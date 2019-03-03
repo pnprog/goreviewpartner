@@ -1,0 +1,855 @@
+
+############ Main panel
+#1.1
+msgid "This is GoReviewPartner"
+msgstr "GoReviewPartner"
+
+#1.2
+msgid "Run a SGF file analysis"
+msgstr "Przeprowadź analizę pliku SGF"
+
+#1.3
+msgid "Run a live analysis"
+msgstr "Rozpocznij analizę na żywo"
+
+#1.4
+msgid "Open a RSGF file for review"
+msgstr "Otwórz plik RSGF"
+
+#1.5
+msgid "Convert RSGF file to SGF file"
+msgstr "Przekonwertuj plik RSGF na SGF"
+
+#1.6
+msgid "Download a SGF file for analysis"
+msgstr "Ściągnij plik SGF do analizy"
+
+#1.7
+msgid "Settings"
+msgstr "Ustawienia"
+
+#1.8
+msgid "The file %s has been converted to %s"
+msgstr "Plik %s przekonwertowany do %s"
+
+#1.9
+msgid "Convert RSGF file to CSV file"
+msgstr "Przekonwertuj plik RSGF na CSV"
+
+############## Analysis setting
+#2.1
+msgid "Bot to use for analysis:"
+msgstr "Wybierz bota"
+
+#2.2
+msgid "Select variation to be analysed"
+msgstr "Wybierz wariację"
+
+#2.3
+msgid "Select moves to be analysed"
+msgstr "Wybierz ruchy"
+
+#2.4
+msgid "Analyse all %i moves"
+msgstr "Analizuj wszystkie ruchy (%i)"
+
+#2.5
+msgid "Analyse only those moves:"
+msgstr "Analizuj tylko te ruchy:"
+
+#2.6
+msgid "Select colors to be analysed"
+msgstr "Wybierz kolory do analizy"
+
+#2.7
+msgid "Black & white"
+msgstr "Czarny i biały"
+
+#2.8
+msgid "Black only"
+msgstr "Tylko czarny"
+
+#2.9
+msgid "White only"
+msgstr "Tylko biały"
+
+#2.10
+msgid "Confirm the value of komi"
+msgstr "Potwierdź wartość komi"
+
+#2.11
+msgid "Stop the analysis if the bot resigns"
+msgstr "Zakończ analizę, gdy bot rezygnuje"
+
+#2.12
+msgid "Wariacja %i (%i ruch.)"
+msgstr ""
+
+#2.13
+msgid "Start"
+msgstr "Rozpocznij"
+
+#2.14
+msgid "Incorrect value for komi (%s), please double check."
+msgstr "Niepoprawna wartość komi (%s). Proszę sprawdzić."
+
+#2.15
+msgid "Could not make sense of the moves range."
+msgstr "Niezrozumiały zakres ruchów."
+
+#2.16
+msgid "Please indicate one or more move intervals (e.g. \"10-20, 40,50-51,63,67\")"
+msgstr "Prosze podać jeden albo więcej przedział, np.\"10-20, 40,50-51,63,67\".: "
+
+#2.17
+msgid "Error while reading komi value, please check:"
+msgstr "Błąd przy odczycie komi. Proszę sprawdzić (np. w SGF):"
+
+
+############## SGF download
+#3.1
+msgid "Paste the URL to the SGF file (http or https):"
+msgstr "Wklej adres URL pliku SGF (http albo https):"
+
+#3.2
+msgid "Get"
+msgstr "Pobierz"
+
+#3.3
+msgid "Could not open the URL"
+msgstr "Błąd połączenia z adresem"
+
+#3.4
+msgid "Not a valid SGF file!"
+msgstr "To nie plik SGF!"
+
+#3.5
+msgid "This analysis will be performed on an already analysed SGF file."
+msgstr "Analiza zostanie przeprowadzona na już analizowanym pliku SGF."
+
+#3.6
+msgid "What to do with the existing variations?"
+msgstr "Co chcesz zrobić z istniejącymi wariacjami?"
+
+#3.7
+msgid "Keep existing variations"
+msgstr "Zachowaj"
+
+#3.8
+msgid "Replace existing variations"
+msgstr "Zastąp"
+
+############## Analysis running ###
+#4.1
+msgid "Analysis of: %s"
+msgstr "Analiza pliku: %s"
+
+#4.2
+msgid "Remaining time: %ih, %im, %is"
+msgstr "Pozostały czas: %ig, %im, %is"
+
+#4.3
+msgid "Currently at move %i/%i"
+msgstr "Analizowany ruch: %i/%i"
+
+#4.4
+msgid "Completed"
+msgstr "Ukończono"
+
+#4.5
+msgid "Start the review"
+msgstr "Rozpocznij przegląd"
+
+#4.6
+msgid "Now closing, please wait..."
+msgstr "Zamykam, proszę czekać..."
+
+
+############## RSGF review
+
+#5.3
+msgid "Graphs"
+msgstr "Wykresy"
+
+#5.4
+msgid "Table"
+msgstr "Tabela"
+msgid "Comments"
+msgstr "Komentarze"
+
+#5.7
+msgid "Go to first move."
+msgstr "Idź do pierwszego ruchu"
+
+#5.8
+msgid "Go back 10 moves."
+msgstr "Cofnij się o 10 ruchów."
+
+#5.9
+msgid "Go back one move. Shortcut: keyboard left key."
+msgstr "Cofnij o jeden ruch. Skrót: lewa strzałka."
+
+#5.10
+msgid "Go forward one move. Shortcut: keyboard right key."
+msgstr "Idź do przodu o jeden ruch. Skrót: prawa strzałka."
+
+#5.11
+msgid "Go forward 10 moves."
+msgstr "Idź naprzód 10 ruchów."
+
+#5.12
+msgid "Go to final move."
+msgstr "Idź do ostatniego ruchu."
+
+#5.13
+msgid "<Ctrl+Q> to save the goban as an image."
+msgstr "Zapisz goban jako obraz: <Ctrl+Q>."
+msgid "Use mouse middle click or wheel to undo move."
+msgstr "Środkowy przycisk i kółko myszy cofają ruch."
+
+#5.14
+msgid "<Ctrl+W> to save the goban as an image."
+msgstr "Zapisz goban jako obraz: <Ctrl+W>."
+
+#5.15
+msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
+msgstr "Kółko myszy i strzałki góra/dół pokazują sekwencję krok po kroku."
+
+#5.16
+msgid "Actual game"
+msgstr "Zapis gry"
+
+#5.17
+msgid "Keep pressed to show map."
+msgstr "Przyciskanie pokazuje mapę."
+
+#5.18
+msgid "Maps"
+msgstr "Mapy"
+
+#5.19
+msgid "Show"
+msgstr "Pokaż"
+
+#5.20
+msgid "Territories"
+msgstr "Terytoria"
+
+#5.21
+msgid "Influence"
+msgstr "Wpływy"
+
+#5.22
+msgid "Heat map"
+msgstr "Mapa ciepła"
+
+#5.23
+msgid "Display"
+msgstr "Obrazowanie"
+
+#5.24
+msgid "Not available"
+msgstr "Niedostępne"
+
+############## Open position
+#6.1
+msgid "Undo"
+msgstr "Cofnij"
+
+#6.2
+msgid "Play one move"
+msgstr "Zagraj ruch"
+
+#6.3
+msgid "Play as white"
+msgstr "Graj białymi"
+
+#6.4
+msgid "Play as black"
+msgstr "Graj czarnymi"
+
+#6.7
+msgid "Undo last move. Shortcut: mouse middle button."
+msgstr "Cofnij ostatni ruch. Skrót: środkowy przycisk myszy."
+
+#6.8
+msgid "Select a bot"
+msgstr "Wybierz bota"
+
+#6.12
+msgid "Let the bot take both sides and play against itself."
+msgstr "Niech bot gra sam ze sobą."
+
+#6.13
+msgid "Ask the bot for a quick evaluation"
+msgstr "Spytaj bota o szybką ocenę"
+
+#6.15
+msgid "White"
+msgstr "Białe"
+
+#6.16
+msgid "Black"
+msgstr "Czarne"
+
+#6.17
+msgid "Action"
+msgstr "Działanie"
+
+#6.18
+msgid "No bot"
+msgstr "Bez bota"
+
+#6.19
+msgid "Do nothing"
+msgstr "Nie rób nic"
+
+############## Graphs
+#7.1
+msgid "Win rate"
+msgstr "Szanse wygranej"
+
+#7.2
+msgid "Black win rate delta"
+msgstr "Delta szans czarnych"
+
+#7.3
+msgid "White win rate delta"
+msgstr "Delta szans białych"
+
+#7.4
+msgid "Value Network win rate"
+msgstr "Szanse wygranej wg. sieci wartości ValNet"
+
+#7.5
+msgid "Black Value Network win rate delta"
+msgstr "Delta szans czarnych wg. sieci wartości ValNet"
+
+#7.6
+msgid "White Value Network win rate delta"
+msgstr "Delta szans białych wg. sieci wartości ValNet"
+
+#7.7
+msgid "Monte Carlo win rate"
+msgstr "Szanse wygranej Monte Carlo"
+
+#7.8
+msgid "Black Monte Carlo win rate delta"
+msgstr "Szanse wygranej Monte Carlo czarnych"
+
+#7.9
+msgid "White Monte Carlo win rate delta"
+msgstr "Szanse wygranej Monte Carlo białych"
+
+#7.10
+msgid "Score estimation"
+msgstr "Szacowany wynik"
+
+#7.11
+msgid "Black win rate"
+msgstr "Szanse wygranej czarnych"
+
+#7.12
+msgid "Move %i (%s), black/white win rate: "
+msgstr "Ruch %i (%s), szanse czarnych/białych: "
+
+#7.13
+msgid "Move %i: win rate of Black's move: %s; win rate of computer move: %s"
+msgstr "Ruch %i: szanse czarnych po ruchu %s; szanse po ruchu komputera: %s"
+msgid "Move %i: win rate of White's move: %s; win rate of computer move: %s"
+msgstr "Ruch %i: szanse białych po ruchu %s; szanse po ruchu komputera: %s"
+
+#7.14
+msgid "The computer believes the actual move is %.2fpp better than it's best move."
+msgstr "Komputer uważa, że zagrany ruch jest %.2fpp lepszy niż jego najlepszy ruch."
+
+#7.15
+msgid "The computer believes it's own move win rate would be %.2fpp higher."
+msgstr "Komputer uważa, że szanse jego po ruchu są %.2fpp wyższe."
+
+#7.16
+msgid "Move %i (%s), estimated score: "
+msgstr "Ruch %i (%s), szacowany wynik: "
+
+#7.17
+msgid "Win for White"
+msgstr "Wygrana białych"
+
+#7.18
+msgid "Win for Black"
+msgstr "Wygrana czarnych"
+
+#7.19
+msgid "<Ctrl+Q> to save the graph as an image."
+msgstr "Zapisz wykres jako obraz: <Ctrl+Q>."
+
+############## GRP Settings
+#8.1
+msgid "%s settings"
+msgstr "Ustawienia %s"
+
+#8.2
+msgid "General parameters"
+msgstr "Ustawienia ogólne"
+
+#8.3
+msgid "Language"
+msgstr "Język"
+
+#8.4
+msgid "Parameters for the analysis"
+msgstr "Parametry analizy"
+
+#8.5
+msgid "Maximum number of variations to record during analysis"
+msgstr "Maksymalna liczba wariacji do zapisania podczas analizy"
+
+#8.6
+msgid "Only keep variations where game move and bot move differ"
+msgstr "Zachowaj tylko te wariacje, gdzie bot gra inaczej"
+
+#8.7
+msgid "Save bot command line into RSGF file"
+msgstr "Zapisz linię poleceń bota do pliku RSGF"
+
+#8.8
+msgid "Parameters for the review"
+msgstr "Parametry przeglądu"
+
+#8.9
+msgid "Natural stone placement"
+msgstr "Naturalne ułożenie kamieni (0 = od linijki)"
+
+#8.10
+msgid "Real game sequence deepness"
+msgstr "Długość podglądu kontynuacji w zapisie gry"
+
+#8.12
+msgid "Maximum number of variations to display during review"
+msgstr "Maksymalna liczba wariacji pokazywanych w czasie przeglądu"
+
+#8.13
+msgid "Blue/red coloring of the variations"
+msgstr "Czerwone i niebieskie oznaczenie wariacji"
+
+#8.14
+msgid "Labels for the variations"
+msgstr "Etykiety wariacji"
+
+#8.15
+msgid "Inverted mouse wheel"
+msgstr "Odwrócone koło myszy"
+
+#8.16
+msgid "Save settings"
+msgstr "Zapisz ustawienia"
+
+#8.17
+msgid "The best variation in blue"
+msgstr "Najlepsza wariacja na niebiesko"
+
+#8.18
+msgid "Win rate > 50% in blue"
+msgstr "Szanse wygranej > 50% na niebiesko"
+
+#8.19
+msgid "Variations better than actual game move in blue"
+msgstr "Wariacje lepsze od zagranej na niebiesko"
+
+#8.20
+msgid "Percentages"
+msgstr "Procenty"
+
+#8.21
+msgid "Letters"
+msgstr "Litery (najlepsza A, dalej B, itd)"
+
+
+
+
+
+############## Bots Settings
+#9.1
+msgid "Slow profile parameters"
+msgstr "Parametry wolnego profilu"
+
+#9.2
+msgid "Command"
+msgstr "Polecenie"
+
+#9.3
+msgid "Parameters"
+msgstr "Parametry"
+
+#9.4
+msgid "Time per move (s)"
+msgstr "Czas na ruch (s)"
+
+#9.5
+msgid "Test"
+msgstr "Sprawdź"
+
+#9.6
+msgid "Fast profile parameters"
+msgstr "Parametry szybkiego profilu"
+
+#9.12
+msgid "Maximum number of variations"
+msgstr "Maksymalna liczba wariacji"
+
+#9.13
+msgid "Deepness for each variation"
+msgstr "Głębokość każdej wariacji"
+
+#9.14
+msgid "See AQ parameters in \"aq_config.txt\""
+msgstr "Zobacz parametry AQ w \"aq_config.txt\""
+
+#9.15
+msgid "Slow profile"
+msgstr "Wolny profil"
+
+#9.16
+msgid "Fast profile"
+msgstr "Szybki profil"
+
+
+############## Data description and display
+#10.1
+msgid "Move %i"
+#e.g. Move 244
+msgstr "Ruch %i"
+
+#10.2
+msgid "White to play. In the game, white played %s"
+#e.g. White to play. In the game, white played D16
+msgstr "Kolej białych. W grze zagrały %s."
+msgid "Black to play. In the game, black played %s"
+msgstr "Kolej czarnych. W grze zagrały %s."
+
+#10.3
+msgid "For this position, %s would play: %s"
+#e.g. For this position, Leela would play: D16
+msgstr "W tej sytuacji %s wybiera %s."
+
+#10.4
+msgid "Black win probability:"
+msgstr "Szanse na wygraną czarnych:"
+msgid "White win probability:"
+msgstr "Szanse na wygraną białych:"
+
+#10.5
+msgid "before %s"
+msgstr "przed %s"
+
+#10.6
+msgid "after %s"
+msgstr "po %s"
+
+#10.7
+msgid "Black Value Network win probability:"
+msgstr "Szanse czarnych wg. sieci wartości ValNet:"
+msgid "White Value Network win probability:"
+msgstr "Szanse białych wg. sieci wartości ValNet:"
+
+#10.8
+msgid "Black Monte Carlo win probability:"
+msgstr "Szanse Monte Carlo czarnych:"
+msgid "White Monte Carlo win probability:"
+msgstr "Szanse Monte Carlo białych:"
+
+#10.9
+msgid "Move"
+msgstr "Ruch"
+
+#10.10
+msgid "Policy Network value"
+msgstr "Wartość sieci PolNet"
+
+#10.11
+msgid "Playouts"
+msgstr "Symulacje"
+
+#10.12
+msgid "Evaluation"
+msgstr "Ocena"
+
+#10.13
+msgid "RAVE"
+msgstr "RAVE"
+
+#10.14
+msgid "black/white win probability for this variation: %s"
+msgstr "Szanse czarnych/białych dla tej wariacji: %s"
+
+#10.15
+msgid "Policy network value for this variation: %s"
+msgstr "Wartość sieci strategicznej PolNet dla tej wariacji: %s"
+
+#10.16
+msgid "Monte Carlo win probability for this variation: %s"
+msgstr "Szanse Monte Carlo dla tej wariacji: %s"
+
+#10.17
+msgid "Value network black/white win probability for this variation: %s"
+msgstr "Szanse czarnych/białych dla tej wariacji wg. sieci wartości: %s"
+
+#10.18
+msgid "Number of playouts used to estimate this variation: %s"
+msgstr "Liczba symulacji wykonanych przy ocenie tej wariacji: %s"
+
+#10.19
+msgid "Evaluation for this variation: %s"
+msgstr "Ocena tej wariacji: %s"
+
+#10.20
+msgid "RAVE(x%% : y) for this variation: %s"
+msgstr "RAVE(x%% : y) dla tej wariacji: %s"
+
+#10.21
+msgid "Score estimation for this variation: %s"
+msgstr "Oszacowany wynik dla tej wariacji: %s"
+
+#10.22
+msgid "Analysis by GoReviewPartner"
+msgstr "Analiza w GoReviewPartner"
+
+#10.23
+msgid "Bot"
+msgstr "Bot"
+
+#10.24
+msgid "Intervals"
+msgstr "Zakres"
+
+#10.25
+msgid "Command line"
+msgstr "Linia komend"
+
+#10.26
+msgid "Book move"
+msgstr "ruch ze słownika"
+
+############## Live analysis settings
+#11.1
+msgid "Bot used for analysis"
+msgstr "Bot analizujący"
+
+#11.2
+msgid "Black player"
+msgstr "Czarne"
+
+#11.3
+msgid "White player"
+msgstr "Białe"
+
+#11.4
+msgid "No overlap thinking time"
+msgstr "Bez myślenia w tym samym czasie"
+
+#11.5
+msgid "Board size"
+msgstr "Rozmiar planszy"
+
+#11.6
+msgid "Komi"
+msgstr "Komi"
+
+#11.7
+msgid "Handicap stones"
+msgstr "Handicap"
+
+#11.8
+msgid "SGF file name"
+msgstr "Nazwa pliku SGF"
+
+#11.9
+msgid "Human player"
+msgstr "człowiek"
+
+#11.10
+msgid "Please place %i handicap stones on the board."
+msgstr "Umieść handicap na planszy. %i moku."
+
+#11.11
+msgid "The game is now starting!"
+msgstr "Gra się rozpoczyna!"
+
+
+############## Live analysis
+#12.1
+msgid "Game"
+msgstr "Gra"
+
+#12.2
+msgid "Currently at move %i"
+msgstr "Aktualny ruch: %i"
+
+#12.3
+msgid "Pause"
+msgstr "Pauza"
+
+#12.4
+msgid "Analysis"
+msgstr "Analiza"
+
+#12.5
+msgid "Analysis by %s"
+msgstr "Analizuje %s"
+
+#12.6
+msgid "Status:"
+msgstr "Status:"
+
+#12.7
+msgid "Ready to start"
+msgstr "Gotowy do gry"
+
+#12.8
+msgid "Resume"
+msgstr "Kontynuuj"
+
+#12.9
+msgid "Pass"
+msgstr "Pas"
+
+#12.10
+msgid "Waiting for next move"
+msgstr "Oczekuje na kolejny ruch"
+
+#12.11
+msgid "Pause the game"
+msgstr "Zatrzymaj grę"
+
+#12.12
+msgid "Pass for this move"
+msgstr "Spasuj"
+
+#12.13
+msgid "Undo to previous move"
+msgstr "Cofnij ruch"
+
+#12.14
+msgid "Live game"
+msgstr "Gra na żywo"
+
+############## GTP terminal
+#13.1
+msgid "Send GTP command"
+msgstr "Wyślij polecenie GTP"
+
+
+
+############## Popups
+#14.1
+msgid "Choose a filename"
+msgstr "Wybierz nazwę pliku"
+
+#14.2
+msgid "Select a file"
+msgstr "Wybierz plik"
+
+#14.3
+msgid "SGF file"
+msgstr "Plik SGF"
+
+#14.4
+msgid "Reviewed SGF file"
+msgstr "Plik RSGF"
+
+#14.5
+msgid "PNG image"
+msgstr "Obraz PNG"
+
+msgid "Error"
+msgstr "Błąd"
+
+msgid "Information"
+msgstr "Informacja"
+
+############## error messages
+
+msgid "Could not open the RSGF file: "
+msgstr "Nie można otworzyć pliku RSGF"
+
+msgid "Could not save the RSGF file: "
+msgstr "Nie można zapisać pliku RSGF"
+
+msgid "Could not save the SGF file: "
+msgstr "Nie można zapisać pliku SGF"
+
+msgid "Could not open the SGF file: "
+msgstr "Nie można otworzyć pliku SGF"
+
+msgid "Error while initializing the GTP bot:"
+msgstr "Błąd inicjalizacji bota GTP:"
+
+msgid "Error while initializing the graphical interface:"
+msgstr "Błąd inicjalizacji interfejsu graficznego:"
+
+msgid "Aborted"
+msgstr "Przerwano"
+
+msgid "Analysis aborted:"
+msgstr "Analiza przerwana:"
+
+msgid "GnuGo thread failed:"
+msgstr "Wątek GnuGo urwany:"
+
+msgid "Could not run %s using the command from config.ini file:"
+#e.g. Could not run Leela using the command from config.ini file:
+msgstr "Nie można uruchomić %s poleceniem z pliku config.ini:"
+
+msgid "%s did not reply as expected to the GTP name command:"
+#e.g. Leela did not replied as exepected to the GTP name command:
+msgstr "Nieoczekiwana odpowiedź %s na zapytanie GTP o nazwę:"
+
+msgid "%s did not identify itself as expected:"
+#e.g. Leela did not identify itself as expected:
+msgstr "Nieoczekiwana identyfikacja %s:"
+
+msgid "%s did not reply as expected to the GTP version command:"
+#e.g. Leela did not replied as expected to the GTP version command:
+msgstr "Nieoczekiwana odpowiedź %s na zapytanie GTP o wersję:"
+
+msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
+#e.g. Could not set the goboard size using the GTP command. Check that Leela is running in GTP mode.
+msgstr "Nie można ustawić rozmiaru planszy poleceniem GTP. Sprawdź, czy %s operuje w trybie GTP."
+
+msgid "%s rejected this board size (%ix%i)"
+#e.g. Leela Zero rejected this board size (9x9)
+msgstr "%s: Rozmiar planszy %ix%i odrzucony."
+
+msgid "Could not run the program:"
+msgstr "Nie można uruchomić programu:"
+
+msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
+msgstr "Leela Zero właśnie wykonuje tuning OpenCL SGEMM. Może to potrwać kilka minut."
+
+msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
+msgstr "Ray właśnie wykonuje tuning OpenCL SGEMM. Może to potrwać kilka minut."
+
+msgid "The config.ini file does not contain %s entry for %s !"
+#e.g. The config.ini file does not contain TimePerMove entry for Leela !
+msgstr "Plik config.ini nie zawiera wartości %s dla %s!"
+
+msgid "The config.ini file %s entry for %s is empty!"
+#e.g. The config.ini file TimePerMove entry for Leela is empty!
+msgstr "Wartość %s dla %s w pliku config.ini jest pusta!"
+
+
+### stray dogs
+msgid "Single-panel"
+msgstr "Jedna plansza"
+
+msgid "Dual-panel"
+msgstr "Dwie plansze"
+
+msgid "From existing game"
+msgstr "Na podstawie zapisu gry"
+
+msgid "Select a game record"
+msgstr "Wybierz plik zapisu"
+
+msgid "Select starting position:"
+msgstr "Wybierz pozycję wyjściową."
