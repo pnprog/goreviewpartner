@@ -836,3 +836,53 @@ msgstr ""
 msgid "The config.ini file %s entry for %s is empty!"
 #e.g. The config.ini file TimePerMove entry for Leela is empty!
 msgstr ""
+
+### stray dogs (uncategorised yet)
+msgid "Single-panel"
+msgstr ""
+
+msgid "Dual-panel"
+msgstr ""
+
+msgid "From existing game"
+msgstr ""
+
+msgid "Select a game record"
+msgstr ""
+
+msgid "Select starting position:"
+msgstr ""
+
+msgid "Move %i, for this position, the bot reads up to %d moves ahead."
+msgstr ""
+
+msgid "Delete profile"
+msgstr ""
+
+msgid "Modify profile"
+msgstr ""
+
+msgid "Move position out of range"
+msgstr ""
+
+msgid "Reading depth"
+msgstr ""
+
+msgid "Add profile"
+msgstr ""
+
+msgid "Could not read file"
+msgstr ""
+
+msgid "Incorrect move position"
+msgstr ""
+
+msgid "Profile"
+msgstr ""
+
+msgid "Move %i, for this position, the bot reads in average %.1f moves ahead."
+msgstr ""
+
+msgid "New game"
+msgstr ""
+
