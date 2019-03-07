@@ -82,8 +82,8 @@ msgid "Stop the analysis if the bot resigns"
 msgstr "Zakończ analizę, gdy bot rezygnuje"
 
 #2.12
-msgid "Wariacja %i (%i ruch.)"
-msgstr ""
+msgid "Variation %i (%i moves)"
+msgstr "Wariacja %i (%i r.)"
 
 #2.13
 msgid "Start"
@@ -853,3 +853,38 @@ msgstr "Wybierz plik zapisu"
 
 msgid "Select starting position:"
 msgstr "Wybierz pozycję wyjściową."
+
+msgid "Move %i, for this position, the bot reads up to %d moves ahead."
+msgstr "Ruch %i. Dla tej pozycji bot czyta do głębokości %d r."
+
+msgid "Delete profile"
+msgstr "Usuń profil"
+
+msgid "Modify profile"
+msgstr "Zmień profil"
+
+## ??
+msgid "Move position out of range"
+msgstr "Pozycja spoza zakresu"
+
+msgid "Reading depth"
+msgstr "Głębokość czytania"
+
+msgid "Add profile"
+msgstr "Dodaj profil"
+
+msgid "Could not read file"
+msgstr "Nie można odczytać pliku"
+
+msgid "Incorrect move position"
+msgstr "Niepoprawna pozycja"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Move %i, for this position, the bot reads in average %.1f moves ahead."
+msgstr "Ruch %i. Dla tej pozycji bot czyta średnio do głębokości %.1f r."
+
+msgid "New game"
+msgstr "Nowa gra"
+
