@@ -1272,55 +1272,66 @@ class DualView(Toplevel):
 			# positive delta means the game evolves better when the actual game move is played
 			# negative delta means the game evolves better when the computer move is played
 			try:
-				next_move=get_node(self.gameroot,m+1)
-				winrate=node_get(next_move,'BWWR')
-				if player_color in ('w',"W"):
-					next_position_win_rate=float(winrate.split("/")[1][:-1])
+				
+				if node_get(one_move,'CBM')=="RESIGN":
+					one_data['winrate_delta']=0
 				else:
-					next_position_win_rate=float(winrate.split("%")[0])
-				computer_move=node_get(one_move,'CBM')
-				if player_move==computer_move:
-					# in case the computer best move is the actual game move then:
-					# 1/ normally delta=0
-					# 2/ let's update current_position_win_rate using next_position_win_rate because it is a better evaluation
-					current_position_win_rate=next_position_win_rate
-					one_data['position_win_rate']=next_position_win_rate
-				delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
-				one_data['winrate_delta']=round(delta,2)
+					next_move=get_node(self.gameroot,m+1)
+					winrate=node_get(next_move,'BWWR')
+					if player_color in ('w',"W"):
+						next_position_win_rate=float(winrate.split("/")[1][:-1])
+					else:
+						next_position_win_rate=float(winrate.split("%")[0])
+					computer_move=node_get(one_move,'CBM')
+					if player_move==computer_move:
+						# in case the computer best move is the actual game move then:
+						# 1/ normally delta=0
+						# 2/ let's update current_position_win_rate using next_position_win_rate because it is a better evaluation
+						current_position_win_rate=next_position_win_rate
+						one_data['position_win_rate']=next_position_win_rate
+					delta=next_position_win_rate-one_data['position_win_rate'] #this will fail if the calculation of current_position_win_rate above failed, this is what we want
+					one_data['winrate_delta']=round(delta,2)
 			except:
 				pass
 			
 			#delta for monte carlo win rate
 			try:
-				next_move=get_node(self.gameroot,m+1)
-				winrate=node_get(next_move,'MCWR')
-				if player_color in ('w',"W"):
-					next_position_win_rate=float(winrate.split("/")[1][:-1])
+				
+				if node_get(one_move,'CBM')=="RESIGN":
+					one_data['winrate_delta']=0
 				else:
-					next_position_win_rate=float(winrate.split("%")[0])
-				computer_move=node_get(one_move,'CBM')
-				if player_move==computer_move:
-					current_position_win_rate=next_position_win_rate
-					one_data['monte_carlo_win_rate']=next_position_win_rate
-				delta=next_position_win_rate-one_data['monte_carlo_win_rate']
-				one_data['mcwr_delta']=round(delta,2)
+					next_move=get_node(self.gameroot,m+1)
+					winrate=node_get(next_move,'MCWR')
+					if player_color in ('w',"W"):
+						next_position_win_rate=float(winrate.split("/")[1][:-1])
+					else:
+						next_position_win_rate=float(winrate.split("%")[0])
+					computer_move=node_get(one_move,'CBM')
+					if player_move==computer_move:
+						current_position_win_rate=next_position_win_rate
+						one_data['monte_carlo_win_rate']=next_position_win_rate
+					delta=next_position_win_rate-one_data['monte_carlo_win_rate']
+					one_data['mcwr_delta']=round(delta,2)
 			except:
 				pass
 			
 			#delta for value network win rate
 			try:
-				next_move=get_node(self.gameroot,m+1)
-				winrate=node_get(next_move,'VNWR')
-				if player_color in ('w',"W"):
-					next_position_win_rate=float(winrate.split("/")[1][:-1])
+				if node_get(one_move,'CBM')=="RESIGN":
+					one_data['winrate_delta']=0
 				else:
-					next_position_win_rate=float(winrate.split("%")[0])
-				computer_move=node_get(one_move,'CBM')
-				if player_move==computer_move:
-					current_position_win_rate=next_position_win_rate
-					one_data['value_network_win_rate']=next_position_win_rate
-				delta=next_position_win_rate-one_data['value_network_win_rate']
-				one_data['vnwr_delta']=round(delta,2)
+					next_move=get_node(self.gameroot,m+1)
+					winrate=node_get(next_move,'VNWR')
+					if player_color in ('w',"W"):
+						next_position_win_rate=float(winrate.split("/")[1][:-1])
+					else:
+						next_position_win_rate=float(winrate.split("%")[0])
+					computer_move=node_get(one_move,'CBM')
+					if player_move==computer_move:
+						current_position_win_rate=next_position_win_rate
+						one_data['value_network_win_rate']=next_position_win_rate
+					delta=next_position_win_rate-one_data['value_network_win_rate']
+					one_data['vnwr_delta']=round(delta,2)
 			except:
 				pass
 			
