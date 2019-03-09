@@ -198,10 +198,13 @@ class Pachi_gtp(gtp):
 		pachi_working_directory=command[0][:-len(ntpath.basename(command[0]))]
 		command=[c.encode(sys.getfilesystemencoding()) for c in command]
 		
-		pachi_working_directory=pachi_working_directory.encode(sys.getfilesystemencoding())
-		if pachi_working_directory:
-			log("Pachi working directory:",pachi_working_directory)
-			self.process=subprocess.Popen(command,cwd=pachi_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		if sys.platform != "win32":
+			pachi_working_directory=pachi_working_directory.encode(sys.getfilesystemencoding())
+			if pachi_working_directory:
+				log("Pachi working directory:",pachi_working_directory)
+				self.process=subprocess.Popen(command,cwd=pachi_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			else:
+				self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		else:
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		
