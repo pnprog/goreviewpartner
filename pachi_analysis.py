@@ -30,7 +30,34 @@ class PachiAnalysis():
 		node_set(one_move,"CBM",answer) #Computer Best Move
 		
 		position_evaluation=pachi.get_all_pachi_moves()
+		
+		reference_color="w"
+		log("Pachi best answer=",answer)
+		adjustment=1.
+		if "extrakomi" in position_evaluation:
+			if position_evaluation["extrakomi"]:
+				if player_color.lower()!=reference_color:
+					adjustment=float(position_evaluation["win rate"].replace("%",""))
+					log("extrakomi",position_evaluation["extrakomi"])
+					pachi.undo()
+					if player_color in ('w',"W"):
+						pachi.place_white(position_evaluation["best move"])
+					else:
+						pachi.place_black(position_evaluation["best move"])
+						
+					if player_color in ('w',"W"):
+						log("pachi play white")
+						second_answer=pachi.play_black()
+					else:
+						log("pachi play black")
+						second_answer=pachi.play_white()
+					second_position_evaluation=pachi.get_all_pachi_moves()
+					pachi.undo()
+					adjustment=(100.-float(second_position_evaluation["win rate"].replace("%","")))/adjustment
+					log("adjustment for extra komi",adjustment)
 
+
+		
 		if "estimated score" in position_evaluation:
 			node_set(one_move,"ES",position_evaluation["estimated score"])
 		
@@ -68,9 +95,22 @@ class PachiAnalysis():
 					if 'win rate' in variation:
 						if player_color=='b':
 							black_value=variation['win rate']
+							
+							black_value=float(black_value.replace("%",""))
+							if black_value:
+								black_value*=adjustment
+							black_value=str(black_value)+"%"
+							#print "\t black win rate from",variation['win rate'],"to",black_value,adjustment
+							
 							white_value=opposite_rate(black_value)
 						else:
 							white_value=variation['win rate']
+							white_value=float(white_value.replace("%",""))
+							if white_value:
+								white_value*=adjustment
+							white_value=str(white_value)+"%"
+							#print "\t white win rate from",variation['win rate'],"to",white_value,adjustment
+							
 							black_value=opposite_rate(white_value)
 						node_set(new_child,"BWWR",black_value+'/'+white_value)
 						if best_move:
@@ -113,7 +153,7 @@ class PachiAnalysis():
 		return pachi
 
 def pachi_starting_procedure(sgf_g,profile,silentfail=False):
-	pachi=bot_starting_procedure("Pachi","Pachi UCT",Pachi_gtp,sgf_g,profile,silentfail)
+	pachi=bot_starting_procedure("Pachi","Pachi",Pachi_gtp,sgf_g,profile,silentfail)
 	if not pachi:
 		return False
 	
@@ -255,12 +295,25 @@ class Pachi_gtp(gtp):
 					pass
 			if "Score Est: " in err_line:
 				position_evaluation["estimated score"]=err_line.split("Score Est: ")[1]
+			if '{"frame": ' in err_line:
+				json=json_loads(err_line)
+				move=json["frame"]["can"][0]
+				position_evaluation["best move"]=move[0].keys()[0]
+				if type(move[0].values()[0])==type(0.5):
+					winrate=move[0].values()[0]
+					position_evaluation["win rate"]=str(100*float(winrate))+"%"
+				elif type(move[0].values()[0])==type([0,1]):
+					winrate, playouts=move[0].values()[0]
+					position_evaluation["win rate"]=str(100*float(winrate))+"%"
+
+					
 			if '{"move": ' in err_line:
 				found=True
 				#this line is the json report line
 				#exemple: {"move": {"playouts": 5064, "extrakomi": 0.0, "choice": "H8", "can": [[{"H8":0.792},{"F2":0.778},{"G6":0.831},{"G7":0.815}], [{"K14":0.603},{"L13":0.593},{"M13":0.627},{"K13":0.593}], [{"M15":0.603},{"L13":0.724},{"M13":0.778},{"K13":0.700}], [{"M14":0.627},{"M15":0.647},{"N15":0.596}]]}}
 				json=json_loads(err_line)
 				position_evaluation["playouts"]=json["move"]["playouts"]
+				position_evaluation["extrakomi"]=float(json["move"]["extrakomi"])
 				for move in json["move"]["can"]:
 					if not move:
 						continue
@@ -407,7 +460,7 @@ class PachiOpenMove(BotOpenMove):
 
 Pachi={}
 Pachi['name']="Pachi"
-Pachi['gtp_name']="Pachi UCT"
+Pachi['gtp_name']="Pachi"
 Pachi['analysis']=PachiAnalysis
 Pachi['openmove']=PachiOpenMove
 Pachi['settings']=PachiSettings
