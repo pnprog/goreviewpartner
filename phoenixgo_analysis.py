@@ -249,15 +249,14 @@ class PhoenixGo_gtp(gtp):
 		
 		phoenixgo_working_directory=command[0][:-len(ntpath.basename(command[0]))]
 		command=[c.encode(sys.getfilesystemencoding()) for c in command]
-		if sys.platform != "win32":
-			phoenixgo_working_directory=phoenixgo_working_directory.encode(sys.getfilesystemencoding())
-			if phoenixgo_working_directory:
-				log("Phoenix Go working directory:",phoenixgo_working_directory)
-				self.process=subprocess.Popen(command,cwd=phoenixgo_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-			else:
-				self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		phoenixgo_working_directory=phoenixgo_working_directory.encode(sys.getfilesystemencoding())
+		if phoenixgo_working_directory:
+			log("Phoenix Go working directory:",phoenixgo_working_directory)
+			self.process=subprocess.Popen(command,cwd=phoenixgo_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		else:
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 		self.size=0
 		
 		self.stderr_queue=Queue.Queue()
