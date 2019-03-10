@@ -1941,7 +1941,7 @@ class Application(Tk):
 			log("You are welcome to support GoReviewPartner (bug reports, code fixes, translations, ideas...). If you are interested, get in touch through Github, Reddit, or LifeIn19x19!")
 			if we_are_frozen():
 				#running from py2exe
-				raw_input()
+				time.sleep(2)
 			self.force_close()
 			
 	def add_popup(self,popup):
