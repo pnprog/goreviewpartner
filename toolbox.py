@@ -461,9 +461,11 @@ class RangeSelector(Toplevel):
 		#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 		bot_names=[bot['name']+" - "+bot['profile'] for bot in bots]
 		self.bot_selection=StringVar()
-
-		apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
-		self.bot_selection.set(bot_names[0])
+		if not bot_names:
+			Label(self,text=_("There is no bot configured in Settings")).grid(row=row,column=2,sticky=W)
+		else:
+			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
+			self.bot_selection.set(bot_names[0])
 		
 		analyser=grp_config.get("Analysis","analyser")
 		if analyser in bot_names:
@@ -608,7 +610,10 @@ class RangeSelector(Toplevel):
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
+		start_button=Button(self,text=_("Start"),command=self.start)
+		start_button.grid(row=row,column=2,sticky=E)
+		if not bot_names:
+			start_button.config(state="disabled")
 		self.mode=s
 		self.color=c
 		self.existing_variations=existing_variations
