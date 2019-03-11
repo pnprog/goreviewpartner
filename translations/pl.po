@@ -278,11 +278,11 @@ msgstr "Wybierz bota"
 
 #6.12
 msgid "Let the bot take both sides and play against itself."
-msgstr "Niech bot gra sam ze sobą."
+msgstr "Niech bot gra sam ze sobą"
 
 #6.13
 msgid "Ask the bot for a quick evaluation"
-msgstr "Spytaj bota o szybką ocenę"
+msgstr "Poproś bota o szybką ocenę"
 
 #6.15
 msgid "White"
@@ -365,7 +365,7 @@ msgstr "Komputer uważa, że zagrany ruch jest %.2fpp lepszy niż jego najlepszy
 
 #7.15
 msgid "The computer believes it's own move win rate would be %.2fpp higher."
-msgstr "Komputer uważa, że szanse jego po ruchu są %.2fpp wyższe."
+msgstr "Komputer uważa, że szanse po jego ruchu są %.2fpp wyższe."
 
 #7.16
 msgid "Move %i (%s), estimated score: "
