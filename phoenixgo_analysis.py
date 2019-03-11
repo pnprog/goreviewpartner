@@ -360,6 +360,7 @@ class PhoenixGo_gtp(gtp):
 							best_winrate=(q+1)*50
 							best_winrate="%.2f%%"%best_winrate
 							best_playouts=move.split("(")[1].split(",")[0]
+							best_policy="%.2f%%"%(100*float(move.split("(")[1].split(",")[2]))
 						try:
 							sequence_move=self.coords2ij(sequence_move)
 							sequence+=sequence_move+" "
@@ -378,6 +379,7 @@ class PhoenixGo_gtp(gtp):
 						variation["sequence"]=best_sequence
 						variation["value network win rate"]=best_winrate
 						variation["playouts"]=best_playouts
+						variation["policy network value"]=best_policy
 						position_evaluation['variations'].append(variation)
 						
 					for move in tree.leaves:
@@ -388,6 +390,9 @@ class PhoenixGo_gtp(gtp):
 							winrate=top_branch.data.split(", Q=")[1].split(", ")[0]
 							winrate="%.2f%%"%((float(winrate)+1)*50.)
 							variation["value network win rate"]=winrate
+							policy=top_branch.data.split(", p=")[1].split(", ")[0]
+							policy="%.2f%%"%(100*float(policy))
+							variation["policy network value"]=policy
 							playouts=top_branch.data.split(": N=")[1].split(", ")[0]
 							variation["playouts"]=playouts
 							sequence=self.coords2ij(move)
@@ -400,14 +405,17 @@ class PhoenixGo_gtp(gtp):
 							position_evaluation['variations'].append(variation)
 							log("\twinrate",winrate)
 							log("\tsequence",sequence)
+							log("\tpolicy",policy)
 							log("\tplayouts",playouts)
 						else:
 							variation["sequence"]=best_sequence
 							variation["value network win rate"]=best_winrate
 							variation["playouts"]=best_playouts
+							variation["policy network value"]=best_policy
 							position_evaluation['variations']=[variation]+position_evaluation['variations']
 							log("\twinrate*",best_winrate)
 							log("\tsequence*",best_sequence)
+							log("\tpolicy*",variation["policy network value"])
 							log("\tplayouts*",best_playouts)
 						log()
 					continue
