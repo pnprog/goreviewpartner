@@ -148,12 +148,14 @@ def phoenixgo_starting_procedure(sgf_g,profile,silentfail=False):
 	if not phoenixgo:
 		return False
 	try:
+		phoenixgo.time_per_move=False
 		time_per_move=profile["timepermove"]
 		if time_per_move:
 			time_per_move=int(time_per_move)
 			if time_per_move>0:
 				log("Setting time per move")
 				phoenixgo.set_time(main_time=0,byo_yomi_time=time_per_move,byo_yomi_stones=1)
+				phoenixgo.time_per_move=time_per_move
 	except:
 		log("Wrong value for PhoenixGo thinking time:",time_per_move)
 
@@ -265,6 +267,12 @@ class PhoenixGo_gtp(gtp):
 		threading.Thread(target=self.consume_stderr).start()
 		self.free_handicap_stones=[]
 		self.history=[]
+
+	def undo(self):
+		result=gtp.undo(self)
+		if self.time_per_move:
+			self.set_time(main_time=0,byo_yomi_time=self.time_per_move,byo_yomi_stones=1)
+		return result
 
 	def consume_stderr(self):
 		
