@@ -1,7 +1,7 @@
 ![Go Review Partner logo](http://yuntingdian.com/goreviewpartner/grp-documentation/img/goreviewpartner.png "Go Review Partner logo")
 
 # goreviewpartner
-A tool to help analyse and review your games of Go ([weiqi, baduk, igo](https://en.wikipedia.org/wiki/Go_(game))) using bots. Currently supporting [Leela Zero](https://github.com/gcp/leela-zero/), [AQ](https://github.com/ymgaq/AQ), [Leela](https://www.sjeng.org/leela.html), [Ray](https://github.com/zakki/Ray) and [GnuGo](https://www.gnu.org/software/gnugo/).
+A tool to help analyse and review your games of Go ([weiqi, baduk, igo](https://en.wikipedia.org/wiki/Go_(game))) using bots. Currently supporting [Leela Zero](https://github.com/gcp/leela-zero/), [AQ](https://github.com/ymgaq/AQ), [Pachi](https://github.com/pasky/pachi), [PhoenixGo](https://github.com/Tencent/PhoenixGo/), [Leela](https://www.sjeng.org/leela.html), [Ray](https://github.com/zakki/Ray) and [GnuGo](https://www.gnu.org/software/gnugo/).
 
 Project home page: [http://yuntingdian.com/goreviewpartner/](http://yuntingdian.com/goreviewpartner/).
 Windows ready downloads are available from the home page.
