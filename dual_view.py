@@ -1036,9 +1036,6 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-			# if the table is docked
-			if self.table_frame and self.table_frame.grid_info() :
-				self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
 
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
@@ -1047,9 +1044,7 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-			# if the table is docked
-			if self.table_frame and self.table_frame.grid_info() :
-				self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
+
 		self.update_idletasks()
 		
 	def leave_variation(self,goban,grid,markup):
@@ -1667,6 +1662,11 @@ class DualView(Toplevel):
 		self.update_territory(move)
 		self.update_game_gobans(move)
 		self.update_both_bot_gobans(move)
+		
+		
+		if self.table_frame:
+			self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
+
 
 	def update_from_file(self):
 		period=20
