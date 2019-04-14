@@ -1734,7 +1734,7 @@ log("Reading language setting from config file")
 lang=grp_config.get("General","Language")
 
 
-available_translations={"en": "English", "fr" : "Français", "de" : "Deutsch", "kr" : "한국어", "zh": "中文", "pl": "Polski"}
+available_translations={"en": "English", "fr" : "Français", "de" : "Deutsch", "kr" : "한국어", "zh": "中文", "pl": "Polski", "ru": "Русский"}
 if not lang:
 	log("No language setting in the config file")
 	log("System language detection:")
