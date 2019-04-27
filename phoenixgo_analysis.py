@@ -345,7 +345,7 @@ class PhoenixGo_gtp(gtp):
 					info_available=True
 					log(err_line.strip())
 			else:
-				log(err_line.strip())
+				log("->",err_line.strip())
 				if "main move path" in err_line:
 					err_line=err_line.split("path: ")[1]
 					all_moves=err_line.split("),")
@@ -387,6 +387,9 @@ class PhoenixGo_gtp(gtp):
 						log("\t",move)
 						if move!=best_first_move:
 							top_branch=tree.branches[move]
+							print "111"
+							print top_branch.data
+							print "222"
 							winrate=top_branch.data.split(", Q=")[1].split(", ")[0]
 							winrate="%.2f%%"%((float(winrate)+1)*50.)
 							variation["value network win rate"]=winrate
@@ -419,7 +422,7 @@ class PhoenixGo_gtp(gtp):
 							log("\tplayouts*",best_playouts)
 						log()
 					continue
-				else:
+				elif  "move path" not in err_line:
 					#this line contains information on the tree
 					path=err_line.split("] ")[1].split(":")[0]
 					path=path.split(",")
