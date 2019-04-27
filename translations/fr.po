@@ -34,7 +34,7 @@ msgstr "The fichier %s a été convertie en %s"
 
 #1.9
 msgid "Convert RSGF file to CSV file"
-msgstr "Convertir le fichier CSV en fichier SGF"
+msgstr "Convertir le fichier RSGF en fichier CSV"
 
 ############## Analysis setting
 #2.1
@@ -83,8 +83,7 @@ msgstr "Arrêter l'analyse si le programme abandonne"
 
 #2.12
 msgid "Variation %i (%i moves)"
-#translation missing:
-msgstr ""
+msgstr "Variation %i (%i coups)"
 
 #2.13
 msgid "Start"
@@ -125,19 +124,19 @@ msgstr "Le fichier télécharger n'est pas un fichier SGF!"
 
 #3.5
 msgid "This analysis will be performed on an already analysed SGF file."
-msgstr ""
+msgstr "Cette analyse va être faite à partir d'un fichier SGF déjà analysé."
 
 #3.6
 msgid "What to do with the existing variations?"
-msgstr ""
+msgstr "Que faire des variations existantes?"
 
 #3.7
 msgid "Keep existing variations"
-msgstr ""
+msgstr "Garder les variations existantes"
 
 #3.8
 msgid "Replace existing variations"
-msgstr ""
+msgstr "Remplacer les variations existantes"
 
 ############## Analysis running ###
 #4.1
@@ -175,7 +174,7 @@ msgstr "Graphiques"
 msgid "Table"
 msgstr "Tableau"
 msgid "Comments"
-msgstr ""
+msgstr "Commentaires"
 
 #5.7
 msgid "Go to first move."
@@ -205,7 +204,7 @@ msgstr "Aller au dernier coup de la partie."
 msgid "<Ctrl+Q> to save the goban as an image."
 msgstr "<Ctrl+Q> pour enregistrer le goban comme image."
 msgid "Use mouse middle click or wheel to undo move."
-msgstr ""
+msgstr "Utilisez le click milieu ou la roulette de la souris pour annuler un coup."
 
 #5.14
 msgid "<Ctrl+W> to save the goban as an image."
@@ -217,39 +216,39 @@ msgstr "Utiliser la molette de souris ou les touches clavier haut/bas pour affic
 
 #5.16
 msgid "Actual game"
-msgstr ""
+msgstr "Partie actuelle"
 
 #5.17
 msgid "Keep pressed to show map."
-msgstr ""
+msgstr "Maintenez appuyé pour monter la carte"
 
 #5.18
 msgid "Maps"
-msgstr ""
+msgstr "Cartes"
 
 #5.19
 msgid "Show"
-msgstr ""
+msgstr "Montrer"
 
 #5.20
 msgid "Territories"
-msgstr ""
+msgstr "Territoires"
 
 #5.21
 msgid "Influence"
-msgstr ""
+msgstr "Influence"
 
 #5.22
 msgid "Heat map"
-msgstr ""
+msgstr "Heat map"
 
 #5.23
 msgid "Display"
-msgstr ""
+msgstr "Afficher"
 
 #5.24
 msgid "Not available"
-msgstr ""
+msgstr "Non disponible"
 
 ############## Open position
 #6.1
@@ -294,15 +293,15 @@ msgstr "Noir"
 
 #6.17
 msgid "Action"
-msgstr ""
+msgstr "Action"
 
 #6.18
 msgid "No bot"
-msgstr ""
+msgstr "Pas de programme"
 
 #6.19
 msgid "Do nothing"
-msgstr ""
+msgstr "Ne rien faire"
 
 
 
@@ -471,9 +470,7 @@ msgstr "Lettres"
 
 
 ############## Bots Settings
-#9.1
-msgid "Slow profile parameters"
-msgstr "Paramètres du profil lent"
+
 
 #9.2
 msgid "Command"
@@ -491,9 +488,6 @@ msgstr "Temps de réflexion par coup (en secondes)"
 msgid "Test"
 msgstr "Tester"
 
-#9.6
-msgid "Fast profile parameters"
-msgstr "Paramètres du profil rapide"
 
 #9.12
 msgid "Maximum number of variations"
@@ -507,13 +501,9 @@ msgstr "Profondeur pour chaque variation"
 msgid "See AQ parameters in \"aq_config.txt\""
 msgstr "Voir aussi le fichier \"aq_config.txt\""
 
-#9.15
-msgid "Slow profile"
-msgstr "Profil lent"
 
-#9.16
-msgid "Fast profile"
-msgstr "Profil rapide"
+
+
 
 ############## Data description and display
 #10.1
@@ -614,18 +604,15 @@ msgstr "Analyse par GoReviewPartner"
 
 #10.23
 msgid "Bot"
-#translation missing:
-msgstr ""
+msgstr "Programme"
 
 #10.24
 msgid "Intervals"
-#translation missing:
-msgstr ""
+msgstr "Intervals"
 
 #10.25
 msgid "Command line"
-#translation missing:
-msgstr ""
+msgstr "Ligne de commande"
 
 #10.26
 msgid "Book move"
@@ -647,7 +634,7 @@ msgstr "Joueur blanc"
 #11.4
 msgid "No overlap thinking time"
 #translation missing:
-msgstr ""
+msgstr "Pas de temps de réfléxion superposé"
 
 #11.5
 msgid "Board size"
@@ -733,7 +720,7 @@ msgstr "Annuler le précédent coup"
 
 #12.14
 msgid "Live game"
-msgstr ""
+msgstr "Partie live"
 
 ############## GTP terminal
 #13.1
@@ -772,7 +759,7 @@ msgstr "Information"
 ############## error messages
 
 msgid "Could not open the RSGF file: "
-msgstr ""
+msgstr "Ne peut pas ouvrir le fichier RSGF"
 
 msgid "Could not save the RSGF file: "
 msgstr "Impossible de sauvegarder le fichier RSGF: "
@@ -782,7 +769,7 @@ msgstr "Impossible de sauvegarder le fichier SGF: "
 
 msgid "Could not open the SGF file: "
 #translation missing:
-msgstr ""
+msgstr "Ne peut pas ouvrir le fichier SGF"
 
 msgid "Error while initializing the GTP bot:"
 msgstr "Erreur durant l'initialisation du programme GTP:"
@@ -826,8 +813,54 @@ msgstr "Leela Zero est en train d'ajuster les parametres OpenCL SGEMM. Cela pour
 msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
 msgstr "Ray est en train d'ajuster les parametres OpenCL SGEMM. Cela pourrait prendre plusieurs minutes avant que Ray ne soit prêt."
 
-msgid "The config.ini file does not contain %s entry for %s !"
-msgstr "Le fichier config.ini ne contient pas d'entrée %s pour %s !"
 
-msgid "The config.ini file %s entry for %s is empty!"
-msgstr "L'entrée %s du fichier config.ini pour %s est vide!"
+msgid "Select a game record"
+msgstr "Selectionnez un enregistrement de partie"
+
+msgid "Move %i, for this position, the bot reads up to %d moves ahead."
+msgstr "Coup %i, pour cette position, le programme lit jusqu'à %d coups à l'avance."
+
+msgid "From existing game"
+msgstr "A partir d'une partie existante"
+
+msgid "Delete profile"
+msgstr "Supprimer le profile"
+
+msgid "Single-panel"
+msgstr "Simple panneau"
+
+msgid "There is no bot configured in Settings"
+msgstr "Il n'y a pas de programme configuré dans les paramètres"
+
+msgid "Modify profile"
+msgstr "Modifier le profile"
+
+msgid "Move position out of range"
+msgstr "Numero de coup au delà de la limite"
+
+msgid "Select starting position:"
+msgstr "Sélectionner une position de départ:"
+
+msgid "Reading depth"
+msgstr "Profondeur de lecture"
+
+msgid "Add profile"
+msgstr "Ajouter un profile"
+
+msgid "Dual-panel"
+msgstr "Double panneaux"
+
+msgid "Could not read file"
+msgstr "Ne peut lire le fichier"
+
+msgid "Incorrect move position"
+msgstr "Numéro de coup incorrect"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Move %i, for this position, the bot reads in average %.1f moves ahead."
+msgstr "Coup %i, pour cette position, le programme lit en moyenne %d coups à l'avance."
+
+msgid "New game"
+msgstr "Nouvelle partie"
