@@ -159,17 +159,20 @@ def rsgf2csv(filename):
 				c+=1
 
 	
-	for c in range(len(table[0])):
-		for m in range(len(table[1:])):
+	#scanning for empty columns
+	for c in range(len(table[0])): #checking column after column
+		found=False
+		for m in range(len(table[1:])): #for each columns checking for at least one value
 			try:
-				if table[1+m][c]!="":
+				if table[1+m][c]!="": #one value was found, so let's keept that column
+					found=True
 					break
 			except:
 				#no data (probably no variation data, so keep searching)
 				pass
 		
-		if table[1+m][c]=="":
-			table[0][c]=""
+		if not found:
+			table[0][c]="" #no value found in the entire column, so let's remove the header to remeber to skip that column
 	
 	c=len(headers_left+headers_game)-1
 	header_first_line[c]=""
