@@ -465,10 +465,10 @@ class RangeSelector(Toplevel):
 		if not bot_names:
 			Label(self,text=_("There is no bot configured in Settings")).grid(row=row,column=2,sticky=W)
 		else:
-      botOptionMenu = apply(OptionMenu,(self, self.bot_selection)+tuple(bot_names))
-      botOptionMenu.config(width=20)
-      botOptionMenu.grid(row=row,column=2,sticky=W)
-      self.bot_selection.set(bot_names[0])
+		  botOptionMenu = apply(OptionMenu,(self, self.bot_selection)+tuple(bot_names))
+		  botOptionMenu.config(width=20)
+		  botOptionMenu.grid(row=row,column=2,sticky=W)
+		  self.bot_selection.set(bot_names[0])
 		
 		analyser=grp_config.get("Analysis","analyser")
 		if analyser in bot_names:
