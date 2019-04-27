@@ -148,9 +148,37 @@ class Main(Toplevel):
 			self.live_bouton.config(state='normal')
 
 
-app = Application()
-popup=Main(app)
-popup.refresh()
-app.add_popup(popup)
+if __name__ == "__main__":
+	app = Application()
+	if len(sys.argv)==1:
+		popup=Main(app)
+		popup.refresh()
+		app.add_popup(popup)
+		app.mainloop()
+		
+	else:
+		
+		opened=0
+		for filename in argv[1:]:
+			log(filename,"???")
+			extension=filename[-4:].lower()
+			log("extension",extension)
+			if extension=="rsgf":
+				opened+=1
+				log("Opening",filename)
+				popup=dual_view.DualView(app,filename)
+				app.add_popup(popup)
+			elif extension==".sgf":
+				log("Opening",filename)
+				popup=RangeSelector(app,filename,bots=get_available())
+				app.add_popup(popup)
+				opened+=1
 
-app.mainloop()
+		if not opened:
+			popup=Main(app)
+			popup.refresh()
+			app.add_popup(popup)
+		
+
+	app.mainloop()
+

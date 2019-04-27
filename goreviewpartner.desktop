@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Go Review Partner
+Comment=A tool to review SGFs using bots
+Path=/opt/goreviewpartner
+Exec=python2 "/opt/goreviewpartner/main.py"
+Terminal=false
+Type=Application
+Icon=goreviewpartner
+StartupWMClass=goreviewpartner
+Categories=Game;

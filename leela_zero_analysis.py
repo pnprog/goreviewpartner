@@ -131,6 +131,14 @@ class LeelaZeroAnalysis():
 					current_color='w'
 		log("==== no more sequences =====")
 		
+		try:
+			max_reading_depth=position_evaluation['max reading depth']
+			node_set(one_move,"MRD",str(max_reading_depth))
+			average_reading_depth=position_evaluation['average reading depth']
+			node_set(one_move,"ARD",str(average_reading_depth))
+		except:
+			pass
+		
 		log("==== creating heat map =====")
 		raw_heat_map=leela_zero.get_heatmap()
 		heat_map=""
@@ -339,6 +347,9 @@ class Leela_Zero_gtp(gtp):
 		for err_line in buff:
 			#log(err_line)
 			try: #for comptability with Leela Zero dynamic komi
+				if "average depth," in err_line and "max depth" in err_line:
+					position_evaluation["average reading depth"]=float(err_line.split()[0])
+					position_evaluation["max reading depth"]=int(err_line.split()[3])
 				if " ->" in err_line:
 					if err_line[0]==" ":
 						#log(err_line)

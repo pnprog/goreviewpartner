@@ -206,13 +206,13 @@ class OpenChart(Toplevel):
 		x00=width-border/2
 		y0=height-border
 		for g in graduations:
-				y1=height-border-g*(height-2*border)/maximum
-				if y0-y1>=border/2:
-					self.chart.create_text(x0,y1, text=str(g),fill='black',font=self.font)
-					self.chart.create_text(x00,y1, text=str(g),fill='black',font=self.font)
-					self.chart.create_line(border-3, y1, border+3, y1, fill='black')
-					self.chart.create_line(width-border-3, y1, width-border+3, y1, fill='black')
-					y0=y1
+			y1=height-border-g*(height-2*border)/maximum
+			if y0-y1>=border/2:
+				self.chart.create_text(x0,y1, text=str(g),fill='black',font=self.font)
+				self.chart.create_text(x00,y1, text=str(g),fill='black',font=self.font)
+				self.chart.create_line(border-3, y1, border+3, y1, fill='black')
+				self.chart.create_line(width-border-3, y1, width-border+3, y1, fill='black')
+				y0=y1
 	
 	def change_graph(self,event=None):
 		self.last_graph=_(self.graph_mode.get())
@@ -663,9 +663,6 @@ class OpenChart(Toplevel):
 				maximum=max(maximum,one_data["max_reading_depth"])
 		maximum+=2
 		space=1.0*(width-2*border)/(self.nb_moves+1)
-		middle=height-border-(height-2*border)/2
-		x00=border
-		y00=height-border
 		for one_data in self.data:
 			if "max_reading_depth" in one_data:
 				move=one_data["move"]
@@ -1039,9 +1036,6 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-			# if the table is docked
-			if self.table_frame and self.table_frame.grid_info() :
-				self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
 
 		elif self.pressed==pressed:
 			self.display_move(self.current_move)
@@ -1050,9 +1044,7 @@ class DualView(Toplevel):
 					popup.current_move=self.current_move
 					#self.parent.after(0,popup.display)
 					popup.display()
-			# if the table is docked
-			if self.table_frame and self.table_frame.grid_info() :
-				self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
+
 		self.update_idletasks()
 		
 	def leave_variation(self,goban,grid,markup):
@@ -1239,7 +1231,7 @@ class DualView(Toplevel):
 			
 			try:
 				winrate=node_get(one_move,'MCWR')
-				if player_color in ('b',"B"):
+				if one_data['player_color']=='b':
 					one_data['monte_carlo_win_rate']=float(winrate.split("%")[0])
 				else:
 					one_data['monte_carlo_win_rate']=float(winrate.split("/")[1][:-1])
@@ -1248,7 +1240,7 @@ class DualView(Toplevel):
 			
 			try:
 				winrate=node_get(one_move,'VNWR')
-				if player_color in ('b',"B"):
+				if one_data['player_color']=='b':
 					one_data['value_network_win_rate']=float(winrate.split("%")[0])
 				else:
 					one_data['value_network_win_rate']=float(winrate.split("/")[1][:-1])
@@ -1260,7 +1252,7 @@ class DualView(Toplevel):
 			#because we consider the bot plays perfectly
 			try:
 				winrate=node_get(one_move,'BWWR')
-				if player_color in ('w',"W"):
+				if one_data['player_color']=='w':
 					current_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					current_position_win_rate=float(winrate.split("%")[0])
@@ -1277,7 +1269,7 @@ class DualView(Toplevel):
 			try:
 				next_move=get_node(self.gameroot,m+1)
 				winrate=node_get(next_move,'BWWR')
-				if player_color in ('w',"W"):
+				if one_data['player_color']=='w':
 					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
@@ -1297,7 +1289,7 @@ class DualView(Toplevel):
 			try:
 				next_move=get_node(self.gameroot,m+1)
 				winrate=node_get(next_move,'MCWR')
-				if player_color in ('w',"W"):
+				if one_data['player_color']=='w':
 					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
@@ -1314,7 +1306,7 @@ class DualView(Toplevel):
 			try:
 				next_move=get_node(self.gameroot,m+1)
 				winrate=node_get(next_move,'VNWR')
-				if player_color in ('w',"W"):
+				if one_data['player_color']=='w':
 					next_position_win_rate=float(winrate.split("/")[1][:-1])
 				else:
 					next_position_win_rate=float(winrate.split("%")[0])
@@ -1670,23 +1662,11 @@ class DualView(Toplevel):
 		self.update_territory(move)
 		self.update_game_gobans(move)
 		self.update_both_bot_gobans(move)
+		
+		
+		if self.table_frame:
+			self.table_widget.display_move(self.current_move,self.current_grid,self.current_markup)
 
-		
-	def open_move(self):
-		log("Opening move",self.current_move)
-		
-		new_popup=OpenMove(self,self.current_move,self.dim,self.sgf)
-		new_popup.goban.mesh=self.left_game_goban.mesh
-		new_popup.goban.wood=self.left_game_goban.wood
-		new_popup.goban.black_stones=self.left_game_goban.black_stones_style
-		new_popup.goban.white_stones=self.left_game_goban.white_stones_style
-		
-		new_popup.goban.grid=new_popup.grid
-		new_popup.goban.markup=new_popup.markup
-		new_popup.goban.reset()
-		#new_popup.goban.display(new_popup.grid,new_popup.markup)
-		
-		self.add_popup(new_popup)
 
 	def update_from_file(self):
 		period=20
@@ -2417,12 +2397,6 @@ class DualView(Toplevel):
 		
 		new_anchor_x=(event.width-new_size)/2
 		new_anchor_y=(event.height-new_size)/2
-		
-		"""goban=event.widget
-		goban.space=new_space
-		goban.anchor_x=new_anchor_x
-		goban.anchor_y=new_anchor_y
-		goban.reset()"""
 		
 		for goban in [self.right_bot_goban, self.right_game_goban]+[tab.goban for tab in self.right_side_opened_tabs]:
 			goban.space=new_space

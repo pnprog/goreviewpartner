@@ -93,21 +93,19 @@ class OpenSettings(Toplevel):
 		FuzzyStonePlacement.set(grp_config.get("Review","FuzzyStonePlacement"))
 		Entry(setting_frame, textvariable=FuzzyStonePlacement, width=30).grid(row=row,column=2)
 		row+=1
+		
 		Label(setting_frame,text=_("Real game sequence deepness")).grid(row=row,column=1,sticky=W)
 		RealGameSequenceDeepness = StringVar() 
 		RealGameSequenceDeepness.set(grp_config.get("Review","RealGameSequenceDeepness"))
 		Entry(setting_frame, textvariable=RealGameSequenceDeepness, width=30).grid(row=row,column=2)
 		row+=1
-		"""Label(setting_frame,text=_("Goban/screen ratio")).grid(row=row,column=1,sticky=W)
-		GobanScreenRatio = StringVar() 
-		GobanScreenRatio.set(grp_config.get("Review","GobanScreenRatio"))
-		Entry(setting_frame, textvariable=GobanScreenRatio, width=30).grid(row=row,column=2)
-		row+=1"""
+		
 		Label(setting_frame,text=_("Maximum number of variations to display during review")).grid(row=row,column=1,sticky=W)
 		MaxVariationsToDisplay = StringVar() 
 		MaxVariationsToDisplay.set(grp_config.get("Review","MaxVariations"))
 		Entry(setting_frame, textvariable=MaxVariationsToDisplay, width=30).grid(row=row,column=2)
 		row+=1
+		
 		Label(setting_frame,text=_("Blue/red coloring of the variations")).grid(row=row,column=1,sticky=W)
 		VariationsColoring = StringVar()
 		coloring={"blue_for_winning":_("Win rate > 50% in blue"),"blue_for_best":_("The best variation in blue"),"blue_for_better":_("Variations better than actual game move in blue")}
@@ -217,14 +215,7 @@ class OpenSettings(Toplevel):
 		
 		command=command.get()
 		parameters=parameters.get().split()
-		
-		"""if profil=="slow":
-			command=self.current_settings.SlowCommand.get()
-			parameters=self.current_settings.SlowParameters.get().split()
-		if profil=="fast":
-			command=self.current_settings.FastCommand.get()
-			parameters=self.current_settings.FastParameters.get().split()"""
-		
+			
 		if not command:
 			log("Empty command line!")
 			return

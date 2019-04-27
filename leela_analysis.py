@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from gtp import gtp
-import sys
 from Tkinter import *
 from time import sleep
 from toolbox import *

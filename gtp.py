@@ -25,6 +25,7 @@ class gtp():
 			try:
 				err_line=self.process.stderr.readline().decode("utf-8")
 				if err_line:
+					log("#",err_line.strip())
 					self.stderr_queue.put(err_line)
 				else:
 					log("leaving consume_stderr thread")
@@ -88,6 +89,10 @@ class gtp():
 		else:return False	
 
 	def place_black(self,move):
+		if move == "RESIGN":
+			log("WARNING: trying to play RESIGN as GTP move")
+			self.history.append(["b",move])
+			return True
 		self.write("play black "+move)
 		answer=self.readline()
 		if answer[0]=="=":
@@ -96,6 +101,10 @@ class gtp():
 		else:return False	
 	
 	def place_white(self,move):
+		if move == "RESIGN":
+			log("WARNING: trying to play RESIGN as GTP move")
+			self.history.append(["w",move])
+			return True
 		self.write("play white "+move)
 		answer=self.readline()
 		if answer[0]=="=":

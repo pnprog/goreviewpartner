@@ -30,7 +30,10 @@ class PachiAnalysis():
 		node_set(one_move,"CBM",answer) #Computer Best Move
 		
 		position_evaluation=pachi.get_all_pachi_moves()
-
+		
+		reference_color="w"
+		log("Pachi best answer=",answer)
+		
 		if "estimated score" in position_evaluation:
 			node_set(one_move,"ES",position_evaluation["estimated score"])
 		
@@ -113,7 +116,7 @@ class PachiAnalysis():
 		return pachi
 
 def pachi_starting_procedure(sgf_g,profile,silentfail=False):
-	pachi=bot_starting_procedure("Pachi","Pachi UCT",Pachi_gtp,sgf_g,profile,silentfail)
+	pachi=bot_starting_procedure("Pachi","Pachi",Pachi_gtp,sgf_g,profile,silentfail)
 	if not pachi:
 		return False
 	
@@ -158,10 +161,13 @@ class Pachi_gtp(gtp):
 		pachi_working_directory=command[0][:-len(ntpath.basename(command[0]))]
 		command=[c.encode(sys.getfilesystemencoding()) for c in command]
 		
-		pachi_working_directory=pachi_working_directory.encode(sys.getfilesystemencoding())
-		if pachi_working_directory:
-			log("Pachi working directory:",pachi_working_directory)
-			self.process=subprocess.Popen(command,cwd=pachi_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		if sys.platform != "win32":
+			pachi_working_directory=pachi_working_directory.encode(sys.getfilesystemencoding())
+			if pachi_working_directory:
+				log("Pachi working directory:",pachi_working_directory)
+				self.process=subprocess.Popen(command,cwd=pachi_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			else:
+				self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		else:
 			self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		
@@ -219,29 +225,6 @@ class Pachi_gtp(gtp):
 			pass
 		
 		return txt
-	
-
-
-	"""def get_leela_influence(self):
-		self.write("influence")
-		one_line=self.readline() #empty line
-		buff=[]
-		while self.stderr_queue.empty():
-			sleep(.1)
-		while not self.stderr_queue.empty():
-			while not self.stderr_queue.empty():
-				buff.append(self.stderr_queue.get())
-			sleep(.1)
-		buff.reverse()
-		#log(buff)
-		influence=[]
-		for i in range(self.size):
-			one_line=buff[i].strip()
-			one_line=one_line.replace(".","0").replace("x","1").replace("o","2").replace("O","0").replace("X","0").replace("w","1").replace("b","2")
-			one_line=[int(s) for s in one_line.split(" ")]
-			influence.append(one_line)
-		
-		return influence"""
 
 	def get_all_pachi_moves(self):
 		buff=[]
@@ -278,13 +261,22 @@ class Pachi_gtp(gtp):
 					pass
 			if "Score Est: " in err_line:
 				position_evaluation["estimated score"]=err_line.split("Score Est: ")[1]
+			if '{"frame": ' in err_line:
+				json=json_loads(err_line)
+				move=json["frame"]["can"][0]
+				position_evaluation["best move"]=move[0].keys()[0]
+				if type(move[0].values()[0])==type(0.5):
+					winrate=move[0].values()[0]
+					position_evaluation["win rate"]=str(100*float(winrate))+"%"
+				elif type(move[0].values()[0])==type([0,1]):
+					winrate, playouts=move[0].values()[0]
+					position_evaluation["win rate"]=str(100*float(winrate))+"%"
+
+					
 			if '{"move": ' in err_line:
 				found=True
 				#this line is the json report line
 				#exemple: {"move": {"playouts": 5064, "extrakomi": 0.0, "choice": "H8", "can": [[{"H8":0.792},{"F2":0.778},{"G6":0.831},{"G7":0.815}], [{"K14":0.603},{"L13":0.593},{"M13":0.627},{"K13":0.593}], [{"M15":0.603},{"L13":0.724},{"M13":0.778},{"K13":0.700}], [{"M14":0.627},{"M15":0.647},{"N15":0.596}]]}}
-				"""print
-				print err_line
-				print"""
 				json=json_loads(err_line)
 				position_evaluation["playouts"]=json["move"]["playouts"]
 				for move in json["move"]["can"]:
@@ -317,10 +309,7 @@ class Pachi_gtp(gtp):
 			log("\n")
 		#print "len(influence)",len(influence),number_coordinate
 		position_evaluation["influence"]=influence
-		"""for i in range(self.size):
-			for j in range(self.size):
-				print influence[i][j],
-			print"""
+
 		return position_evaluation
 
 
@@ -436,7 +425,7 @@ class PachiOpenMove(BotOpenMove):
 
 Pachi={}
 Pachi['name']="Pachi"
-Pachi['gtp_name']="Pachi UCT"
+Pachi['gtp_name']="Pachi"
 Pachi['analysis']=PachiAnalysis
 Pachi['openmove']=PachiOpenMove
 Pachi['settings']=PachiSettings

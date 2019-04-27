@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from traceback import format_exc
-import traceback
+
 class GRPException(Exception):
 	def __init__(self,msg):
 		if type(msg)==type(u"abc"):
@@ -316,7 +316,7 @@ def convert_sgf_to_utf(content):
 			#the sgf is already in UTF, so we accept it directly
 			return game
 		else:
-			log("Encoding for",filename,"is",ca)
+			log("Encoding is",ca)
 			log("Converting from",ca,"to UTF-8")
 			encoding=(codecs.lookup(ca).name.replace("_", "-").upper().replace("ISO8859", "ISO-8859")) #from gomill code
 			content=game.serialise()
@@ -462,11 +462,14 @@ class RangeSelector(Toplevel):
 		bot_names=[bot['name']+" - "+bot['profile'] for bot in bots]
 		self.bot_selection=StringVar()
 
-		botOptionMenu = apply(OptionMenu,(self, self.bot_selection)+tuple(bot_names))
-		botOptionMenu.config(width=20)
-		botOptionMenu.grid(row=row,column=2,sticky=W)
-		self.bot_selection.set(bot_names[0])
-
+		if not bot_names:
+			Label(self,text=_("There is no bot configured in Settings")).grid(row=row,column=2,sticky=W)
+		else:
+      botOptionMenu = apply(OptionMenu,(self, self.bot_selection)+tuple(bot_names))
+      botOptionMenu.config(width=20)
+      botOptionMenu.grid(row=row,column=2,sticky=W)
+      self.bot_selection.set(bot_names[0])
+		
 		analyser=grp_config.get("Analysis","analyser")
 		if analyser in bot_names:
 			self.bot_selection.set(analyser)
@@ -610,7 +613,10 @@ class RangeSelector(Toplevel):
 		row+=10
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
-		Button(self,text=_("Start"),command=self.start).grid(row=row,column=2,sticky=E)
+		start_button=Button(self,text=_("Start"),command=self.start)
+		start_button.grid(row=row,column=2,sticky=E)
+		if not bot_names:
+			start_button.config(state="disabled")
 		self.mode=s
 		self.color=c
 		self.existing_variations=existing_variations
@@ -657,17 +663,9 @@ class RangeSelector(Toplevel):
 		if self.bots!=None:
 			bot=self.bot_selection.get()
 			log("bot selection:",bot)
-			#value={"slow":" (%s)"%_("Slow profile"),"fast":" (%s)"%_("Fast profile")}
 			bot={bot['name']+" - "+bot['profile']:bot for bot in self.bots}[bot]
-
-			#RunAnalysis={bot_label:bot['runanalysis'] for bot in self.bots}[bot]
-			#profile={bot_label:bot['profile'] for bot in self.bots}[bot]
 			RunAnalysis=bot['runanalysis']
-			profile=bot['profile']
 
-			#bot_selection=int(self.bot_selection.curselection()[0])
-			#log("bot selection:",self.bots[bot_selection][0])
-			#RunAnalysis=self.bots[bot_selection][1]
 
 		if self.mode.get()=="all":
 			intervals="all moves"
@@ -1067,7 +1065,7 @@ class RunAnalysisBase(Toplevel):
 							for child in parent[1:]:
 								child.delete()
 							write_rsgf(self.rsgf_filename,self.g)
-			except Exception, e:
+			except:
 				#what could possibly go wrong with this?
 				pass
 
@@ -1739,7 +1737,7 @@ log("Reading language setting from config file")
 lang=grp_config.get("General","Language")
 
 
-available_translations={"en": "English", "fr" : "Français", "de" : "Deutsch", "kr" : "한국어", "zh": "中文"}
+available_translations={"en": "English", "fr" : "Français", "de" : "Deutsch", "kr" : "한국어", "zh": "中文", "pl": "Polski", "ru": "Русский"}
 if not lang:
 	log("No language setting in the config file")
 	log("System language detection:")
@@ -1913,7 +1911,6 @@ class Application(Tk):
 		self.withdraw()
 
 	def force_close(self):
-		import os
 		os._exit(0)
 
 	def remove_popup(self,popup):
@@ -1947,7 +1944,7 @@ class Application(Tk):
 			log("You are welcome to support GoReviewPartner (bug reports, code fixes, translations, ideas...). If you are interested, get in touch through Github, Reddit, or LifeIn19x19!")
 			if we_are_frozen():
 				#running from py2exe
-				raw_input()
+				time.sleep(2)
 			self.force_close()
 
 	def add_popup(self,popup):
@@ -2497,7 +2494,7 @@ def main(bot):
 			profile={p["profile"]:p for p in get_bot_profiles(bot["name"])}[profile]
 
 			if isinstance(filename, str):
-   				filename = unicode(filename, 'utf-8')
+				filename = unicode(filename, 'utf-8')
 
 			filename2=".".join(filename.split(".")[:-1])+".rsgf"
 			if nogui:

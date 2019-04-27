@@ -7,7 +7,6 @@ from goban import *
 from datetime import datetime
 from Tkinter import *
 from threading import Lock
-import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis,gtp_bot
 from copy import deepcopy as copy
 from ttk import Notebook
 from tabbed import *
@@ -34,7 +33,7 @@ class LiveAnalysisLauncher(Toplevel):
 		#Label(self,text="").grid(row=row,column=1)
 		
 		row+=1
-		Label(self,text=_("Black player"+":")).grid(row=row,column=1,sticky=W)
+		Label(self,text=_("Black player")+":").grid(row=row,column=1,sticky=W)
 		self.black_selection=StringVar()	
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
@@ -342,9 +341,6 @@ class LiveAnalysisLauncher(Toplevel):
 		
 		if nb_bots>1:
 			row=0
-			"""widget=Label(self.overlap_thinking_wrapper,text="")
-			widget.grid(row=row,column=1)
-			self.overlap_thinking_widgets.append(widget)"""
 			
 			row+=1
 			widget=Label(self.overlap_thinking_wrapper,text=_("No overlap thinking time"))
