@@ -1,870 +1,833 @@
-
+\
 ############ Main panel
 #1.1
 msgid "This is GoReviewPartner"
-msgstr ""
+msgstr "Это - GoReviewPartner"
 
 #1.2
 msgid "Run a SGF file analysis"
-msgstr ""
+msgstr "Анализ SGF-файла"
 
 #1.3
 msgid "Run a live analysis"
-msgstr ""
+msgstr "Анализ вживую"
 
 #1.4
 msgid "Open a RSGF file for review"
-msgstr ""
+msgstr "Просмотр RSGF-файла"
 
 #1.5
 msgid "Convert RSGF file to SGF file"
-msgstr ""
+msgstr "Конвертация RSGF в SGF"
 
 #1.6
 msgid "Download a SGF file for analysis"
-msgstr ""
+msgstr "Анализ SGF-файла по ссылке"
 
 #1.7
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #1.8
 msgid "The file %s has been converted to %s"
-msgstr ""
+msgstr "Файл \"%s\" был сконвертирован в \"%s\""
 
 #1.9
 msgid "Convert RSGF file to CSV file"
-msgstr ""
+msgstr "Конвертация RSGF в CSV"
 
 ############## Analysis setting
 #2.1
 msgid "Bot to use for analysis:"
-msgstr ""
+msgstr "Программа для анализа"
 
 #2.2
 msgid "Select variation to be analysed"
-msgstr ""
+msgstr "Выберите вариант для анализа"
 
 #2.3
 msgid "Select moves to be analysed"
-msgstr ""
+msgstr "Выберите ходы для анализа"
 
 #2.4
 msgid "Analyse all %i moves"
-msgstr ""
+msgstr "Анализировать все ходы (%i)"
 
 #2.5
 msgid "Analyse only those moves:"
-msgstr ""
+msgstr "Анализировать только эти ходы:"
 
 #2.6
 msgid "Select colors to be analysed"
-msgstr ""
+msgstr "Выберите цвет для анализа"
 
 #2.7
 msgid "Black & white"
-msgstr ""
+msgstr "Чёрные и белые"
 
 #2.8
 msgid "Black only"
-msgstr ""
+msgstr "Только чёрные"
 
 #2.9
 msgid "White only"
-msgstr ""
+msgstr "Только белые"
 
 #2.10
 msgid "Confirm the value of komi"
-msgstr ""
+msgstr "Подтвердите величину коми"
 
 #2.11
 msgid "Stop the analysis if the bot resigns"
-msgstr ""
+msgstr "Остановить анализ, если программа сдаётся"
 
 #2.12
 msgid "Variation %i (%i moves)"
-msgstr ""
+msgstr "Вариант %i (ходов: %i)"
 
 #2.13
 msgid "Start"
-msgstr ""
+msgstr "Начать анализ"
 
 #2.14
 msgid "Incorrect value for komi (%s), please double check."
-msgstr ""
+msgstr "Некорректная величина коми (%s). Пожалуйста, проверьте."
 
 #2.15
 msgid "Could not make sense of the moves range."
-msgstr ""
+msgstr "Интервал ходов не имеет смысла."
 
 #2.16
 msgid "Please indicate one or more move intervals (e.g. \"10-20, 40,50-51,63,67\")"
-msgstr ""
+msgstr "Пожалуйста, укажите один или несколько интервалов (например: \"10-20, 40,50-51,63,67\")"
 
 #2.17
 msgid "Error while reading komi value, please check:"
-msgstr ""
-
-#2.18
-msgid "There is no bot configured in Settings"
-msgstr ""
-
+msgstr "Ошибка при разборе коми. Пожалуйста, проверьте."
 
 ############## SGF download
 #3.1
 msgid "Paste the URL to the SGF file (http or https):"
-msgstr ""
+msgstr "Укажите URL для SGF-файла (http или https):"
 
 #3.2
 msgid "Get"
-msgstr ""
+msgstr "Получить"
 
 #3.3
 msgid "Could not open the URL"
-msgstr ""
+msgstr "Невозможно открыть URL"
 
 #3.4
 msgid "Not a valid SGF file!"
-msgstr ""
+msgstr "Некорректный SGF-файл"
 
 #3.5
 msgid "This analysis will be performed on an already analysed SGF file."
-msgstr ""
+msgstr "Анализ будет выполнен для уже проанализированного SGF-файла."
 
 #3.6
 msgid "What to do with the existing variations?"
-msgstr ""
+msgstr "Что делать с существующими вариантами?"
 
 #3.7
 msgid "Keep existing variations"
-msgstr ""
+msgstr "Оставить существующие варианты"
 
 #3.8
 msgid "Replace existing variations"
-msgstr ""
+msgstr "Заменить существующие варианты"
 
 ############## Analysis running ###
 #4.1
 msgid "Analysis of: %s"
-msgstr ""
+msgstr "Анализируется: %s"
 
 #4.2
 msgid "Remaining time: %ih, %im, %is"
-msgstr ""
+msgstr "Оставшееся время: %i ч, %i мин, %i с"
 
 #4.3
 msgid "Currently at move %i/%i"
-msgstr ""
+msgstr "Текущий ход: %i/%i"
 
 #4.4
 msgid "Completed"
-msgstr ""
+msgstr "Анализ завершён"
 
 #4.5
 msgid "Start the review"
-msgstr ""
+msgstr "Начать разбор"
 
 #4.6
 msgid "Now closing, please wait..."
-msgstr ""
+msgstr "Завершение. Пожалуйста, подождите..."
 
 
 ############## RSGF review
 
 #5.3
 msgid "Graphs"
-msgstr ""
+msgstr "Графики"
 
 #5.4
 msgid "Table"
-msgstr ""
+msgstr "Таблица"
 msgid "Comments"
-msgstr ""
+msgstr "Комментарии"
 
 #5.7
 msgid "Go to first move."
-msgstr ""
+msgstr "К первому ходу"
 
 #5.8
 msgid "Go back 10 moves."
-msgstr ""
+msgstr "Назад на 10 ходов"
 
 #5.9
 msgid "Go back one move. Shortcut: keyboard left key."
-msgstr ""
+msgstr "Назад на один ход (клавиша: стрелка влево)"
 
 #5.10
 msgid "Go forward one move. Shortcut: keyboard right key."
-msgstr ""
+msgstr "Вперёд на один ход (клавиша: стрелка вправо)"
 
 #5.11
 msgid "Go forward 10 moves."
-msgstr ""
+msgstr "Вперёд на 10 ходов"
 
 #5.12
 msgid "Go to final move."
-msgstr ""
+msgstr "К последнему ходу"
 
 #5.13
 msgid "<Ctrl+Q> to save the goban as an image."
-msgstr ""
+msgstr "<Ctrl+Q> - сохранить изображение позиции"
 msgid "Use mouse middle click or wheel to undo move."
-msgstr ""
+msgstr "Используйте среднюю кнопку или колесо мыши для отмены хода"
 
 #5.14
 msgid "<Ctrl+W> to save the goban as an image."
-msgstr ""
+msgstr "<Ctrl+W> чтобы сохранить изображение доски"
 
 #5.15
 msgid "Use mouse wheel or keyboard up/down keys to display the sequence move by move."
-msgstr ""
+msgstr "Используйте колесо мыши или стрелки вверх/вниз на клавиатуре для просмотра последовательности ход за ходом."
 
 #5.16
 msgid "Actual game"
-msgstr ""
+msgstr "Партия"
 
 #5.17
 msgid "Keep pressed to show map."
-msgstr ""
+msgstr "Держите нажатой для показа карты."
 
 #5.18
 msgid "Maps"
-msgstr ""
+msgstr "Карты"
 
 #5.19
 msgid "Show"
-msgstr ""
+msgstr "Показать"
 
 #5.20
 msgid "Territories"
-msgstr ""
+msgstr "Территории"
 
 #5.21
 msgid "Influence"
-msgstr ""
+msgstr "Влияние"
 
 #5.22
 msgid "Heat map"
-msgstr ""
+msgstr "Тепловая карта"
 
 #5.23
 msgid "Display"
-msgstr ""
+msgstr "Показ"
 
 #5.24
 msgid "Not available"
-msgstr ""
+msgstr "Недоступно"
 
 ############## Open position
 #6.1
 msgid "Undo"
-msgstr ""
+msgstr "Отмена"
 
 #6.2
 msgid "Play one move"
-msgstr ""
+msgstr "Сыграть один ход"
 
 #6.3
 msgid "Play as white"
-msgstr ""
+msgstr "Играть белыми"
 
 #6.4
 msgid "Play as black"
-msgstr ""
+msgstr "Играть чёрными"
 
 #6.7
 msgid "Undo last move. Shortcut: mouse middle button."
-msgstr ""
+msgstr "Отменить последний ход. Мышь: средняя кнопка."
 
 #6.8
 msgid "Select a bot"
-msgstr ""
+msgstr "Выбрать программу"
 
 #6.12
 msgid "Let the bot take both sides and play against itself."
-msgstr ""
+msgstr "Разрешить программе играть за оба цвета самой с собой."
 
 #6.13
 msgid "Ask the bot for a quick evaluation"
-msgstr ""
+msgstr "Спросить у программы быструю оценку"
 
 #6.15
 msgid "White"
-msgstr ""
+msgstr "Белые"
 
 #6.16
 msgid "Black"
-msgstr ""
+msgstr "Чёрные"
 
 #6.17
 msgid "Action"
-msgstr ""
+msgstr "Действие"
 
 #6.18
 msgid "No bot"
-msgstr ""
+msgstr "Без программы"
 
 #6.19
 msgid "Do nothing"
-msgstr ""
+msgstr "Пауза"
+
+
 
 ############## Graphs
 #7.1
 msgid "Win rate"
-msgstr ""
+msgstr "Вероятность победы"
 
 #7.2
 msgid "Black win rate delta"
-msgstr ""
+msgstr "Изменение вероятности победы чёрных"
 
 #7.3
 msgid "White win rate delta"
-msgstr ""
+msgstr "Изменение вероятности победы белых"
 
 #7.4
 msgid "Value Network win rate"
-msgstr ""
+msgstr "Вероятность победы, сеть Value"
 
 #7.5
 msgid "Black Value Network win rate delta"
-msgstr ""
+msgstr "Изменение вероятности победы чёрных, сеть Value"
 
 #7.6
 msgid "White Value Network win rate delta"
-msgstr ""
+msgstr "Изменение вероятности победы белых, сеть Value"
 
 #7.7
 msgid "Monte Carlo win rate"
-msgstr ""
+msgstr "Вероятность победы, Монте-Карло"
 
 #7.8
 msgid "Black Monte Carlo win rate delta"
-msgstr ""
+msgstr "Изменение вероятности победы чёрных, Монте-Карло"
 
 #7.9
 msgid "White Monte Carlo win rate delta"
-msgstr ""
+msgstr "Изменение вероятности победы белых, Монте-Карло"
 
 #7.10
 msgid "Score estimation"
-msgstr ""
+msgstr "Оценка счёта"
 
 #7.11
 msgid "Black win rate"
-msgstr ""
+msgstr "Вероятность победы чёрных"
 
 #7.12
 msgid "Move %i (%s), black/white win rate: "
-msgstr ""
+msgstr "Ход %i (%s), вероятность победы чёрных/белых: "
 
 #7.13
 msgid "Move %i: win rate of Black's move: %s; win rate of computer move: %s"
-msgstr ""
+msgstr "Ход %i: вероятность победы при ходе чёрных: %s, вероятность победы при ходе компьютера: %s"
 msgid "Move %i: win rate of White's move: %s; win rate of computer move: %s"
-msgstr ""
+msgstr "Ход %i: вероятность победы при ходе белых: %s, вероятность победы при ходе компьютера: %s"
 
 #7.14
 msgid "The computer believes the actual move is %.2fpp better than it's best move."
-msgstr ""
+msgstr "Компьютер считает, что реальный ход на %.2fpp сильнее, чем его лучший ход"
 
 #7.15
-msgid "The computer believes it's own move win rate would be %.2fpp higher."
-msgstr ""
+msgid "The computer believes it's own move win rate would bе %.2fpp higher."
+msgstr "Компьютер считает, что его ход повышает вероятность победы на %.2fpp."
 
 #7.16
 msgid "Move %i (%s), estimated score: "
-msgstr ""
+msgstr "Ход %i (%s), оценка счёта: "
 
 #7.17
 msgid "Win for White"
-msgstr ""
+msgstr "Победа белых"
 
 #7.18
 msgid "Win for Black"
-msgstr ""
+msgstr "Победа чёрных"
 
 #7.19
 msgid "<Ctrl+Q> to save the graph as an image."
-msgstr ""
+msgstr "<Ctrl+Q> - сохранить график как изображение"
 
 ############## GRP Settings
 #8.1
 msgid "%s settings"
-msgstr ""
+msgstr "Настройки %s"
 
 #8.2
 msgid "General parameters"
-msgstr ""
+msgstr "Основные параметры"
 
 #8.3
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #8.4
 msgid "Parameters for the analysis"
-msgstr ""
+msgstr "Параметры анализа"
 
 #8.5
 msgid "Maximum number of variations to record during analysis"
-msgstr ""
+msgstr "Максимальное число вариантов для записи при анализе"
 
 #8.6
 msgid "Only keep variations where game move and bot move differ"
-msgstr ""
+msgstr "Сохранять только варианты, в которых ход программы отличается от хода в партии"
 
 #8.7
 msgid "Save bot command line into RSGF file"
-msgstr ""
+msgstr "Сохранять командную строку программы в RSGF-файл"
 
 #8.8
 msgid "Parameters for the review"
-msgstr ""
+msgstr "Параметры разбора"
 
 #8.9
 msgid "Natural stone placement"
-msgstr ""
+msgstr "Натуралистичное размещение камней"
 
 #8.10
 msgid "Real game sequence deepness"
-msgstr ""
+msgstr "Глубина вариантов из реальной партии"
 
 #8.12
 msgid "Maximum number of variations to display during review"
-msgstr ""
+msgstr "Максимальное число вариантов для показа при разборе"
 
 #8.13
 msgid "Blue/red coloring of the variations"
-msgstr ""
+msgstr "Синий/красный цвет вариантов"
 
 #8.14
 msgid "Labels for the variations"
-msgstr ""
+msgstr "Метки для вариантов"
 
 #8.15
 msgid "Inverted mouse wheel"
-msgstr ""
+msgstr "Инвертировать колесо мыши"
 
 #8.16
 msgid "Save settings"
-msgstr ""
+msgstr "Сохранить настройки"
 
 #8.17
 msgid "The best variation in blue"
-msgstr ""
+msgstr "Показывать синим лучший вариант"
 
 #8.18
 msgid "Win rate > 50% in blue"
-msgstr ""
+msgstr "Показывать синим при вероятности победы > 50%"
 
 #8.19
 msgid "Variations better than actual game move in blue"
-msgstr ""
+msgstr "Показывать синим варианты лучшие, чем в партии"
 
 #8.20
 msgid "Percentages"
-msgstr ""
+msgstr "Проценты"
 
 #8.21
 msgid "Letters"
-msgstr ""
+msgstr "Буквы"
 
 
 
 
 
 ############## Bots Settings
-
+#9.1
+msgid "Slow profile parameters"
+msgstr "Параметры медленного профиля"
 
 #9.2
 msgid "Command"
-msgstr ""
+msgstr "Команда"
 
 #9.3
 msgid "Parameters"
-msgstr ""
+msgstr "Параметры"
 
 #9.4
 msgid "Time per move (s)"
-msgstr ""
+msgstr "Время на ход (с)"
 
 #9.5
 msgid "Test"
-msgstr ""
+msgstr "Проверка"
+
+#9.6
+msgid "Fast profile parameters"
+msgstr "Параметры быстрого профиля"
 
 #9.12
 msgid "Maximum number of variations"
-msgstr ""
+msgstr "Максимальное число вариантов"
 
 #9.13
 msgid "Deepness for each variation"
-msgstr ""
+msgstr "Глубина каждого варианта"
 
 #9.14
 msgid "See AQ parameters in \"aq_config.txt\""
-msgstr ""
+msgstr "См. параметры AQ в файле \"aq_config.txt\""
 
+#9.15
+msgid "Slow profile"
+msgstr "Медленный профиль"
+
+#9.16
+msgid "Fast profile"
+msgstr "Быстрый профиль"
 
 ############## Data description and display
 #10.1
 msgid "Move %i"
-#e.g. Move 244
-msgstr ""
+msgstr "Ход %i"
 
 #10.2
 msgid "White to play. In the game, white played %s"
-#e.g. White to play. In the game, white played D16
-msgstr ""
+msgstr "Ход белых. В партии они сыграли %s."
 msgid "Black to play. In the game, black played %s"
-msgstr ""
+msgstr "Ход чёрных. В партии они сыграли %s."
 
 #10.3
 msgid "For this position, %s would play: %s"
-#e.g. For this position, Leela would play: D16
-msgstr ""
+msgstr "В этой позиции %s предлагает %s."
 
 #10.4
 msgid "Black win probability:"
-msgstr ""
+msgstr "Вероятность победы чёрных:"
 msgid "White win probability:"
-msgstr ""
+msgstr "Вероятность победы белых:"
 
 #10.5
 msgid "before %s"
-msgstr ""
+msgstr "перед %s"
 
 #10.6
 msgid "after %s"
-msgstr ""
+msgstr "после %s"
 
 #10.7
 msgid "Black Value Network win probability:"
-msgstr ""
+msgstr "Вероятность победы чёрных, сеть Value:"
 msgid "White Value Network win probability:"
-msgstr ""
+msgstr "Вероятность победы белых, сеть Value:"
 
 #10.8
 msgid "Black Monte Carlo win probability:"
-msgstr ""
+msgstr "Вероятность победы чёрных, Монте-Карло:"
 msgid "White Monte Carlo win probability:"
-msgstr ""
+msgstr "Вероятность победы белых, Монте-Карло:"
 
 #10.9
 msgid "Move"
-msgstr ""
+msgstr "Ход"
 
 #10.10
 msgid "Policy Network value"
-msgstr ""
+msgstr "Значение сети Policy:"
 
 #10.11
 msgid "Playouts"
-msgstr ""
+msgstr "Плейауты"
 
 #10.12
 msgid "Evaluation"
-msgstr ""
+msgstr "Оценка"
 
 #10.13
 msgid "RAVE"
-msgstr ""
+msgstr "RAVE"
 
 #10.14
 msgid "black/white win probability for this variation: %s"
-msgstr ""
+msgstr "Вероятность победы чёрных/белых: %s"
 
 #10.15
 msgid "Policy network value for this variation: %s"
-msgstr ""
+msgstr "Значение сети Policy для этого варианта: %s"
 
 #10.16
 msgid "Monte Carlo win probability for this variation: %s"
-msgstr ""
+msgstr "Вероятность победы чёрных/белых, Монте-Карло: %s"
 
 #10.17
 msgid "Value network black/white win probability for this variation: %s"
-msgstr ""
+msgstr "Вероятность победы чёрных/белых, сеть Value: %s"
 
 #10.18
 msgid "Number of playouts used to estimate this variation: %s"
-msgstr ""
+msgstr "Число плейаутов для этого хода: %s"
 
 #10.19
 msgid "Evaluation for this variation: %s"
-msgstr ""
+msgstr "Оценка этого варианта: %s"
 
 #10.20
 msgid "RAVE(x%% : y) for this variation: %s"
-msgstr ""
+msgstr "RAVE(x% : y) для этого варианта: %s"
+
 
 #10.21
 msgid "Score estimation for this variation: %s"
-msgstr ""
+msgstr "Оценка счёта для этого варианта: %s"
 
 #10.22
 msgid "Analysis by GoReviewPartner"
-msgstr ""
+msgstr "Анализ GoReviewPartner"
 
 #10.23
 msgid "Bot"
-msgstr ""
+msgstr "Программа"
 
 #10.24
 msgid "Intervals"
-msgstr ""
+msgstr "Интервалы"
 
 #10.25
 msgid "Command line"
-msgstr ""
+msgstr "Командная строка"
 
 #10.26
 msgid "Book move"
-msgstr ""
+msgstr "Ход из книги"
 
 ############## Live analysis settings
 #11.1
 msgid "Bot used for analysis"
-msgstr ""
+msgstr "Программа для анализа"
 
 #11.2
 msgid "Black player"
-msgstr ""
+msgstr "За чёрных"
 
 #11.3
 msgid "White player"
-msgstr ""
+msgstr "За белых"
 
 #11.4
 msgid "No overlap thinking time"
-msgstr ""
+msgstr "Не думать одновременно"
 
 #11.5
 msgid "Board size"
-msgstr ""
+msgstr "Размер доски"
 
 #11.6
 msgid "Komi"
-msgstr ""
+msgstr "Коми"
 
 #11.7
 msgid "Handicap stones"
-msgstr ""
+msgstr "Фора"
 
 #11.8
 msgid "SGF file name"
-msgstr ""
+msgstr "SGF-файл"
 
 #11.9
 msgid "Human player"
-msgstr ""
+msgstr "Человек"
 
 #11.10
 msgid "Please place %i handicap stones on the board."
-msgstr ""
+msgstr "Пожалуйста, разместите на доске камни форы в количестве %i."
 
 #11.11
 msgid "The game is now starting!"
-msgstr ""
+msgstr "Партия начинается!"
 
 
 ############## Live analysis
 #12.1
 msgid "Game"
-msgstr ""
+msgstr "Партия"
 
 #12.2
 msgid "Currently at move %i"
-msgstr ""
+msgstr "Текущий ход: %i"
 
 #12.3
 msgid "Pause"
-msgstr ""
+msgstr "Пауза"
 
 #12.4
 msgid "Analysis"
-msgstr ""
+msgstr "Анализ"
 
 #12.5
 msgid "Analysis by %s"
-msgstr ""
+msgstr "Анализ программы %s"
 
 #12.6
 msgid "Status:"
-msgstr ""
+msgstr "Статус:"
 
 #12.7
 msgid "Ready to start"
-msgstr ""
+msgstr "Готов к запуску"
 
 #12.8
 msgid "Resume"
-msgstr ""
+msgstr "Продолжить"
 
 #12.9
 msgid "Pass"
-msgstr ""
+msgstr "Пас"
 
 #12.10
 msgid "Waiting for next move"
-msgstr ""
+msgstr "Ожидание следующего хода"
 
 #12.11
 msgid "Pause the game"
-msgstr ""
+msgstr "Пауза в партии"
 
 #12.12
 msgid "Pass for this move"
-msgstr ""
+msgstr "Пас этим ходом"
 
 #12.13
 msgid "Undo to previous move"
-msgstr ""
+msgstr "Отменить последний ход"
 
 #12.14
 msgid "Live game"
-msgstr ""
+msgstr "Партия вживую"
 
 ############## GTP terminal
 #13.1
 msgid "Send GTP command"
-msgstr ""
+#translation missing:
+msgstr "Отправить GTP-команду"
 
 
 
 ############## Popups
 #14.1
 msgid "Choose a filename"
-msgstr ""
+msgstr "Выберите имя файла"
 
 #14.2
 msgid "Select a file"
-msgstr ""
+msgstr "Выберите файл"
 
 #14.3
 msgid "SGF file"
-msgstr ""
+msgstr "SGF-файл"
 
 #14.4
 msgid "Reviewed SGF file"
-msgstr ""
+msgstr "Разобранный SGF-файл"
+
 
 #14.5
 msgid "PNG image"
-msgstr ""
+msgstr "PNG-изображение"
 
 msgid "Error"
-msgstr ""
+msgstr "Ошибка"
 
 msgid "Information"
-msgstr ""
+msgstr "Информация"
 
 ############## error messages
 
 msgid "Could not open the RSGF file: "
-msgstr ""
+msgstr "Невозможно открыть RSGF-файл: "
 
 msgid "Could not save the RSGF file: "
-msgstr ""
+msgstr "Невозможно сохранить RSGF-файл: "
 
 msgid "Could not save the SGF file: "
-msgstr ""
+msgstr "Невозможно сохранить SGF-файл: "
 
 msgid "Could not open the SGF file: "
-msgstr ""
+msgstr "Невозможно открыть SGF-файл: "
 
 msgid "Error while initializing the GTP bot:"
-msgstr ""
+msgstr "Ошибка при инициализации GTP-программы:"
 
 msgid "Error while initializing the graphical interface:"
-msgstr ""
+msgstr "Ошибка при инициализации графического интерфейса:"
 
 msgid "Aborted"
-msgstr ""
+msgstr "Прекращено"
 
 msgid "Analysis aborted:"
-msgstr ""
+msgstr "Анализ прекращён"
 
 msgid "GnuGo thread failed:"
-msgstr ""
+msgstr "Ошибка потока GnuGo:"
 
 msgid "Could not run %s using the command from config.ini file:"
-#e.g. Could not run Leela using the command from config.ini file:
-msgstr ""
+msgstr "Невозможно запустить %s используя команду из файла config.ini:"
 
 msgid "%s did not reply as expected to the GTP name command:"
-#e.g. Leela did not replied as exepected to the GTP name command:
-msgstr ""
+msgstr "%s не отвечает ожидаемым образом на команду GTP \"name\""
 
 msgid "%s did not identify itself as expected:"
-#e.g. Leela did not identify itself as expected:
-msgstr ""
+msgstr "%s не идентифицирует себя ожидаемым образом:"
 
 msgid "%s did not reply as expected to the GTP version command:"
-#e.g. Leela did not replied as expected to the GTP version command:
-msgstr ""
+msgstr "%s не отвечает ожидаемым образом на команду GTP \"version\""
 
 msgid "Could not set the goboard size using GTP command. Check that %s is running in GTP mode."
-#e.g. Could not set the goboard size using the GTP command. Check that Leela is running in GTP mode.
-msgstr ""
+msgstr "Невозможно установить размер доски с помощью GTP-команды. Проверьте, что %s работает в режиме GTP."
 
 msgid "%s rejected this board size (%ix%i)"
-#e.g. Leela Zero rejected this board size (9x9)
-msgstr ""
+msgstr "%s не принимает этот размер доски (%ix%i)"
 
 msgid "Could not run the program:"
-msgstr ""
+msgstr "Невозможно запустить программу:"
 
 msgid "Leela Zero is currently running the OpenCL SGEMM tuner. It may take several minutes until Leela Zero is ready."
-msgstr ""
+msgstr "Leela Zero производит настройку OpenCL с помощью SGEMM. Это может занять несколько минут."
 
 msgid "Ray is currently running the OpenCL SGEMM tuner. It may take several minutes until Ray is ready."
-msgstr ""
+msgstr "Ray производит настройку OpenCL с помощью SGEMM. Это может занять несколько минут."
 
-### stray dogs (uncategorised yet)
-msgid "Single-panel"
-msgstr ""
+msgid "The config.ini file does not contain %s entry for %s !"
+msgstr "Файл config.ini не содержит значение %s для %s!"
 
-msgid "Dual-panel"
-msgstr ""
+msgid "The config.ini file %s entry for %s is empty!"
+msgstr "Значение %s в файле config.ini для %s пустое!"
 
-msgid "From existing game"
-msgstr ""
 
-msgid "Select a game record"
-msgstr ""
-
-msgid "Select starting position:"
-msgstr ""
-
-msgid "Move %i, for this position, the bot reads up to %d moves ahead."
-msgstr ""
-
-msgid "Delete profile"
-msgstr ""
-
-msgid "Modify profile"
-msgstr ""
-
-msgid "Move position out of range"
-msgstr ""
-
-msgid "Reading depth"
-msgstr ""
-
-msgid "Add profile"
-msgstr ""
-
-msgid "Could not read file"
-msgstr ""
-
-msgid "Incorrect move position"
-msgstr ""
-
-msgid "Profile"
-msgstr ""
-
-msgid "Move %i, for this position, the bot reads in average %.1f moves ahead."
-msgstr ""
-
-msgid "New game"
-msgstr ""
 
