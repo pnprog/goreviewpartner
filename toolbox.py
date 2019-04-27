@@ -1008,7 +1008,16 @@ class RunAnalysisBase(Toplevel):
 			self.stop_at_first_resign=False
 			log("Stop_At_First_Resign is OFF")
 
+		#when the game last move is not pass or resign
+		#then let's add a pass move and extand the analysis
+		#only if the analysis is part of the last move
+		if self.max_move in self.move_range:
+			last_move=go_to_move(self.move_zero,self.max_move)
 
+			if last_move.get_move()[1]:
+				self.move_range.append(max(self.move_range)+1)
+				self.g.extend_main_sequence()
+				self.max_move+=1
 
 		self.completed=False
 
@@ -1038,7 +1047,7 @@ class RunAnalysisBase(Toplevel):
 
 	def run_all_analysis(self):
 		self.current_move=1
-
+				
 		while self.current_move<=self.max_move:
 			answer=""
 			if self.current_move in self.move_range:
