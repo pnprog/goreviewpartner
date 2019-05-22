@@ -453,7 +453,7 @@ class LeelaSettings(BotProfiles):
 		
 	def change_selection(self):
 		try:
-			index=self.listbox.curselection()[0]
+			index=int(self.listbox.curselection()[0])
 			self.index=index
 		except:
 			log("No selection")

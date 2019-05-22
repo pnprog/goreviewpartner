@@ -2360,7 +2360,7 @@ class BotProfiles(Frame):
 
 	def change_selection(self):
 		try:
-			index=self.listbox.curselection()[0]
+			index=int(self.listbox.curselection()[0])
 			self.index=index
 			log("Profile",index,"selected")
 		except:
