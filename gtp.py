@@ -86,7 +86,9 @@ class gtp():
 		if answer[0]=="=":
 			self.komi_value=k
 			return True
-		else:return False	
+		else:
+			self.komi_value=0
+			return False
 
 	def place_black(self,move):
 		if move == "RESIGN":
