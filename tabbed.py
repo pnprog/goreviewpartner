@@ -29,18 +29,29 @@ class InteractiveGoban(Frame):
 	
 	def lock(self):	
 		self.undo_button.config(state='disabled')
-		self.menu.config(state='disabled')
-		self.play_button.config(state='disabled')
-		self.white_button.config(state='disabled')
-		self.black_button.config(state='disabled')
-		self.evaluation_button.config(state='disabled')
-		
-		if (not self.white_autoplay) or (not self.black_autoplay):
-			self.selfplay_button.config(state='disabled')
 
-		self.goban.bind("<Button-1>",self.do_nothing)
-		self.goban.bind("<Button-2>",self.do_nothing)
-		self.locked=True
+		try:
+			self.bots_menubutton.config(state='disabled')
+			self.actions_menubutton.menu.entryconfig(_('Play one move'), state="disabled")
+			self.actions_menubutton.menu.entryconfig(_('Play as white'), state="disabled")
+			self.actions_menubutton.menu.entryconfig(_('Play as black'), state="disabled")
+			self.actions_menubutton.menu.entryconfig(_('Let the bot take both sides and play against itself.'), state="disabled")
+			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state="disabled")
+			
+			if (not self.white_autoplay) or (not self.black_autoplay):
+				self.actions_menubutton.menu.entryconfig(_('Do nothing'), state="disabled")
+		except Exception, e:
+			log(">>>",e)
+			pass
+		
+		self.goban.bind("<Button-1>",self.ignore)
+		self.goban.bind("<Button-2>",self.ignore)
+		self.goban.bind("<Button-3>",self.ignore)
+		
+		#self.locked=True
+
+	def ignore(self, event=None):
+		log("ignoring this :)")
 
 	def do_nothing(self,event=None):
 		self.selected_action.set("do nothing")
@@ -48,15 +59,29 @@ class InteractiveGoban(Frame):
 
 	def unlock(self):
 		self.undo_button.config(state='normal')
-		self.menu.config(state='normal')
-		self.play_button.config(state='normal')
-		self.white_button.config(state='normal')
-		self.black_button.config(state='normal')
-		self.selfplay_button.config(state='normal')
-		self.evaluation_button.config(state='normal')
+
+		try:
+			self.bots_menubutton.config(state='normal')
+			self.actions_menubutton.menu.entryconfig(_('Play one move'), state='normal')
+			self.actions_menubutton.menu.entryconfig(_('Play as white'), state='normal')
+			self.actions_menubutton.menu.entryconfig(_('Play as black'), state='normal')
+			self.actions_menubutton.menu.entryconfig(_('Let the bot take both sides and play against itself.'), state='normal')
+			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state='normal')
+			
+			if (not self.white_autoplay) or (not self.black_autoplay):
+				self.actions_menubutton.menu.entryconfig(_('Do nothing'), state='normal')
+		except Exception, e:
+			log(">>>",e)
+			pass
+		
 		self.goban.bind("<Button-1>",self.click)
 		self.goban.bind("<Button-2>",self.undo)
-		self.locked=False
+		self.goban.bind("<Button-3>",self.shine)
+		
+		#self.locked=True
+		
+		
+
 		
 	def close(self):
 		log("closing tab")
@@ -120,7 +145,7 @@ class InteractiveGoban(Frame):
 				log("SELF PLAY")
 				self.display_queue.put(2)
 				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))
-				self.after(0,one_thread.start)
+				one_thread.start()
 				return
 			else:
 				log("End of SELF PLAY")
@@ -249,7 +274,8 @@ class InteractiveGoban(Frame):
 	def click_selfplay(self):
 		self.black_autoplay=True
 		self.white_autoplay=True
-		self.bots_menubutton.config(state="disabled")
+		#self.bots_menubutton.config(state="disabled")
+		self.lock()
 		threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 
 	def click_evaluation(self):
@@ -368,11 +394,15 @@ class InteractiveGoban(Frame):
 		
 		print self.current_bot
 		print [bot['gtp_name']+" - "+bot['profile'] for bot in self.available_gtp_bots]
+		
+		print self.actions_menubutton
+		print self.actions_menubutton.menu
 		if self.current_bot in [bot['gtp_name']+" - "+bot['profile'] for bot in self.available_gtp_bots]:
 			log("A GTP bot is selected")
 			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state="disabled")
 		else:
 			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state="normal")
+			pass
 	
 	def close_tab(self):
 		log("Not implemented")
@@ -383,7 +413,7 @@ class InteractiveGoban(Frame):
 		
 		dim=self.dim
 		move=self.move
-		self.locked=False
+		#self.locked=False
 		panel=Frame(popup)
 		undo_button=Button(panel, text=_('Undo'),command=self.undo)
 		undo_button.pack(side=LEFT,fill=Y)
@@ -403,17 +433,26 @@ class InteractiveGoban(Frame):
 			self.bots.append(one_bot)
 			self.menu_bots[one_bot.name+" - "+available_bot['profile']]=one_bot
 		
+		
+		mb1=Menubutton(panel, text=_("Select a bot")+" ▽", relief=RAISED)
+		mb1.menu = Menu(mb1,tearoff=0)
+		mb1["menu"]= mb1.menu
+		self.bots_menubutton=mb1
+		
+		mb2=Menubutton(panel, text=_("Action")+" ▽", relief=RAISED)
+		mb2.menu = Menu(mb2,tearoff=0)
+		mb2["menu"]= mb2.menu
+		self.actions_menubutton=mb2
+		
+		self.current_bot=_("No bot")
 		if len(self.menu_bots)>0:
 			
-			mb=Menubutton(panel, text=_("Select a bot")+" ▽", relief=RAISED)
-			mb.pack(side=LEFT,fill=Y)
-			mb.menu = Menu(mb,tearoff=0)
-			mb["menu"]= mb.menu
-			self.bots_menubutton=mb
 			
+			
+			mb1.pack(side=LEFT,fill=Y)
 			self.selected_bot=StringVar()
 			#self.selected_bot.set(self.menu_bots.keys()[0])
-			self.current_bot=_("No bot")
+			
 			
 			list_of_bots=self.menu_bots.keys()
 			list_of_bots.sort()
@@ -424,22 +463,21 @@ class InteractiveGoban(Frame):
 			list_of_bots.append(_("No bot"))
 			self.selected_bot.set(_("No bot"))
 			for bot in list_of_bots:
-				mb.menu.add_radiobutton(label=bot, value=bot, variable=self.selected_bot, command=self.change_bot)
+				mb1.menu.add_radiobutton(label=bot, value=bot, variable=self.selected_bot, command=self.change_bot)
 			
-			mb=Menubutton(panel, text=_("Action")+" ▽", relief=RAISED)
-			mb.pack(side=LEFT,fill=Y)
-			mb.menu = Menu(mb,tearoff=0)
-			mb["menu"]= mb.menu
-			self.actions_menubutton=mb
-			mb.config(state="disabled")
+			
+			
+			mb2.pack(side=LEFT,fill=Y)
+			mb2.config(state="disabled")
 			self.selected_action=StringVar()
 			self.selected_action.set("do nothing")
-			mb.menu.add_radiobutton(label=_('Do nothing'), value="do nothing", variable=self.selected_action, command=self.change_action)
-			mb.menu.add_radiobutton(label=_('Play one move'), value="play one move", variable=self.selected_action, command=self.change_action)
-			mb.menu.add_radiobutton(label=_('Play as white'), value="play as white", variable=self.selected_action, command=self.change_action)
-			mb.menu.add_radiobutton(label=_('Play as black'), value="play as black", variable=self.selected_action, command=self.change_action)
-			mb.menu.add_radiobutton(label=_('Let the bot take both sides and play against itself.'), value="self play", variable=self.selected_action, command=self.change_action)
-			mb.menu.add_radiobutton(label=_('Ask the bot for a quick evaluation'), value="quick evaluation", variable=self.selected_action, command=self.change_action)
+			mb2.menu.add_radiobutton(label=_('Do nothing'), value="do nothing", variable=self.selected_action, command=self.change_action)
+			mb2.menu.add_radiobutton(label=_('Play one move'), value="play one move", variable=self.selected_action, command=self.change_action)
+			mb2.menu.add_radiobutton(label=_('Play as white'), value="play as white", variable=self.selected_action, command=self.change_action)
+			mb2.menu.add_radiobutton(label=_('Play as black'), value="play as black", variable=self.selected_action, command=self.change_action)
+			mb2.menu.add_radiobutton(label=_('Let the bot take both sides and play against itself.'), value="self play", variable=self.selected_action, command=self.change_action)
+			mb2.menu.add_radiobutton(label=_('Ask the bot for a quick evaluation'), value="quick evaluation", variable=self.selected_action, command=self.change_action)
+		
 		
 		Label(panel, text=' ', height=2).pack(side=LEFT, fill=X, expand=1)
 		self.close_button=Button(panel, text='x', command=self.close_tab)
@@ -553,7 +591,9 @@ class InteractiveGoban(Frame):
 				show_info(msg,self)
 				self.goban.display(self.grid,self.markup)
 				self.wait_for_display()
-		except:
+		except Exception,e:
+			if str(e):
+				log(">>>>>",e)
 			self.parent.after(250,self.wait_for_display)
 	
 	

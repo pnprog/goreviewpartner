@@ -416,7 +416,7 @@ class LiveAnalysis(Toplevel):
 		self.opened_tabs.append(new_tab)
 		
 		pos=len(self.notebook.tabs())-1
-		self.notebook.insert(pos,new_tab, text=str(self.current_move))
+		self.notebook.insert(pos,new_tab, text="%6i"%self.current_move)
 		self.notebook.select(pos)
 
 		new_tab.close_button.config(command=lambda: self.close_tab(new_tab))
@@ -465,7 +465,7 @@ class LiveAnalysis(Toplevel):
 		buttons_with_status.append(goban)
 		
 		plus_tab=Frame(notebook)
-		notebook.add(plus_tab, text="+")
+		notebook.add(plus_tab, text="    +")
 		plus_tab.bind("<Visibility>",self.new_goban)
 
 		popup.grid_rowconfigure(1, weight=1)
