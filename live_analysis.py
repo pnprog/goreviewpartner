@@ -66,6 +66,7 @@ class LiveAnalysisLauncher(Toplevel):
 		row+=1
 
 		notebook=Notebook(self)
+		
 		self.notebook=notebook
 		notebook.grid(row=row,column=1,columnspan=2,sticky=W+E)
 		
@@ -382,27 +383,12 @@ class LiveAnalysis(Toplevel):
 		self.goban.parent=self
 		canvas2png(self.goban,filename)
 
-	def open_move(self):
-		from dual_view import OpenMove
-		log("Opening move",self.current_move)
-
-		new_popup=OpenMove(self.parent,self.current_move,self.dim,self.g)
-		new_popup.goban.mesh=self.goban.mesh
-		new_popup.goban.wood=self.goban.wood
-		new_popup.goban.black_stones=self.goban.black_stones_style
-		new_popup.goban.white_stones=self.goban.white_stones_style
-		
-		new_popup.goban.reset()
-		
-		self.parent.after(100,lambda :new_popup.goban.display(new_popup.grid,new_popup.markup))
-		
-		self.parent.add_popup(new_popup)
-	
 	def refocus(self,widget):
 		widget.focus()
 	
 	def new_goban(self,event=None):
 		new_tab=InteractiveGoban(self.notebook,self.current_move,self.dim,self.g)
+		self.notebook.parent=self
 		new_tab.status_bar=self.status_bar
 		new_tab.goban.space=self.goban.space
 		
@@ -418,7 +404,7 @@ class LiveAnalysis(Toplevel):
 		pos=len(self.notebook.tabs())-1
 		self.notebook.insert(pos,new_tab, text="%6i"%self.current_move)
 		self.notebook.select(pos)
-
+		new_tab.name=self.notebook.select()
 		new_tab.close_button.config(command=lambda: self.close_tab(new_tab))
 
 
@@ -453,7 +439,7 @@ class LiveAnalysis(Toplevel):
 		
 		live_tab=Frame(notebook)
 		live_tab.bind("<Visibility>",lambda event: self.refocus(live_tab))
-		
+				
 		toolbar=Frame(live_tab)
 		toolbar.pack(fill=X)
 		
@@ -465,7 +451,7 @@ class LiveAnalysis(Toplevel):
 		buttons_with_status.append(goban)
 		
 		plus_tab=Frame(notebook)
-		notebook.add(plus_tab, text="    +")
+		notebook.add(plus_tab, text="+")
 		plus_tab.bind("<Visibility>",self.new_goban)
 
 		popup.grid_rowconfigure(1, weight=1)
@@ -625,12 +611,13 @@ class LiveAnalysis(Toplevel):
 		self.goban.bind("<Configure>",self.redraw)
 		
 		popup.focus()
-		self.locked=False
+		#self.locked=False
 		
 		self.goban.bind("<Button-3>",self.shine)
 
 		#self.starting()
 		self.after(500, self.starting)
+
 
 	def starting(self):
 		if self.handicap>0:
@@ -748,7 +735,7 @@ class LiveAnalysis(Toplevel):
 		if msg==None:
 			self.parent.after(500,self.follow_analysis)
 		else:
-			self.parent.after(10,self.follow_analysis)
+			self.parent.after(100,self.follow_analysis)
 
 	def place_handicap(self,event,handicap):
 		dim=self.dim
@@ -1148,12 +1135,12 @@ class LiveAnalysis(Toplevel):
 		if number<self.current_move:
 			log("msg received by analyser is for previous move")
 			log("analyser needs to wait for a new message")
-			self.parent.after(1,self.analyser_to_play)
+			self.parent.after(100,self.analyser_to_play)
 		elif number>self.current_move:
 			log("msg received by analyser is for next move")
 			log("probably a canceled move")
 			log("analyser needs to wait for a new message")
-			self.parent.after(1,self.analyser_to_play)
+			self.parent.after(100,self.analyser_to_play)
 		elif number==self.current_move:
 			log("this is the message expected from analyser")
 			color=self.next_color
@@ -1262,8 +1249,7 @@ class LiveAnalysis(Toplevel):
 				self.goban.intersections[i][j].shine(100)
 
 	def click(self,event):
-		if self.locked:
-			return
+		
 		dim=self.dim
 		#add/remove black stone
 		#check pointer location
@@ -1629,7 +1615,7 @@ class LiveAnalysisFromExistingGame(LiveAnalysis):
 		self.goban.bind("<Configure>",self.redraw)
 		
 		popup.focus()
-		self.locked=False
+		#self.locked=False
 		
 		self.goban.bind("<Button-3>",self.shine)
 

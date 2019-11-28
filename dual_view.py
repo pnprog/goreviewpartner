@@ -1893,6 +1893,7 @@ class DualView(Toplevel):
 		pos=len(self.right_notebook.tabs())-1
 		self.right_notebook.insert(pos,new_tab, text="%6i"%self.current_move)
 		self.right_notebook.select(pos)
+		new_tab.name=self.right_notebook.select()
 		new_tab.close_button.config(command=lambda: self.close_right_tab(new_tab))
 
 	def close_right_tab(self, tab):
@@ -1919,6 +1920,7 @@ class DualView(Toplevel):
 		pos=len(self.left_notebook.tabs())-1
 		self.left_notebook.insert(pos,new_tab, text="%6i"%self.current_move)
 		self.left_notebook.select(pos)
+		new_tab.name=self.left_notebook.select()
 		new_tab.close_button.config(command=lambda: self.close_left_tab(new_tab))
 	
 	def close_left_tab(self, tab):

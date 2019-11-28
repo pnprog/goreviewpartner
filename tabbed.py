@@ -7,6 +7,9 @@ from toolbox import _
 from goban import *
 from copy import deepcopy as copy
 
+from time import sleep
+from Queue import Queue
+
 class InteractiveGoban(Frame):
 	def __init__(self,parent,move,dim,sgf,**kwargs):
 		Frame.__init__(self,parent,**kwargs)
@@ -22,14 +25,19 @@ class InteractiveGoban(Frame):
 		self.available_gtp_bots=[]
 		for bot in get_gtp_bots():
 			self.available_gtp_bots.append(bot)
+		self.name=None
 		self.initialize()
-	
-	def stone_sound(self):
-		self.after(0,play_stone_sound)
-	
-	def lock(self):	
-		self.undo_button.config(state='disabled')
 
+	def stone_sound(self):
+		self.after(100,play_stone_sound)
+	
+	def lock_threaded(self):
+		self.display_queue.put(3)
+		self.display_feedback_queue.get()
+	
+	def lock(self):
+		self.goban.display(self.grid,self.markup,True)
+		self.undo_button.config(state='disabled')
 		try:
 			self.bots_menubutton.config(state='disabled')
 			self.actions_menubutton.menu.entryconfig(_('Play one move'), state="disabled")
@@ -48,7 +56,7 @@ class InteractiveGoban(Frame):
 		self.goban.bind("<Button-2>",self.ignore)
 		self.goban.bind("<Button-3>",self.ignore)
 		
-		#self.locked=True
+
 
 	def ignore(self, event=None):
 		log("ignoring this :)")
@@ -57,9 +65,14 @@ class InteractiveGoban(Frame):
 		self.selected_action.set("do nothing")
 		self.change_action()
 
+	def unlock_threaded(self):
+		self.display_queue.put(1)
+		self.display_feedback_queue.get()
+		
 	def unlock(self):
+		self.goban.display(self.grid,self.markup)
+		
 		self.undo_button.config(state='normal')
-
 		try:
 			self.bots_menubutton.config(state='normal')
 			self.actions_menubutton.menu.entryconfig(_('Play one move'), state='normal')
@@ -78,7 +91,6 @@ class InteractiveGoban(Frame):
 		self.goban.bind("<Button-2>",self.undo)
 		self.goban.bind("<Button-3>",self.shine)
 		
-		#self.locked=True
 		
 		
 
@@ -87,10 +99,7 @@ class InteractiveGoban(Frame):
 		log("closing tab")
 		if self.current_bot!=_("No bot"):
 			self.menu_bots[self.current_bot].close()
-		try:
-			self.display_queue.put(0, False)
-		except:
-			pass
+		self.end_display_update()
 		self.destroy()
 		log("done")
 	
@@ -112,52 +121,48 @@ class InteractiveGoban(Frame):
 		
 
 	def click_button(self,bot):
+		#this is performed into separated thread
+		#interface should be locked before this thread starts
 		dim=self.dim
-		self.display_queue.put(3)
-		self.display_queue.put(2)
 		color=self.next_color
 		move=bot.click(color)
-		
 		if move not in ["PASS","RESIGN"]:
 			i,j=gtp2ij(move)
 
 			self.history.append([copy(self.grid),copy(self.markup),(move,color)])
 			
 			place(self.grid,i,j,color)
-			self.display_queue.put((i,j))
-			
+			self.shine_threaded((i,j)) #having the stone at i,j shine
 			self.grid[i][j]=color
 			self.markup=[["" for r in range(dim)] for c in range(dim)]
 			self.markup[i][j]=0
 			self.next_color=3-color
 		else:
+			#bot plays pass or resign
 			bot.undo()
 			if color==1:
-				self.display_queue.put(bot.name+" ("+_("Black")+"): "+move)
+				msg=bot.name+" ("+_("Black")+"): "+move
 			else:
-				self.display_queue.put(bot.name+" ("+_("White")+"): "+move)
-			
-			self.do_nothing()
+				msg=bot.name+" ("+_("White")+"): "+move
+			self.show_info_threaded(msg) #display popup and release interface
 			return
 		
 		if self.white_autoplay and self.black_autoplay:
 			if move not in ["PASS","RESIGN"]:
 				log("SELF PLAY")
-				self.display_queue.put(2)
+				self.display_goban_threaded() #refresh the display of goban
 				one_thread=threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],))
 				one_thread.start()
-				return
+				
 			else:
 				log("End of SELF PLAY")
-				self.display_queue.put(4)
-				self.display_queue.put(1)
-				self.do_nothing()
-
-				return
+				self.unlock_threaded() #need to inlock interface in case self play is ended manually
 		else:
-			self.display_queue.put(4)
-			self.display_queue.put(1)
-			return
+			self.unlock_threaded() #unfreeze goban and unlock interface
+	
+	def shine_threaded(self,ij):
+		self.display_queue.put(ij)
+		self.display_feedback_queue.get()
 		
 	def shine(self,event):
 		dim=self.dim
@@ -172,6 +177,7 @@ class InteractiveGoban(Frame):
 				self.goban.intersections[i][j].shine(100)
 		
 	def click(self,event):
+
 		dim=self.dim
 		#add/remove black stone
 		#check pointer location
@@ -209,11 +215,13 @@ class InteractiveGoban(Frame):
 				if color==1:
 					if self.white_autoplay:
 						log("WHITE AUTOPLAY")
+						self.lock()
 						threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 						#self.click_button(self.menu_bots[self.selected_bot.get()])
 				else:
 					if self.black_autoplay:
 						log("BLACK AUTOPLAY")
+						self.lock()
 						threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 						#self.click_button(self.menu_bots[self.selected_bot.get()])
 
@@ -232,16 +240,11 @@ class InteractiveGoban(Frame):
 		
 	def click_play_one_move(self):
 		log("Asking",self.selected_bot.get(),"to play one move")
-		#self.white_button.config(relief=RAISED)
-		#self.black_button.config(relief=RAISED)
-		#self.selfplay_button.config(relief=RAISED)
-		
 		self.black_autoplay=False
 		self.white_autoplay=False
-		
+		self.selected_action.set("do nothing")
+		self.lock()
 		threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
-		#self.click_button(self.menu_bots[self.selected_bot.get()])
-
 
 	def click_white_answer(self):
 		
@@ -274,25 +277,23 @@ class InteractiveGoban(Frame):
 	def click_selfplay(self):
 		self.black_autoplay=True
 		self.white_autoplay=True
-		#self.bots_menubutton.config(state="disabled")
 		self.lock()
 		threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 
 	def click_evaluation(self):
 		log("Asking",self.selected_bot.get(),"for quick estimation")
-		self.display_queue.put(3)
-		self.display_queue.put(2)
+		self.black_autoplay=False
+		self.white_autoplay=False
+		self.lock()
 		threading.Thread(target=self.evaluation,args=(self.menu_bots[self.selected_bot.get()],)).start()
 		
 	
 	def evaluation(self,bot):
+		#this is ran as separated thread
 		color=self.next_color
 		result=bot.quick_evaluation(color)
-		self.display_queue.put(4)
-		if color==1:
-			self.display_queue.put(result)
-		else:
-			self.display_queue.put(result)
+		self.show_info_threaded(result) #this will unlock the interface as well
+
 	
 	def change_action(self):
 		action=self.selected_action.get()
@@ -306,25 +307,23 @@ class InteractiveGoban(Frame):
 				self.undo_button.config(state='normal')
 		elif action=="quick evaluation":
 			self.click_evaluation()
-			self.selected_action.set("do nothing")
-			self.black_autoplay=False
-			self.white_autoplay=False
 		elif action=="play one move":
 			self.click_play_one_move()
-			self.selected_action.set("do nothing")
-			self.black_autoplay=False
-			self.white_autoplay=False
 		elif action=="self play":
 			self.click_selfplay()
 		elif action=="play as white":
 			color=self.next_color
 			self.white_autoplay=True
+			self.black_autoplay=False
 			if color==2: #it's white to play
+				self.lock()
 				threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 		elif action=="play as black":
 			color=self.next_color
 			self.black_autoplay=True
+			self.white_autoplay=False
 			if color==1: #it's black to play
+				self.lock()
 				threading.Thread(target=self.click_button,args=(self.menu_bots[self.selected_bot.get()],)).start()
 	
 	def remove_bot(self,bot):
@@ -392,11 +391,6 @@ class InteractiveGoban(Frame):
 		self.current_bot=self.selected_bot.get()
 		self.actions_menubutton.config(state="normal")
 		
-		print self.current_bot
-		print [bot['gtp_name']+" - "+bot['profile'] for bot in self.available_gtp_bots]
-		
-		print self.actions_menubutton
-		print self.actions_menubutton.menu
 		if self.current_bot in [bot['gtp_name']+" - "+bot['profile'] for bot in self.available_gtp_bots]:
 			log("A GTP bot is selected")
 			self.actions_menubutton.menu.entryconfig(_('Ask the bot for a quick evaluation'), state="disabled")
@@ -413,7 +407,6 @@ class InteractiveGoban(Frame):
 		
 		dim=self.dim
 		move=self.move
-		#self.locked=False
 		panel=Frame(popup)
 		undo_button=Button(panel, text=_('Undo'),command=self.undo)
 		undo_button.pack(side=LEFT,fill=Y)
@@ -559,44 +552,66 @@ class InteractiveGoban(Frame):
 		self.goban.bind("<Configure>",self.redraw)
 		popup.focus()
 		
-		self.display_queue=Queue.Queue(2)
+		self.display_queue=Queue(1)
+		self.display_feedback_queue=Queue(1)
+		
 		self.parent.after(100,self.wait_for_display)
 	
+	def show_info_threaded(self,msg):
+		self.display_queue.put(msg) #display msg in popup and unlock the interface
+		self.display_feedback_queue.get()
+		
+	def end_display_update(self):
+		try:
+			self.display_queue.put(0, False)
+		except:
+			pass
+	
+	def display_goban_threaded(self):
+		self.display_queue.put(2)
+		self.display_feedback_queue.get()
+		
 	def wait_for_display(self):
 		try:
 			msg=self.display_queue.get(False)
+			delay=100
 			if msg==0:
-				pass
+				return
 			elif msg==1:
-				self.goban.display(self.grid,self.markup)
-				self.parent.after(100,self.wait_for_display)
-			elif msg==2:
-				self.goban.display(self.grid,self.markup,True)
-				self.parent.after(100,self.wait_for_display)
-			elif msg==3:
-				self.lock()
-				self.wait_for_display()
-			elif msg==4:
+				#unfreeze goban and unlock interface
 				self.unlock()
-				self.wait_for_display()
+				self.display_feedback_queue.put(0)
+			elif msg==2:
+				#display freezed goban
+				self.goban.display(self.grid,self.markup,True)
+				self.display_feedback_queue.put(0)
+			elif msg==3:
+				#freeze goban and lock interface
+				self.lock()
+				self.display_feedback_queue.put(0)
 			elif type(msg)==type((1,1)):
 				i,j=msg
-				if self.grid[i][j]==1:
-					self.goban.black_stones[i][j].shine()
-				else:
-					self.goban.white_stones[i][j].shine()
-				self.stone_sound()
-				self.wait_for_display()
+				if self.parent.select()==self.name: #shining only for the active tab
+					if self.grid[i][j]==1:
+						self.goban.black_stones[i][j].shine()
+					else:
+						self.goban.white_stones[i][j].shine()
+					self.stone_sound()
+				self.display_feedback_queue.put(0)
 			else:
+				self.do_nothing()
+				self.unlock()
+				self.display_feedback_queue.put(0)
 				show_info(msg,self)
-				self.goban.display(self.grid,self.markup)
-				self.wait_for_display()
+				self.parent.after(delay,self.wait_for_display)
+				return
+
 		except Exception,e:
 			if str(e):
 				log(">>>>>",e)
-			self.parent.after(250,self.wait_for_display)
-	
-	
+			delay=250
+		
+		self.parent.after(delay,self.wait_for_display)
 	def redraw(self, event, redrawing=None):
 		
 		if not redrawing:
